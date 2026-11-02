@@ -66,6 +66,10 @@ Three screens, map-first:
 3. **Narration screen**: plain-language (EN + Filipino) explanation of *why* a
    municipality is heating - drivers ranked, with the mitigation list.
 
+Every variable in the selector carries a plain-language definition (what it measures,
+units, why it signals change) - pitched at high-school/college users and the
+scientifically-curious public.
+
 **PWA behavior:** installable; offline shows the last-viewed map tiles + series +
 task progress. UI English; LLM narration English + Filipino.
 
@@ -132,6 +136,9 @@ the question this project answers.
    Danger 42-51 C / Extreme Danger >= 52 C *(verified against PAGASA/DOST notices)*.
 5. **Validation:** hold out one station + last 3 years; report bias and RMSE.
 6. **Uncertainty:** report Landsat ST_QA band-derived uncertainty per municipality.
+7. **Non-significant trends are still reported:** every municipality gets its slope +
+   p-value; significance is a flag, not a filter - per the challenge, a finding is
+   interesting even when it does not reach the level of significance.
 
 ### 6d. LLM role (CORE, with fallback)
 
@@ -145,17 +152,17 @@ client.
 
 ## 7. Objective mapping (Relevance)
 
-Official objective *(verify verbatim against the live page - captured from the
-published challenge summary; page is JS-rendered)*:
+Official objective *(captured 2026-11-02 from the published challenge statement;
+re-confirm against the live page at h0 - page is JS-rendered)*:
 
-> *"Your challenge is to create a tool that can select variables measured by NASA
-> missions or produced by NASA models, visualize how they change over time, and
-> determine what is changing, where it is changing, how much it is changing, and if
-> these changes are what scientists call 'significant.'"*
+> *"Your challenge is to create a tool that can select variables measured by Earth
+> science missions or produced by Earth science models, visualize how they change over
+> time, and determine what is changing, where it is changing, how much it is changing,
+> and if these changes are what scientists call 'significant.'"*
 
 | Objective clause | Our answer | Evidence |
 |---|---|---|
-| "select variables measured by NASA missions or produced by NASA models" | Variable selector across 5-8 NASA variables (LST, HI, tree cover, land cover, exposure; +fire/ESI/precip) | 6a selector |
+| "select variables measured by Earth science missions or produced by Earth science models" | Variable selector across 5-8 NASA variables (LST, HI, tree cover, land cover, exposure; +fire/ESI/precip) - mission products (Landsat, MODIS) + model products (POWER, MERRA-2-derived) | 6a selector |
 | "visualize how they change over time" | Time scrubber + per-municipality time series | 4, screen 1 |
 | "what is changing, where it is changing, how much it is changing" | Per-municipality trend table: what (variable), where (Region V map), how much (Theil-Sen slope) | 6c-2 |
 | "if these changes are what scientists call 'significant'" | Mann-Kendall p-value flag per municipality, alpha = 0.05, on ~45-year series | 6c-2 |
@@ -172,7 +179,9 @@ LST (Landsat C2 L2) / tree cover (MOD44B) / land cover (MCD12Q1) / population ex
 (SEDAC) / 45-yr POWER trend + Mann-Kendall significance / RF driver ranking
 (association) / build-time LLM narration (EN + Filipino) / map-first 3-screen PWA /
 offline last-view + progress / Supabase accounts + leaderboard / ranked mitigation
-list / validated hold-out / "Try this: Legazpi 2015 -> 2025" seed / static host.
+list / validated hold-out / variable glossary (EN) / 2 seeded demo examples ("Try
+this": one warming municipality, one opposite/flat trend - demonstrates the
+challenge's same-process-opposite-direction quote) / static host.
 
 **STRETCH** (viable, costed; each has a lock hour in Sect. 13): Bicolano narration /
 canopy mitigation simulator (dCanopy -> dHeat-risk, held-out R2) / FIRMS fire layer /
@@ -266,7 +275,7 @@ Judges assign categories; we shape the throughline, not the claim.
 | Boundaries source | TENTATIVE | PSA/PSGC (official) -> fallback geoBoundaries/OSM | h6 |
 | Award throughline | TENTATIVE | Local Impact + Best Use of Science | h30 |
 | Event name + close time | **OPEN** | - | h0 |
-| Challenge statement verbatim | **OPEN** | Re-fetch live page (JS-rendered at planning time) | h0 |
+| Challenge statement verbatim | **CAPTURED** | Full text captured 2026-11-02; re-fetch live page at h0 to confirm | h0 |
 | POWER daily start year | **OPEN** | Verify (assumed 1981) | h6 |
 | Region V PAGASA station list | **OPEN** | Which stations, access route | h6 |
 | Exact Region V LGU count | **OPEN** | Count from official source - never estimate | h6 |

@@ -7,9 +7,10 @@
 > presented as a feature. Writing an ambitious concept doc is free; submitting a claim
 > we did not build is a Validity failure.
 >
-> **Compliance note:** This document is a planning artifact (team roles, direction,
-> study). Per the no-early-work rule, no project code, assets, or models are built
-> before the local event opens on **Nov 14, 2026 (local time)**.
+> **Compliance note:** This repository hosts the **working prototype** (near-final-
+> product target); code work is expected here. The former no-code-before-Nov-14 rule
+> was rescinded by the lead on **2026-11-02** (see Sect. 13 decision log). The
+> challenge-weekend cut lines h30 / h42 / h44 (Sect. 11) remain the hard constraints.
 
 ---
 
@@ -204,7 +205,7 @@ carbon-footprint actions / global megacity comparison / more variables than Sect
 - [ ] Every link resolves in a logged-out private window - test at hour 44
 - [ ] No minor's name, voice or likeness in video or materials
 - [ ] Third-party assets attributed and licensed - PAGASA, PSA/PSGC boundaries, fonts/icons, FIRMS attribution notice
-- [ ] No work begun before the hackathon opened - **pre-event commits (Oct 26) are empty scaffolding only; zero code before Nov 14 local**
+- [ ] Repo hosts the working prototype - challenge-weekend cut lines **h30 / h42 / h44 are the hard constraints**
 
 **Privacy guard:** accounts store saved history; the leaderboard displays a
 user-chosen **handle, never a real name**; no personal data appears in screenshots
@@ -274,6 +275,7 @@ Judges assign categories; we shape the throughline, not the claim.
 | Validation | TENTATIVE | Hold-out station + last 3 yrs; CV = STRETCH | h30 |
 | Boundaries source | TENTATIVE | PSA/PSGC (official) -> fallback geoBoundaries/OSM | h6 |
 | Award throughline | TENTATIVE | Local Impact + Best Use of Science | h30 |
+| Pre-event work rule | **CHANGED 2026-11-02** | No-code-before-Nov-14 rescinded - repo is the working prototype (lead decision) | h0 |
 | Event name + close time | **OPEN** | - | h0 |
 | Challenge statement verbatim | **CAPTURED** | Full text captured 2026-11-02; re-fetch live page at h0 to confirm | h0 |
 | POWER daily start year | **OPEN** | Verify (assumed 1981) | h6 |
@@ -282,5 +284,6 @@ Judges assign categories; we shape the throughline, not the claim.
 
 ---
 
-*Created 2026-10-27 as a pre-event planning document. Per the no-early-work rule:
-no code, assets, or model output before Nov 14 00:00 local event time.*
+*Created 2026-10-27 as a pre-event planning document. Updated 2026-11-02: this
+repository is the home of the working prototype - the no-code-before-Nov-14 rule
+was rescinded by the lead (see Sect. 13 decision log).*

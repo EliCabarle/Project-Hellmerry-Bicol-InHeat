@@ -1,0 +1,1892 @@
+{
+  "generated_at": "2026-11-03T04:48:02+00:00",
+  "meta": {
+    "project": "Bicol In-Heat",
+    "challenge": "Be An Earth System Trend Detective!",
+    "variable": "annual mean daily peak heat index (Rothfusz, POWER T2M_MAX + RH derived from T2MDEW)",
+    "units": "degrees Celsius",
+    "method": "Theil-Sen slope + Mann-Kendall original_test",
+    "alpha": 0.05,
+    "danger_threshold_c": 42.0,
+    "period": {
+      "start": "1981-01-01",
+      "end": "2025-12-31"
+    },
+    "sources": [
+      {
+        "name": "NASA POWER",
+        "parameters": [
+          "T2M_MAX",
+          "T2MDEW"
+        ],
+        "url": "https://power.larc.nasa.gov/",
+        "note": "Daily means, 0.5 degree grid. Heat index is derived (Rothfusz on T2M_MAX + dew-point-derived RH), not a POWER product."
+      }
+    ],
+    "narration": {
+      "generator": "template",
+      "note": "Numbers come from the trend output; text does not compute or invent values.",
+      "languages": [
+        "en",
+        "fil"
+      ]
+    },
+    "disclaimer": "Municipality is the smallest unit: POWER's ~55 km grid cannot resolve barangays. Drivers are associations, not causation."
+  },
+  "municipalities": [
+    {
+      "id": "daet",
+      "name": "Daet",
+      "province": "Camarines Norte",
+      "lat": 14.1128,
+      "lon": 122.9553,
+      "trend": {
+        "slope_c_per_year": 0.042987,
+        "slope_ci95": [
+          0.028975,
+          0.055583
+        ],
+        "p_value": 1.4163952271051272e-06,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 34.243,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 1,
+      "peak_danger_days": {
+        "year": 2024,
+        "days": 1
+      },
+      "narration": {
+        "en": "Daet is getting hotter by about 0.043 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.2 °C, inside PAGASA's Extreme Caution band. Historically, Daet has experienced 1 day above the 42 °C Danger threshold in 2024.",
+        "fil": "Ang Daet ay umiinit nang humigit-kumulang 0.043 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.2 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Sa kasaysayan, ang Daet ay nakaranas ng 1 araw na lumampas sa 42 °C na antas ng Panganib, at 1 sa mga ito ay nangyari noong 2024."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 32.782,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 32.451,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 33.453,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 32.58,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 32.285,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 32.007,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 33.246,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 33.547,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 31.947,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 32.724,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 32.518,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 32.649,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 32.431,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 32.416,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 32.413,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 32.333,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 32.424,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 34.33,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 32.338,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 32.793,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 33.074,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 32.903,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 32.743,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 32.432,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 32.941,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 33.205,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 33.293,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 32.455,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 32.636,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 33.622,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 32.379,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 33.297,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 33.489,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 33.24,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 33.649,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 34.314,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 33.703,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 33.47,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 34.218,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 34.178,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 33.804,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 33.881,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 34.584,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 35.233,
+          "danger_days": 1,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 34.243,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    },
+    {
+      "id": "legazpi",
+      "name": "Legazpi",
+      "province": "Albay",
+      "lat": 13.1391,
+      "lon": 123.7438,
+      "trend": {
+        "slope_c_per_year": 0.034881,
+        "slope_ci95": [
+          0.021,
+          0.047802
+        ],
+        "p_value": 7.437453097192126e-05,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 34.491,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 9,
+      "peak_danger_days": {
+        "year": 2024,
+        "days": 4
+      },
+      "narration": {
+        "en": "Legazpi is getting hotter by about 0.035 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.5 °C, inside PAGASA's Extreme Caution band. Historically, Legazpi has experienced 9 days above the 42 °C Danger threshold, 4 of them in 2024.",
+        "fil": "Ang Legazpi ay umiinit nang humigit-kumulang 0.035 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.5 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Sa kasaysayan, ang Legazpi ay nakaranas ng 9 araw na lumampas sa 42 °C na antas ng Panganib, at 4 sa mga ito ay nangyari noong 2024."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 33.275,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 33.13,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 34.579,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 33.381,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 33.213,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 32.905,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 34.07,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 34.064,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 32.523,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 33.223,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 32.927,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 33.072,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 33.154,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 32.942,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 33.101,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 32.859,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 32.983,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 34.829,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 32.849,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 33.243,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 33.315,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 33.433,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 33.447,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 33.29,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 33.665,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 33.335,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 33.747,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 32.747,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 33.091,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 34.376,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 32.737,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 33.563,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 33.909,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 33.61,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 34.425,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 34.772,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 34.182,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 33.987,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 34.401,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 34.795,
+          "danger_days": 1,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 34.153,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 34.179,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 35.141,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 35.728,
+          "danger_days": 4,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 34.491,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    },
+    {
+      "id": "masbate",
+      "name": "Masbate",
+      "province": "Masbate",
+      "lat": 12.3687,
+      "lon": 123.6245,
+      "trend": {
+        "slope_c_per_year": 0.042133,
+        "slope_ci95": [
+          0.028922,
+          0.05238
+        ],
+        "p_value": 3.118297595694486e-07,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 34.901,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 0,
+      "peak_danger_days": {
+        "year": null,
+        "days": 0
+      },
+      "narration": {
+        "en": "Masbate is getting hotter by about 0.042 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.9 °C, inside PAGASA's Extreme Caution band. Masbate has never exceeded the 42 °C Danger threshold.",
+        "fil": "Ang Masbate ay umiinit nang humigit-kumulang 0.042 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.9 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Hindi pa kailanman lumampas ang Masbate sa 42 °C na antas ng Panganib."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 33.528,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 32.909,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 34.135,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 33.111,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 33.098,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 32.864,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 34.012,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 34.194,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 32.831,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 33.258,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 33.066,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 33.208,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 33.218,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 33.103,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 33.434,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 33.163,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 33.068,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 35.086,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 33.278,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 33.643,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 33.653,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 33.471,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 33.397,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 33.38,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 33.712,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 33.571,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 33.958,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 33.109,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 33.387,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 34.464,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 33.017,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 33.854,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 34.085,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 33.598,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 34.319,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 34.851,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 34.42,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 34.383,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 34.485,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 35.01,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 34.565,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 34.607,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 35.31,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 35.945,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 34.901,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    },
+    {
+      "id": "naga",
+      "name": "Naga",
+      "province": "Camarines Sur",
+      "lat": 13.6218,
+      "lon": 123.1948,
+      "trend": {
+        "slope_c_per_year": 0.031297,
+        "slope_ci95": [
+          0.018991,
+          0.045382
+        ],
+        "p_value": 9.495054962727068e-05,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 34.915,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 10,
+      "peak_danger_days": {
+        "year": 2024,
+        "days": 9
+      },
+      "narration": {
+        "en": "Naga is getting hotter by about 0.031 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.9 °C, inside PAGASA's Extreme Caution band. Historically, Naga has experienced 10 days above the 42 °C Danger threshold, 9 of them in 2024.",
+        "fil": "Ang Naga ay umiinit nang humigit-kumulang 0.031 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.9 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Sa kasaysayan, ang Naga ay nakaranas ng 10 araw na lumampas sa 42 °C na antas ng Panganib, at 9 sa mga ito ay nangyari noong 2024."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 33.62,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 33.558,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 34.907,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 33.642,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 33.425,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 33.031,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 34.498,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 34.417,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 32.762,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 33.729,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 33.572,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 33.601,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 33.578,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 33.309,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 33.626,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 33.176,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 33.467,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 35.243,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 33.042,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 33.544,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 33.638,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 33.867,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 33.825,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 33.643,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 34.076,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 33.936,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 34.046,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 32.967,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 33.21,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 34.59,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 32.972,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 33.834,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 34.224,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 34.033,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 34.638,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 35.055,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 34.473,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 34.226,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 34.861,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 34.984,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 34.41,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 34.46,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 35.291,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 36.068,
+          "danger_days": 9,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 34.915,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    },
+    {
+      "id": "sorsogon",
+      "name": "Sorsogon",
+      "province": "Sorsogon",
+      "lat": 12.9739,
+      "lon": 124.0076,
+      "trend": {
+        "slope_c_per_year": 0.034881,
+        "slope_ci95": [
+          0.021,
+          0.047802
+        ],
+        "p_value": 7.437453097192126e-05,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 34.491,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 9,
+      "peak_danger_days": {
+        "year": 2024,
+        "days": 4
+      },
+      "narration": {
+        "en": "Sorsogon is getting hotter by about 0.035 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.5 °C, inside PAGASA's Extreme Caution band. Historically, Sorsogon has experienced 9 days above the 42 °C Danger threshold, 4 of them in 2024.",
+        "fil": "Ang Sorsogon ay umiinit nang humigit-kumulang 0.035 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.5 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Sa kasaysayan, ang Sorsogon ay nakaranas ng 9 araw na lumampas sa 42 °C na antas ng Panganib, at 4 sa mga ito ay nangyari noong 2024."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 33.275,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 33.13,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 34.579,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 33.381,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 33.213,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 32.905,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 34.07,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 34.064,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 32.523,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 33.223,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 32.927,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 33.072,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 33.154,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 32.942,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 33.101,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 32.859,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 32.983,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 34.829,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 32.849,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 33.243,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 33.315,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 33.433,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 33.447,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 33.29,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 33.665,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 33.335,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 33.747,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 32.747,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 33.091,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 34.376,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 32.737,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 33.563,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 33.909,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 33.61,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 34.425,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 34.772,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 34.182,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 33.987,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 34.401,
+          "danger_days": 1,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 34.795,
+          "danger_days": 1,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 34.153,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 34.179,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 35.141,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 35.728,
+          "danger_days": 4,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 34.491,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    },
+    {
+      "id": "virac",
+      "name": "Virac",
+      "province": "Catanduanes",
+      "lat": 13.5796,
+      "lon": 124.2302,
+      "trend": {
+        "slope_c_per_year": 0.05598,
+        "slope_ci95": [
+          0.044665,
+          0.064127
+        ],
+        "p_value": 4.5949688498581054e-11,
+        "is_significant": true,
+        "alpha": 0.05,
+        "direction": "increasing"
+      },
+      "sample": {
+        "n_years": 45,
+        "n_days": 16436
+      },
+      "latest": {
+        "year": 2025,
+        "mean_heat_index_c": 33.533,
+        "danger_band": "Extreme Caution",
+        "danger_days": 0
+      },
+      "total_danger_days_45y": 0,
+      "peak_danger_days": {
+        "year": null,
+        "days": 0
+      },
+      "narration": {
+        "en": "Virac is getting hotter by about 0.056 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 33.5 °C, inside PAGASA's Extreme Caution band. Virac has never exceeded the 42 °C Danger threshold.",
+        "fil": "Ang Virac ay umiinit nang humigit-kumulang 0.056 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 33.5 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Hindi pa kailanman lumampas ang Virac sa 42 °C na antas ng Panganib."
+      },
+      "series": [
+        {
+          "year": 1981,
+          "mean_heat_index_c": 31.812,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1982,
+          "mean_heat_index_c": 31.267,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1983,
+          "mean_heat_index_c": 31.799,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1984,
+          "mean_heat_index_c": 31.067,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1985,
+          "mean_heat_index_c": 31.038,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1986,
+          "mean_heat_index_c": 31.012,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1987,
+          "mean_heat_index_c": 31.906,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1988,
+          "mean_heat_index_c": 32.313,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1989,
+          "mean_heat_index_c": 31.188,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1990,
+          "mean_heat_index_c": 31.434,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1991,
+          "mean_heat_index_c": 31.393,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1992,
+          "mean_heat_index_c": 31.157,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1993,
+          "mean_heat_index_c": 31.232,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1994,
+          "mean_heat_index_c": 31.369,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1995,
+          "mean_heat_index_c": 31.296,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1996,
+          "mean_heat_index_c": 31.437,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 1997,
+          "mean_heat_index_c": 31.183,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1998,
+          "mean_heat_index_c": 32.757,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 1999,
+          "mean_heat_index_c": 31.593,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2000,
+          "mean_heat_index_c": 32.003,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2001,
+          "mean_heat_index_c": 32.343,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2002,
+          "mean_heat_index_c": 32.022,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2003,
+          "mean_heat_index_c": 31.723,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2004,
+          "mean_heat_index_c": 31.596,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2005,
+          "mean_heat_index_c": 32.034,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2006,
+          "mean_heat_index_c": 32.253,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2007,
+          "mean_heat_index_c": 32.389,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2008,
+          "mean_heat_index_c": 31.78,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2009,
+          "mean_heat_index_c": 32.095,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2010,
+          "mean_heat_index_c": 32.647,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2011,
+          "mean_heat_index_c": 31.888,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2012,
+          "mean_heat_index_c": 32.616,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2013,
+          "mean_heat_index_c": 32.519,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2014,
+          "mean_heat_index_c": 32.353,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2015,
+          "mean_heat_index_c": 32.619,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2016,
+          "mean_heat_index_c": 33.262,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2017,
+          "mean_heat_index_c": 32.882,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2018,
+          "mean_heat_index_c": 32.982,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2019,
+          "mean_heat_index_c": 32.967,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2020,
+          "mean_heat_index_c": 33.189,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2021,
+          "mean_heat_index_c": 33.242,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2022,
+          "mean_heat_index_c": 33.048,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2023,
+          "mean_heat_index_c": 33.971,
+          "danger_days": 0,
+          "n_days": 365
+        },
+        {
+          "year": 2024,
+          "mean_heat_index_c": 34.274,
+          "danger_days": 0,
+          "n_days": 366
+        },
+        {
+          "year": 2025,
+          "mean_heat_index_c": 33.533,
+          "danger_days": 0,
+          "n_days": 365
+        }
+      ]
+    }
+  ]
+}

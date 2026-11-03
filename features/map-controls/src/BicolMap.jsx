@@ -3,6 +3,7 @@ import L from 'leaflet'
 import { MapContainer, GeoJSON, Tooltip, useMap } from 'react-leaflet'
 import raw from './data/ph-regions.geojson?raw'
 import { loadRegions, findBicol, getRegionStyle } from './gis/engine.js'
+import MapControlsOverlay from './components/MapControlsOverlay.jsx'
 
 const geojson = JSON.parse(raw)
 
@@ -18,7 +19,14 @@ function FitBicol() {
   return null
 }
 
-export default function BicolMap() {
+export default function BicolMap({
+  timestamps = [],
+  timelineStore: store,
+  layerRegistry = null,
+  onLayerChange,
+  onTimeChange,
+  zoomLimits = { min: 2, max: 18 },
+}) {
   const regions = loadRegions(geojson)
   return (
     <MapContainer
@@ -41,6 +49,14 @@ export default function BicolMap() {
         </span>{' '}
         Bicol (Region V) — the rest of the Philippines shaded dark
       </div>
+      <MapControlsOverlay
+        timestamps={timestamps}
+        store={store}
+        layerRegistry={layerRegistry}
+        onLayerChange={onLayerChange}
+        onTimeChange={onTimeChange}
+        zoomLimits={zoomLimits}
+      />
     </MapContainer>
   )
 }

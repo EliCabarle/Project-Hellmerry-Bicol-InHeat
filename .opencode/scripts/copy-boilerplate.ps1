@@ -8,26 +8,20 @@
     from two levels above this script (the boilerplate source project) into
     the target, excluding session notes and node_modules.
 
-    Plugins referenced by default — opencode-wakatime and
-    opencode-helicone-session — are installed on first opencode startup.
-    Comment them out of .opencode/opencode.json to disable.
+    Plugins are not copied with the boilerplate: personal ones (opencode-wakatime,
+    @dietrichgebert/ponytail, Helicone session tracking) live in the global
+    ~/.config/opencode/ and follow the machine, while project-specific plugins
+    (guardrails, graphify) are copied with .opencode/plugins/.
 
 .PARAMETER Target
     Path of the target project folder. Required.
 
-.PARAMETER NoInstall
-    Skip the automatic `opencode plugin add` install step. Optional.
-
 .EXAMPLE
     .\copy-boilerplate.ps1 -Target C:\repos\my-new-app
-
-.EXAMPLE
-    .\copy-boilerplate.ps1 -Target .\my-new-app -NoInstall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [string]$Target,
-    [switch]$NoInstall
+    [string]$Target
 )
 
 $ErrorActionPreference = 'Stop'
@@ -67,17 +61,5 @@ Get-ChildItem -LiteralPath $sourceOpenCode -Recurse -Force |
     }
 
 Write-Host "Done. Copied boilerplate to: $targetOpenCode"
-
-if (-not $NoInstall) {
-    Write-Host "Installing default plugins for the target project (hit Enter on prompts)..."
-    Push-Location $targetRoot
-    try {
-        opencode plugin add opencode-wakatime 2>$null
-        opencode plugin add opencode-helicone-session 2>$null
-    }
-    finally {
-        Pop-Location
-    }
-}
 
 Write-Host "Next: restart opencode in $targetRoot to load the new config."

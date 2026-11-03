@@ -85,15 +85,26 @@ importable project workflow.
 
 ## Plugins
 
-`opencode.json` pre-wires two safe, low-management npm plugins:
+Personal plugins live in the global config (`~/.config/opencode/`), not here, so
+one machine-wide install serves every project and no boilerplate copy can drift
+out of date:
 
-- `opencode-wakatime` — editor time tracking
-- `opencode-helicone-session` — session tracking
+- `~/.config/opencode/plugins/helicone-session.js` — Helicone session tracking
+- `opencode-wakatime` — editor time tracking (in global `opencode.jsonc`)
+- `@dietrichgebert/ponytail` — agent working-style plugin (in global `opencode.jsonc`)
+- `@upstash/context7-opencode` — docs MCP (in global `opencode.jsonc`)
 
-To use GitHub-sourced plugins instead, uncomment the example entries in
-`opencode.json` (forms: `github:owner/repo`, `git+https://...git#tag`,
+The project `opencode.json` intentionally lists no plugins. To use
+GitHub-sourced plugins, add them to the global `opencode.jsonc` (forms:
+`github:owner/repo`, `git+https://...git#tag`,
 `github:owner/repo#branch::path:sub/dir`). Any entry can be disabled by
 prefixing `-`.
+
+**Do not** add the `opencode-helicone-session` npm package back anywhere: v1.0.1
+(latest) default-exports the OpenCode 1.x plugin function shape, so OpenCode 2.x
+rejects it with *"Plugin must export a default definition with an id and an
+effect or setup function"* and the plugin never runs. The global
+`helicone-session.js` is a V2 port of it.
 
 **Local guardrails plugin** — `.opencode/plugin/guardrails.js` (auto-loaded,
 no need to list it):

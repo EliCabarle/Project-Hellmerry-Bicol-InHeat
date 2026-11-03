@@ -127,31 +127,46 @@ async function runGuard(input) {
 }
 
 /**
- * Plugin entry point. Hook shape follows the opencode plugin API:
- * each hook key wires to tool.execute/event lifecycle events.
+ * Plugin entry point. OpenCode V2 requires a default object with an `id` and a
+ * `setup(ctx)` function; hooks are registered on the domain that owns them
+ * (ctx.tool.hook / ctx.event.subscribe), not on a returned V1 hook map.
  */
-export default async () => {
-  return {
-    "tool.execute.after": async (input, output) => {
-      const name = input && input.tool && input.tool.name;
-      if (name === "edit" || name === "write") {
-        const meta = (input && input.tool && input.tool.metadata) || {};
-        await runGuard({ filePath: meta.filePath, content: output && output.content, project: meta.project });
+export default {
+  id: "guardrails",
+
+  async setup(ctx) {
+    const projectDir = (ctx.location && ctx.location.directory) || "";
+
+    await ctx.tool.hook("execute.after", async (event) => {
+      if (event.tool !== "edit" && event.tool !== "write") return;
+      const filePath = (event.input && event.input.filePath) || "";
+      // Read from disk: correct for both write and edit, which no longer expose
+      // the full file text through the hook event.
+      let content = "";
+      try {
+        content = filePath ? fs.readFileSync(filePath, "utf8") : "";
+      } catch {
+        /* ignore */
       }
-      return {};
-    },
-    "event": async (input) => {
-      const type = input && input.type;
-      if (conf.persistSessionNotes && type === "session.idle") {
-        const projectDir = input && input.project;
-        if (projectDir) {
-          await writeSessionNote(
-            projectDir,
-            `# Session checkpoint\n- time: ${new Date().toISOString()}\n- state: session marked idle; consider a fresh task summary for the next run.\n`
-          );
+      await runGuard({ filePath, content, project: projectDir });
+    });
+
+    const controller = new AbortController();
+    void (async () => {
+      try {
+        for await (const event of ctx.event.subscribe({ signal: controller.signal })) {
+          if (conf.persistSessionNotes && event.type === "session.idle") {
+            await writeSessionNote(
+              projectDir,
+              `# Session checkpoint\n- time: ${new Date().toISOString()}\n- state: session marked idle; consider a fresh task summary for the next run.\n`
+            );
+          }
         }
+      } catch {
+        /* ignore: aborted on unload */
       }
-      return {};
-    },
-  };
+    })();
+
+    return () => controller.abort();
+  },
 };

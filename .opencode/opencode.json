@@ -3,13 +3,6 @@
   "instructions": [
     "./AGENTS.md"
   ],
-  "plugin": [
-    "opencode-wakatime",
-    "opencode-helicone-session",
-    "@dietrichgebert/ponytail",
-    ".opencode/plugins/graphify.js",
-    ".opencode/plugins/spaceapps-harness.js"
-  ],
   "permission": {
     "bash": {
       "git status": "allow",

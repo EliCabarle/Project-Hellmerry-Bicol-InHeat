@@ -23,6 +23,8 @@ package.json / docker-compose.yml  Root tooling — lead-owned
 
 What belongs where: UI → `apps/web`; data pulls + statistical math → `core`; feature verticals → `features/<name>/`; server-only code and secrets → `apps/api`; concept decisions → `CONCEPT.md`.
 
+> Session state / resume guide: [`HANDOFF.md`](HANDOFF.md) — read before touching anything.
+
 ## Run
 
 Commands below are the **settled intended commands**. Scaffolding files are currently empty (0 lines); script names get added to the `package.json` files as the prototype fills in.

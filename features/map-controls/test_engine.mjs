@@ -2,7 +2,9 @@
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { strict as strictAssert } from 'node:assert/strict'
-import { loadRegions, findBicol, getRegionStyle, isBicol } from './src/gis/engine.js'
+import { loadRegions, findBicol, getRegionStyle, isBicol,
+  normalizeName, joinKey, joinNarratives, buildNarrativeIndex,
+  getMunicipalityStyle, getRegionOutlineStyle, isCity } from './src/gis/engine.js'
 import {
   PLAYBACK_MS,
   canToggleLayer,
@@ -133,4 +135,93 @@ test('invalid, empty and one-item timestamps are safe', () => {
 
 // ---- host integration still required (not testable here) ----
 // app shell must pass timestamps from data, provide layerRegistry/onLayerChange
-// once layer-uhi-terrain ships, and add features/map-controls to Tailwind content.
+// once layer-uhi-terrain ships. Tailwind features glob shipped in slice 3.
+
+// ---- normalizeName + narrative join (slice 3) ----
+test('normalizeName strips city prefixes/suffixes, case and whitespace', () => {
+  strictAssert.equal(normalizeName('City of Naga'), 'naga')
+  strictAssert.equal(normalizeName('Legazpi'), 'legazpi')
+  strictAssert.equal(normalizeName('Sorsogon City'), 'sorsogon')
+  strictAssert.equal(normalizeName('CITY OF LIGAO'), 'ligao')
+  strictAssert.equal(normalizeName('  City of  Iriga  '), 'iriga')
+  strictAssert.equal(normalizeName('Iriga City'), 'iriga')
+  strictAssert.equal(normalizeName(''), '')
+  strictAssert.equal(normalizeName(null), '')
+  strictAssert.equal(normalizeName(undefined), '')
+})
+
+test('joinKey is province-qualified (duplicate names across provinces)', () => {
+  strictAssert.notEqual(joinKey('Bato', 'Camarines Sur'), joinKey('Bato', 'Catanduanes'))
+  strictAssert.notEqual(joinKey('San Fernando', 'Masbate'), joinKey('San Fernando', 'Camarines Sur'))
+  strictAssert.equal(joinKey('Naga', undefined), 'naga')
+})
+
+const mun = JSON.parse(
+  readFileSync(new URL('../../apps/web/public/data/bicol-municipalities.geojson', import.meta.url), 'utf8'),
+)
+const nar = JSON.parse(
+  readFileSync(new URL('../../apps/web/public/data/narratives.json', import.meta.url), 'utf8'),
+)
+
+test('municipality boundary file shape', () => {
+  strictAssert.equal(mun.features.length, 114)
+  for (const f of mun.features) {
+    strictAssert.ok(f.properties.adm3_en, 'every feature has adm3_en')
+  }
+  strictAssert.equal(mun.features.filter((f) => f.properties.geo_level === 'City').length, 7)
+  const keys = new Set(mun.features.map((f) => joinKey(f.properties.adm3_en, f.properties.province)))
+  strictAssert.equal(keys.size, 114, 'all join keys unique (V2 tripwire)')
+})
+
+test('joinNarratives matches the 6 narrated municipalities', () => {
+  const joined = joinNarratives(mun, nar)
+  const withData = joined.features.filter((f) => f.properties.narrative)
+  strictAssert.equal(withData.length, 6)
+  const byId = Object.fromEntries(withData.map((f) => [f.properties.adm3_en, f.properties.narrative]))
+  strictAssert.equal(byId['City of Naga'].id, 'naga')
+  strictAssert.equal(byId['City of Sorsogon'].id, 'sorsogon')
+  strictAssert.equal(byId['City of Masbate'].id, 'masbate')
+  const bacacay = joined.features.find((f) => f.properties.adm3_en === 'Bacacay')
+  strictAssert.equal(bacacay.properties.narrative, null, 'un-joined feature gets null')
+  strictAssert.doesNotThrow(() => joinNarratives(mun, undefined), 'no throw with missing narratives')
+  // original objects untouched
+  strictAssert.equal(mun.features[0].properties.narrative, undefined, 'input not mutated')
+})
+
+test('getMunicipalityStyle distinguishes states', () => {
+  const pending = { properties: { adm3_en: 'Bacacay', narrative: null } }
+  strictAssert.equal(getMunicipalityStyle(pending).fillOpacity, 0.25, 'pending is faint')
+  strictAssert.equal(getMunicipalityStyle(pending).dashArray, undefined)
+
+  const joined = joinNarratives(mun, nar)
+  const sig = joined.features.find((f) => f.properties.adm3_en === 'City of Naga')
+  const s = getMunicipalityStyle(sig)
+  strictAssert.ok(s.weight >= 2, 'significant solid border weight')
+  strictAssert.equal(s.dashArray, undefined, 'significant has no dash')
+
+  const nonsig = {
+    properties: { adm3_en: 'X', geo_level: 'Mun',
+      narrative: { id: 'x', trend: { direction: 'increasing', is_significant: false }, sample: { n_days: 1000 } } },
+  }
+  const ns = getMunicipalityStyle(nonsig)
+  strictAssert.equal(ns.dashArray, '4 3', 'not significant = dashed border')
+  strictAssert.ok(ns.fill, 'non-significant still filled — flag, not filter')
+  strictAssert.ok(ns.fillOpacity >= 0.5, 'non-significant gets a real fill, not the pending fade')
+
+  const dec = {
+    properties: { adm3_en: 'Y',
+      narrative: { id: 'y', trend: { direction: 'decreasing', is_significant: true } } },
+  }
+  strictAssert.equal(getMunicipalityStyle(dec).fillColor, '#3b82f6', 'decreasing = approved counter-hue blue')
+
+  const sel = getMunicipalityStyle(sig, { selected: true })
+  strictAssert.ok(sel.weight > getMunicipalityStyle(sig).weight, 'selected is heavier')
+})
+
+test('region outline keeps dark for non-Bicol and outline for Bicol', () => {
+  strictAssert.equal(getRegionOutlineStyle(bicol).fill, false)
+  strictAssert.equal(getRegionOutlineStyle(regions[2].feature).fillColor, '#1f2937')
+  const cityFeature = mun.features.find((f) => f.properties.geo_level === 'City')
+  strictAssert.equal(isCity(cityFeature), true)
+  strictAssert.equal(isCity({ properties: { geo_level: 'Mun' } }), false)
+})

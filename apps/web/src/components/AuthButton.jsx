@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase, supabaseConfigured } from '../lib/supabase'
 
-// Fixed top-right pill. position: fixed keeps it out of the layout flow so the
-// leaflet container keeps its height: 100% chain from #root.
+// In-flow header pill. position: fixed would float over the map overlay's
+// zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
-  'fixed top-3 right-3 z-[1000] flex items-center gap-2 rounded bg-heat-dark/90 px-3 py-1.5 text-sm text-slate-200'
+  'flex items-center gap-2 rounded-full border border-slate-700 bg-heat-bg/70 px-3 py-1.5 text-sm text-slate-200'
 
 export default function AuthButton() {
   const [user, setUser] = useState(null)
@@ -69,8 +69,8 @@ export default function AuthButton() {
         </button>
       )}
       {error && (
-        <span className="text-heat-hotline" title={error}>
-          failed
+        <span role="alert" className="text-xs text-heat-hotline" title={error}>
+          Sign-in failed — try again
         </span>
       )}
     </div>

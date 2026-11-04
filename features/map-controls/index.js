@@ -1,5 +1,17 @@
 export { default } from './src/BicolMap.jsx'
-export { isBicol, findBicol, loadRegions, getRegionStyle } from './src/gis/engine.js'
+export {
+  isBicol,
+  findBicol,
+  loadRegions,
+  getRegionStyle,
+  normalizeName,
+  joinKey,
+  buildNarrativeIndex,
+  joinNarratives,
+  isCity,
+  getRegionOutlineStyle,
+  getMunicipalityStyle,
+} from './src/gis/engine.js'
 export {
   PLAYBACK_MS,
   timelineStore,

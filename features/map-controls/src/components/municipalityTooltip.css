@@ -1,0 +1,47 @@
+.bih-tip {
+  background: rgba(11, 15, 26, 0.92);
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.bih-tip::before {
+  border-top-color: #475569;
+}
+.bih-tip__name {
+  font-weight: 700;
+  font-size: 13px;
+}
+.bih-tip__sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+.bih-tip__row {
+  font-size: 12px;
+  margin-top: 2px;
+}
+.bih-tip__muted {
+  color: #94a3b8;
+}
+.bih-tip__p {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-left: 6px;
+}
+.bih-tip__pill {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+}
+.bih-tip__pill--sig {
+  background: #ef4444;
+  color: #fff;
+}
+.bih-tip__pill--nonsig {
+  border: 1px solid #64748b;
+  color: #cbd5e1;
+}

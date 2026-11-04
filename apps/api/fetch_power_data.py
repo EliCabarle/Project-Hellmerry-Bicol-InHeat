@@ -20,7 +20,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import math
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -39,16 +41,44 @@ START = "19810101"
 END = "20251231"
 OUT_CSV = API_DIR / "data" / "power_daily.csv"
 
-# Test set: one municipality per Bicol province. The full Region V LGU list is an
-# open fact (CONCEPT §13) - never estimate the count; extend from the official source.
-MUNICIPALITIES = [
-    {"name": "Legazpi", "province": "Albay", "lat": 13.1391, "lon": 123.7438},
-    {"name": "Naga", "province": "Camarines Sur", "lat": 13.6218, "lon": 123.1948},
-    {"name": "Sorsogon", "province": "Sorsogon", "lat": 12.9739, "lon": 124.0076},
-    {"name": "Masbate", "province": "Masbate", "lat": 12.3687, "lon": 123.6245},
-    {"name": "Virac", "province": "Catanduanes", "lat": 13.5796, "lon": 124.2302},
-    {"name": "Daet", "province": "Camarines Norte", "lat": 14.1128, "lon": 122.9553},
-]
+# Load all 114 municipalities from the official GeoJSON.
+# This replaces the former hardcoded 6-city test set.
+GEOJSON_PATH = Path(__file__).resolve().parent.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
+with open(GEOJSON_PATH) as gf:
+    geojson = json.load(gf)
+
+
+def _polygon_centroid(geom):
+    """Compute centroid by averaging all coordinate points in a Polygon/MultiPolygon."""
+    coords = geom["coordinates"]
+    if geom["type"] == "MultiPolygon":
+        coords = coords[0]
+    ring = coords[0] if coords else []
+    if not ring:
+        return None
+    sum_lon = 0.0
+    sum_lat = 0.0
+    count = 0
+    for point in ring:
+        if len(point) >= 2:
+            sum_lon += point[0]
+            sum_lat += point[1]
+            count += 1
+    if count == 0:
+        return None
+    return {"lon": sum_lon / count, "lat": sum_lat / count}
+
+
+municipalities = []
+for feat in geojson["features"]:
+    props = feat["properties"]
+    name = props.get("adm3_en") or props.get("NAME_4") or "Unknown"
+    province = props.get("province") or props.get("ADM1_EN") or "Unknown"
+    centroid = _polygon_centroid(feat["geometry"])
+    if centroid:
+        municipalities.append(
+            {"name": name, "province": province, "lat": centroid["lat"], "lon": centroid["lon"]}
+        )
 
 
 def rh_from_dewpoint(t_c: float | None, td_c: float | None) -> float | None:
@@ -178,8 +208,9 @@ def main() -> None:
     )
 
     rows: list[dict] = []
-    for mun in MUNICIPALITIES:
+    for i, mun in enumerate(municipalities):
         rows.extend(fetch_municipality(session, mun, args.start, args.end))
+        time.sleep(1.5)  # prevent NASA POWER API rate-limit
 
     frame = pd.DataFrame(rows)
     out = Path(args.out)

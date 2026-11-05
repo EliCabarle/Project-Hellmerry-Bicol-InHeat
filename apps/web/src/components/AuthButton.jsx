@@ -1,29 +1,16 @@
-import { useEffect, useState } from 'react'
-import { supabase, supabaseConfigured } from '../lib/supabase'
+import { useState } from 'react'
 
 // In-flow header pill. position: fixed would float over the map overlay's
 // zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
   'flex items-center gap-2 rounded-full border border-slate-700 bg-heat-bg/70 px-3 py-1.5 text-sm text-slate-200'
 
-export default function AuthButton() {
-  const [user, setUser] = useState(null)
+// Session state is owned by useSession() in app.jsx and passed down, so screens
+// and the header agree on who is signed in.
+export default function AuthButton({ user = null, supabase = null, configured = false }) {
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    if (!supabase) return
-
-    // Pick up a session that already exists (e.g. after the OAuth redirect reload).
-    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null))
-
-    // Follow sign-in / sign-out while the app stays open.
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => listener.subscription.unsubscribe()
-  }, [])
-
-  if (!supabaseConfigured) {
+  if (!configured || !supabase) {
     return (
       <div className={pill} title="VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing">
         Sign-in unavailable

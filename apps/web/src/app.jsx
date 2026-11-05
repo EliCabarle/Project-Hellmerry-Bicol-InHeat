@@ -3,6 +3,7 @@ import BicolMap from '@features/map-controls'
 import RankingScreen from '@features/gamified-dashboard'
 import AuthButton from './components/AuthButton'
 import useBicolData from './useBicolData'
+import useSession from './useSession'
 
 const SCREENS = [
   { id: 'map', label: 'Map' },
@@ -12,6 +13,9 @@ const SCREENS = [
 export default function App() {
   const [screen, setScreen] = useState('map')
   const data = useBicolData()
+  // Auth lives here, not in the header pill, so screens can scope their own rows
+  // (saved places, leaderboard) to the signed-in user.
+  const { user, supabase, configured } = useSession()
   // Height chain: html/body/#root = 100% (index.css) -> this h-full column ->
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
   // wrapper between #root and the leaflet container (collapses the map to 0px).
@@ -37,11 +41,15 @@ export default function App() {
           ))}
         </nav>
         <div className="ml-auto">
-          <AuthButton />
+          <AuthButton user={user} supabase={supabase} configured={configured} />
         </div>
       </header>
       <main className="min-h-0 flex-1">
-        {screen === 'map' ? <BicolMap {...data} /> : <RankingScreen {...data} />}
+        {screen === 'map' ? (
+          <BicolMap {...data} />
+        ) : (
+          <RankingScreen {...data} supabase={supabase} user={user} />
+        )}
       </main>
     </div>
   )

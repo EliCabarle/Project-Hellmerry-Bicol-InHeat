@@ -39,12 +39,13 @@ POWER_URL = "https://power.larc.nasa.gov/api/temporal/daily/point"
 PARAMETERS = ("T2M", "T2M_MAX", "T2MDEW", "RH2M", "U10M", "V10M")
 START = "19810101"
 END = "20251231"
-OUT_CSV = API_DIR / "data" / "power_daily.csv"
+OUT_CSV = API_DIR / "data" / "power_daily_full.csv"
 
 # Load all 114 municipalities from the official GeoJSON.
 # This replaces the former hardcoded 6-city test set.
 GEOJSON_PATH = Path(__file__).resolve().parent.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
-with open(GEOJSON_PATH) as gf:
+# encoding is load-bearing: without utf-8, Windows cp1252 turns 'Sagñay' into 'SagÃ±ay'.
+with open(GEOJSON_PATH, encoding="utf-8") as gf:
     geojson = json.load(gf)
 
 
@@ -207,16 +208,44 @@ def main() -> None:
         ),
     )
 
-    rows: list[dict] = []
-    for i, mun in enumerate(municipalities):
-        rows.extend(fetch_municipality(session, mun, args.start, args.end))
-        time.sleep(1.5)  # prevent NASA POWER API rate-limit
-
-    frame = pd.DataFrame(rows)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(out, index=False)
-    print(f"wrote {len(frame)} rows -> {out}")
+
+    # Resume: skip municipalities already in the CSV. A 114 x 45-year pull is
+    # ~30 min of network, so a crash must not cost the whole run.
+    done: set[tuple[str, str]] = set()
+    if out.exists() and out.stat().st_size:
+        existing = pd.read_csv(out, usecols=["name", "province"])
+        done = {tuple(r) for r in existing.drop_duplicates().itertuples(index=False)}
+        print(f"resuming: {len(done)} municipalities already in {out.name}")
+
+    failures: list[str] = []
+    for i, mun in enumerate(municipalities, 1):
+        key = (mun["name"], mun["province"])
+        if key in done:
+            continue
+        try:
+            rows = fetch_municipality(session, mun, args.start, args.end)
+        except Exception as exc:  # one bad LGU must not kill a 30-min pull
+            failures.append(f"{key[0]}|{key[1]}: {exc}")
+            print(f"[{i}/{len(municipalities)}] FAILED {key[0]}|{key[1]}: {exc}")
+            continue
+        # append per municipality so memory stays flat across ~1.9M rows
+        pd.DataFrame(rows).to_csv(
+            out,
+            mode="a",
+            header=not out.exists() or out.stat().st_size == 0,
+            index=False,
+            encoding="utf-8",
+        )
+        time.sleep(1.5)  # prevent NASA POWER API rate-limit
+
+    if failures:
+        print(f"\n{len(failures)} municipalities failed:")
+        for item in failures:
+            print("  -", item)
+        raise SystemExit(1)
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":

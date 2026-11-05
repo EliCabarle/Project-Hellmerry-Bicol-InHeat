@@ -26,6 +26,8 @@ from calculate_trends import DANGER_C  # single source for the 42 °C Danger flo
 API_DIR = Path(__file__).resolve().parent
 IN_JSON = API_DIR / "output" / "trends.json"
 OUT_JSON = API_DIR / "output" / "narratives.json"
+# Boundary source of truth for the completeness check (114 municipalities).
+GEOJSON_PATH = API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
 
 # PAGASA heat-index bands (CONCEPT §6c-4), in °C.
 BANDS = [
@@ -262,6 +264,26 @@ def build(trends: dict) -> dict:
     }
 
 
+def _missing_municipalities(payload: dict) -> list[tuple[str, str]]:
+    """(name, province) pairs in the boundary GeoJSON that the output lacks.
+
+    Returns [] when the GeoJSON is unavailable, so the pipeline still runs on a
+    machine without the web assets - it just cannot prove completeness there.
+    """
+    if not GEOJSON_PATH.exists():
+        print(f"warning: {GEOJSON_PATH.name} not found, skipping completeness check")
+        return []
+    with open(GEOJSON_PATH, encoding="utf-8") as handle:
+        features = json.load(handle)["features"]
+    expected = {
+        (f["properties"].get("adm3_en"), f["properties"].get("province"))
+        for f in features
+    }
+    produced = {(m["name"], m["province"]) for m in payload["municipalities"]}
+    print(f"coverage: {len(produced & expected)}/{len(expected)} GeoJSON municipalities")
+    return sorted(expected - produced)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trends", default=str(IN_JSON))
@@ -273,8 +295,21 @@ def main() -> None:
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    # compact on purpose: this file ships to the PWA, indentation is dead weight
+    out.write_text(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
     print(f"wrote {len(payload['municipalities'])} municipalities -> {out}")
+
+    # Completeness tripwire: B2 shipped 112 of 114 because nothing compared the
+    # output back to the boundary file. Fail loud instead of shipping a short file.
+    missing = _missing_municipalities(payload)
+    if missing:
+        print(f"INCOMPLETE: {len(missing)} municipalities missing from the output:")
+        for pair in missing:
+            print(f"  - {pair[0]}|{pair[1]}")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

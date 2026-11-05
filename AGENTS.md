@@ -128,3 +128,28 @@ Rule: an agent or team member writes **only inside its own boundary**; cross-bou
 | Exact Region V LGU count | **Unverified** | Count from official source at h6 — never estimate |
 | Challenge URL / iHeatMap URL resolve logged-out | **Pending** | Test in logged-out private window (h0 / h44) |
 | `## Run` commands actually execute | **Pending** | Scripts empty until scaffolding fills; run once script entries exist |
+
+
+
+# Token Efficiency & Large Data Rules
+
+To prevent context-window exhaustion and hallucination, you MUST strictly follow these rules when interacting with this repository:
+
+1. **NEVER read raw data files directly.** 
+   Do NOT use `cat`, `read_file`, or file-viewing tools on `*.csv` or `*.json` files larger than 100 KB (e.g., `power_daily_full.csv`, `narratives.json`). Reading these will consume the entire context window and crash the session.
+
+2. **Use Python for Data Introspection.**
+   If you need to understand the shape, columns, or sample of a dataset, write a short Python script using `pandas` and run it via the terminal. 
+   *   *Example:* `python -c "import pandas as pd; df = pd.read_csv('data/power_daily_full.csv'); print(df.shape); print(df.head())"`
+
+3. **Targeted Code Reading.**
+   Do not read entire 500-line files. Use `grep` or view specific line ranges (e.g., "Read lines 40-60 of `calculate_drivers.py`") to isolate the specific function you need to modify.
+
+4. **No "Teacher Mode".**
+   Do not explain your code step-by-step unless explicitly asked. Output only the modified code block or the exact terminal commands to run.
+
+5. **Start Fresh Sessions for New Tasks.**
+   Do not use one massive chat session to do EDA, model training, and UI fixes. Once a specific script is working and committed, start a new session for the next feature.
+
+6. **Respect the `.agentignore` File.**
+   Do not scan or index the `apps/api/data/`, `apps/api/output/`, or `apps/web/public/data/` directories.

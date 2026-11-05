@@ -1,59 +1,102 @@
+"""Push the static JSON outputs into Supabase `municipality_trends`.
+
+Reads `output/narratives.json` (trend + danger-day numbers) and, when present,
+`output/drivers.json` (RF/SHAP ranking) and upserts one row per municipality.
+
+Conflict key is `(name, province)`, not `name`: 'Bato' and 'San Fernando' each
+exist in two Region V provinces, so upserting on name alone overwrites one with
+the other. Requires a unique constraint on that pair - see
+`apps/api/migrations/0002_top_drivers.sql`.
+
+Usage:
+  python push_to_supabase.py            # needs SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
+  python push_to_supabase.py --dry-run  # print what would be written, no network
+"""
+
+from __future__ import annotations
+
 import json
 import os
+import sys
+from pathlib import Path
+
 from dotenv import load_dotenv
-from supabase import create_client, Client
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env"))
+BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(dotenv_path=BASE_DIR / ".env")
 
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_SERVICE_KEY")
-supabase: Client = create_client(url, key)
 
-json_path = os.path.join(BASE_DIR, "output", "narratives.json")
+def load_output(name: str) -> dict:
+    path = BASE_DIR / "output" / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
-with open(json_path, "r", encoding="utf-8") as f:
-    data = json.load(f)
 
-# Extract the actual list of municipalities
-municipalities = data.get("municipalities", [])
-print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
+def driver_index() -> dict[tuple[str, str], list[dict]]:
+    """(name, province) -> top_drivers, empty when calculate_drivers.py has not run."""
+    drivers = load_output("drivers.json")
+    return {
+        (row["name"], row["province"]): row["top_drivers"]
+        for row in drivers.get("municipalities", [])
+    }
 
-success_count = 0
 
-for city_data in municipalities:
-    try:
-        city_name = city_data.get("name")
-        
-        # Safely handle the null case for Masbate/Virac
-        peak_year = city_data.get("peak_danger_days", {}).get("year")
-        peak_days = city_data.get("peak_danger_days", {}).get("days", 0)
-        
-        record = {
-            "name": city_name,
-            "province": city_data.get("province", ""),
-            "latitude": city_data.get("lat"),
-            "longitude": city_data.get("lon"),
-            
-            "slope": city_data.get("trend", {}).get("slope"),
-            "p_value": city_data.get("trend", {}).get("p_value"),
-            "is_significant": city_data.get("trend", {}).get("is_significant"),
-            
-            "total_danger_days_45y": city_data.get("total_danger_days_45y", 0),
-            "peak_danger_year": peak_year, 
-            "peak_danger_days": peak_days,
-            
-            "narration_en": city_data.get("narration", {}).get("en"),
-            "narration_fil": city_data.get("narration", {}).get("fil"),
-            
-            "series": city_data.get("series", []) 
-        }
+def build_record(city_data: dict, drivers: dict) -> dict:
+    trend = city_data.get("trend") or {}
+    peak = city_data.get("peak_danger_days") or {}
+    return {
+        "name": city_data.get("name"),
+        "province": city_data.get("province", ""),
+        "latitude": city_data.get("lat"),
+        "longitude": city_data.get("lon"),
+        # column is `slope`; the source key is slope_c_per_year
+        "slope": trend.get("slope_c_per_year"),
+        "p_value": trend.get("p_value"),
+        "is_significant": trend.get("is_significant"),
+        "top_drivers": drivers.get((city_data.get("name"), city_data.get("province", ""))),
+        "total_danger_days_45y": city_data.get("total_danger_days_45y", 0),
+        "peak_danger_year": peak.get("year"),
+        "peak_danger_days": peak.get("days", 0),
+        "narration_en": city_data.get("narration", {}).get("en"),
+        "narration_fil": city_data.get("narration", {}).get("fil"),
+        "series": city_data.get("series", []),
+    }
 
-        supabase.table("municipality_trends").upsert(record, on_conflict="name").execute()
-        print(f"✅ Uploaded {city_name}")
-        success_count += 1
-        
-    except Exception as e:
-        print(f"❌ Failed to upload {city_data.get('name', 'Unknown')}: {e}")
 
-print(f"\n🎉 Successfully pushed {success_count}/{len(municipalities)} municipalities!")
+def main(dry_run: bool) -> None:
+    municipalities = load_output("narratives.json").get("municipalities", [])
+    drivers = driver_index()
+    if not drivers:
+        print("warning: output/drivers.json missing - top_drivers will be null")
+
+    client = None
+    if not dry_run:
+        from supabase import create_client  # imported here so --dry-run needs no deps
+
+        client = create_client(
+            os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY")
+        )
+
+    print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
+    success_count = 0
+    for city_data in municipalities:
+        record = build_record(city_data, drivers)
+        try:
+            if dry_run:
+                print(
+                    f"[dry-run] {record['name']}|{record['province']} "
+                    f"slope={record['slope']} drivers={len(record['top_drivers'] or [])}"
+                )
+            else:
+                client.table("municipality_trends").upsert(
+                    record, on_conflict="name,province"
+                ).execute()
+                print(f"Uploaded {record['name']}")
+            success_count += 1
+        except Exception as error:  # one bad row must not abort the rest
+            print(f"Failed to upload {record['name']}: {error}")
+
+    print(f"\nSuccessfully pushed {success_count}/{len(municipalities)} municipalities!")
+
+
+if __name__ == "__main__":
+    main(dry_run="--dry-run" in sys.argv)

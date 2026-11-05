@@ -8,8 +8,11 @@ import unittest
 import pandas as pd
 
 from calculate_trends import annual_means, trend_for
+from calculate_drivers import build as build_drivers
 from fetch_power_data import heat_index_c, rh_from_dewpoint
 from generate_static_json import _danger_summary, build, danger_band, render_narration
+from push_to_supabase import build_record
+from validate_pagasa import compare, metrics
 
 
 def _daily(rows: list[tuple[str, str, str, float]]) -> pd.DataFrame:
@@ -266,6 +269,168 @@ class NarrationTest(unittest.TestCase):
         self.assertEqual(municipality["peak_danger_days"], {"year": 2025, "days": 9})
         self.assertEqual(result["meta"]["danger_threshold_c"], 42.0)
         self.assertIn("sources", result["meta"])
+
+
+class DriverRankingTest(unittest.TestCase):
+    def test_ranks_top_three_for_every_municipality(self):
+        rows = []
+        for i, (name, province) in enumerate(
+            [("Alpha", "P1"), ("Beta", "P1"), ("Gamma", "P2")]
+        ):
+            for day in range(120):
+                rows.append(
+                    {
+                        "name": name,
+                        "province": province,
+                        "lat": 12.0 + i,
+                        "lon": 123.0 + i,
+                        "u10m_ms": 1.0 + (day % 7),
+                        "v10m_ms": -2.0 + (day % 5),
+                        "heat_index_max_c": 30.0 + i + (day % 11) * 0.1,
+                    }
+                )
+
+        payload = build_drivers(pd.DataFrame(rows))
+
+        self.assertEqual(len(payload["municipalities"]), 3)
+        # 360 rows -> 288 train / 72 test; SHAP runs on the whole training split here
+        self.assertEqual(payload["model"]["train_rows"], 288)
+        self.assertEqual(payload["model"]["test_rows"], 72)
+        self.assertEqual(payload["model"]["shap_rows"], 288)
+        self.assertIn("r2_test", payload["model"])
+        for municipality in payload["municipalities"]:
+            self.assertEqual(set(municipality), {"name", "province", "top_drivers"})
+            drivers = municipality["top_drivers"]
+            self.assertEqual(len(drivers), 3)
+            shares = [driver["share"] for driver in drivers]
+            self.assertEqual(shares, sorted(shares, reverse=True))
+            self.assertTrue(all(driver["label"] for driver in drivers))
+
+
+class PagasaValidationTest(unittest.TestCase):
+    def test_bias_and_rmse_are_power_minus_pagasa(self):
+        stats = metrics(pd.Series([2.0, -1.0]))
+        self.assertAlmostEqual(stats["bias"], 0.5)
+        self.assertAlmostEqual(stats["rmse"], 2.5**0.5)
+        self.assertEqual(stats["n"], 2)
+
+    def test_compare_matches_name_and_date_and_flags_missing_days(self):
+        readings = pd.DataFrame(
+            [
+                {"name": "Naga", "date": "2024-05-23", "heat_index_c": 45.0},
+                {"name": "Naga", "date": "2024-05-24", "heat_index_c": 40.0},
+            ]
+        )
+        power = pd.DataFrame(
+            [
+                {
+                    "name": "Naga",
+                    "province": "Camarines Sur",
+                    "date": "2024-05-23",
+                    "heat_index_max_c": 43.5,
+                }
+            ]
+        )
+
+        matched, unmatched = compare(readings, power)
+
+        self.assertEqual(len(matched), 1)
+        self.assertAlmostEqual(matched["error"].iloc[0], -1.5)
+        self.assertEqual(unmatched, ["Naga 2024-05-24"])
+
+    def test_repeated_daily_rows_are_not_mistaken_for_a_name_clash(self):
+        readings = pd.DataFrame(
+            [{"name": "Daet", "date": "2024-05-23", "heat_index_c": 45.0}]
+        )
+        power = pd.DataFrame(
+            [
+                {
+                    "name": "Daet",
+                    "province": "Camarines Norte",
+                    "date": date,
+                    "heat_index_max_c": 41.0,
+                }
+                for date in ("2024-05-22", "2024-05-23", "2024-05-24")
+            ]
+        )
+
+        matched, unmatched = compare(readings, power)
+
+        self.assertEqual(len(matched), 1)
+        self.assertAlmostEqual(matched["error"].iloc[0], -4.0)
+        self.assertEqual(unmatched, [])
+
+    def test_city_prefix_matches_a_plain_station_name(self):
+        readings = pd.DataFrame(
+            [{"name": "Naga", "date": "2024-05-23", "heat_index_c": 45.0}]
+        )
+        power = pd.DataFrame(
+            [
+                {
+                    "name": "City of Naga",
+                    "province": "Camarines Sur",
+                    "date": "2024-05-23",
+                    "heat_index_max_c": 43.5,
+                }
+            ]
+        )
+
+        matched, unmatched = compare(readings, power)
+
+        self.assertEqual(len(matched), 1)
+        self.assertAlmostEqual(matched["error"].iloc[0], -1.5)
+        self.assertEqual(unmatched, [])
+
+    def test_ambiguous_municipality_name_is_refused(self):
+        readings = pd.DataFrame(
+            [{"name": "Bato", "date": "2024-05-23", "heat_index_c": 45.0}]
+        )
+        power = pd.DataFrame(
+            [
+                {
+                    "name": "Bato",
+                    "province": "Camarines Sur",
+                    "date": "2024-05-23",
+                    "heat_index_max_c": 43.0,
+                },
+                {
+                    "name": "Bato",
+                    "province": "Catanduanes",
+                    "date": "2024-05-23",
+                    "heat_index_max_c": 42.0,
+                },
+            ]
+        )
+
+        with self.assertRaises(SystemExit):
+            compare(readings, power)
+
+
+class SupabaseRecordTest(unittest.TestCase):
+    def test_maps_the_real_slope_key_and_attaches_drivers(self):
+        city = {
+            "name": "Naga",
+            "province": "Camarines Sur",
+            "lat": 13.6,
+            "lon": 123.2,
+            "trend": {
+                "slope_c_per_year": 0.0313,
+                "p_value": 0.0001,
+                "is_significant": True,
+            },
+            "total_danger_days_45y": 10,
+            "peak_danger_days": {"year": 2024, "days": 9},
+            "narration": {"en": "en text", "fil": "fil text"},
+            "series": [],
+        }
+        drivers = {("Naga", "Camarines Sur"): [{"feature": "lat"}]}
+
+        record = build_record(city, drivers)
+
+        self.assertEqual(record["slope"], 0.0313)
+        self.assertEqual(record["top_drivers"], [{"feature": "lat"}])
+        self.assertEqual(record["peak_danger_year"], 2024)
+        self.assertIsNone(build_record(city, {})["top_drivers"])
 
 
 if __name__ == "__main__":

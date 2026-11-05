@@ -6,3 +6,6 @@ pandas
 numpy
 scipy
 pymannkendall
+scikit-learn
+shap
+supabase

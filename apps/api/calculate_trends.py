@@ -28,7 +28,7 @@ import pymannkendall as mk
 from scipy.stats import theilslopes
 
 API_DIR = Path(__file__).resolve().parent
-IN_CSV = API_DIR / "data" / "power_daily.csv"
+IN_CSV = API_DIR / "data" / "power_daily_full.csv"
 OUT_JSON = API_DIR / "output" / "trends.json"
 ALPHA = 0.05
 DANGER_C = 42.0  # PAGASA Danger band floor (CONCEPT §6c-4) - drives danger-day counts
@@ -120,7 +120,12 @@ def main() -> None:
     frame = pd.read_csv(args.csv)
     annual = annual_means(frame)
 
-    rows = [trend_for(group) for _, group in annual.groupby("name", sort=False)]
+    # Group by (name, province): 'Bato' and 'San Fernando' each exist in two
+    # Region V provinces. Bare-name grouping silently merges them -> 112 of 114.
+    rows = [
+        trend_for(group)
+        for _, group in annual.groupby(["name", "province"], sort=False)
+    ]
 
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -140,7 +145,11 @@ def main() -> None:
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    # compact on purpose: narratives.json ships to the PWA, indentation is dead weight
+    out.write_text(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
 
     for row in rows:
         slope = "-" if row["slope_c_per_year"] is None else f"{row['slope_c_per_year']:+.4f}"

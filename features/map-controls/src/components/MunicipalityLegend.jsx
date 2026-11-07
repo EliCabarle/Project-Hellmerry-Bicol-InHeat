@@ -1,28 +1,103 @@
-import { isCity } from '../gis/engine.js'
+import { useState } from 'react'
+import { trendLegend, yearLegend } from '../gis/yearRamp.js'
+import { IconChevronDown, IconList } from './Icons.jsx'
 
-const swatch = (extra = '') => `inline-block h-3 w-4 rounded-sm align-middle ${extra}`
+const swatch = (color) => (
+  <span
+    aria-hidden="true"
+    className="inline-block h-2.5 w-5 shrink-0 rounded-sm border border-black/20"
+    style={{ background: color }}
+  />
+)
 
-export default function MunicipalityLegend({ coverage = { withData: 0, total: 0 } }) {
+function LegendRow({ color, label, children }) {
   return (
-    <div className="pointer-events-none absolute top-14 left-3 z-[600] rounded border border-slate-700 bg-heat-bg/80 px-3 py-2 text-[11px] leading-5 text-slate-300">
-      <div className="mb-1 font-semibold text-slate-200">Legend</div>
-      <div className="flex items-center gap-2">
-        <span className={swatch('bg-heat-hot')} /> Warming — increasing
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={swatch('bg-[#3b82f6]')} /> Decreasing
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={swatch('bg-heat-dark/25')} /> Data pending
-      </div>
-      <div className="mt-1 flex items-center gap-2">
-        <span className={swatch('border-2 border-heat-hotline')} /> Significant (α = 0.05)
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={swatch('border-2 border-dashed border-heat-hotline')} /> Not significant — still shown and ranked
-      </div>
-      <div className="mt-1 border-t border-slate-700 pt-1 text-slate-400">
-        Data: {coverage.withData} of {coverage.total} municipalities
+    <div className="flex items-center gap-2">
+      {swatch(color)}
+      <span className="min-w-0 flex-1 text-slate-300">{label}</span>
+      {children}
+    </div>
+  )
+}
+
+export default function MunicipalityLegend({
+  coverage = { withData: 0, total: 0 },
+  viewMode = 'trend',
+  year = null,
+  onBrowse,
+}) {
+  const [open, setOpen] = useState(
+    () => typeof window === 'undefined' || window.matchMedia('(min-width: 768px)').matches,
+  )
+  const bins = viewMode === 'year' ? yearLegend() : trendLegend()
+  const title = viewMode === 'year' ? `Mean heat index · ${year ?? 'latest'}` : 'Warming rate · °C/yr'
+
+  return (
+    <div className="pointer-events-auto absolute left-3 top-3 z-[600] w-[17.5rem] max-w-[calc(100vw-1.5rem)]">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-heat-surface/90 text-[11px] text-slate-300 shadow-hud backdrop-blur-md">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-heat-amber"
+        >
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-heat-amber/20 text-heat-amber">
+            <span aria-hidden="true" className="text-[10px] font-black">V</span>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-slate-500">Bicol · Region V</span>
+            <span className="block truncate text-xs font-semibold text-slate-100">
+              {coverage.withData} municipalities · 1981–2025
+            </span>
+          </span>
+          <IconChevronDown className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </button>
+
+        {open && (
+          <div className="border-t border-white/10 px-3 py-2.5">
+            <div className="mb-1.5 flex items-baseline justify-between gap-2">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">{title}</span>
+              <span className="font-mono text-[10px] text-slate-500">°C</span>
+            </div>
+            <div className="space-y-1">
+              {bins.map((bin) => (
+                <LegendRow key={bin.label} color={bin.color} label={bin.label} />
+              ))}
+            </div>
+
+            <div className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
+              <LegendRow color="#3b82f6" label="Decreasing trend" />
+              <LegendRow color="#1f2937" label="Data pending" />
+              <div className="flex items-center gap-2">
+                <span aria-hidden="true" className="inline-block h-2.5 w-5 rounded-sm border-2 border-heat-hotline" />
+                <span>Significant (α = 0.05)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span aria-hidden="true" className="inline-block h-2.5 w-5 rounded-sm border-2 border-dashed border-heat-hotline" />
+                <span>Not significant — still ranked</span>
+              </div>
+            </div>
+
+            <div className="mt-2.5 border-t border-white/10 pt-2 text-[10px] leading-4 text-slate-500">
+              {coverage.withData} of {coverage.total} LGUs joined. POWER 0.5° grid · municipality resolution.
+            </div>
+
+            {onBrowse && (
+              <button
+                type="button"
+                onClick={onBrowse}
+                className="mt-2 inline-flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1.5 text-[11px] font-medium text-slate-200 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+              >
+                <IconList className="h-3.5 w-3.5" />
+                Browse municipalities
+              </button>
+            )}
+
+            <div className="mt-2 text-[9px] leading-[0.875rem] text-slate-600">
+              Imagery © Esri, Maxar, Earthstar Geographics · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

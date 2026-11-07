@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { loadMyProfile, saveHandle, validateHandle } from '../lib/profile.js'
 
-// In-flow header pill. position: fixed would float over the map overlay's
+// In-flow header control. position: fixed would float over the map overlay's
 // zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
-  'flex items-center gap-2 rounded-full border border-slate-700 bg-heat-bg/70 px-3 py-1.5 text-sm text-slate-200'
+  'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-heat-surface/90 px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
+
+const quietButton =
+  'cursor-pointer rounded-md px-2 py-1 font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep disabled:cursor-not-allowed disabled:opacity-50'
 
 // Session state is owned by useSession() in app.jsx and passed down, so screens
 // and the header agree on who is signed in.
@@ -58,7 +61,9 @@ export default function AuthButton({ user = null, supabase = null, configured = 
   if (!configured || !supabase) {
     return (
       <div className={pill} title="VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing">
-        Sign-in unavailable
+        <span className="h-1.5 w-1.5 rounded-full bg-slate-500" aria-hidden="true" />
+        <span className="hidden sm:inline">Sign-in unavailable</span>
+        <span className="sm:hidden">Offline</span>
       </div>
     )
   }
@@ -106,17 +111,17 @@ export default function AuthButton({ user = null, supabase = null, configured = 
   return (
     <div className={pill}>
       {!user && (
-        <button onClick={handleSignIn} className="hover:text-white">
-          Sign in with Google
+        <button type="button" onClick={handleSignIn} className={quietButton} aria-label="Sign in with Google">
+          Sign in
         </button>
       )}
 
-      {user && loadingProfile && <span className="text-slate-400">Loading…</span>}
+      {user && loadingProfile && <span className="px-1 text-slate-400">Loading…</span>}
 
       {showPicker && (
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <label htmlFor="handle-input" className="text-slate-400">
-            Handle
+        <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
+          <label htmlFor="handle-input" className="sr-only">
+            Explorer handle
           </label>
           <input
             id="handle-input"
@@ -124,15 +129,11 @@ export default function AuthButton({ user = null, supabase = null, configured = 
             onChange={(e) => setHandleInput(e.target.value)}
             maxLength={20}
             autoComplete="off"
-            placeholder="e.g. bicol_watcher"
+            placeholder="Your handle"
             aria-describedby="handle-hint"
-            className="w-36 rounded border border-slate-600 bg-heat-dark px-2 py-0.5 text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            className="w-28 rounded-md border border-white/10 bg-black/30 px-2 py-1 text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
           />
-          <button
-            type="submit"
-            disabled={saving}
-            className="cursor-pointer rounded bg-heat-hot px-2 py-0.5 text-xs font-semibold text-white hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+          <button type="submit" disabled={saving} className={quietButton}>
             {saving ? 'Saving…' : 'Save'}
           </button>
           <span id="handle-hint" className="sr-only">
@@ -143,13 +144,10 @@ export default function AuthButton({ user = null, supabase = null, configured = 
 
       {user && !loadingProfile && profile && (
         <>
-          <span className="max-w-[10rem] truncate" title="Your chosen handle">
+          <span className="max-w-[7.5rem] truncate px-1 text-slate-300" title="Your chosen handle">
             {profile.handle}
           </span>
-          <button
-            onClick={handleSignOut}
-            className="rounded bg-heat-hot px-2 py-0.5 text-xs text-white hover:opacity-90"
-          >
+          <button type="button" onClick={handleSignOut} className={quietButton}>
             Sign out
           </button>
         </>
@@ -157,13 +155,13 @@ export default function AuthButton({ user = null, supabase = null, configured = 
 
       {/* Escape hatch: a failed profile read must not trap the user signed in. */}
       {user && !loadingProfile && !profile && profileLoadFailed && (
-        <button onClick={handleSignOut} className="text-xs text-slate-400 hover:text-white">
+        <button type="button" onClick={handleSignOut} className={quietButton}>
           Sign out
         </button>
       )}
 
       {error && (
-        <span role="alert" className="text-xs text-heat-hotline" title={errorDetail ?? undefined}>
+        <span role="alert" className="max-w-[9rem] truncate text-[11px] text-rose-300" title={errorDetail ?? undefined}>
           {error}
         </span>
       )}

@@ -1,0 +1,284 @@
+{
+  "apps/api/calculate_trends.py": {
+    "mtime": 1793720673.6197555,
+    "seen": 1793817210.9317327,
+    "ast_hash": "006a2ba5d3a05a851143d346de47fed8",
+    "semantic_hash": "006a2ba5d3a05a851143d346de47fed8"
+  },
+  "apps/api/fetch_boundaries.py": {
+    "mtime": 1793754915.9124305,
+    "seen": 1793817210.9317422,
+    "ast_hash": "1e0d1507f0fff923825b20afef542e90",
+    "semantic_hash": "1e0d1507f0fff923825b20afef542e90"
+  },
+  "apps/api/fetch_power_data.py": {
+    "mtime": 1793804198.1464996,
+    "seen": 1793817210.931746,
+    "ast_hash": "a2f483288129c2fdac3b6c8487646bfe",
+    "semantic_hash": "a2f483288129c2fdac3b6c8487646bfe"
+  },
+  "apps/api/generate_static_json.py": {
+    "mtime": 1793720673.6220894,
+    "seen": 1793817210.9317482,
+    "ast_hash": "49f1ce641cde1ed6e82ffb51768ef544",
+    "semantic_hash": "49f1ce641cde1ed6e82ffb51768ef544"
+  },
+  "apps/api/main.py": {
+    "mtime": 1793668782.3856108,
+    "seen": 1793817210.9317503,
+    "ast_hash": "35304ed13b7398b972fbb8825ec35d5b",
+    "semantic_hash": "35304ed13b7398b972fbb8825ec35d5b"
+  },
+  "apps/api/push_to_supabase.py": {
+    "mtime": 1793720673.623088,
+    "seen": 1793817210.9317522,
+    "ast_hash": "a7dfd4e421b347d12a0aea3307ecd807",
+    "semantic_hash": "a7dfd4e421b347d12a0aea3307ecd807"
+  },
+  "apps/api/seed_locations.py": {
+    "mtime": 1793668782.389239,
+    "seen": 1793817210.9317539,
+    "ast_hash": "2b6e2f4660c03480e5a9a047f5bdcc73",
+    "semantic_hash": "2b6e2f4660c03480e5a9a047f5bdcc73"
+  },
+  "apps/api/test_pipeline.py": {
+    "mtime": 1793720673.6240854,
+    "seen": 1793817210.9317558,
+    "ast_hash": "be6af00de3542c89c70f333e73710444",
+    "semantic_hash": "be6af00de3542c89c70f333e73710444"
+  },
+  "apps/web/package.json": {
+    "mtime": 1793804175.00954,
+    "seen": 1793817210.9317575,
+    "ast_hash": "d8a9c955971c1eb6e69f1f2d4524970e",
+    "semantic_hash": "d8a9c955971c1eb6e69f1f2d4524970e"
+  },
+  "apps/web/postcss.config.js": {
+    "mtime": 1793613747.588139,
+    "seen": 1793817210.931759,
+    "ast_hash": "5b84f4567208c7c747079c0477373231",
+    "semantic_hash": "5b84f4567208c7c747079c0477373231"
+  },
+  "apps/web/src/app.jsx": {
+    "mtime": 1793804175.0125237,
+    "seen": 1793817210.9317605,
+    "ast_hash": "512669d34ae363af9ee68fbd3b2d5319",
+    "semantic_hash": "512669d34ae363af9ee68fbd3b2d5319"
+  },
+  "apps/web/src/components/AuthButton.jsx": {
+    "mtime": 1793804175.0138903,
+    "seen": 1793817210.931763,
+    "ast_hash": "0f82bba13b72d4d6e7721e14c9778906",
+    "semantic_hash": "0f82bba13b72d4d6e7721e14c9778906"
+  },
+  "apps/web/src/lib/supabase.js": {
+    "mtime": 1793804175.0148964,
+    "seen": 1793817210.9317644,
+    "ast_hash": "ca6b9a67daa6d0074bbbe6250183fc97",
+    "semantic_hash": "ca6b9a67daa6d0074bbbe6250183fc97"
+  },
+  "apps/web/src/main.jsx": {
+    "mtime": 1793613747.5916576,
+    "seen": 1793817210.9317663,
+    "ast_hash": "7b521108ed6f6dda40e3931eea74b142",
+    "semantic_hash": "7b521108ed6f6dda40e3931eea74b142"
+  },
+  "apps/web/src/useBicolData.js": {
+    "mtime": 1793804175.0159335,
+    "seen": 1793817210.9317677,
+    "ast_hash": "06b19c198fac3047298963b6513f97b6",
+    "semantic_hash": "06b19c198fac3047298963b6513f97b6"
+  },
+  "apps/web/tailwind.config.js": {
+    "mtime": 1793804175.0159335,
+    "seen": 1793817210.9317696,
+    "ast_hash": "cdf2f6b918c31aa66b6892bb144e77a3",
+    "semantic_hash": "cdf2f6b918c31aa66b6892bb144e77a3"
+  },
+  "apps/web/vite.config.js": {
+    "mtime": 1793613747.594666,
+    "seen": 1793817210.9317713,
+    "ast_hash": "b51d9c5effcd3f852ad98fd24a3e88d0",
+    "semantic_hash": "b51d9c5effcd3f852ad98fd24a3e88d0"
+  },
+  "docker-compose.yml": {
+    "mtime": 1791703565.669801,
+    "seen": 1793817210.931773,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "features/gamified-dashboard/index.js": {
+    "mtime": 1793804175.017453,
+    "seen": 1793817210.9317746,
+    "ast_hash": "e59f513cd5cd8626ca430fc7729631fa",
+    "semantic_hash": "e59f513cd5cd8626ca430fc7729631fa"
+  },
+  "features/gamified-dashboard/src/RankingScreen.jsx": {
+    "mtime": 1793804175.0184598,
+    "seen": 1793817210.9317763,
+    "ast_hash": "33e6686a0d9dfbfddf0a93cfdcc7b6d8",
+    "semantic_hash": "33e6686a0d9dfbfddf0a93cfdcc7b6d8"
+  },
+  "features/gamified-dashboard/src/components/RankingTable.jsx": {
+    "mtime": 1793804175.0206065,
+    "seen": 1793817210.9317777,
+    "ast_hash": "1ba14e6921cc1503fb6815fb657fa39b",
+    "semantic_hash": "1ba14e6921cc1503fb6815fb657fa39b"
+  },
+  "features/gamified-dashboard/src/ranking.js": {
+    "mtime": 1793804175.0206065,
+    "seen": 1793817210.9317794,
+    "ast_hash": "801730fa1df16fe2bb0df65cc4b21a36",
+    "semantic_hash": "801730fa1df16fe2bb0df65cc4b21a36"
+  },
+  "features/gamified-dashboard/test_ranking.mjs": {
+    "mtime": 1793804175.0221033,
+    "seen": 1793817210.9317813,
+    "ast_hash": "eaad9f4990b03c139813c60ed59677e9",
+    "semantic_hash": "eaad9f4990b03c139813c60ed59677e9"
+  },
+  "features/map-controls/index.js": {
+    "mtime": 1793804175.0231104,
+    "seen": 1793817210.931783,
+    "ast_hash": "37584a5eb1dd5a7fe3cf278047265d78",
+    "semantic_hash": "37584a5eb1dd5a7fe3cf278047265d78"
+  },
+  "features/map-controls/src/BicolMap.jsx": {
+    "mtime": 1793804175.0231104,
+    "seen": 1793817210.9317846,
+    "ast_hash": "4ddb6e0fb78418669d34f976cdd56c1e",
+    "semantic_hash": "4ddb6e0fb78418669d34f976cdd56c1e"
+  },
+  "features/map-controls/src/components/MapControlsOverlay.jsx": {
+    "mtime": 1793720673.6290555,
+    "seen": 1793817210.9317865,
+    "ast_hash": "746faec891a24698210a18700a423ccd",
+    "semantic_hash": "746faec891a24698210a18700a423ccd"
+  },
+  "features/map-controls/src/components/MunicipalityLegend.jsx": {
+    "mtime": 1793804175.0241103,
+    "seen": 1793817210.9317882,
+    "ast_hash": "7e0ecd2d06890f03e64c0a14c3864726",
+    "semantic_hash": "7e0ecd2d06890f03e64c0a14c3864726"
+  },
+  "features/map-controls/src/components/municipalityTooltip.js": {
+    "mtime": 1793804175.0255687,
+    "seen": 1793817210.9317899,
+    "ast_hash": "1b881798a6a47dedbb91989a4c55f553",
+    "semantic_hash": "1b881798a6a47dedbb91989a4c55f553"
+  },
+  "features/map-controls/src/gis/engine.js": {
+    "mtime": 1793804175.0255687,
+    "seen": 1793817210.9317915,
+    "ast_hash": "f5e39ccc2b04fecbc442373dcb7d015f",
+    "semantic_hash": "f5e39ccc2b04fecbc442373dcb7d015f"
+  },
+  "features/map-controls/src/state/timelineStore.js": {
+    "mtime": 1793720673.631051,
+    "seen": 1793817210.9317932,
+    "ast_hash": "6c5f80a2c40916900ab8c60229042b21",
+    "semantic_hash": "6c5f80a2c40916900ab8c60229042b21"
+  },
+  "features/map-controls/test_engine.mjs": {
+    "mtime": 1793804175.0265758,
+    "seen": 1793817210.9317946,
+    "ast_hash": "cdea56a9782a1e02aa6d450d09bbd8fe",
+    "semantic_hash": "cdea56a9782a1e02aa6d450d09bbd8fe"
+  },
+  "package.json": {
+    "mtime": 1793613747.6834235,
+    "seen": 1793817210.9317966,
+    "ast_hash": "8da1cc457bc43077818df945560bf25d",
+    "semantic_hash": "8da1cc457bc43077818df945560bf25d"
+  },
+  "render.yaml": {
+    "mtime": 1793668782.389239,
+    "seen": 1793817210.931798,
+    "ast_hash": "3bcd2b86cdf53b7280fcb29f54c932b7",
+    "semantic_hash": "3bcd2b86cdf53b7280fcb29f54c932b7"
+  },
+  "supabase/migrations/0001_profiles.sql": {
+    "mtime": 1793804175.0275784,
+    "seen": 1793817210.9318,
+    "ast_hash": "d33ce4d716492154119cbb173b249475",
+    "semantic_hash": "d33ce4d716492154119cbb173b249475"
+  },
+  "supabase/migrations/001_bicol_schema.sql": {
+    "mtime": 1793668782.3937614,
+    "seen": 1793817210.931801,
+    "ast_hash": "7a9f4083fa0836d15acd8a0635c04d84",
+    "semantic_hash": "7a9f4083fa0836d15acd8a0635c04d84"
+  },
+  "AGENTS.md": {
+    "mtime": 1793601995.2167883,
+    "seen": 1793817210.931803,
+    "ast_hash": "aae59aafc557d47f962a2bc68df9337f",
+    "semantic_hash": "aae59aafc557d47f962a2bc68df9337f"
+  },
+  "CONCEPT.md": {
+    "mtime": 1793601873.4362721,
+    "seen": 1793817210.9318044,
+    "ast_hash": "769d9ec0bcd0f6d10869591ffee2954f",
+    "semantic_hash": "769d9ec0bcd0f6d10869591ffee2954f"
+  },
+  "README.md": {
+    "mtime": 1793602075.853921,
+    "seen": 1793817210.9318063,
+    "ast_hash": "a47234c34ae8ba3d0d50bae1f0a6ee98",
+    "semantic_hash": "a47234c34ae8ba3d0d50bae1f0a6ee98"
+  },
+  "apps/api/AGENTS.md": {
+    "mtime": 1793602110.64631,
+    "seen": 1793817210.9318078,
+    "ast_hash": "1fa967aee831909b3a83e88822b7567b",
+    "semantic_hash": "1fa967aee831909b3a83e88822b7567b"
+  },
+  "apps/api/requirements.txt": {
+    "mtime": 1793720673.6240854,
+    "seen": 1793817210.9318092,
+    "ast_hash": "ae4332d3f38c814c253c994f5e73ab8a",
+    "semantic_hash": "ae4332d3f38c814c253c994f5e73ab8a"
+  },
+  "apps/web/AGENTS.md": {
+    "mtime": 1793602150.314193,
+    "seen": 1793817210.931811,
+    "ast_hash": "c14a5d6e8ea546c6974e1edbde0cfc80",
+    "semantic_hash": "c14a5d6e8ea546c6974e1edbde0cfc80"
+  },
+  "apps/web/index.html": {
+    "mtime": 1793613747.5821407,
+    "seen": 1793817210.9318128,
+    "ast_hash": "5494625f6d9af493c5f0fd087a58fc42",
+    "semantic_hash": "5494625f6d9af493c5f0fd087a58fc42"
+  },
+  "core/AGENTS.md": {
+    "mtime": 1793029093.603491,
+    "seen": 1793817210.9318144,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "features/chatbot-llm/AGENTS.md": {
+    "mtime": 1793602240.9858146,
+    "seen": 1793817210.931818,
+    "ast_hash": "087a7f436595ee59df183e23a572653a",
+    "semantic_hash": "087a7f436595ee59df183e23a572653a"
+  },
+  "features/gamified-dashboard/AGENTS.md": {
+    "mtime": 1793602218.355955,
+    "seen": 1793817210.9318194,
+    "ast_hash": "527876d5b8822a287828947778a8b169",
+    "semantic_hash": "527876d5b8822a287828947778a8b169"
+  },
+  "features/layer-uhi-terrain/AGENTS.md": {
+    "mtime": 1793602196.077889,
+    "seen": 1793817210.9318213,
+    "ast_hash": "8f4e2db690b59878285a7a30f3e21a85",
+    "semantic_hash": "8f4e2db690b59878285a7a30f3e21a85"
+  },
+  "features/map-controls/AGENTS.md": {
+    "mtime": 1793602172.027906,
+    "seen": 1793817210.9318228,
+    "ast_hash": "bf61a34eb533e4d6a81cb194d976ef17",
+    "semantic_hash": "bf61a34eb533e4d6a81cb194d976ef17"
+  }
+}

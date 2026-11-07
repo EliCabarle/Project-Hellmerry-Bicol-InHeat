@@ -25,7 +25,7 @@ This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md
 | Municipality join + choropleth + legend/tooltip | Shipped | 2026-11-04 |
 | Ranking screen (slope/danger toggle) | Shipped | 2026-11-04 |
 | Auth (Google OAuth, in-flow header pill) | Shipped | 2026-11-04 |
-| ETL pipeline (POWER → trends → static JSON) | Ran once (112 LGUs) | 2026-11-04 |
+| ETL pipeline (POWER → trends → static JSON) | Ran once (114 LGUs, B2 complete) | 2026-11-05 |
 | Narration screen (screen #3) | **Not started** | 2026-11-05 |
 | PWA (manifest + service worker) | **Not started** | 2026-11-05 |
 | Leaderboard UI / saved history | **Not started** | 2026-11-05 |
@@ -37,7 +37,7 @@ This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md
 
 By merge, newest first (dates from `git log`):
 
-- **PR #9 `cd205af` (2026-11-04 22:56)** — *feat: scale POWER data pull from 6 → 114 Bicol municipalities.* `apps/api/fetch_power_data.py` scaled up; regenerated `apps/web/public/data/narratives.json` (+33,806 lines → 901,402 B). Actual data anatomy (V 2026-11-05): **112 entries** (not 114 — two LGUs missing entirely, see §6 B2), `meta` = Theil-Sen + Mann-Kendall original_test, α 0.05, danger threshold **42 °C**, period 1981-01-01 → 2025-12-31, Rothfusz HI from `T2M_MAX` + RH from `T2MDEW`, `generator: "template"` (no LLM yet — sanctioned fallback, CONCEPT §6d).
+- **PR #9 `cd205af` (2026-11-04 22:56)** — *feat: scale POWER data pull from 6 → 114 Bicol municipalities.* `apps/api/fetch_power_data.py` scaled up; regenerated `apps/web/public/data/narratives.json` (+33,806 lines → 901,402 B). Actual data anatomy (V 2026-11-05): **114 entries** (B2 complete — Catanduanes|Bato and Masbate|San Fernando included, Sagñay mojibake fixed), `meta` = Theil-Sen + Mann-Kendall original_test, α 0.05, danger threshold **42 °C**, period 1981-01-01 → 2025-12-31, Rothfusz HI from `T2M_MAX` + RH from `T2MDEW`, `generator: "template"` (no LLM yet — sanctioned fallback, CONCEPT §6d).
 - **PR #8 `3aa1b2e` (21:31)** — all map/ranking frontend work (16 files): tab shell `apps/web/src/app.jsx` (brand · Map/Ranking tabs · auth slot), `useBicolData.js` fetch hook, `AuthButton`, tailwind features glob, `features/gamified-dashboard/*` (RankingScreen, RankingTable, `ranking.js`, 4/4 tests), `features/map-controls/*` (BicolMap municipality layer, legend, tooltip, `gis/engine.js`, engine tests).
 - **`e127059` (21:26)** — auth/layout fix landed from the lead session: OAuth button moved **in-flow into the header** (was a `fixed` `z-[1000]` pill that floated over the `z-[700]` map controls — §4 D-R1), graceful "Sign-in unavailable" when Supabase env is absent, `@supabase/supabase-js ^2.118.0` dep.
 - **PR #6 `e0385d8` (19:48)** — auth re-land after revert: `AuthButton.jsx`, `apps/web/src/lib/supabase.js` (null-client degrade), `supabase/migrations/0001_profiles.sql` (handle-only profiles).
@@ -53,7 +53,7 @@ By merge, newest first (dates from `git log`):
 Priority order, with the **write-boundary owner** for each (§9):
 
 1. **B1 — engine test RED on `main`.** `test_engine.mjs` line ~176 asserts `== 6` narrated municipalities; reality 111. Fix = assert the real joined count (or assert ≥ something + reflect the Sagñay loss). Owner: **map-controls agent** (do *not* touch from app-side work).
-2. **B2 — data completeness.** Regenerate narratives for `Catanduanes|Bato` and `Masbate|San Fernando` (missing from `narratives.json` → 112 ≠ 114) and fix the `Sagñay` mojibake (`id: "sagã±ay"`, `name: "SagÃ±ay"` — one dropped join, engine joins 111/112). Owner: **pipeline agent**.
+2. **B2 — complete.** Narratives regenerated for 114 municipalities (Catanduanes|Bato, Masbate|San Fernando included); Sagñay mojibake fixed (name `Sagñay`, ID `sagñay`); B2 owner: pipeline agent. Owner: **pipeline agent** — moved to done.
 3. **Narration screen** (3rd CORE screen) + `features/chatbot-llm` slice — currently zero code. EN + Filipino templates already exist in `narratives.json` `narration.{en,fil}` — the screen mostly reads and renders them. Owner: **chatbot-llm agent**.
 4. **PWA manifest + service worker** — `CONCEPT.md` §11 planned this for h36–42; nothing exists (§6 B3). Owner: **web agent**.
 5. **`features/layer-uhi-terrain`** — LST/canopy/land-cover layers for the driver story. Owner: **layer-uhi agent**.

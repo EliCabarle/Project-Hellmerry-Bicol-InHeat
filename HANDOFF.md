@@ -1,7 +1,7 @@
 # HANDOFF.md
 
 **Resume guide — read this before touching anything.**
-Last verified: **2026-11-05** by the lead/integrator session. Git pin at writing time: `main @ cd205af`, working tree clean, == `origin/main`.
+Last verified: **2026-11-07** by the bug-resolution session (map "data pending" + ranking homonyms + Sagñay mojibake). Git pin at writing time: local branch `frontend/issue-resolutions` @ `9f03657` (= PR #13; PR #11 `4563494` is an ancestor; the lead was mid-merge-activity during the session).
 
 This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md) (write boundaries, rules) and [`CONCEPT.md`](CONCEPT.md) (concept + decision log) always win on conflict. Every claim below is tagged like this: **(V d/m/y)** = verified in-session on that date; **[UNVERIFIED]** = claimed but not checked here; **[inference]** = reasoned conclusion, marked plainly. Numbers that pass through stale notes and get printed again without re-checking is how handoffs rot — don't be that author.
 
@@ -13,7 +13,7 @@ This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md
 
 **The pitch:** NASA/Landsat-era thermometer data says it's warming; what people *feel* is heat + humidity. The app computes the annual peak **heat index** (Rothfusz, from POWER `T2M_MAX` + RH-derived dewpoint) per municipality (1981–2025), finds trends with **Theil-Sen slope + Mann-Kendall (α = 0.05)**, renders them on a map + ranking, and explains *which drivers* (terrain, coast, wind, canopy, land cover, LST) move differently between neighbours — association via RF/SHAP, never claimed causation.
 
-**Current status (V 2026-11-05):** working prototype on `main @ cd205af`. **2 of 3 planned screens shipped** (Map + Ranking); auth (Google OAuth) landed; the data pipeline ran end-to-end once (112 municipalities narrated; details in §6). **Not built:** Narration screen, PWA manifest/service worker, leaderboard UI, hold-out validation, driver-layer slice, RF/SHAP ranking. Engine test suite is **RED (13/14)** on `main` — see §6 B1.
+**Current status (V 2026-11-07):** working prototype. **2 of 3 planned screens shipped** (Map + Ranking); auth (Google OAuth) landed; the data pipeline ran end-to-end and is now **complete: 114/114 municipalities narrated, homonyms separated, zero mojibake** (details in §2/§3). **Not built:** Narration screen, PWA manifest/service worker, leaderboard UI, driver-layer slice, hold-out validation run on real PAGASA data (module `validate_pagasa.py` now exists, unit-tested). Engine test suite is **GREEN (14/14)**; pipeline tests **32/32 GREEN** — see §2. B1 and B2 are **RESOLVED (V 2026-11-07)**, details in §5 Dead ends end / §2.
 
 **Cut lines in force (hard, do not renegotiate):** h30 (auth: leaderboard missing → local-only progress), h42 (STRETCH freeze), h44 (video fallback). Details in `CONCEPT.md` §11.
 
@@ -25,7 +25,7 @@ This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md
 | Municipality join + choropleth + legend/tooltip | Shipped | 2026-11-04 |
 | Ranking screen (slope/danger toggle) | Shipped | 2026-11-04 |
 | Auth (Google OAuth, in-flow header pill) | Shipped | 2026-11-04 |
-| ETL pipeline (POWER → trends → static JSON) | Ran once (112 LGUs) | 2026-11-04 |
+| ETL pipeline (POWER → trends → static JSON) | **Complete: 114/114, homonyms split, mojibake 0** | 2026-11-07 |
 | Narration screen (screen #3) | **Not started** | 2026-11-05 |
 | PWA (manifest + service worker) | **Not started** | 2026-11-05 |
 | Leaderboard UI / saved history | **Not started** | 2026-11-05 |
@@ -35,7 +35,9 @@ This file is the **state layer**. It is *not* authority: [`AGENTS.md`](AGENTS.md
 
 ## 2. What's done
 
-By merge, newest first (dates from `git log`):
+By merge, newest first (dates from `git log`). **Current phase entry (V 2026-11-07, bug-resolution session — B1/B2/PR-claim fixes):**
+
+- **2026-11-07 (uncommitted at writing time, lead approval pending)** — the root cause of the user-reported "not fixed" symptoms: PR #11 fixed the *code* but (a) never regenerated the artifacts the PWA reads, (b) its Supabase push had never succeeded (tables empty, migration unrun), (c) the working checkout didn't even contain it. This session: re-applied Wave-1 pipeline hardening that a mid-session pull wiped (province-qualified slug ids in `generate_static_json.py` via NFKD `slugify()`, explicit `encoding="utf-8"` on `calculate_trends.py` `read_csv`, regression tests incl. the 5-LGU id/mojibake matrix; **wrote the missing `apps/api/validate_pagasa.py`** that PR #11's tests imported but never committed); regenerated `output/narratives.json` + `apps/web/public/data/narratives.json` from the recovered clean 1,873,704-row CSV (re-pull NOT needed — CSV verified 114 pairs × 45 years, UTF-8 clean); ran `calculate_drivers.py` on the full 1.5M-row model (R²_test 0.72, drivers.json 114 rows); Playwright `@cli`-driven E2E on `npm run dev` verified: legend **"Data: 114 of 114"**, 0 `Trend data pending` tooltips, Bato(CS +0.031)/Bato(Cat +0.056) + San Fernando(CS +0.031)/San Fernando(Mas +0.042) as distinct ranking rows with 45-year samples, `Sagñay` correct everywhere, **0 mojibake occurrences on the map + ranking DOM**, no React duplicate-key console warnings; `dist/` rebuilt (was a stale 48 KB mock), secret-scan of bundle clean; screenshots in `.playwright-cli/page-2026-11-0*.png`. **Follow-ups left open:** Supabase push blocked (see §6) — service-role secret not on disk; commit approval pending from lead.
 
 - **PR #9 `cd205af` (2026-11-04 22:56)** — *feat: scale POWER data pull from 6 → 114 Bicol municipalities.* `apps/api/fetch_power_data.py` scaled up; regenerated `apps/web/public/data/narratives.json` (+33,806 lines → 901,402 B). Actual data anatomy (V 2026-11-05): **112 entries** (not 114 — two LGUs missing entirely, see §6 B2), `meta` = Theil-Sen + Mann-Kendall original_test, α 0.05, danger threshold **42 °C**, period 1981-01-01 → 2025-12-31, Rothfusz HI from `T2M_MAX` + RH from `T2MDEW`, `generator: "template"` (no LLM yet — sanctioned fallback, CONCEPT §6d).
 - **PR #8 `3aa1b2e` (21:31)** — all map/ranking frontend work (16 files): tab shell `apps/web/src/app.jsx` (brand · Map/Ranking tabs · auth slot), `useBicolData.js` fetch hook, `AuthButton`, tailwind features glob, `features/gamified-dashboard/*` (RankingScreen, RankingTable, `ranking.js`, 4/4 tests), `features/map-controls/*` (BicolMap municipality layer, legend, tooltip, `gis/engine.js`, engine tests).
@@ -46,14 +48,14 @@ By merge, newest first (dates from `git log`):
 - **Migrations (manual SQL, `supabase/migrations/`):** `0001_profiles.sql` (profiles + progress, handle-only, not idempotent) then `001_bicol_schema.sql` (PostGIS municipalities + centroid fn). Run by hand in the Supabase SQL Editor — no migrations CLI/runner exists.
 - **Knowledge graph (V 2026-11-05):** `graphify-out/` built this session — see §8 "Knowledge graph".
 
-**Test truth (V 2026-11-05, re-run this day):** `node features\map-controls\test_engine.mjs` → **13/14 RED** (stale assertion expects 6 narrated municipalities; engine now joins 111); `node features\gamified-dashboard\test_ranking.mjs` → **4/4 green**; `apps/api/test_pipeline.py` → [UNVERIFIED — pandas missing from every local interpreter]; `npm run build` (~425 KB gz incl. supabase client) → [UNVERIFIED 2026-11-05, green as of 2026-11-04].
+**Test truth (V 2026-11-07):** `uv run python -m unittest test_pipeline` → **32/32 GREEN** (needs `.venv` in `apps/api`; `uv venv` + `uv pip install -r requirements.txt`); `node features\map-controls\test_engine.mjs` → **14/14 GREEN** (join asserted at 114, homonyms + recovered LGUs + Sagñay joined, un-joined case now on a synthetic feature); `node features\gamified-dashboard\test_ranking.mjs` → **4/4 green**; `npm run build` → green (1.74 MB minified incl. supabase client — chunk-size warning only), dist data == public data (V 2026-11-07).
 
 ## 3. What's next
 
 Priority order, with the **write-boundary owner** for each (§9):
 
-1. **B1 — engine test RED on `main`.** `test_engine.mjs` line ~176 asserts `== 6` narrated municipalities; reality 111. Fix = assert the real joined count (or assert ≥ something + reflect the Sagñay loss). Owner: **map-controls agent** (do *not* touch from app-side work).
-2. **B2 — data completeness.** Regenerate narratives for `Catanduanes|Bato` and `Masbate|San Fernando` (missing from `narratives.json` → 112 ≠ 114) and fix the `Sagñay` mojibake (`id: "sagã±ay"`, `name: "SagÃ±ay"` — one dropped join, engine joins 111/112). Owner: **pipeline agent**.
+1. **~~B1 — engine test RED~~ RESOLVED (V 2026-11-07):** `test_engine.mjs` now asserts 114/114 joins incl. both homonym pairs + Sagñay; suite 14/14 green.
+2. **~~B2 — data completeness~~ RESOLVED (V 2026-11-07):** narratives regenerated at 114/114 from the clean CSV; `Sagñay` spelled correctly in name/id/narrations (ids are province-qualified slugs, e.g. `sagnay-camarines-sur`); byte-level grep = 0 mojibake in every shipped artifact. Root cause memo in §2 (cp1252 geojson read in pre-PR-11 `fetch_power_data.py`, mojibake baked into the stale served JSON).
 3. **Narration screen** (3rd CORE screen) + `features/chatbot-llm` slice — currently zero code. EN + Filipino templates already exist in `narratives.json` `narration.{en,fil}` — the screen mostly reads and renders them. Owner: **chatbot-llm agent**.
 4. **PWA manifest + service worker** — `CONCEPT.md` §11 planned this for h36–42; nothing exists (§6 B3). Owner: **web agent**.
 5. **`features/layer-uhi-terrain`** — LST/canopy/land-cover layers for the driver story. Owner: **layer-uhi agent**.
@@ -97,7 +99,17 @@ Paths that were tried and rejected/abandoned — with the reason, so nobody re-d
 
 ## 6. Open questions and blockers
 
-**(a) Carried OPEN from `CONCEPT.md` §13 / `AGENTS.md`:**
+**(a) NEW — Supabase push: RESOLVED (V 2026-11-07):**
+
+| Item | Status | Resolve how |
+|---|---|---|
+| Real service-role secret | **Placed** | The lead provided the real JWT (`eyJ...`) via `apps/web/.env` `SUPABASE_SERVICE_ROLE_KEY`; staged into `apps/api/.env` as `SUPABASE_SERVICE_KEY` (gitignored). ⚠️ B5 residual: the secret still lives in `apps/web/.env` — lead should remove it there and keep it in `apps/api/.env` only |
+| Migration `0002_top_drivers.sql` | **RAN** | `(name, province)` unique index live — proven by 114 successful `(name,province)`-conflict upserts |
+| Push result | **114/114 pushed, verified** | REST read-back: 114 rows, all with `top_drivers` + `narration_en`, 2×Bato (CS/Cat), 2×San Fernando (CS/Mas), `Sagñay` clean UTF-8, 0 mojibake; slopes 0.030–0.0623 °C/yr |
+| Stale pre-PR-11 rows | **Deleted** | 5 orphan rows (bare `Naga`/`Legazpi`/`Sorsogon`/`Masbate` + garbage `meta` row) removed via REST DELETE → final count exactly 114 |
+| Env-var name mix | Residual (B8) | Script reads `SUPABASE_URL` + `SUPABASE_SERVICE_KEY`; `apps/web/.env` uses `SUPABASE_SERVICE_ROLE_KEY`/`VITE_*` — reconcile names later, harmless now |
+
+**(b) Carried OPEN from `CONCEPT.md` §13 / `AGENTS.md`:**
 
 | Item | Status | Resolve how |
 |---|---|---|
@@ -107,7 +119,7 @@ Paths that were tried and rejected/abandoned — with the reason, so nobody re-d
 | Exact Region V LGU count | OPEN — **never estimate** | Count from official PSA/PSGC source (h6) |
 | POWER daily start year | **Verified-in-code: 1981** (V, `fetch_power_data.py` docstring 2026-11-03) | Lead: flip the CONCEPT/AGENTS rows |
 
-**(b) Repo-state blockers (each with owner):**
+**(c) Repo-state blockers (each with owner):**
 
 | # | Blocker | Owner |
 |---|---|---|

@@ -1,8 +1,9 @@
 """Self-checks for the POWER -> trend -> static-JSON pipeline. No network.
 
-  python -m unittest test_pipeline -v
+python -m unittest test_pipeline -v
 """
 
+import json
 import unittest
 
 import pandas as pd
@@ -107,7 +108,10 @@ class TrendTest(unittest.TestCase):
 
     def test_warming_series_is_significant_and_positive(self):
         frame = _daily(
-            [("Legazpi", "Albay", f"{y}-03-01", 30.0 + (y - 1981) * 0.05) for y in range(1981, 2026)]
+            [
+                ("Legazpi", "Albay", f"{y}-03-01", 30.0 + (y - 1981) * 0.05)
+                for y in range(1981, 2026)
+            ]
         )
         row = trend_for(annual_means(frame))
         self.assertAlmostEqual(row["slope_c_per_year"], 0.05, places=3)
@@ -118,7 +122,10 @@ class TrendTest(unittest.TestCase):
     def test_non_significant_trend_is_still_reported(self):
         flat = [30.0, 29.5, 30.4, 29.9, 30.2, 29.7, 30.3, 30.0]
         frame = _daily(
-            [("Naga", "Camarines Sur", f"{1981 + i}-03-01", hi) for i, hi in enumerate(flat)]
+            [
+                ("Naga", "Camarines Sur", f"{1981 + i}-03-01", hi)
+                for i, hi in enumerate(flat)
+            ]
         )
         row = trend_for(annual_means(frame))
         self.assertFalse(row["is_significant"])  # flag, not a filter
@@ -127,7 +134,10 @@ class TrendTest(unittest.TestCase):
 
     def test_too_few_years_still_emits_a_row(self):
         frame = _daily(
-            [("Virac", "Catanduanes", "2000-03-01", 30.0), ("Virac", "Catanduanes", "2001-03-01", 31.0)]
+            [
+                ("Virac", "Catanduanes", "2000-03-01", 30.0),
+                ("Virac", "Catanduanes", "2001-03-01", 31.0),
+            ]
         )
         row = trend_for(annual_means(frame))
         self.assertIsNone(row["slope_c_per_year"])
@@ -136,7 +146,9 @@ class TrendTest(unittest.TestCase):
 
 
 class NarrationTest(unittest.TestCase):
-    def _row(self, slope: float, p: float, significant: bool, danger_days: int = 9) -> dict:
+    def _row(
+        self, slope: float, p: float, significant: bool, danger_days: int = 9
+    ) -> dict:
         return {
             "name": "Legazpi",
             "slope_c_per_year": slope,
@@ -190,7 +202,9 @@ class NarrationTest(unittest.TestCase):
 
     def test_never_exceeded_sentence_replaces_the_null_peak_year(self):
         text = render_narration(self._row(0.0312, 0.0004, True, danger_days=0))
-        self.assertIn("Legazpi has never exceeded the 42 °C Danger threshold", text["en"])
+        self.assertIn(
+            "Legazpi has never exceeded the 42 °C Danger threshold", text["en"]
+        )
         self.assertIn("lumampas ang Legazpi sa", text["fil"])
         self.assertNotIn("None", text["en"])
         self.assertNotIn("None", text["fil"])
@@ -261,7 +275,7 @@ class NarrationTest(unittest.TestCase):
         }
         result = build(trends)
         municipality = result["municipalities"][0]
-        self.assertEqual(municipality["id"], "legazpi")
+        self.assertEqual(municipality["id"], "legazpi-albay")
         self.assertEqual(set(municipality["narration"]), {"en", "fil"})
         self.assertEqual(municipality["latest"]["year"], 2025)
         self.assertEqual(municipality["latest"]["danger_days"], 9)
@@ -269,6 +283,71 @@ class NarrationTest(unittest.TestCase):
         self.assertEqual(municipality["peak_danger_days"], {"year": 2025, "days": 9})
         self.assertEqual(result["meta"]["danger_threshold_c"], 42.0)
         self.assertIn("sources", result["meta"])
+
+    def test_static_json_ids_survive_homonyms_and_unicode(self):
+        # Two 'Bato's and a mojibake-prone 'Sagñay': ids must stay distinct and
+        # ASCII-safe while every user-facing name keeps its diacritic.
+        trends = {
+            "variable": "annual mean daily heat index",
+            "units": "degrees Celsius",
+            "method": "Theil-Sen slope + Mann-Kendall original_test",
+            "alpha": 0.05,
+            "danger_threshold_c": 42.0,
+            "period": {"start": "1981-01-01", "end": "2025-12-31"},
+            "municipalities": [
+                self._trends_row("Bato", "Camarines Sur"),
+                self._trends_row("Bato", "Catanduanes"),
+                self._trends_row("San Fernando", "Camarines Sur"),
+                self._trends_row("San Fernando", "Masbate"),
+                self._trends_row("Sagñay", "Camarines Sur"),
+            ],
+        }
+        result = build(trends)
+        entries = result["municipalities"]
+        ids = [m["id"] for m in entries]
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertIn("bato-camarines-sur", ids)
+        self.assertIn("bato-catanduanes", ids)
+        self.assertIn("san-fernando-masbate", ids)
+        self.assertIn("sagnay-camarines-sur", ids)
+        sagnay = next(m for m in entries if m["name"] == "Sagñay")
+        self.assertEqual(sagnay["id"], "sagnay-camarines-sur")
+        narration_text = json.dumps(result["municipalities"], ensure_ascii=False)
+        self.assertIn("Sagñay", narration_text)
+        self.assertNotIn("SagÃ±ay", narration_text)
+
+    @staticmethod
+    def _trends_row(name: str, province: str) -> dict:
+        return {
+            "name": name,
+            "province": province,
+            "lat": 13.1391,
+            "lon": 123.7438,
+            "slope_c_per_year": 0.0312,
+            "slope_ci95": [0.02, 0.04],
+            "p_value": 0.0004,
+            "is_significant": True,
+            "alpha": 0.05,
+            "trend_direction": "increasing",
+            "sample": {"n_years": 45, "n_days": 16436},
+            "series": [
+                {
+                    "year": 2025,
+                    "mean_heat_index_c": 40.2,
+                    "danger_days": 9,
+                    "n_days": 365,
+                }
+            ],
+        }
+
+    def test_read_csv_requires_utf8(self):
+        import inspect
+
+        from calculate_trends import main as trends_main
+
+        source = inspect.getsource(trends_main)
+        read_call = next(line for line in source.splitlines() if "read_csv" in line)
+        self.assertIn("encoding=", read_call)
 
 
 class DriverRankingTest(unittest.TestCase):

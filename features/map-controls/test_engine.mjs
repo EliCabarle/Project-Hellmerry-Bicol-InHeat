@@ -173,16 +173,31 @@ test('municipality boundary file shape', () => {
   strictAssert.equal(keys.size, 114, 'all join keys unique (V2 tripwire)')
 })
 
-test('joinNarratives matches the 6 narrated municipalities', () => {
+test('joinNarratives matches all 114 LGUs including the homonyms', () => {
   const joined = joinNarratives(mun, nar)
   const withData = joined.features.filter((f) => f.properties.narrative)
-  strictAssert.equal(withData.length, 6)
-  const byId = Object.fromEntries(withData.map((f) => [f.properties.adm3_en, f.properties.narrative]))
-  strictAssert.equal(byId['City of Naga'].id, 'naga')
-  strictAssert.equal(byId['City of Sorsogon'].id, 'sorsogon')
-  strictAssert.equal(byId['City of Masbate'].id, 'masbate')
-  const bacacay = joined.features.find((f) => f.properties.adm3_en === 'Bacacay')
-  strictAssert.equal(bacacay.properties.narrative, null, 'un-joined feature gets null')
+  strictAssert.equal(withData.length, 114, 'every LGU joins its narrative (regen regression tripwire: B2 shipped 112)')
+  const byKey = Object.fromEntries(
+    withData.map((f) => [joinKey(f.properties.adm3_en, f.properties.province), f.properties.narrative]),
+  )
+  strictAssert.equal(byKey[joinKey('City of Naga', 'Camarines Sur')].id, 'city-of-naga-camarines-sur')
+  strictAssert.equal(byKey[joinKey('City of Sorsogon', 'Sorsogon')].id, 'city-of-sorsogon-sorsogon')
+  strictAssert.equal(byKey[joinKey('City of Masbate', 'Masbate')].id, 'city-of-masbate-masbate')
+  // the two homonyms + recovered LGUs must exist as DISTINCT joins
+  const batoCS = byKey[joinKey('Bato', 'Camarines Sur')]
+  const batoCat = byKey[joinKey('Bato', 'Catanduanes')]
+  const sfCS = byKey[joinKey('San Fernando', 'Camarines Sur')]
+  const sfMas = byKey[joinKey('San Fernando', 'Masbate')]
+  strictAssert.ok(batoCS && batoCat && sfCS && sfMas, 'Bato/San Fernando homonyms all join')
+  strictAssert.notEqual(batoCS.id, batoCat.id, 'the two Batos have different data')
+  strictAssert.notEqual(sfCS.id, sfMas.id, 'the two San Fernandos have different data')
+  for (const m of [batoCS, batoCat, sfCS, sfMas]) {
+    strictAssert.equal(m.sample.n_years, 45, 'every homonym carries its own 45-year series')
+  }
+  strictAssert.ok(byKey[joinKey('Sagñay', 'Camarines Sur')], 'Sagñay joins with correct spelling')
+  // synthetic un-joined feature gets null (the real 114 all join now)
+  const synthetic = { features: [{ properties: { adm3_en: 'Nowhere-not-a-LGU', province: 'X' } }] }
+  strictAssert.equal(joinNarratives(synthetic, nar).features[0].properties.narrative, null, 'un-joined feature gets null')
   strictAssert.doesNotThrow(() => joinNarratives(mun, undefined), 'no throw with missing narratives')
   // original objects untouched
   strictAssert.equal(mun.features[0].properties.narrative, undefined, 'input not mutated')

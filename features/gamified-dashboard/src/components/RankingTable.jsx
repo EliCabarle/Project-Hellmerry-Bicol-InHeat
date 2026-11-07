@@ -35,7 +35,7 @@ export default function RankingTable({
             const isSaved = savedKeys.has(savedKey(m?.name, m?.province))
             const label = `${isSaved ? 'Unsave' : 'Save'} ${m?.name ?? 'municipality'}`
             return (
-              <tr key={m?.id ?? m?.name ?? i} className="border-b border-slate-800 transition-colors duration-200 hover:bg-slate-800/60">
+              <tr key={`${m?.id ?? m?.name ?? i}|${m?.province ?? ''}`} className="border-b border-slate-800 transition-colors duration-200 hover:bg-slate-800/60">
                 <td className="px-2 py-1.5">
                   <button
                     type="button"

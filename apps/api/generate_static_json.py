@@ -18,8 +18,22 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def slugify(name: str, province: str) -> str:
+    """Province-qualified, ASCII-safe, unique across the 114 LGUs.
+
+    'Bato' exists in two provinces and 'Sagñay' is not ASCII: a bare-name id
+    would collide and a raw-id id would dribble mojibake into DOM keys.
+    """
+    text = unicodedata.normalize("NFKD", f"{name} {province}")
+    text = "".join(c for c in text if not unicodedata.combining(c)).lower()
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", text)).strip("-")
+
 
 from calculate_trends import DANGER_C  # single source for the 42 °C Danger floor
 
@@ -27,7 +41,9 @@ API_DIR = Path(__file__).resolve().parent
 IN_JSON = API_DIR / "output" / "trends.json"
 OUT_JSON = API_DIR / "output" / "narratives.json"
 # Boundary source of truth for the completeness check (114 municipalities).
-GEOJSON_PATH = API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
+GEOJSON_PATH = (
+    API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
+)
 
 # PAGASA heat-index bands (CONCEPT §6c-4), in °C.
 BANDS = [
@@ -201,7 +217,7 @@ def build(trends: dict) -> dict:
         danger = _danger_summary(row["series"])
         municipalities.append(
             {
-                "id": row["name"].lower().replace(" ", "-"),
+                "id": slugify(row["name"], row["province"]),
                 "name": row["name"],
                 "province": row["province"],
                 "lat": row["lat"],
@@ -280,7 +296,9 @@ def _missing_municipalities(payload: dict) -> list[tuple[str, str]]:
         for f in features
     }
     produced = {(m["name"], m["province"]) for m in payload["municipalities"]}
-    print(f"coverage: {len(produced & expected)}/{len(expected)} GeoJSON municipalities")
+    print(
+        f"coverage: {len(produced & expected)}/{len(expected)} GeoJSON municipalities"
+    )
     return sorted(expected - produced)
 
 

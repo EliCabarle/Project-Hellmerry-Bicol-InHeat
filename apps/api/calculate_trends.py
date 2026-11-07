@@ -117,7 +117,9 @@ def main() -> None:
     parser.add_argument("--out", default=str(OUT_JSON))
     args = parser.parse_args()
 
-    frame = pd.read_csv(args.csv)
+    # encoding is load-bearing: the CSV holds 'Sagñay' as UTF-8, and without this
+    # Windows cp1252 reads it back as 'SagÃ±ay'.
+    frame = pd.read_csv(args.csv, encoding="utf-8")
     annual = annual_means(frame)
 
     # Group by (name, province): 'Bato' and 'San Fernando' each exist in two
@@ -152,7 +154,11 @@ def main() -> None:
     )
 
     for row in rows:
-        slope = "-" if row["slope_c_per_year"] is None else f"{row['slope_c_per_year']:+.4f}"
+        slope = (
+            "-"
+            if row["slope_c_per_year"] is None
+            else f"{row['slope_c_per_year']:+.4f}"
+        )
         p = "-" if row["p_value"] is None else f"{row['p_value']:.4f}"
         flag = "significant" if row["is_significant"] else "not significant"
         last = row["series"][-1]

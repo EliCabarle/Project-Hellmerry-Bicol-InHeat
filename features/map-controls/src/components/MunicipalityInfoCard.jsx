@@ -31,7 +31,7 @@ export default function MunicipalityInfoCard({ feature, year = null, onClose }) 
   return (
     <aside
       aria-label={`Details for ${name}`}
-      className="pointer-events-auto absolute inset-x-3 bottom-28 z-[760] max-h-[46vh] overflow-y-auto rounded-xl border border-white/10 bg-heat-surface/95 p-3.5 text-slate-100 shadow-hud backdrop-blur-md bih-scroll md:inset-x-auto md:bottom-auto md:right-3 md:top-[5.25rem] md:max-h-[calc(100%-7rem)] md:w-[21.5rem]"
+      className="pointer-events-auto absolute inset-x-3 bottom-[10.5rem] z-[760] max-h-[44vh] overflow-y-auto rounded-xl border border-white/10 bg-heat-surface/95 p-3.5 text-slate-100 shadow-hud backdrop-blur-md bih-scroll min-[360px]:bottom-36 md:inset-x-auto md:bottom-auto md:right-3 md:top-[5.25rem] md:max-h-[calc(100%-7rem)] md:w-[21.5rem]"
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">

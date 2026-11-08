@@ -57,6 +57,12 @@ export default function RankingScreen({
     [ranked],
   )
 
+  // A hidden filter that can no longer be switched off would strand the list
+  // after sign-out, so clear "saved only" whenever saving is unavailable.
+  useEffect(() => {
+    if (!canSave) setSavedOnly(false)
+  }, [canSave])
+
   // Load the user's saved places once per session; signing out clears them so a
   // second account on the same tab cannot inherit the first account's stars.
   useEffect(() => {

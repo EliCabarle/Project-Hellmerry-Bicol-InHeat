@@ -62,6 +62,7 @@ export default function RankingTable({
       <div className="hidden overflow-hidden rounded-xl border border-white/10 bg-heat-surface/70 shadow-hud md:block">
         <div className="bih-scroll max-h-[calc(100vh-21rem)] overflow-auto">
           <table className="w-full min-w-[48rem] border-collapse text-sm tabular-nums">
+            <caption className="sr-only">Municipality heat ranking, sorted by the selected measure</caption>
             <thead className="sticky top-0 z-10 bg-heat-deep/95 text-left text-[10px] uppercase tracking-[0.14em] text-slate-500 backdrop-blur">
               <tr className="border-b border-white/10">
                 <th scope="col" className="px-3 py-2.5">Save</th>
@@ -115,7 +116,7 @@ export default function RankingTable({
         </div>
       </div>
 
-      <ul className="space-y-2 md:hidden">
+      <ul aria-label="Municipality heat ranking" className="space-y-2 md:hidden">
         {rows.map((m, i) => {
           const t = m?.trend ?? {}
           const isSaved = savedKeys.has(savedKey(m?.name, m?.province))

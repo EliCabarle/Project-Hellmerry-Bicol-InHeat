@@ -4,8 +4,10 @@
 // Municipality boundaries: geoBoundaries (PSA/PSGC-aligned, adm3) — CC BY 4.0 (same note as slice 1).
 // Fallback used pending PSA/PSGC official source verification at h6 (CONCEPT 8/13).
 
+import { recordForYear, trendColor, yearColor } from './yearRamp.js'
+
 const HIGHLIGHT = {
-  // Region V / Bicol — heat palette
+  // Region V / Bicol — heat palette used only during the loading state
   fill: true,
   fillColor: '#ef4444',
   fillOpacity: 0.55,
@@ -14,10 +16,10 @@ const HIGHLIGHT = {
 }
 
 const DARK = {
-  // every other region — darker shade
+  // every other region — dark veil over the satellite basemap
   fill: true,
   fillColor: '#1f2937',
-  fillOpacity: 0.7,
+  fillOpacity: 0.58,
   color: '#475569',
   weight: 1,
 }
@@ -64,6 +66,11 @@ export function joinKey(name, province) {
   return p ? `${n}|${p}` : n
 }
 
+export function featureKey(feature) {
+  const p = feature?.properties ?? {}
+  return joinKey(p.adm3_en, p.province) || p.shapeName || ''
+}
+
 export function buildNarrativeIndex(narratives) {
   const idx = new Map()
   for (const m of narratives?.municipalities ?? []) {
@@ -91,31 +98,61 @@ export function isCity(feature) {
 
 // Region layer: outline only (lets municipality fills show through); while loading, keep
 // slice-1 solid fills so the screen never goes blank
-export const REGION_OUTLINE = { fill: false, color: '#fca5a5', weight: 2 }
+export const REGION_OUTLINE = { fill: false, color: '#fca5a5', weight: 1.75 }
 export function getRegionOutlineStyle(feature) {
   return isBicol(feature) ? REGION_OUTLINE : DARK
 }
 
 const MUN_PENDING = { fill: true, fillColor: '#1f2937', fillOpacity: 0.25, color: '#334151', weight: 1 }
-const MUN_INCREASE = { fill: true, fillColor: '#ef4444', fillOpacity: 0.55, color: '#fca5a5' }
-const MUN_DECREASE = { fill: true, fillColor: '#3b82f6', fillOpacity: 0.55, color: '#fca5a5' } // approved: counter-hue for decreasing trends
+const MUN_DECREASE = { fill: true, fillColor: '#3b82f6', fillOpacity: 0.6, color: '#fca5a5' } // approved: counter-hue for decreasing trends
 const MUN_FLAT = { fill: true, fillColor: '#64748b', fillOpacity: 0.55, color: '#fca5a5' }
 
+function trendBase(feature) {
+  const t = feature?.properties?.narrative?.trend ?? {}
+  if (t.direction === 'decreasing') return MUN_DECREASE
+  if (t.direction === 'increasing') {
+    const fill = trendColor(t.slope_c_per_year)
+    if (fill) {
+      return {
+        fill: true,
+        fillColor: fill,
+        fillOpacity: 0.62,
+        color: '#0b1220',
+        weight: isCity(feature) ? 2.2 : 1.6,
+      }
+    }
+  }
+  return MUN_FLAT
+}
+
+function yearBase(feature, year) {
+  const n = feature?.properties?.narrative
+  const row = recordForYear(n?.series, year) ?? n?.latest
+  const fill = yearColor(row?.mean_heat_index_c)
+  if (!fill) return MUN_FLAT
+  return {
+    fill: true,
+    fillColor: fill,
+    fillOpacity: 0.62,
+    color: '#0b1220',
+    weight: isCity(feature) ? 2.2 : 1.6,
+  }
+}
+
 // Significance renders as border pattern (solid vs dashed), never by fill hue alone.
-export function getMunicipalityStyle(feature, { selected = false } = {}) {
+export function getMunicipalityStyle(feature, { selected = false, viewMode = 'trend', year = null } = {}) {
   const n = feature?.properties?.narrative
   if (!n) return MUN_PENDING
-  const dir = n.trend?.direction
-  const base = dir === 'increasing' ? MUN_INCREASE : dir === 'decreasing' ? MUN_DECREASE : MUN_FLAT
+  const base = viewMode === 'year' ? yearBase(feature, year) : trendBase(feature)
   const sig = n.trend?.is_significant
   const style = {
     ...base,
-    color: sig ? '#fca5a5' : '#fca5a5',
+    color: sig ? '#fca5a5' : '#cbd5e1',
     weight: sig ? (isCity(feature) ? 2.5 : 2) : (isCity(feature) ? 2 : 1.5),
     ...(sig ? {} : { dashArray: '4 3' }),
   }
   if (selected) {
-    return { ...style, weight: style.weight + 1.5, color: '#ffffff' }
+    return { ...style, weight: style.weight + 1.5, color: '#67e8f9' }
   }
   return style
 }

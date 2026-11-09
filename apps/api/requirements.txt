@@ -4,6 +4,7 @@ requests
 python-dotenv
 pandas
 numpy
+earthengine-api
 scipy
 pymannkendall
 scikit-learn

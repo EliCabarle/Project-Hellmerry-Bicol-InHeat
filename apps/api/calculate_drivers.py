@@ -2,9 +2,10 @@
 
 Reads the daily CSV from `fetch_power_data.py`, fits ONE RandomForestRegressor on
 all municipalities and the full 45-year record (~1.9M rows), then ranks features
-per municipality by mean |SHAP|. The model is scored on a held-out 20% test split,
-so the reported R² is out-of-sample and not just how well 50 trees memorised the
-training rows.
+per municipality by mean |SHAP|. The model is scored by 5-fold time-series
+cross-validation (TimeSeriesSplit on date-sorted rows), so the reported R² is
+out-of-sample and averaged over five held-out periods, not just how well 50 trees
+memorised the rows they were fitted on.
 
 Why one global model: `lat`/`lon` are constant inside a municipality, so a
 per-municipality model would see zero variance in its two geographic features and
@@ -14,7 +15,7 @@ then attributes each municipality's predictions separately.
 This is **association, not causation** (CONCEPT §10-7). U10M/V10M are wind and
 lat/lon stand in for position/terrain until elevation and LST join the feature
 set. Temperature and humidity - the physical drivers of heat index - are NOT
-features here, so the model explains only part of the variance; `r2_test` is
+features here, so the model explains only part of the variance; `r2_cv_mean` is
 reported for exactly that reason and must not be presented as forecast accuracy.
 
 Usage:
@@ -33,8 +34,7 @@ import numpy as np
 import pandas as pd
 import shap
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 
 API_DIR = Path(__file__).resolve().parent
 IN_CSV = API_DIR / "data" / "power_daily_full.csv"
@@ -53,7 +53,7 @@ TOP_N = 3
 # training rows is enough for a mean |SHAP| per municipality (~88 rows each of 114).
 SHAP_SAMPLE_ROWS = 10_000
 N_ESTIMATORS = 50
-TEST_SIZE = 0.2
+CV_FOLDS = 5
 
 
 def build(frame: pd.DataFrame, window: dict | None = None) -> dict:
@@ -62,7 +62,11 @@ def build(frame: pd.DataFrame, window: dict | None = None) -> dict:
         raise ValueError(f"CSV is missing columns: {sorted(missing)}")
 
     frame = frame.dropna(subset=FEATURES + [TARGET])
-    train, test = train_test_split(frame, test_size=TEST_SIZE, random_state=42)
+    # TimeSeriesSplit slices by row order, so order by date or the folds become
+    # per-municipality blocks instead of time periods.
+    frame = frame.sort_values("date", kind="stable")
+    X = frame[FEATURES]
+    y = frame[TARGET]
 
     model = RandomForestRegressor(
         n_estimators=N_ESTIMATORS,
@@ -70,15 +74,22 @@ def build(frame: pd.DataFrame, window: dict | None = None) -> dict:
         n_jobs=-1,
         random_state=42,
     )
-    print(f"Training Model on {len(train)} rows...")
-    model.fit(train[FEATURES], train[TARGET])
+    cv = TimeSeriesSplit(n_splits=CV_FOLDS)
+    print(f"Cross-validating on {len(frame)} rows ({CV_FOLDS} time-ordered folds)...")
+    scores = cross_val_score(model, X, y, cv=cv, scoring="r2")
+    for fold, score in enumerate(scores, start=1):
+        print(f"  fold {fold} R²: {score:.4f}")
+    r2_cv_mean = float(scores.mean())
+    r2_cv_std = float(scores.std())
+    print(f"CV R²: {r2_cv_mean:.4f} ± {r2_cv_std:.4f}")
+    cv_test_rows = sum(len(test) for _, test in cv.split(X))
 
-    r2_train = float(model.score(train[FEATURES], train[TARGET]))
-    r2_test = float(r2_score(test[TARGET], model.predict(test[FEATURES])))
-    print(f"Out-of-Sample R²: {r2_test}")
+    print(f"Training final model on all {len(frame)} rows for SHAP...")
+    model.fit(X, y)
+    r2_train = float(model.score(X, y))
 
-    sample = train.sample(
-        n=min(len(train), SHAP_SAMPLE_ROWS),
+    sample = frame.sample(
+        n=min(len(frame), SHAP_SAMPLE_ROWS),
         random_state=42,
     )
     print("Calculating SHAP...")
@@ -119,24 +130,31 @@ def build(frame: pd.DataFrame, window: dict | None = None) -> dict:
         "target": TARGET,
         "features": LABELS,
         "method": (
-            f"RandomForestRegressor (n_estimators={N_ESTIMATORS}) fitted on an "
-            f"80/20 train/test split of all municipalities; R2 reported on the "
-            f"held-out {len(test)} rows; mean |SHAP| from shap.TreeExplainer over "
-            f"{len(sample)} sampled training rows, ranked per municipality"
+            f"RandomForestRegressor (n_estimators={N_ESTIMATORS}) fitted on all "
+            f"{len(frame)} rows of all municipalities; R2 = mean ± sd over "
+            f"{CV_FOLDS} time-ordered TimeSeriesSplit folds "
+            f"({cv_test_rows} held-out rows in total); mean |SHAP| from "
+            f"shap.TreeExplainer over {len(sample)} sampled rows, ranked per "
+            f"municipality"
         ),
         "model": {
-            "train_rows": int(len(train)),
-            "test_rows": int(len(test)),
+            "train_rows": int(len(frame)),
+            # union of the CV test folds; r2_test mirrors r2_cv_mean so existing
+            # readers keep a single out-of-sample number
+            "test_rows": int(cv_test_rows),
             "window": window,
             "shap_rows": int(len(sample)),
             "r2_train": round(r2_train, 4),
-            "r2_test": round(r2_test, 4),
+            "r2_test": round(r2_cv_mean, 4),
+            "r2_cv_mean": round(r2_cv_mean, 4),
+            "r2_cv_std": round(r2_cv_std, 4),
         },
         "disclaimer": (
             "Driver importance is association, not causation. Wind components and "
             "lat/lon are proxies - terrain and LST are not in the model yet. "
-            "r2_test is the out-of-sample R2 on held-out days: it measures how much "
-            "of the heat index these four features explain, not forecast accuracy."
+            "r2_cv_mean is the out-of-sample R2 averaged over 5 time-ordered folds: "
+            "it measures how much of the heat index these four features explain, "
+            "not forecast accuracy."
         ),
         "municipalities": municipalities,
     }
@@ -175,9 +193,9 @@ def main() -> None:
     )
     print(
         f"model: r2_train={payload['model']['r2_train']} "
-        f"r2_test={payload['model']['r2_test']} "
-        f"on {payload['model']['train_rows']} train / "
-        f"{payload['model']['test_rows']} test rows"
+        f"r2_cv_mean={payload['model']['r2_cv_mean']} "
+        f"r2_cv_std={payload['model']['r2_cv_std']} "
+        f"on {payload['model']['train_rows']} rows"
     )
     for row in payload["municipalities"][:5]:
         drivers = ", ".join(d["label"] for d in row["top_drivers"])

@@ -43,6 +43,7 @@ def driver_index() -> dict[tuple[str, str], list[dict]]:
 def build_record(city_data: dict, drivers: dict) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
+    latest = city_data.get("latest") or {}
     return {
         "name": city_data.get("name"),
         "province": city_data.get("province", ""),
@@ -53,6 +54,9 @@ def build_record(city_data: dict, drivers: dict) -> dict:
         "p_value": trend.get("p_value"),
         "is_significant": trend.get("is_significant"),
         "top_drivers": drivers.get((city_data.get("name"), city_data.get("province", ""))),
+        # latest-year annual means of the daily peak and nighttime heat index
+        "heat_index_max_c": latest.get("mean_heat_index_c"),
+        "nighttime_heat_index_c": latest.get("nighttime_heat_index_c"),
         "total_danger_days_45y": city_data.get("total_danger_days_45y", 0),
         "peak_danger_year": peak.get("year"),
         "peak_danger_days": peak.get("days", 0),

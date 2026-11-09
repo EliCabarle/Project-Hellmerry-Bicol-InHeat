@@ -236,6 +236,9 @@ def build(trends: dict) -> dict:
                     "mean_heat_index_c": (
                         latest["mean_heat_index_c"] if latest else None
                     ),
+                    "nighttime_heat_index_c": (
+                        latest.get("mean_nighttime_heat_index_c") if latest else None
+                    ),
                     "danger_band": band[0] if band else None,
                     "danger_days": latest["danger_days"] if latest else None,
                 },
@@ -260,7 +263,7 @@ def build(trends: dict) -> dict:
             "sources": [
                 {
                     "name": "NASA POWER",
-                    "parameters": ["T2M_MAX", "T2MDEW"],
+                    "parameters": ["T2M_MAX", "T2M_MIN", "T2MDEW"],
                     "url": "https://power.larc.nasa.gov/",
                     "note": "Daily means, 0.5 degree grid. Heat index is derived "
                     "(Rothfusz on T2M_MAX + dew-point-derived RH), not a POWER "

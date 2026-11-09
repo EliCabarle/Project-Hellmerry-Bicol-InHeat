@@ -4,6 +4,10 @@ Reads the CSV from `fetch_power_data.py`, averages the daily PEAK heat index
 (T2M_MAX + dew-point-derived RH) per year, then runs the two tests CONCEPT §6c-2
 names as "significant" (alpha = 0.05).
 
+Each series point also carries the annual mean nighttime heat index (Rothfusz on
+T2M_MIN, same dew-point RH), so the overnight recovery the peak hides stays visible
+without changing the trend that is tested.
+
 Non-significant trends are still written out: significance is a flag, not a filter
 (CONCEPT §6c-7).
 
@@ -32,7 +36,15 @@ IN_CSV = API_DIR / "data" / "power_daily_full.csv"
 OUT_JSON = API_DIR / "output" / "trends.json"
 ALPHA = 0.05
 DANGER_C = 42.0  # PAGASA Danger band floor (CONCEPT §6c-4) - drives danger-day counts
-CSV_COLUMNS = {"name", "province", "lat", "lon", "date", "heat_index_max_c"}
+CSV_COLUMNS = {
+    "name",
+    "province",
+    "lat",
+    "lon",
+    "date",
+    "heat_index_max_c",
+    "nighttime_heat_index_c",
+}
 
 
 def annual_means(frame: pd.DataFrame) -> pd.DataFrame:
@@ -51,6 +63,10 @@ def annual_means(frame: pd.DataFrame) -> pd.DataFrame:
     frame["heat_index_max_c"] = pd.to_numeric(
         frame["heat_index_max_c"], errors="coerce"
     )
+    frame["nighttime_heat_index_c"] = pd.to_numeric(
+        frame["nighttime_heat_index_c"], errors="coerce"
+    )
+    # dropna is on the peak only: a missing T2M_MIN must not delete a valid day
     frame = frame.dropna(subset=["date", "heat_index_max_c", "name"])
     frame["year"] = frame["date"].dt.year
 
@@ -58,6 +74,7 @@ def annual_means(frame: pd.DataFrame) -> pd.DataFrame:
         frame.groupby(["name", "province", "lat", "lon", "year"], dropna=False)
         .agg(
             mean_heat_index_c=("heat_index_max_c", "mean"),
+            mean_nighttime_heat_index_c=("nighttime_heat_index_c", "mean"),
             n_days=("heat_index_max_c", "count"),
             danger_days=("heat_index_max_c", lambda s: int((s >= DANGER_C).sum())),
         )
@@ -87,6 +104,12 @@ def trend_for(group: pd.DataFrame) -> dict:
             {
                 "year": int(r["year"]),
                 "mean_heat_index_c": round(float(r["mean_heat_index_c"]), 3),
+                # NaN never reaches JSON: an all-missing year stays null
+                "mean_nighttime_heat_index_c": (
+                    None
+                    if pd.isna(r["mean_nighttime_heat_index_c"])
+                    else round(float(r["mean_nighttime_heat_index_c"]), 3)
+                ),
                 "danger_days": int(r["danger_days"]),
                 "n_days": int(r["n_days"]),
             }
@@ -132,7 +155,10 @@ def main() -> None:
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "project": "Bicol In-Heat",
-        "variable": "annual mean daily peak heat index (Rothfusz, POWER T2M_MAX + RH derived from T2MDEW)",
+        "variable": (
+            "annual mean daily peak heat index (Rothfusz, POWER T2M_MAX + RH derived "
+            "from T2MDEW), with annual mean nighttime heat index (Rothfusz, T2M_MIN)"
+        ),
         "units": "degrees Celsius",
         "method": "Theil-Sen slope + Mann-Kendall original_test",
         "alpha": ALPHA,

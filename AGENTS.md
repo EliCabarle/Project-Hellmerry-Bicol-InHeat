@@ -14,8 +14,10 @@ features/map-controls/             Feature slice: map + time scrubber (has own A
 features/layer-uhi-terrain/        Feature slice: UHI / terrain / LST layers (own AGENTS.md)
 features/gamified-dashboard/       Feature slice: progress, leaderboard, tasks (own AGENTS.md)
 features/chatbot-llm/              Feature slice: narration + variable glossary (own AGENTS.md)
+features/FEATURE-PROMPTS.md        10 engineering briefs (M1-M3 / L1-L3 / G1-G2 / N1-N2) in pack grammar
 CONCEPT.md                         Authoritative concept doc + decision log — edit only via lead
 AGENTS.md                          This file
+HANDOFF.md                         Session history + decision log — history, not a code map
 README.md                          Project readme
 package.json / docker-compose.yml  Root tooling — lead-owned
 .opencode/                         Agent/tooling config, skills, plugins — tooling, not product code
@@ -23,15 +25,64 @@ package.json / docker-compose.yml  Root tooling — lead-owned
 
 What belongs where: UI → `apps/web`; data pulls + statistical math → `core`; feature verticals → `features/<name>/`; server-only code and secrets → `apps/api`; concept decisions → `CONCEPT.md`.
 
-> Session state / resume guide: [`HANDOFF.md`](HANDOFF.md) — read before touching anything.
+> Session state / resume guide: [`HANDOFF.md`](HANDOFF.md) — read for decisions and history.
+> **Code map: `## What exists now` below.** Read that before exploring the tree.
+
+## What exists now (verified on disk 2026-11-10)
+
+Read this table before opening any source file. It is the cheapest way to find the code you need.
+
+| Slice / area | Real files | State |
+|---|---|---|
+| `features/map-controls` | `src/BicolMap.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/engine.js`, `src/gis/yearRamp.js`, `src/state/timelineStore.js`, `test_engine.mjs`, `test_year.mjs` | **built** — 114 municipality features, trend + year fill modes, significance as border pattern, roving-tabindex keyboard |
+| `features/gamified-dashboard` | `src/RankingScreen.jsx`, `src/components/RankingTable.jsx`, `src/ranking.js`, `src/savedStore.js`, `src/leaderboardStore.js`, `test_ranking.mjs`, `test_saved.mjs` | **built** — slope/danger ordering, flag-not-filter, saved places, public leaderboard read |
+| `features/layer-uhi-terrain` | `AGENTS.md` only | **not started** — layer registry, LST, canopy, land cover |
+| `features/chatbot-llm` | `AGENTS.md` only | **not started** — narrative renderer, glossary, template fallback |
+| `apps/web` | `src/app.jsx` (mounts `map` + `ranking` only — **no narration screen yet**), `useBicolData.js`, `useSession.js`, `lib/{supabase,profile}.js`, `components/AuthButton.jsx` | **built shell** |
+| `apps/api` | `main.py` (FastAPI), `fetch_power_data.py`, `fetch_boundaries.py`, `calculate_trends.py`, `calculate_drivers.py`, `generate_static_json.py`, `push_to_supabase.py`, `validate_pagasa.py`, `seed_locations.py`, `test_pipeline.py` | **built pipeline** |
+| `core/` | empty | trend math currently lives in `apps/api/calculate_*.py` |
+
+Facts already established — **do not re-derive these:**
+
+- **LGU count in play is 114** (geoBoundaries `adm3`, CC BY 4.0). Official PSA/PSGC count still unverified — treat 114 as the current fallback, not the published number.
+- **Join key is province-qualified** (`joinKey(name, province)` → `"bato|camartines sur"`). "Bato" and "San Fernando" exist in two provinces each; a bare name join is a known bug (V2 tripwire). Do not add normalised matching elsewhere — `savedStore.savedKey` is deliberately exact-match instead.
+- **Significance is rendered, never filtered**: filled shapes stay, non-significant get `dashArray` + muted border. Changing that is a science regression, not a style choice.
+- **Two colour sources only**: `gis/yearRamp.js` (`YEAR_*` heat ramp, `TREND_*` rate ramp). No component may invent a local ramp.
+- **Style updates happen in place.** `BicolMap.jsx` keeps one persistent GeoJSON layer; remounting 114 features per selection was the cause of janky zoom. Never reintroduce a remount.
+- **Layer-toggle seam already exists** (`MapControlsOverlay` takes `layerRegistry` / `onLayerChange`, guarded by `timelineStore.canToggleLayer`). `layer-uhi-terrain` is expected to own the registry — build on the seam, do not add booleans.
+- `apps/api/data/` and `apps/api/output/` do not exist yet; they appear when the pipeline runs.
+
+## Deliverables outside the repo
+
+| File | What it is |
+|---|---|
+| `C:\Users\USER\Downloads\pilipiknow-map-teardown.pdf` | 8 pages — teardown of the reference site's 3D map engine, style, 4 animation behaviours, 13 upgrade suggestions |
+| `C:\Users\USER\Downloads\map-interaction-prompt-pack.pdf` | 20 pages — 13 portable interaction prompts (pan, hover, spotlight, trace, pulse, rim, sheen…), front matter, token block |
+| `C:\Users\USER\Downloads\region5-uhi-prompt-pack.pdf` | 16 pages — 10 Region V / UHI municipality prompts (A1-A3, B1-B4, C1-C3) |
+| `features/FEATURE-PROMPTS.md` | 10 repo-scoped briefs for the four slices, same 8-field grammar |
+
+All four share one grammar: **ROLE / GOAL / WHY / FIND FIRST / CHANGE / CONSTRAINTS / CUSTOMIZE / DONE WHEN**, plus the lock sentence *"Everything under CUSTOMIZE may be changed freely. If a requested value would break something under CONSTRAINTS, say so and propose the nearest safe value — never apply it silently."* Keep new briefs in that shape.
+
+### PDF toolchain (only needed to regenerate a PDF)
+
+Playwright MCP is dead in this environment (`Connection closed`, exit 255) — do not retry it.
+The working path is a Chrome CDP printer at `%TEMP%\opencode\print.mjs`:
+
+1. `python -m http.server 8899 --bind 127.0.0.1` from `%TEMP%\opencode` — Chrome blocks `file:` URLs here.
+2. `node print.mjs "<url>" "<out.pdf>"` — headless Chrome, `Page.printToPDF`, A4, `printBackground`, footer page numbers.
+3. It prints `[section, heightPx, ok|OVER]` per section. **Budget is 1032 px** at 710 px content width; anything taller splits a page. Trim text lines, never the constraints, to fix an `OVER`.
+4. Kill the server afterwards: filter `Get-CimInstance Win32_Process -Filter "Name='python.exe'"` for `*http.server*8899*`.
+
+
 
 ## Run
 
-Commands below are the **settled intended commands**. Scaffolding files are currently empty (0 lines); script names get added to the `package.json` files as the prototype fills in.
+Commands below are **verified to exist on disk 2026-11-10**. Root `package.json` has no scripts — run the web app from `apps/web`.
 
 - **Web** (`apps/web/`): `npm install` → `npm run dev` (Vite dev server) → `npm run build` (static PWA bundle: manifest + service worker) → `npm run preview`.
-- **API/pipeline** (`apps/api/`): `pip install -r requirements.txt` → `uvicorn main:app --reload` for dev endpoints; ETL runs are invoked as scripts from `apps/api`.
-- **Supabase**: hosted, no local process. Dev uses `.env` values (see Environment).
+- **API/pipeline** (`apps/api/`): `pip install -r requirements.txt` → `uvicorn main:app --reload` (there is no `__main__` block in `main.py`). ETL runs as scripts from `apps/api`, in order: `fetch_boundaries.py` → `fetch_power_data.py` → `calculate_trends.py` → `calculate_drivers.py` → `generate_static_json.py` → `push_to_supabase.py`. `test_pipeline.py` is the pipeline check; `validate_pagasa.py` is the hold-out validation.
+- **Supabase**: hosted, no local process. Dev uses `.env` values (see Environment). Schema: `supabase/000{1,2,3}_*.sql`; `apps/api/migrations/` holds the driver-table migration.
+
 
 ## Environment
 
@@ -49,7 +100,7 @@ Config, not secrets (web, public-by-design, guarded by RLS):
 
 No auth needed: NASA POWER API (power.larc.nasa.gov), SEDAC GPW, PSA/PSGC boundaries.
 
-⚠️ **`.gitignore` is currently empty (0 lines)** — add `.env` entries before any secrets file exists.
+✅ **`.gitignore` now covers `node_modules/`, `dist/`, `build/`, `.env`, `*.env`, `.DS_Store`, `graphify-out/`** (fixed 2026-11-10). `apps/api/.gitignore` has its own rules. Never commit a `.env`; `!.env.example` is the only allowed exception.
 
 Attribution (compliance box 8): PAGASA station data, PSA/PSGC boundaries, fonts/icons, FIRMS attribution notice.
 
@@ -96,7 +147,7 @@ Process gotchas:
 - Every link must resolve in a logged-out private window — test at h44.
 - No minor's name, voice, or likeness in video or materials.
 - Cut lines are hard: h30 (auth), h42 (STRETCH freeze), h44 (video fallback). Do not renegotiate.
-- `.gitignore` empty — fix before first `.env` file.
+- `.gitignore` populated 2026-11-10 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside `apps/api/.env`.
 - Parallel work follows the write-boundary contract below.
 
 ### Role / Write-Boundary Contract
@@ -118,16 +169,18 @@ Rule: an agent or team member writes **only inside its own boundary**; cross-bou
 
 | Item | Status | Notes |
 |---|---|---|
-| Scaffolding paths exist (root, apps/web, apps/api, features/*, core) | **Verified** | Checked on disk 2026-11-02 — all files were 0 lines at check time |
-| This AGENTS.md written | **Verified** | Was empty; now filled per planner plan |
+| Code state of all slices | **Verified 2026-11-10** | See `## What exists now` — map-controls and gamified-dashboard built; layer-uhi-terrain and chatbot-llm contracts only |
+| Root `.gitignore` | **Verified** | Populated 2026-11-10; `.env` covered |
+| Run commands | **Verified to exist** | `apps/web` has dev/build/preview scripts; `apps/api` has `main.py` + 9 pipeline scripts. Root `package.json` has no scripts |
 | Stack decisions (static PWA + Supabase, build-time LLM, RF/SHAP, Theil-Sen/Mann-Kendall) | **CONCEPT-derived** | Authoritative but TENTATIVE — lock hours h0–h22 per CONCEPT Sect 13 |
 | Challenge statement verbatim | **Captured 2026-11-02** | Re-verify live page at h0 (page is JS-rendered) |
 | Event name + local close time | **Unverified** | Verify at h0 — OPEN in CONCEPT Sect 13 |
 | POWER daily start year (assumed 1981) | **Unverified** | Verify at h6 |
 | PAGASA access route + Region V station list | **Unverified** | Verify at h6 |
-| Exact Region V LGU count | **Unverified** | Count from official source at h6 — never estimate |
+| Exact Region V LGU count | **Unverified** | Official count still open. In code: **114** from geoBoundaries `adm3` — a fallback, not the published number. Never estimate; count from PSA/PSGC |
+| LGU boundary source (PSA/PSGC) | **Unverified** | `engine.js` uses geoBoundaries as the interim source; swap when official is confirmed at h6 |
 | Challenge URL / iHeatMap URL resolve logged-out | **Pending** | Test in logged-out private window (h0 / h44) |
-| `## Run` commands actually execute | **Pending** | Scripts empty until scaffolding fills; run once script entries exist |
+| `## Run` commands actually execute | **Pending** | Paths and script names verified; a clean `npm install && npm run dev` has not been run in this session |
 
 
 
@@ -151,5 +204,5 @@ To prevent context-window exhaustion and hallucination, you MUST strictly follow
 5. **Start Fresh Sessions for New Tasks.**
    Do not use one massive chat session to do EDA, model training, and UI fixes. Once a specific script is working and committed, start a new session for the next feature.
 
-6. **Respect the `.agentignore` File.**
-   Do not scan or index the `apps/api/data/`, `apps/api/output/`, or `apps/web/public/data/` directories.
+6. **Skip generated data directories.**
+   Do not scan or index `apps/api/data/`, `apps/api/output/`, or `apps/web/public/data/` — generated output, not source. (No `.agentignore` file exists; this rule is the substitute.)

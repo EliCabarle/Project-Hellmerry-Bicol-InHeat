@@ -32,11 +32,15 @@
 
 | Item | CORE/STRETCH | Status | Owner |
 |---|---|---|---|
-| Ranking screen (slope + p-value ordering) | CORE | todo | gamified-dashboard |
-| Danger-band exceedance ordering | CORE | todo | gamified-dashboard |
-| Progress/tracking state | CORE | todo | gamified-dashboard |
-| Leaderboard UI (handle-only) | CORE | todo | gamified-dashboard |
-| Local-only progress fallback (h30 path) | CORE | todo | gamified-dashboard |
+| Dashboard screen (slope + p-value ordering) — renamed from Ranking, 2026-11-11 (lead decision Q4-B) | CORE | built | gamified-dashboard |
+| Analytics visualizations: KPI row, yearly trend, heat/rate histograms, danger bands, driver ranking (charts read map ramp bins/colours only) | CORE | built | gamified-dashboard |
+| Top hotspots + "Show on map" (shell-mediated + `#muni=` deep link) | CORE | built | gamified-dashboard |
+| Municipality Finder: province dropdown (derived) + coverflow 3D cards — outline+name front, data/why back (lead decision: B + P1 + D-full, 2026-11-11) | CORE | built | gamified-dashboard |
+| Single-scroll dashboard (S1): one page scrollbar, sticky header via `overflow-clip` | CORE | built | gamified-dashboard |
+| Danger-band exceedance ordering | CORE | built | gamified-dashboard |
+| Progress/tracking state | CORE | built | gamified-dashboard |
+| Leaderboard UI (handle-only) | CORE | built | gamified-dashboard |
+| Local-only progress fallback (h30 path) | CORE | built | gamified-dashboard |
 | Exportable progress / infographic | STRETCH | todo | gamified-dashboard |
 
 ## Status
@@ -45,3 +49,4 @@
 |---|---|---|
 | Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
 | Supabase schema for leaderboard | No | lands when `apps/api` writes it |
+| Dashboard build (charts + rename + hotspots) | Verified | tests green, `npm run build` green, 2026-11-11 |

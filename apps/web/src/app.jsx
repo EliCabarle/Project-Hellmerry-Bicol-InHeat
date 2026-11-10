@@ -1,21 +1,55 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import BicolMap from '@features/map-controls'
-import RankingScreen from '@features/gamified-dashboard'
+import DashboardScreen from '@features/gamified-dashboard'
 import AuthButton from './components/AuthButton'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
 
 const SCREENS = [
   { id: 'map', label: 'Map' },
-  { id: 'ranking', label: 'Ranking' },
+  { id: 'dashboard', label: 'Dashboard' },
 ]
+
+// Deep link: #muni=<encoded joinKey> opens the map with that municipality
+// selected. The skip link targets #main, so only the #muni= prefix counts as a
+// deep link; anything else leaves the hash untracked.
+function parseMuniHash() {
+  const raw = typeof window === 'undefined' ? '' : window.location.hash
+  if (!raw.startsWith('#muni=')) return null
+  try {
+    return decodeURIComponent(raw.slice('#muni='.length)) || null
+  } catch {
+    return null
+  }
+}
 
 export default function App() {
   const [screen, setScreen] = useState('map')
+  // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
+  // Token rises on every request so re-clicking the same LGU still refires
+  // after the user cleared the selection on the map.
+  const [focus, setFocus] = useState(() => {
+    const key = parseMuniHash()
+    return key ? { key, token: 1 } : null
+  })
   const data = useBicolData()
   // Auth lives here so screens can scope their own rows (saved places,
   // leaderboard) to the signed-in user.
   const { user, supabase, configured } = useSession()
+
+  // Dashboard "Show on map" / shared deep link → select on the map and switch.
+  const showOnMap = useCallback((key) => {
+    if (!key) return
+    setFocus((prev) => ({ key, token: (prev?.token ?? 0) + 1 }))
+    setScreen('map')
+    try {
+      // replaceState (not a hash assignment): the link stays shareable and
+      // bookmarkable without spamming history entries.
+      window.history.replaceState(null, '', `#muni=${encodeURIComponent(key)}`)
+    } catch {
+      // Old browsers: the in-app selection still works, the URL just stays stale.
+    }
+  }, [])
 
   // Height chain: html/body/#root = 100% (index.css) -> this h-full column ->
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
@@ -78,9 +112,13 @@ export default function App() {
 
       <main id="main" className="relative min-h-0 flex-1">
         {screen === 'map' ? (
-          <BicolMap {...data} />
+          <BicolMap
+            {...data}
+            initialSelectedKey={focus?.key ?? null}
+            focusToken={focus?.token ?? 0}
+          />
         ) : (
-          <RankingScreen {...data} supabase={supabase} user={user} />
+          <DashboardScreen {...data} supabase={supabase} user={user} onShowOnMap={showOnMap} />
         )}
       </main>
     </div>

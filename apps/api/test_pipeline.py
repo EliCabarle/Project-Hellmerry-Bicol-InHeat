@@ -26,6 +26,7 @@ def _daily(rows: list[tuple[str, str, str, float]]) -> pd.DataFrame:
                 "lon": 123.7438,
                 "date": date,
                 "heat_index_max_c": hi,
+                "nighttime_heat_index_c": hi - 8.0,
             }
             for name, province, date, hi in rows
         ]
@@ -92,6 +93,22 @@ class TrendTest(unittest.TestCase):
             ]
         )
         self.assertEqual(annual_means(frame)["n_days"].sum(), 1)
+
+    def test_nighttime_index_is_averaged_and_missing_nights_stay_null(self):
+        frame = _daily(
+            [
+                ("Legazpi", "Albay", "2000-03-01", 34.0),
+                ("Legazpi", "Albay", "2000-03-02", 36.0),
+            ]
+        )
+        row = trend_for(annual_means(frame))
+        self.assertAlmostEqual(row["series"][0]["mean_nighttime_heat_index_c"], 27.0)
+
+        frame["nighttime_heat_index_c"] = float("nan")
+        row = trend_for(annual_means(frame))
+        # null in JSON, and a missing T2M_MIN never deletes a valid day
+        self.assertIsNone(row["series"][0]["mean_nighttime_heat_index_c"])
+        self.assertEqual(row["sample"]["n_days"], 2)
 
     def test_danger_days_count_the_42c_threshold_inclusively(self):
         frame = _daily(
@@ -361,6 +378,7 @@ class DriverRankingTest(unittest.TestCase):
                     {
                         "name": name,
                         "province": province,
+                        "date": f"2020-{day // 28 + 1:02d}-{day % 28 + 1:02d}",
                         "lat": 12.0 + i,
                         "lon": 123.0 + i,
                         "u10m_ms": 1.0 + (day % 7),
@@ -372,11 +390,14 @@ class DriverRankingTest(unittest.TestCase):
         payload = build_drivers(pd.DataFrame(rows))
 
         self.assertEqual(len(payload["municipalities"]), 3)
-        # 360 rows -> 288 train / 72 test; SHAP runs on the whole training split here
-        self.assertEqual(payload["model"]["train_rows"], 288)
-        self.assertEqual(payload["model"]["test_rows"], 72)
-        self.assertEqual(payload["model"]["shap_rows"], 288)
+        # 360 rows, 5 time-ordered folds: all rows fit, 300 held out across folds,
+        # SHAP runs on the whole dataset here
+        self.assertEqual(payload["model"]["train_rows"], 360)
+        self.assertEqual(payload["model"]["test_rows"], 300)
+        self.assertEqual(payload["model"]["shap_rows"], 360)
         self.assertIn("r2_test", payload["model"])
+        self.assertIn("r2_cv_mean", payload["model"])
+        self.assertIn("r2_cv_std", payload["model"])
         for municipality in payload["municipalities"]:
             self.assertEqual(set(municipality), {"name", "province", "top_drivers"})
             drivers = municipality["top_drivers"]

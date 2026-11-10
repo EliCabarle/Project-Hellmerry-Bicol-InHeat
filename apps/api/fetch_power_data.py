@@ -9,8 +9,12 @@ hour. RH2M is a daily mean and peaks overnight, so pairing it with T2M_MAX infla
 the index by ~3 C; RH is instead derived from T2MDEW, which is roughly conserved
 through the day.
 
+`nighttime_heat_index_c` applies the same Rothfusz call to T2M_MIN, with RH also
+derived from T2MDEW - that is the overnight recovery the daily peak hides.
+
 Verified 2026-11-03: POWER daily T2M/T2M_MAX/T2MDEW/RH2M/U10M/V10M start at 19810101
 (CONCEPT §13 open fact "POWER daily start year (assumed 1981)" -> now confirmed).
+T2M_MIN verified 2026-11-10: present from 19810101 for a Region V point.
 
 Usage:
   python fetch_power_data.py
@@ -36,7 +40,7 @@ API_DIR = Path(__file__).resolve().parent
 load_dotenv(API_DIR / ".env")
 
 POWER_URL = "https://power.larc.nasa.gov/api/temporal/daily/point"
-PARAMETERS = ("T2M", "T2M_MAX", "T2MDEW", "RH2M", "U10M", "V10M")
+PARAMETERS = ("T2M", "T2M_MAX", "T2M_MIN", "T2MDEW", "RH2M", "U10M", "V10M")
 START = "19810101"
 END = "20251231"
 OUT_CSV = API_DIR / "data" / "power_daily_full.csv"
@@ -101,7 +105,7 @@ def heat_index_c(t2m_c: float | None, rh2m_pct: float | None) -> float | None:
     Rothfusz is only fitted for T >= 80 F; below that NOAA falls back to the
     Steadman regression, which is what keeps a full-year mean from blowing up.
 
-    Feeds the PEAK index when called with T2M_MAX.
+    Feeds the PEAK index when called with T2M_MAX, the nighttime index with T2M_MIN.
     """
     if t2m_c is None or rh2m_pct is None:
         return None
@@ -164,8 +168,10 @@ def fetch_municipality(
             return None if v == fill else v
 
         t2m_max = value("T2M_MAX")
+        t2m_min = value("T2M_MIN")
+        t2mdew = value("T2MDEW")
         rh2m = value("RH2M")
-        rh_peak = rh_from_dewpoint(t2m_max, value("T2MDEW"))
+        rh_peak = rh_from_dewpoint(t2m_max, t2mdew)
         if t2m_max is None or rh2m is None or rh_peak is None:
             skipped += 1  # never let POWER's fill value reach the mean
             continue
@@ -179,11 +185,16 @@ def fetch_municipality(
                 "date": datetime.strptime(day, "%Y%m%d").date().isoformat(),
                 "t2m_c": value("T2M"),
                 "t2m_max_c": t2m_max,
-                "t2mdew_c": value("T2MDEW"),
+                "t2m_min_c": t2m_min,
+                "t2mdew_c": t2mdew,
                 "rh2m_pct": rh2m,
                 "u10m_ms": value("U10M"),
                 "v10m_ms": value("V10M"),
                 "heat_index_max_c": heat_index_c(t2m_max, rh_peak),
+                # None when T2M_MIN is missing; the peak row is still valid
+                "nighttime_heat_index_c": heat_index_c(
+                    t2m_min, rh_from_dewpoint(t2m_min, t2mdew)
+                ),
             }
         )
 

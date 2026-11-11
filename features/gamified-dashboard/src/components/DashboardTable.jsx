@@ -1,11 +1,11 @@
 import { savedKey } from '../savedStore.js'
 
-const fmtInt = (n) => new Intl.NumberFormat('en-US').format(n)
-const fmtP = (p) => (p == null ? '—' : p < 0.001 ? 'p < 0.001' : `p = ${p.toFixed(3)}`)
-const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
-const fmtSlope = (slope) => (Number.isFinite(slope) ? `${slope >= 0 ? '+' : ''}${slope.toFixed(3)} °C/yr` : '—')
+export const fmtInt = (n) => new Intl.NumberFormat('en-US').format(n)
+export const fmtP = (p) => (p == null ? '—' : p < 0.001 ? 'p < 0.001' : `p = ${p.toFixed(3)}`)
+export const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
+export const fmtSlope = (slope) => (Number.isFinite(slope) ? `${slope >= 0 ? '+' : ''}${slope.toFixed(3)} °C/yr` : '—')
 
-function SigPill({ trend }) {
+export function SigPill({ trend }) {
   const significant = Boolean(trend?.is_significant)
   return (
     <span
@@ -18,7 +18,7 @@ function SigPill({ trend }) {
   )
 }
 
-function TrendValue({ trend }) {
+export function TrendValue({ trend }) {
   return (
     <span className="whitespace-nowrap font-mono text-xs text-slate-200">
       <span aria-hidden="true" className="mr-1 text-slate-400">{arrow(trend?.direction)}</span>
@@ -50,7 +50,7 @@ function SaveButton({ row, isSaved, canSave, onToggleSave }) {
   )
 }
 
-export default function RankingTable({
+export default function DashboardTable({
   rows = [],
   mode = 'slope',
   savedKeys = new Set(),
@@ -59,24 +59,26 @@ export default function RankingTable({
 }) {
   return (
     <>
-      <div className="hidden overflow-hidden rounded-xl border border-white/10 bg-heat-surface/70 shadow-hud md:block">
-        <div className="bih-scroll max-h-[calc(100vh-21rem)] overflow-auto">
-          <table className="w-full min-w-[48rem] border-collapse text-sm tabular-nums">
-            <caption className="sr-only">Municipality heat ranking, sorted by the selected measure</caption>
-            <thead className="sticky top-0 z-10 bg-heat-deep/95 text-left text-[10px] uppercase tracking-[0.14em] text-slate-500 backdrop-blur">
-              <tr className="border-b border-white/10">
-                <th scope="col" className="px-3 py-2.5">Save</th>
-                <th scope="col" className="px-3 py-2.5">Rank</th>
-                <th scope="col" className="px-3 py-2.5">Municipality</th>
-                <th scope="col" className="px-3 py-2.5">Province</th>
-                <th scope="col" className="px-3 py-2.5">Trend</th>
-                <th scope="col" className="px-3 py-2.5">Significance</th>
-                <th scope="col" className="px-3 py-2.5">Sample</th>
-                <th scope="col" className={`px-3 py-2.5 ${mode === 'danger' ? 'text-heat-amber' : ''}`}>
-                  Danger days (45y)
-                </th>
-              </tr>
-            </thead>
+      {/* Single-scroll contract (S1): no inner scroller — the table flows the full
+          page height and `overflow-clip` clips without creating a scroll container,
+          so the sticky header resolves against the DashboardScreen page scroller. */}
+      <div className="hidden overflow-clip rounded-xl border border-white/10 bg-heat-surface/70 shadow-hud md:block">
+        <table className="w-full lg:min-w-[44rem] border-collapse text-sm tabular-nums">
+          <caption className="sr-only">Municipality heat dashboard, sorted by the selected measure</caption>
+          <thead className="sticky top-0 z-10 bg-heat-deep/95 text-left text-[10px] uppercase tracking-[0.14em] text-slate-500 backdrop-blur">
+            <tr className="border-b border-white/10">
+              <th scope="col" className="px-3 py-2.5">Save</th>
+              <th scope="col" className="px-3 py-2.5">Rank</th>
+              <th scope="col" className="px-3 py-2.5">Municipality</th>
+              <th scope="col" className="px-3 py-2.5">Province</th>
+              <th scope="col" className="px-3 py-2.5">Trend</th>
+              <th scope="col" className="px-3 py-2.5">Significance</th>
+              <th scope="col" className="hidden px-3 py-2.5 lg:table-cell">Sample</th>
+              <th scope="col" className={`px-3 py-2.5 ${mode === 'danger' ? 'text-heat-amber' : ''}`}>
+                Danger days (45y)
+              </th>
+            </tr>
+          </thead>
             <tbody>
               {rows.map((m, i) => {
                 const t = m?.trend ?? {}
@@ -102,7 +104,7 @@ export default function RankingTable({
                         <span className="font-mono text-[10px] text-slate-500">{fmtP(t.p_value)}</span>
                       </div>
                     </td>
-                    <td className="px-3 py-2 text-xs text-slate-400">
+                    <td className="hidden px-3 py-2 text-xs text-slate-400 lg:table-cell">
                       {m?.sample?.n_days != null ? `${fmtInt(m.sample.n_days)} d · ${fmtInt(m.sample.n_years ?? 0)} y` : '—'}
                     </td>
                     <td className={`px-3 py-2 font-mono text-xs ${mode === 'danger' ? 'font-semibold text-heat-amber' : 'text-slate-200'}`}>
@@ -112,11 +114,10 @@ export default function RankingTable({
                 )
               })}
             </tbody>
-          </table>
-        </div>
+        </table>
       </div>
 
-      <ul aria-label="Municipality heat ranking" className="space-y-2 md:hidden">
+      <ul aria-label="Municipality heat dashboard" className="space-y-2 md:hidden">
         {rows.map((m, i) => {
           const t = m?.trend ?? {}
           const isSaved = savedKeys.has(savedKey(m?.name, m?.province))

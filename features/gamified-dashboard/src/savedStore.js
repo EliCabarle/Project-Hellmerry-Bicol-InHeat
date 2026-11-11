@@ -7,7 +7,7 @@
 // one side only. Normalising here would duplicate joinKey() in map-controls.
 export const savedKey = (name, province) => `${name ?? ''}|${province ?? ''}`
 
-// Rank before filtering, never after: RankingTable prints this number, and
+// Rank before filtering, never after: DashboardTable prints this number, and
 // re-indexing a filtered array would silently turn 37th into 1st.
 export const withRank = (rows = []) => rows.map((m, i) => ({ ...m, rank: i + 1 }))
 

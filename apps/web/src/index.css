@@ -20,6 +20,18 @@ body,
   margin: 0;
 }
 
+/* Single-scrollbar contract: the app is viewport-locked (100% chain above) and
+   each screen owns its one overflow-y-auto root. Chromium still propagates
+   layout overflow from transformed descendants (recharts tooltip wrappers use
+   translate3d, finder cards use 3D transforms) past intermediate scroll
+   containers to the viewport, which produced a second, dead document
+   scrollbar — clip removes it. `hidden` first as a fallback for older engines. */
+html,
+body {
+  overflow: hidden;
+  overflow: clip;
+}
+
 body {
   background: var(--bih-bg);
   color: var(--bih-ink);

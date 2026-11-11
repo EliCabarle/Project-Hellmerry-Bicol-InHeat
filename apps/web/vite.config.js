@@ -7,6 +7,24 @@ const here = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   plugins: [react()],
+  // Split vendors so the map's first paint doesn't wait on the chart library
+  // (recharts) or vice versa. All three chunks still share one react instance
+  // via the aliases above.
+  build: {
+    rollupOptions: {
+      output: {
+        // Function form (matches by resolved module id, works with the aliases
+        // above): charts + map libs split out; everything vendored stays put.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('recharts')) return 'charts'
+          if (id.includes('leaflet')) return 'maps'
+          if (id.includes('react') || id.includes('supabase')) return 'vendor'
+          return undefined
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@features': path.resolve(here, '..', '..', 'features'),
@@ -16,6 +34,7 @@ export default defineConfig({
       'react-dom': path.resolve(here, 'node_modules', 'react-dom'),
       'react-leaflet': path.resolve(here, 'node_modules', 'react-leaflet'),
       leaflet: path.resolve(here, 'node_modules', 'leaflet'),
+      recharts: path.resolve(here, 'node_modules', 'recharts'),
     },
   },
 })

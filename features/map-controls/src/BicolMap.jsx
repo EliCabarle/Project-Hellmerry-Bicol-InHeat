@@ -216,6 +216,11 @@ export default function BicolMap({
   geojson: munGeojson = null,
   narratives = null,
   coverage = { withData: 0, total: 0 },
+  // Cross-screen handoff (Dashboard "Show on map" / #muni= deep link). Key is a
+  // province-qualified joinKey; token rises per request so re-clicking the same
+  // LGU refires after a manual clear.
+  initialSelectedKey = null,
+  focusToken = 0,
 }) {
   const regions = useMemo(() => loadRegions(geojson), [])
   const bicolFeature = useMemo(() => findBicol(geojson), [])
@@ -246,6 +251,13 @@ export default function BicolMap({
   const [indexOpen, setIndexOpen] = useState(false)
   const [resetToken, setResetToken] = useState(0)
   const [map, setMap] = useState(null)
+
+  // Applies the cross-screen focus once per token, never fighting internal
+  // selection afterwards.
+  useEffect(() => {
+    if (focusToken && initialSelectedKey) setSelectedKey(initialSelectedKey)
+  }, [focusToken, initialSelectedKey])
+
   const displayYear = viewMode === 'year' ? selectedYear : null
   const selectedFeature = useMemo(
     () => (selectedKey ? joined?.features?.find((f) => featureKey(f) === selectedKey) ?? null : null),

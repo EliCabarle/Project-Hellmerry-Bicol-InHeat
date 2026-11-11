@@ -48,3 +48,58 @@ NASA: POWER (T2M/RH2M → heat index), Landsat C2 L2 (LST), MOD44B.061 (tree cov
 
 - Challenge: https://www.spaceappschallenge.org/2026/challenges/be-an-earth-system-trend-detective/ *(verify resolves logged-out)*
 - Prior art: DOST-PAGASA iHeatMap — https://bagong.pagasa.dost.gov.ph/weather/heat-index *(verify resolves logged-out)*
+
+## Installation
+
+```bash
+# Web app (Vite + React + Tailwind PWA)
+cd apps/web
+npm install
+
+# API / data pipeline (Python)
+cd apps/api
+pip install -r requirements.txt
+```
+
+No lockfile-managed workspace tooling is required — the root `package.json` has no scripts and each app installs independently. Node.js and Python 3 with `pip` must already be installed; exact version floors are not pinned in the repository (`<!-- VERIFY: minimum Node.js / Python versions -->`).
+
+## Quick start
+
+1. Install the web dependencies:
+
+   ```bash
+   cd apps/web && npm install
+   ```
+
+2. *(Optional — accounts/leaderboard only)* create `apps/web/.env.local` with the public Supabase config:
+
+   ```bash
+   VITE_SUPABASE_URL=https://<your-project>.supabase.co
+   VITE_SUPABASE_ANON_KEY=<anon key>
+   ```
+
+   The client must only ever hold the **anon** key — secrets live server-side in `apps/api/.env`.
+
+3. Start the dev server and open the printed local URL:
+
+   ```bash
+   cd apps/web && npm run dev
+   ```
+
+4. *(Pipeline work)* run the API/dev services:
+
+   ```bash
+   cd apps/api && uvicorn main:app --reload
+   ```
+
+   `main.py` has no `__main__` block — `uvicorn` is the entry point.
+
+## Usage examples
+
+- **Which municipality is heating fastest?** Open the **Ranking** screen: municipalities are ordered by warming trend (Theil–Sen slope) with Mann–Kendall p-values. Non-significant trends are still listed — significance is a flag, not a filter.
+- **Is a place actually in the danger band?** On the **Map** screen, drag the time scrubber to move through years and hover a municipality to see its heat-index tooltip and significance marker.
+- **Why is it heating?** Open the **Narration** screen for a municipality: drivers are ranked by Random Forest / SHAP importance (association, not causation) and rendered as plain-language EN + Filipino text, with every variable given a plain-language definition.
+
+## License
+
+No license has been granted yet: the repository contains no `LICENSE` file, and the root `package.json` is `"private": true` with no `license` field. Treat all code and outputs in this repository as all rights reserved until a `LICENSE` file is added.

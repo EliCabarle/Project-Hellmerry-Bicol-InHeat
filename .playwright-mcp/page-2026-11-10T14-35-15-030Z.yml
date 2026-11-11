@@ -1,0 +1,191 @@
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [aria-hidden] [ref=e7]: BIH
+      - generic [ref=e8]:
+        - generic [ref=e9]: Bicol In-Heat
+        - generic [ref=e10]: Earth System Trend Detective
+    - navigation "Screens" [ref=e11]:
+      - button "Map" [ref=e12] [cursor=pointer]
+      - button "Ranking" [ref=e13] [cursor=pointer]
+    - generic "VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing" [ref=e15]: Sign-in unavailable
+  - main [ref=e18]:
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - generic:
+          - generic:
+            - img:
+              - generic:
+                - generic [ref=e21] [cursor=pointer]
+                - generic [ref=e22] [cursor=pointer]
+                - generic [ref=e23] [cursor=pointer]
+                - generic [ref=e24] [cursor=pointer]
+                - generic [ref=e25] [cursor=pointer]
+                - generic [ref=e26] [cursor=pointer]
+                - generic [ref=e27] [cursor=pointer]
+                - button "Bacacay, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e28] [cursor=pointer]
+                - button "Camalig, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e29] [cursor=pointer]
+                - button "Daraga, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e30] [cursor=pointer]
+                - button "Guinobatan, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e31] [cursor=pointer]
+                - button "Jovellar, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e32] [cursor=pointer]
+                - button "City of Legazpi, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e33] [cursor=pointer]
+                - button "Libon, Albay. increasing, +0.047 degrees Celsius per year, significant." [ref=e34] [cursor=pointer]
+                - button "City of Ligao, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e35] [cursor=pointer]
+                - button "Malilipot, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e36] [cursor=pointer]
+                - button "Malinao, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e37] [cursor=pointer]
+                - button "Manito, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e38] [cursor=pointer]
+                - button "Oas, Albay. increasing, +0.047 degrees Celsius per year, significant." [ref=e39] [cursor=pointer]
+                - button "Pio Duran, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e40] [cursor=pointer]
+                - button "Polangui, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e41] [cursor=pointer]
+                - button "Rapu-Rapu, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e42] [cursor=pointer]
+                - button "Santo Domingo, Albay. increasing, +0.035 degrees Celsius per year, significant." [ref=e43] [cursor=pointer]
+                - button "City of Tabaco, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e44] [cursor=pointer]
+                - button "Tiwi, Albay. increasing, +0.042 degrees Celsius per year, significant." [ref=e45] [cursor=pointer]
+                - button "Basud, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e46] [cursor=pointer]
+                - button "Capalonga, Camarines Norte. increasing, +0.055 degrees Celsius per year, significant." [ref=e47] [cursor=pointer]
+                - button "Daet, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e48] [cursor=pointer]
+                - button "San Lorenzo Ruiz, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e49] [cursor=pointer]
+                - button "Jose Panganiban, Camarines Norte. increasing, +0.055 degrees Celsius per year, significant." [ref=e50] [cursor=pointer]
+                - button "Labo, Camarines Norte. increasing, +0.030 degrees Celsius per year, significant." [ref=e51] [cursor=pointer]
+                - button "Mercedes, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e52] [cursor=pointer]
+                - button "Paracale, Camarines Norte. increasing, +0.055 degrees Celsius per year, significant." [ref=e53] [cursor=pointer]
+                - button "San Vicente, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e54] [cursor=pointer]
+                - button "Santa Elena, Camarines Norte. increasing, +0.030 degrees Celsius per year, significant." [ref=e55] [cursor=pointer]
+                - button "Talisay, Camarines Norte. increasing, +0.043 degrees Celsius per year, significant." [ref=e56] [cursor=pointer]
+                - button "Vinzons, Camarines Norte. increasing, +0.062 degrees Celsius per year, significant." [ref=e57] [cursor=pointer]
+                - button "Baao, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e58] [cursor=pointer]
+                - button "Balatan, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e59] [cursor=pointer]
+                - button "Bato, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e60] [cursor=pointer]
+                - button "Bombon, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e61] [cursor=pointer]
+                - button "Buhi, Camarines Sur. increasing, +0.042 degrees Celsius per year, significant." [ref=e62] [cursor=pointer]
+                - button "Bula, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e63] [cursor=pointer]
+                - button "Cabusao, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e64] [cursor=pointer]
+                - button "Calabanga, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e65] [cursor=pointer]
+                - button "Camaligan, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e66] [cursor=pointer]
+                - button "Canaman, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e67] [cursor=pointer]
+                - button "Caramoan, Camarines Sur. increasing, +0.052 degrees Celsius per year, significant." [ref=e68] [cursor=pointer]
+                - button "Del Gallego, Camarines Sur. increasing, +0.030 degrees Celsius per year, significant." [ref=e69] [cursor=pointer]
+                - button "Gainza, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e70] [cursor=pointer]
+                - button "Garchitorena, Camarines Sur. increasing, +0.052 degrees Celsius per year, significant." [ref=e71] [cursor=pointer]
+                - button "Goa, Camarines Sur. increasing, +0.043 degrees Celsius per year, significant." [ref=e72] [cursor=pointer]
+                - button "City of Iriga, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e73] [cursor=pointer]
+                - button "Lagonoy, Camarines Sur. increasing, +0.052 degrees Celsius per year, significant." [ref=e74] [cursor=pointer]
+                - button "Libmanan, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e75] [cursor=pointer]
+                - button "Lupi, Camarines Sur. increasing, +0.043 degrees Celsius per year, significant." [ref=e76] [cursor=pointer]
+                - button "Magarao, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e77] [cursor=pointer]
+                - button "Milaor, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e78] [cursor=pointer]
+                - button "Minalabac, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e79] [cursor=pointer]
+                - button "Nabua, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e80] [cursor=pointer]
+                - button "City of Naga, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e81] [cursor=pointer]
+                - button "Ocampo, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e82] [cursor=pointer]
+                - button "Pamplona, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e83] [cursor=pointer]
+                - button "Pasacao, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e84] [cursor=pointer]
+                - button "Pili, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e85] [cursor=pointer]
+                - button "Presentacion, Camarines Sur. increasing, +0.042 degrees Celsius per year, significant." [ref=e86] [cursor=pointer]
+                - button "Ragay, Camarines Sur. increasing, +0.030 degrees Celsius per year, significant." [ref=e87] [cursor=pointer]
+                - button "Sagñay, Camarines Sur. increasing, +0.042 degrees Celsius per year, significant." [ref=e88] [cursor=pointer]
+                - button "San Fernando, Camarines Sur. increasing, +0.031 degrees Celsius per year, significant." [ref=e89] [cursor=pointer]
+                - button "San Jose, Camarines Sur. increasing, +0.042 degrees Celsius per year, significant." [ref=e90] [cursor=pointer]
+                - button "Sipocot, Camarines Sur. increasing, +0.043 degrees Celsius per year, significant." [ref=e91] [cursor=pointer]
+                - button "Siruma, Camarines Sur. increasing, +0.043 degrees Celsius per year, significant." [ref=e92] [cursor=pointer]
+                - button "Tigaon, Camarines Sur. increasing, +0.042 degrees Celsius per year, significant." [ref=e93] [cursor=pointer]
+                - button "Tinambac, Camarines Sur. increasing, +0.043 degrees Celsius per year, significant." [ref=e94] [cursor=pointer]
+                - button "Bagamanoc, Catanduanes. increasing, +0.059 degrees Celsius per year, significant." [ref=e95] [cursor=pointer]
+                - button "Baras, Catanduanes. increasing, +0.056 degrees Celsius per year, significant." [ref=e96] [cursor=pointer]
+                - button "Bato, Catanduanes. increasing, +0.056 degrees Celsius per year, significant." [ref=e97] [cursor=pointer]
+                - button "Caramoran, Catanduanes. increasing, +0.052 degrees Celsius per year, significant." [ref=e98] [cursor=pointer]
+                - button "Gigmoto, Catanduanes. increasing, +0.059 degrees Celsius per year, significant." [ref=e99] [cursor=pointer]
+                - button "Pandan, Catanduanes. increasing, +0.059 degrees Celsius per year, significant." [ref=e100] [cursor=pointer]
+                - button "Panganiban, Catanduanes. increasing, +0.059 degrees Celsius per year, significant." [ref=e101] [cursor=pointer]
+                - button "San Andres, Catanduanes. increasing, +0.056 degrees Celsius per year, significant." [ref=e102] [cursor=pointer]
+                - button "San Miguel, Catanduanes. increasing, +0.056 degrees Celsius per year, significant." [ref=e103] [cursor=pointer]
+                - button "Viga, Catanduanes. increasing, +0.059 degrees Celsius per year, significant." [ref=e104] [cursor=pointer]
+                - button "Virac, Catanduanes. increasing, +0.056 degrees Celsius per year, significant." [ref=e105] [cursor=pointer]
+                - button "Aroroy, Masbate. increasing, +0.048 degrees Celsius per year, significant." [ref=e106] [cursor=pointer]
+                - button "Baleno, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e107] [cursor=pointer]
+                - button "Balud, Masbate. increasing, +0.050 degrees Celsius per year, significant." [ref=e108] [cursor=pointer]
+                - button "Batuan, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e109] [cursor=pointer]
+                - button "Cataingan, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e110] [cursor=pointer]
+                - button "Cawayan, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e111] [cursor=pointer]
+                - button "Claveria, Masbate. increasing, +0.047 degrees Celsius per year, significant." [ref=e112] [cursor=pointer]
+                - button "Dimasalang, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e113] [cursor=pointer]
+                - button "Esperanza, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e114] [cursor=pointer]
+                - button "Mandaon, Masbate. increasing, +0.050 degrees Celsius per year, significant." [ref=e115] [cursor=pointer]
+                - button "City of Masbate, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e116] [cursor=pointer]
+                - button "Milagros, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e117] [cursor=pointer]
+                - button "Mobo, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e118] [cursor=pointer]
+                - button "Monreal, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e119] [cursor=pointer]
+                - button "Palanas, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e120] [cursor=pointer]
+                - button "Pio V. Corpus, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e121] [cursor=pointer]
+                - button "Placer, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e122] [cursor=pointer]
+                - button "San Fernando, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e123] [cursor=pointer]
+                - button "San Jacinto, Masbate. increasing, +0.042 degrees Celsius per year, significant." [ref=e124] [cursor=pointer]
+                - button "San Pascual, Masbate. increasing, +0.047 degrees Celsius per year, significant." [ref=e125] [cursor=pointer]
+                - button "Uson, Masbate. increasing, +0.043 degrees Celsius per year, significant." [ref=e126] [cursor=pointer]
+                - button "Barcelona, Sorsogon. increasing, +0.062 degrees Celsius per year, significant." [ref=e127] [cursor=pointer]
+                - button "Bulan, Sorsogon. increasing, +0.042 degrees Celsius per year, significant." [ref=e128] [cursor=pointer]
+                - button "Bulusan, Sorsogon. increasing, +0.062 degrees Celsius per year, significant." [ref=e129] [cursor=pointer]
+                - button "Casiguran, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e130] [cursor=pointer]
+                - button "Castilla, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e131] [cursor=pointer]
+                - button "Donsol, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e132] [cursor=pointer]
+                - button "Gubat, Sorsogon. increasing, +0.062 degrees Celsius per year, significant." [ref=e133] [cursor=pointer]
+                - button "Irosin, Sorsogon. increasing, +0.042 degrees Celsius per year, significant." [ref=e134] [cursor=pointer]
+                - button "Juban, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e135] [cursor=pointer]
+                - button "Magallanes, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e136] [cursor=pointer]
+                - button "Matnog, Sorsogon. increasing, +0.042 degrees Celsius per year, significant." [ref=e137] [cursor=pointer]
+                - button "Pilar, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e138] [cursor=pointer]
+                - button "Prieto Diaz, Sorsogon. increasing, +0.062 degrees Celsius per year, significant." [ref=e139] [cursor=pointer]
+                - button "Santa Magdalena, Sorsogon. increasing, +0.042 degrees Celsius per year, significant." [ref=e140] [cursor=pointer]
+                - button "City of Sorsogon, Sorsogon. increasing, +0.035 degrees Celsius per year, significant." [ref=e141] [cursor=pointer]
+        - generic [ref=e142]:
+          - link "Leaflet" [ref=e143] [cursor=pointer]:
+            - /url: https://leafletjs.com
+          - text: "| Imagery © Esri, Maxar, Earthstar Geographics"
+      - generic [ref=e149]:
+        - button "Bicol · Region V 114 municipalities · 1981–2025" [expanded] [ref=e150] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e152]: V
+          - generic [ref=e153]:
+            - generic [ref=e154]: Bicol · Region V
+            - generic [ref=e155]: 114 municipalities · 1981–2025
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - generic [ref=e160]: Warming rate · °C/yr
+            - generic [ref=e161]: °C
+          - generic [ref=e162]:
+            - generic [ref=e163]: 0.030–0.037
+            - generic [ref=e166]: 0.037–0.044
+            - generic [ref=e169]: 0.044–0.051
+            - generic [ref=e172]: 0.051–0.058
+            - generic [ref=e175]: 0.058+
+          - generic [ref=e178]:
+            - generic [ref=e179]: Decreasing trend
+            - generic [ref=e182]: Data pending
+            - generic [ref=e185]: Significant (α = 0.05)
+            - generic [ref=e188]: Not significant — still ranked
+          - generic [ref=e191]: 114 of 114 LGUs joined. POWER 0.5° grid · municipality resolution.
+          - button "Browse municipalities" [ref=e192] [cursor=pointer]
+          - generic [ref=e196]: "Imagery © Esri, Maxar, Earthstar Geographics · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER"
+      - generic:
+        - group "Map zoom" [ref=e197]:
+          - button "Zoom out" [ref=e198] [cursor=pointer]
+          - generic [ref=e200]: z8.5
+          - button "Zoom in" [ref=e201] [cursor=pointer]
+          - button "Reset view to Bicol" [ref=e205] [cursor=pointer]
+        - group "Historical time controls" [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - generic [ref=e212]: Historical time
+              - generic [ref=e213]: "2025"
+            - group "Map data mode" [ref=e214]:
+              - button "Trend" [pressed] [ref=e215] [cursor=pointer]
+              - button "Year" [ref=e219] [cursor=pointer]
+          - generic [ref=e222]:
+            - button "Previous year" [ref=e223] [cursor=pointer]
+            - button "Play playback" [ref=e226] [cursor=pointer]
+            - button "Next year" [ref=e229] [cursor=pointer]
+            - slider "Selected historical year" [ref=e232] [cursor=pointer]: "44"
+          - generic [ref=e233]:
+            - generic [ref=e234]: "1981"
+            - generic [ref=e235]: "2025"

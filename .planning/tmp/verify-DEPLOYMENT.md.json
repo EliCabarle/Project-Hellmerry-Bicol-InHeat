@@ -1,0 +1,14 @@
+{
+  "doc_path": "docs/DEPLOYMENT.md",
+  "claims_checked": 40,
+  "claims_passed": 39,
+  "claims_failed": 1,
+  "failures": [
+    {
+      "line": 71,
+      "claim": "`EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` — Earthdata Login, needed only when running ETL",
+      "expected": "ETL scripts read EARTHDATA_USERNAME/EARTHDATA_PASSWORD from env",
+      "actual": "grep of apps/api/*.py for getenv/environ/username/password/netrc found no reads of EARTHDATA_USERNAME or EARTHDATA_PASSWORD; fetch_boundaries.py (GitHub URL) and fetch_power_data.py (NASA POWER API) require no auth — no current script needs these vars (docs/CONFIGURATION.md line 100 concedes 'not read by any current script')"
+    }
+  ]
+}

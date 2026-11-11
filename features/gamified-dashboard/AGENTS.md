@@ -37,16 +37,24 @@
 | Top hotspots + "Show on map" (shell-mediated + `#muni=` deep link) | CORE | built | gamified-dashboard |
 | Municipality Finder: province dropdown (derived) + coverflow 3D cards — outline+name front, data/why back (lead decision: B + P1 + D-full, 2026-11-11) | CORE | built | gamified-dashboard |
 | Single-scroll dashboard (S1): one page scrollbar, sticky header via `overflow-clip` | CORE | built | gamified-dashboard |
+| Tab shell: HeatBar + ARIA tablist (Dashboard / Quests / History / Leaderboard), roving tabindex | CORE | built | gamified-dashboard |
 | Danger-band exceedance ordering | CORE | built | gamified-dashboard |
-| Progress/tracking state | CORE | built | gamified-dashboard |
-| Leaderboard UI (handle-only) | CORE | built | gamified-dashboard |
-| Local-only progress fallback (h30 path) | CORE | built | gamified-dashboard |
+| Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`) | gamified-dashboard |
+| Leaderboard UI (handle-only) | CORE | built, gated — `LEADERBOARD_ENABLED = false` in `components/Leaderboard.jsx`; tab shows "Leaderboard, coming soon" + skeleton, zero network | gamified-dashboard |
+| Local-only progress fallback (h30 path) | CORE | built — progress is local-only, works logged-out and offline, no auth | gamified-dashboard |
 | Exportable progress / infographic | STRETCH | todo | gamified-dashboard |
+
+> **Not claimable:** the daily-quest system is lead-authorized in the implementation prompt but CONCEPT §7/§8/§13 and this file's "No daily tasks" guardrail line still say otherwise. Until the lead records those edits, do not claim this feature on the project page or in the video.
 
 ## Status
 
 | Item | Verified? | Notes |
 |---|---|---|
-| Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
+| Scaffolding files 0 lines | Superseded | was true 2026-11-02; slice now has source — see Workboard |
 | Supabase schema for leaderboard | No | lands when `apps/api` writes it |
 | Dashboard build (charts + rename + hotspots) | Verified | tests green, `npm run build` green, 2026-11-11 |
+| `test_progress.mjs` (14 tests) + `test_ranking.mjs` + `test_saved.mjs` pass | Verified 2026-11-10 | `node test_*.mjs` from this directory |
+| `npm run build` in apps/web | Verified 2026-11-10 | after fresh `npm install`; known >500 kB chunk warning only |
+| Viewport checks 320/375/768/1440, keyboard-only tabs, reduced motion, offline reload, zero network from new tabs | No | browser session not run — pending manual check |
+| amal10 reference license | No | 404 / `"license": null` — ideas only, no code copied (ATTRIBUTION.md) |
+| NoteQuest reference license | Verified 2026-11-10 | MIT — concept adapted with attribution (ATTRIBUTION.md) |

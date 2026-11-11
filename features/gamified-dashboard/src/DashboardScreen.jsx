@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
-import { fetchTop10 } from './leaderboardStore.js'
+import { createProgress, derive, manilaDate, STORAGE_KEY } from './progressStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
+import HeatBar from './components/HeatBar.jsx'
+import QuestsTab from './components/QuestsTab.jsx'
+import HistoryTab from './components/HistoryTab.jsx'
+import Leaderboard from './components/Leaderboard.jsx'
 import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
 import {
@@ -34,6 +38,13 @@ import { joinKey } from '../../map-controls/src/gis/engine.js'
 // method line, so it must not repeat them.
 const META_FALLBACK = 'Annual mean peak heat index · Theil-Sen + Mann-Kendall · α = 0.05'
 
+const TABS = [
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'quests', label: 'Quests' },
+  { id: 'history', label: 'History' },
+  { id: 'leaderboard', label: 'Leaderboard' },
+]
+
 function Stat({ label, value, hint, tone = 'neutral' }) {
   const toneClass =
     tone === 'worse' ? 'text-heat-hot' : tone === 'better' ? 'text-heat-cool' : 'text-slate-100'
@@ -61,11 +72,20 @@ export default function DashboardScreen({
   const [savedOnly, setSavedOnly] = useState(false)
   const [savedKeys, setSavedKeys] = useState(() => new Set())
   const [saveError, setSaveError] = useState(null)
-  const [board, setBoard] = useState(null) // null = still loading
-  const [boardError, setBoardError] = useState(null)
+  const [progressSaveError, setProgressSaveError] = useState(null)
   const [query, setQuery] = useState('')
   const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
   const canSave = Boolean(supabase && user)
+
+  const [store] = useState(() => createProgress())
+  const [events, setEvents] = useState(() => store.read())
+  const [announcement, setAnnouncement] = useState('')
+  const [active, setActive] = useState('dashboard')
+  const tabRefs = useRef({})
+  const levelRef = useRef(null)
+
+  const today = manilaDate(new Date())
+  const derived = useMemo(() => derive(events, today), [events, today])
 
   const municipalities = useMemo(() => narratives?.municipalities ?? [], [narratives])
 
@@ -111,23 +131,55 @@ export default function DashboardScreen({
     }
   }, [canSave, supabase, user])
 
-  // The leaderboard view is public, so this loads without a session — a judge can
-  // see it logged out. It does not depend on the trend data either.
+  // First open of a Manila calendar day awards the login streak entry.
   useEffect(() => {
-    if (!supabase) return
-    let cancelled = false
-    fetchTop10(supabase).then(({ data, error: err }) => {
-      if (cancelled) return
-      if (err) {
-        setBoardError(err.message)
-        return
-      }
-      setBoard(data ?? [])
-    })
-    return () => {
-      cancelled = true
+    const r = store.checkIn()
+    setEvents(r.events)
+    setProgressSaveError(r.ok ? null : r.error)
+  }, [store])
+
+  // Another tab wrote progress: re-read this slice's one key.
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key != null && e.key !== STORAGE_KEY) return
+      setEvents(store.read())
     }
-  }, [supabase])
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [store])
+
+  // Announce level-ups politely; never announce the initial level.
+  useEffect(() => {
+    if (levelRef.current === null) {
+      levelRef.current = derived.level
+      return
+    }
+    if (derived.level > levelRef.current) {
+      setAnnouncement(`Level up — level ${derived.level}, ${derived.title}`)
+    }
+    levelRef.current = derived.level
+  }, [derived.level, derived.title])
+
+  const act = (fn) => {
+    const r = fn()
+    setEvents(r.events)
+    setProgressSaveError(r.ok ? null : r.error)
+    return r
+  }
+
+  const onTabKeyDown = (e) => {
+    const i = TABS.findIndex((t) => t.id === active)
+    let next = null
+    if (e.key === 'ArrowRight') next = (i + 1) % TABS.length
+    else if (e.key === 'ArrowLeft') next = (i - 1 + TABS.length) % TABS.length
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = TABS.length - 1
+    if (next === null) return
+    e.preventDefault()
+    const id = TABS[next].id
+    setActive(id)
+    tabRefs.current[id]?.focus()
+  }
 
   // Optimistic toggle, reverted on failure: the star responds instantly, but a
   // failed write never leaves the UI claiming a row was saved.
@@ -163,9 +215,6 @@ export default function DashboardScreen({
   const threshold = Number.isFinite(narratives?.meta?.danger_threshold_c)
     ? `${narratives.meta.danger_threshold_c} °C`
     : '42 °C'
-  // Until a task awards points every score is 0; a column of zeros reads as broken,
-  // so it appears the first time any row has one. No code change needed later.
-  const showScore = Boolean(board?.some((r) => (r?.score ?? 0) > 0))
 
   // ---- chart data (all computed, none invented) ----
   const yearly = useMemo(() => provinceYearlyMean(municipalities), [municipalities])
@@ -195,8 +244,57 @@ export default function DashboardScreen({
   const yearLabel = selectedYear != null ? String(selectedYear) : '—'
 
   return (
-    <div className="bih-scroll h-full overflow-y-auto">
-      <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
+    <div className="flex h-full min-h-0 flex-col bg-heat-bg">
+      <HeatBar
+        level={derived.level}
+        title={derived.title}
+        inLevel={derived.inLevel}
+        totalHP={derived.totalHP}
+        announcement={announcement}
+      />
+
+      <div
+        role="tablist"
+        aria-label="Dashboard sections"
+        onKeyDown={onTabKeyDown}
+        className="shrink-0 border-b border-white/10 bg-heat-deep/60 px-3 sm:px-5"
+      >
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-1 py-1.5">
+          {TABS.map((t) => {
+            const selected = active === t.id
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                id={`tab-${t.id}`}
+                aria-selected={selected}
+                aria-controls={`panel-${t.id}`}
+                tabIndex={selected ? 0 : -1}
+                ref={(el) => {
+                  tabRefs.current[t.id] = el
+                }}
+                onClick={() => setActive(t.id)}
+                className={`shrink-0 cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
+                  selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+                }`}
+              >
+                {t.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-dashboard"
+        aria-labelledby="tab-dashboard"
+        hidden={active !== 'dashboard'}
+        className="min-h-0 flex-1"
+      >
+        <div className="bih-scroll h-full overflow-y-auto">
+          <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-heat-amber">
@@ -450,50 +548,6 @@ export default function DashboardScreen({
           </div>
         )}
 
-        {/* Public view: renders logged out, so a judge can see it without signing in.
-            Collapsed by default — native <details>, no state to manage. */}
-        <details className="mt-4 rounded-xl border border-white/10 bg-heat-surface/60 px-3 py-2.5 text-sm">
-          <summary className="cursor-pointer select-none text-xs font-semibold text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
-            Top 10 explorers
-          </summary>
-          {!supabase ? (
-            <p className="mt-2 text-xs text-slate-400">Leaderboard is unavailable in this build.</p>
-          ) : boardError ? (
-            <p role="alert" className="mt-2 text-xs text-rose-200">
-              Could not load the leaderboard — {boardError}
-            </p>
-          ) : board === null ? (
-            <p aria-busy="true" className="mt-2 text-xs text-slate-400">
-              Loading…
-            </p>
-          ) : board.length === 0 ? (
-            <p className="mt-2 text-xs text-slate-400">No explorers yet — save a municipality to appear here.</p>
-          ) : (
-            <div className="mt-2 overflow-x-auto">
-              <table className="w-full border-collapse text-xs tabular-nums">
-                <thead>
-                  <tr className="border-b border-white/10 text-left text-[9px] uppercase tracking-[0.14em] text-slate-500">
-                    <th scope="col" className="px-2 py-1.5">#</th>
-                    <th scope="col" className="px-2 py-1.5">Explorer</th>
-                    <th scope="col" className="px-2 py-1.5">Saved</th>
-                    {showScore && <th scope="col" className="px-2 py-1.5">Score</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {board.map((r, i) => (
-                    <tr key={r?.handle ?? i} className="border-b border-white/5 last:border-0">
-                      <td className="px-2 py-1.5 font-mono text-slate-500">{i + 1}</td>
-                      <td className="px-2 py-1.5 text-slate-100">{r?.handle}</td>
-                      <td className="px-2 py-1.5 text-slate-300">{r?.saved_count ?? 0}</td>
-                      {showScore && <td className="px-2 py-1.5 text-slate-300">{r?.score ?? 0}</td>}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </details>
-
         {status === 'loading' && (
           <div aria-busy="true" className="mt-4 space-y-2">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -531,6 +585,44 @@ export default function DashboardScreen({
             mode={mode}
           />
         )}
+          </div>
+        </div>
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-quests"
+        aria-labelledby="tab-quests"
+        hidden={active !== 'quests'}
+        className="bih-scroll min-h-0 flex-1 overflow-y-auto"
+      >
+        <QuestsTab
+          derived={derived}
+          saveError={progressSaveError}
+          onToggleDaily={(id) => act(() => store.toggleDaily(id))}
+          onAdd={(id) => act(() => store.addQuest(id))}
+          onUndo={(id) => act(() => store.undoQuest(id))}
+        />
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-history"
+        aria-labelledby="tab-history"
+        hidden={active !== 'history'}
+        className="bih-scroll min-h-0 flex-1 overflow-y-auto"
+      >
+        <HistoryTab derived={derived} events={events} today={today} />
+      </div>
+
+      <div
+        role="tabpanel"
+        id="panel-leaderboard"
+        aria-labelledby="tab-leaderboard"
+        hidden={active !== 'leaderboard'}
+        className="bih-scroll min-h-0 flex-1 overflow-y-auto"
+      >
+        <Leaderboard supabase={supabase} />
       </div>
     </div>
   )

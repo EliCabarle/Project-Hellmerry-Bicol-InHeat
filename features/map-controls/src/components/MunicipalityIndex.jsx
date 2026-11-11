@@ -1,12 +1,26 @@
 import { useMemo, useState } from 'react'
 import { featureKey } from '../gis/engine.js'
-import { formatTrend } from '../gis/yearRamp.js'
+import { dayBand, formatTrend } from '../gis/yearRamp.js'
+import { spelledDate } from '../state/dateModel.js'
 import { IconSearch, IconX } from './Icons.jsx'
 
 const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
 
-export default function MunicipalityIndex({ features = [], selectedKey = null, onSelect, onClose }) {
+export default function MunicipalityIndex({
+  features = [],
+  selectedKey = null,
+  viewMode = 'trend',
+  date = null,
+  dayValues = null,
+  onSelect,
+  onClose,
+}) {
   const [query, setQuery] = useState('')
+  // Heading names mode + date only in Day view — trend/year stay pixel-identical.
+  const heading =
+    viewMode === 'day' && date
+      ? `Municipalities · Day view · ${spelledDate(date)}`
+      : 'Municipalities'
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
     return features
@@ -35,8 +49,8 @@ export default function MunicipalityIndex({ features = [], selectedKey = null, o
         className="absolute inset-x-3 bottom-28 top-3 z-[760] flex flex-col overflow-hidden rounded-xl border border-white/10 bg-heat-surface/95 text-slate-100 shadow-hud backdrop-blur-md md:inset-x-auto md:bottom-24 md:left-3 md:top-24 md:w-[21rem]"
       >
         <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2.5">
-          <h2 className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
-            Municipalities
+          <h2 className="min-w-0 flex-1 truncate text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
+            {heading}
           </h2>
           <button
             type="button"
@@ -71,6 +85,8 @@ export default function MunicipalityIndex({ features = [], selectedKey = null, o
             const n = p.narrative
             const key = featureKey(feature)
             const selected = key === selectedKey
+            const dv = n && dayValues instanceof Map ? dayValues.get(n.id) : undefined
+            const dayOk = Number.isFinite(dv)
             return (
               <li key={key}>
                 <button
@@ -89,9 +105,20 @@ export default function MunicipalityIndex({ features = [], selectedKey = null, o
                     <span className="block truncate text-[10px] text-slate-500">{p.province ?? ''}</span>
                   </span>
                   {n ? (
-                    <span className="shrink-0 font-mono text-[10px] text-slate-400">
-                      {arrow(n.trend?.direction)} {formatTrend(n.trend?.slope_c_per_year)}
-                    </span>
+                    viewMode === 'day' ? (
+                      <span className="shrink-0 text-right">
+                        <span className="block font-mono text-[10px] text-slate-300">
+                          {dayOk ? `${dv.toFixed(1)} °C` : '—'}
+                        </span>
+                        <span className="block text-[9px] text-slate-500">
+                          {dayOk ? dayBand(dv) : 'No data'}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="shrink-0 font-mono text-[10px] text-slate-400">
+                        {arrow(n.trend?.direction)} {formatTrend(n.trend?.slope_c_per_year)}
+                      </span>
+                    )
                   ) : (
                     <span className="shrink-0 text-[10px] text-slate-600">pending</span>
                   )}

@@ -62,10 +62,115 @@ def spatial_index() -> dict[tuple[str, str], dict]:
     }
 
 
-def build_record(city_data: dict, drivers: dict, spatial: dict) -> dict:
+def trends_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> trend fields from output/trends.json."""
+    path = BASE_DIR / "output" / "trends.json"
+    data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    return {
+        (row["name"], row["province"]): {
+            "p_value_fdr": row.get("p_value_fdr"),
+            "significant_fdr": row.get("significant_fdr"),
+            "slope_ci_bootstrap_low": row.get("slope_ci_bootstrap_low"),
+            "slope_ci_bootstrap_high": row.get("slope_ci_bootstrap_high"),
+            "significant_bootstrap": row.get("significant_bootstrap"),
+        }
+        for row in data.get("municipalities", [])
+    }
+
+
+def backtest_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> {rmse, mae} from output/backtest_results.json."""
+    path = BASE_DIR / "output" / "backtest_results.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    index: dict[tuple[str, str], dict] = {}
+    for split_name in ("split_short", "split_long"):
+        for row in data.get(split_name, {}).get("per_municipality", []):
+            key = (row["name"], row["province"])
+            # Both splits carry the same municipality rmse/mae; keep the short split's.
+            index.setdefault(
+                key,
+                {"backtest_rmse": row.get("rmse"), "backtest_mae": row.get("mae")},
+            )
+    return index
+
+
+def forecast_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> 2050 forecast fields from output/forecast_2050.json."""
+    path = BASE_DIR / "output" / "forecast_2050.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        (row["name"], row["province"]): {
+            "forecast_2050_central_c": row.get("2050_central_c"),
+            "forecast_2050_low_c": row.get("2050_low_c"),
+            "forecast_2050_high_c": row.get("2050_high_c"),
+            "forecast_2050_danger_days": row.get("projected_danger_days_2050"),
+            "cmip6_2050_ssp245_c": row.get("cmip6_2050_ssp245_c"),
+            "cmip6_2050_ssp585_c": row.get("cmip6_2050_ssp585_c"),
+        }
+        for row in data
+    }
+
+
+def population_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> population fields from data/population.csv."""
+    path = BASE_DIR / "data" / "population.csv"
+    if not path.exists():
+        return {}
+    import csv
+
+    index: dict[tuple[str, str], dict] = {}
+    with open(path, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            key = (row["name"], row["province"])
+            index[key] = {
+                "population_2020": (
+                    int(round(float(row["population_2020"])))
+                    if row.get("population_2020")
+                    else None
+                ),
+                "population_density": (
+                    float(row["population_density"])
+                    if row.get("population_density")
+                    else None
+                ),
+                "exposed_flag": row.get("exposed_flag", "").lower() == "true",
+            }
+    return index
+
+
+def spatial_metadata() -> dict:
+    """Model-level spatial CV metrics from output/spatial_drivers.json metadata."""
+    path = BASE_DIR / "output" / "spatial_drivers.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "spatial_r2_cv_mean": data.get("spatial_r2_cv_mean"),
+    }
+
+
+def build_record(
+    city_data: dict,
+    drivers: dict,
+    spatial: dict,
+    trends: dict,
+    backtest: dict,
+    forecast: dict,
+    population: dict,
+    spatial_meta: dict,
+) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
     latest = city_data.get("latest") or {}
+    key = (city_data.get("name"), city_data.get("province", ""))
+    bt = backtest.get(key, {})
+    fc = forecast.get(key, {})
+    tf = trends.get(key, {})
+    pop = population.get(key, {})
     return {
         "name": city_data.get("name"),
         "province": city_data.get("province", ""),
@@ -80,9 +185,9 @@ def build_record(city_data: dict, drivers: dict, spatial: dict) -> dict:
         # Pettitt: year the regime shifted, and the p that makes it readable
         "change_point_year": trend.get("change_point_year"),
         "change_point_p": trend.get("change_point_p"),
-        "top_drivers": drivers.get((city_data.get("name"), city_data.get("province", ""))),
-        "spatial_drivers": spatial.get((city_data.get("name"), city_data.get("province", ""))),
-        "lst_mean_c": LST_BY_KEY.get((city_data.get("name"), city_data.get("province", ""))),
+        "top_drivers": drivers.get(key),
+        "spatial_drivers": spatial.get(key),
+        "lst_mean_c": LST_BY_KEY.get(key),
         # latest-year annual means of the daily peak and nighttime heat index
         "heat_index_max_c": latest.get("mean_heat_index_c"),
         "nighttime_heat_index_c": latest.get("nighttime_heat_index_c"),
@@ -92,6 +197,29 @@ def build_record(city_data: dict, drivers: dict, spatial: dict) -> dict:
         "narration_en": city_data.get("narration", {}).get("en"),
         "narration_fil": city_data.get("narration", {}).get("fil"),
         "series": city_data.get("series", []),
+        # Backtest results
+        "backtest_rmse": bt.get("backtest_rmse"),
+        "backtest_mae": bt.get("backtest_mae"),
+        # 2050 forecast
+        "forecast_2050_central_c": fc.get("forecast_2050_central_c"),
+        "forecast_2050_low_c": fc.get("forecast_2050_low_c"),
+        "forecast_2050_high_c": fc.get("forecast_2050_high_c"),
+        "forecast_2050_danger_days": fc.get("forecast_2050_danger_days"),
+        "cmip6_2050_ssp245_c": fc.get("cmip6_2050_ssp245_c"),
+        "cmip6_2050_ssp585_c": fc.get("cmip6_2050_ssp585_c"),
+        # FDR correction
+        "p_value_fdr": tf.get("p_value_fdr"),
+        "significant_fdr": tf.get("significant_fdr"),
+        # Bootstrap CI
+        "slope_ci_bootstrap_low": tf.get("slope_ci_bootstrap_low"),
+        "slope_ci_bootstrap_high": tf.get("slope_ci_bootstrap_high"),
+        "significant_bootstrap": tf.get("significant_bootstrap"),
+        # Population exposure
+        "population_2020": pop.get("population_2020"),
+        "population_density": pop.get("population_density"),
+        "exposed_flag": pop.get("exposed_flag"),
+        # Spatial model CV (model-level, repeated per row)
+        "spatial_r2_cv_mean": spatial_meta.get("spatial_r2_cv_mean"),
     }
 
 
@@ -99,10 +227,25 @@ def main(dry_run: bool) -> None:
     municipalities = load_output("narratives.json").get("municipalities", [])
     drivers = driver_index()
     spatial = spatial_index()
+    trends = trends_index()
+    backtest = backtest_index()
+    forecast = forecast_index()
+    population = population_index()
+    spatial_meta = spatial_metadata()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
     if not spatial:
         print("warning: output/spatial_drivers.json missing - spatial_drivers will be null")
+    if not trends:
+        print("warning: output/trends.json missing - p_value_fdr/significant_fdr will be null")
+    if not backtest:
+        print("warning: output/backtest_results.json missing - backtest_rmse/backtest_mae will be null")
+    if not forecast:
+        print("warning: output/forecast_2050.json missing - forecast_2050_* will be null")
+    if not population:
+        print("warning: data/population.csv missing - population_2020/exposed_flag will be null")
+    if not spatial_meta:
+        print("warning: output/spatial_drivers.json metadata missing - spatial_r2_cv_mean will be null")
     if not LST_BY_KEY:
         print("warning: data/lst_means.csv missing - lst_mean_c will be null")
 
@@ -117,13 +260,22 @@ def main(dry_run: bool) -> None:
     print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
     success_count = 0
     for city_data in municipalities:
-        record = build_record(city_data, drivers, spatial)
+        record = build_record(
+            city_data, drivers, spatial, trends, backtest, forecast,
+            population, spatial_meta,
+        )
         try:
             if dry_run:
                 print(
                     f"[dry-run] {record['name']}|{record['province']} "
                     f"slope={record['slope']} drivers={len(record['top_drivers'] or [])} "
-                    f"spatial={bool(record['spatial_drivers'])}"
+                    f"spatial={bool(record['spatial_drivers'])} "
+                    f"backtest_rmse={record['backtest_rmse']} "
+                    f"forecast_2050={record['forecast_2050_central_c']} "
+                    f"fdr_sig={record['significant_fdr']} "
+                    f"bootstrap_sig={record['significant_bootstrap']} "
+                    f"pop={record['population_2020']} "
+                    f"exposed={record['exposed_flag']}"
                 )
             else:
                 client.table("municipality_trends").upsert(

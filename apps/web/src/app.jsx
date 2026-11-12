@@ -75,7 +75,7 @@ export default function App() {
             <div className="truncate text-sm font-semibold tracking-tight sm:text-[15px]">
               <span className="text-heat-amber">Bicol</span> In-Heat
             </div>
-            <div className="hidden text-[9px] uppercase tracking-[0.2em] text-slate-500 sm:block">
+            <div className="hidden text-xs uppercase tracking-wider text-slate-500 sm:block">
               Earth System Trend Detective
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function App() {
                 type="button"
                 onClick={() => setScreen(s.id)}
                 aria-current={active ? 'page' : undefined}
-                className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
+                className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
                   active
                     ? 'bg-heat-amber text-slate-950 shadow-sm'
                     : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'

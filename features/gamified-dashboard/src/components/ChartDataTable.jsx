@@ -6,7 +6,7 @@ export default function ChartDataTable({ caption, columns = [], rows = [], empty
   if (!Array.isArray(rows) || rows.length === 0) {
     return (
       <details className="mt-2 border-t border-white/5 pt-2">
-        <summary className="cursor-pointer select-none text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
+        <summary className="cursor-pointer min-h-11 select-none text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
           ▶ Data table
         </summary>
         <p className="mt-2 text-xs text-slate-500">{empty}</p>
@@ -15,14 +15,14 @@ export default function ChartDataTable({ caption, columns = [], rows = [], empty
   }
   return (
     <details className="mt-2 border-t border-white/5 pt-2">
-      <summary className="cursor-pointer select-none text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
+      <summary className="cursor-pointer min-h-11 select-none text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
         ▶ Data table
       </summary>
       <div className="mt-2 max-h-56 overflow-y-auto bih-scroll">
         <table className="w-full border-collapse text-xs tabular-nums">
           <caption className="sr-only">{caption}</caption>
           <thead>
-            <tr className="border-b border-white/10 text-left text-[9px] uppercase tracking-[0.14em] text-slate-500">
+            <tr className="border-b border-white/10 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
               {columns.map((col) => (
                 <th key={col.key} scope="col" className="px-2 py-1 font-semibold">
                   {col.label}

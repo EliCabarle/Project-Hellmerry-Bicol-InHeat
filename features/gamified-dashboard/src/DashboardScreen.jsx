@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
+import { provinceList } from './provinceGroups.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
 import { createProgress, derive, manilaDate } from './progressStore.js'
 import { syncScore, readScore } from './scoreStore.js'
@@ -10,6 +11,8 @@ import HistoryTab from './components/HistoryTab.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
 import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
+import DualLabel from './components/DualLabel.jsx'
+import { LABELS } from './labels.js'
 import {
   ChartCard,
   BinBarChart,
@@ -35,10 +38,6 @@ import {
 } from './chartColors.js'
 import { joinKey } from '../../map-controls/src/gis/engine.js'
 
-// Period and danger threshold come from the data itself (below); this is only the
-// method line, so it must not repeat them.
-const META_FALLBACK = 'Annual mean peak heat index · Theil-Sen + Mann-Kendall · α = 0.05'
-
 const TABS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'quests', label: 'Quests' },
@@ -46,14 +45,14 @@ const TABS = [
   { id: 'leaderboard', label: 'Leaderboard' },
 ]
 
-function Stat({ label, value, hint, tone = 'neutral' }) {
+function Stat({ label, tech, value, hint, tone = 'neutral' }) {
   const toneClass =
     tone === 'worse' ? 'text-heat-hot' : tone === 'better' ? 'text-heat-cool' : 'text-slate-100'
   return (
     <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-      <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</div>
+      <DualLabel label={label} tech={tech} />
       <div className={`mt-0.5 font-mono text-lg font-semibold tracking-tight sm:text-2xl ${toneClass}`}>{value}</div>
-      {hint ? <div className="mt-0.5 text-[10px] text-slate-500">{hint}</div> : null}
+      {hint ? <div className="mt-0.5 text-xs text-slate-500">{hint}</div> : null}
     </div>
   )
 }
@@ -315,7 +314,7 @@ export default function DashboardScreen({
         onKeyDown={onTabKeyDown}
         className="shrink-0 border-b border-white/10 bg-heat-deep/60 px-3 sm:px-5"
       >
-        <div className="mx-auto flex max-w-7xl flex-wrap gap-1 py-1.5">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-2 py-1.5">
           {TABS.map((t) => {
             const selected = active === t.id
             return (
@@ -331,7 +330,7 @@ export default function DashboardScreen({
                   tabRefs.current[t.id] = el
                 }}
                 onClick={() => setActive(t.id)}
-                className={`shrink-0 cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
+                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
                   selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
                 }`}
               >
@@ -353,16 +352,18 @@ export default function DashboardScreen({
           <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-heat-amber">
-              Bicol Region · Climate Trend Monitor
+            <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">
+              {LABELS.eyebrow.plain}
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Analytics</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+              {LABELS.title.plain}
+            </h1>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
-              {META_FALLBACK} · {periodLine} · Danger &gt; {threshold}
+              <DualLabel label={LABELS.methodPlain.plain} tech={LABELS.methodPlain.tech} />{' · '}{periodLine}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
-            <label htmlFor="dashboard-year" className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+            <label htmlFor="dashboard-year" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               Year
             </label>
             <select
@@ -378,7 +379,7 @@ export default function DashboardScreen({
                 </option>
               ))}
             </select>
-            <p className="hidden text-[11px] text-slate-500 md:block">
+            <p className="hidden text-xs text-slate-500 md:block">
               Trend data for{' '}
               <span className="font-mono font-semibold text-slate-200">{coverage.withData}</span> of{' '}
               <span className="font-mono font-semibold text-slate-200">{coverage.total}</span> municipalities
@@ -387,28 +388,37 @@ export default function DashboardScreen({
         </div>
 
         {narratives?.meta?.disclaimer && (
-          <p className="mt-3 rounded-lg border border-heat-amber/30 bg-heat-surface/60 px-3 py-2 text-[11px] leading-4 text-slate-400">
+          <p className="mt-3 rounded-lg border border-heat-amber/30 bg-heat-surface/60 px-3 py-2 text-xs leading-5 text-slate-400">
             {narratives.meta.disclaimer}
           </p>
         )}
 
         <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-          <Stat label="LGUs warming · significant" value={readyData ? significantCount : '—'} hint="Mann-Kendall α = 0.05 — a flag, never a filter" />
           <Stat
-            label={`Mean heat index (${yearLabel})`}
-            value={readyData && meanValue != null ? `${meanValue.toFixed(2)} °C` : '—'}
+            label={LABELS.kpiWarming.plain}
+            tech={LABELS.kpiWarming.tech}
+            value={readyData ? significantCount : '—'}
+          />
+          <Stat
+            label={LABELS.kpiMeanHi.plain}
+            tech={LABELS.kpiMeanHi.tech}
+            value={
+              readyData && meanValue != null ? `${meanValue.toFixed(2)} °C · ${yearLabel}` : '—'
+            }
             hint={`province-wide mean over ${coverage.withData || '—'} LGUs`}
           />
           <Stat
-            label="Change vs prior year"
+            label={LABELS.kpiChange.plain}
+            tech={LABELS.kpiChange.tech}
             value={readyData ? deltaShown : '—'}
             hint={Number.isFinite(selectedYear) ? `vs ${selectedYear - 1} mean` : undefined}
             tone={deltaTone}
           />
           <Stat
-            label={`LGUs in danger (${yearLabel})`}
+            label={LABELS.kpiDanger.plain}
+            tech={LABELS.kpiDanger.tech}
             value={readyData && yearRow ? yearRow.dangerDayLgus : '—'}
-            hint={`≥ 1 day above ${threshold}`}
+            hint={`≥ 1 day above ${threshold} · ${yearLabel}`}
           />
         </div>
 
@@ -416,8 +426,9 @@ export default function DashboardScreen({
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             <div className="lg:col-span-2">
               <ChartCard
-                title="Yearly trend"
-                yearNote={`${start ?? '—'}–${end ?? '—'} · province-wide means, then LGU counts`}
+                title={LABELS.chartYearly.plain}
+                tech={LABELS.chartYearly.tech}
+                yearNote={`${start ?? '—'}–${end ?? '—'}`}
                 ariaLabel="Yearly trend of province-wide mean heat index and count of municipalities with danger days"
                 table={
                   <ChartDataTable
@@ -437,7 +448,9 @@ export default function DashboardScreen({
             </div>
 
             <ChartCard
-              title={`Mean heat index distribution (${yearLabel})`}
+              title={LABELS.chartHeatDist.plain}
+              tech={LABELS.chartHeatDist.tech}
+              yearNote={yearLabel}
               ariaLabel={`Distribution of mean heat index across municipalities in ${yearLabel}`}
               footnote="Same bins as the map legend, so bar colours match the map."
               table={
@@ -455,8 +468,9 @@ export default function DashboardScreen({
             </ChartCard>
 
             <ChartCard
-              title="Warming rate distribution"
-              yearNote={`${start ?? '—'}–${end ?? '—'} · Theil-Sen slope`}
+              title={LABELS.chartWarming.plain}
+              tech={LABELS.chartWarming.tech}
+              yearNote={`${start ?? '—'}–${end ?? '—'}`}
               ariaLabel="Distribution of warming rates across municipalities"
               footnote="Same bins as the map's rate legend. Non-significant rates are still counted."
               table={
@@ -474,7 +488,8 @@ export default function DashboardScreen({
             </ChartCard>
 
             <ChartCard
-              title="LGUs by danger days"
+              title={LABELS.chartDangerDays.plain}
+              tech={LABELS.chartDangerDays.tech}
               yearNote="45-year total"
               ariaLabel="Municipalities grouped by 45-year total danger days"
               footnote={`Days above ${threshold} across the whole period. Forecasts stay local: these are the LGUs trapping extreme heat.`}
@@ -497,8 +512,8 @@ export default function DashboardScreen({
 
             {drivers.length > 0 && (
               <ChartCard
-                title="Top heat drivers"
-                yearNote="RF · SHAP"
+                title={LABELS.chartDrivers.plain}
+                tech={LABELS.chartDrivers.tech}
                 ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
                 footnote="Mean SHAP share across the LGUs where each driver ranks top. Association, not causation."
                 table={
@@ -523,6 +538,7 @@ export default function DashboardScreen({
           <div className="mt-4">
             <TopHotspots
               rows={ranked.slice(0, 10)}
+              mode={mode}
               note={
                 mode === 'danger'
                   ? 'Highest 45-year danger days · jump to the map'
@@ -545,7 +561,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={mode === 'slope'}
               onClick={() => setMode('slope')}
-              className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
                 mode === 'slope' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -555,7 +571,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={mode === 'danger'}
               onClick={() => setMode('danger')}
-              className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
                 mode === 'danger' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -572,10 +588,10 @@ export default function DashboardScreen({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search municipality or province"
-              className="w-full rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber sm:max-w-xs"
+              className="min-h-11 w-full rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber sm:max-w-xs"
             />
           </div>
-          <p className="text-[11px] text-slate-500 md:hidden">
+          <p className="text-xs text-slate-500 md:hidden">
             Trend data for{' '}
             <span className="font-mono font-semibold text-slate-200">{coverage.withData}</span> of{' '}
             <span className="font-mono font-semibold text-slate-200">{coverage.total}</span>
@@ -684,40 +700,139 @@ export default function DashboardScreen({
   )
 }
 
+function ProvinceSelector({ provinces = [], value, onChange }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-1.5 items-center">
+      <span className="text-xs text-slate-500 shrink-0">Province</span>
+      <button
+        type="button"
+        role="tab"
+        aria-pressed={value === 'All'}
+        onClick={() => onChange('All')}
+        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+          value === 'All' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+        }`}
+      >
+        All
+      </button>
+      {provinces.map((p) => (
+        <button
+          key={p}
+          type="button"
+          role="tab"
+          aria-pressed={value === p}
+          onClick={() => onChange(p)}
+          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+            value === p ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+          }`}
+        >
+          {p}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+const RANKING_PAGE_SIZE = 10
+
+function RankingPaginator({ page, totalPages, onChangePage }) {
+  const disabledPrev = page <= 1
+  const disabledNext = page >= totalPages || totalPages === 0
+  return (
+    <div className="mt-4 flex items-center justify-between gap-2 px-2">
+      <button
+        type="button"
+        disabled={disabledPrev}
+        onClick={() => onChangePage((p) => Math.max(1, p - 1))}
+        aria-label="Previous page of ranking"
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+          disabledPrev
+            ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
+            : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        ← Prev
+      </button>
+      <span className="text-xs text-slate-500 shrink-0">
+        Page {page} of {totalPages}
+      </span>
+      <button
+        type="button"
+        disabled={disabledNext}
+        onClick={() => onChangePage((p) => Math.min(totalPages, p + 1))}
+        aria-label="Next page of ranking"
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+          disabledNext
+            ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
+            : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
+        }`}
+      >
+        Next →
+      </button>
+    </div>
+  )
+}
+
 function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onToggleSave, mode }) {
+  const [selectedProvince, setSelectedProvince] = useState('All')
+  const [page, setPage] = useState(1)
+
+  const provinces = useMemo(() => provinceList(ranked), [ranked])
+
   const searched = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return ranked
     return ranked.filter((m) => `${m?.name ?? ''} ${m?.province ?? ''}`.toLowerCase().includes(q))
   }, [query, ranked])
-  const shown = savedOnly ? filterSaved(searched, savedKeys) : searched
+
+  const savedFiltered = savedOnly ? filterSaved(searched, savedKeys) : searched
+  const shown =
+    selectedProvince === 'All'
+      ? savedFiltered
+      : savedFiltered.filter((m) => String(m?.province ?? '').trim() === selectedProvince)
+
+  // Reset to page 1 whenever the filtered list actually changes
+  // (province, search, saved-only, or sort mode). Depends on the root inputs,
+  // not the derived `shown` array, which is a new reference every render.
+  useEffect(() => {
+    setPage(1)
+  }, [selectedProvince, query, savedOnly, savedKeys, ranked])
+
+  const totalPages = Math.max(1, Math.ceil(shown.length / RANKING_PAGE_SIZE))
+  const paginated = shown.slice((page - 1) * RANKING_PAGE_SIZE, page * RANKING_PAGE_SIZE)
 
   if (shown.length === 0) {
     return (
       <div className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-slate-300">
         {query.trim()
           ? 'No municipality matches that search.'
-          : 'No saved places yet — turn off “Saved only” and save a municipality.'}
+          : selectedProvince !== 'All'
+            ? `No municipalities in ${selectedProvince}.`
+            : 'No saved places yet — turn off “Saved only” and save a municipality.'}
       </div>
     )
   }
 
+  const rangeStart = (page - 1) * RANKING_PAGE_SIZE + 1
+  const rangeEnd = Math.min(page * RANKING_PAGE_SIZE, shown.length)
+
   return (
     <div className="mt-4">
-      <div className="mb-2 flex items-center justify-between text-[10px] text-slate-500">
-        <span>
-          Showing <span className="font-mono text-slate-300">{shown.length}</span> of{' '}
-          <span className="font-mono text-slate-300">{ranked.length}</span>
-        </span>
-        <span>Significance is a flag, never a filter</span>
-      </div>
+      <ProvinceSelector provinces={provinces} value={selectedProvince} onChange={setSelectedProvince} />
+      <p className="mt-1 text-xs text-slate-500">
+        {selectedProvince === 'All'
+          ? `Showing ${rangeStart}–${rangeEnd} of ${shown.length} LGUs (page ${page} of ${totalPages})`
+          : `${shown.length} LGUs in ${selectedProvince} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
+      </p>
+      <span className="block mt-1 text-xs text-slate-500">Significance is a flag, never a filter</span>
       <DashboardTable
-        rows={shown}
+        rows={paginated}
         mode={mode}
         savedKeys={savedKeys}
         onToggleSave={onToggleSave}
         canSave={canSave}
       />
+      <RankingPaginator page={page} totalPages={totalPages} onChangePage={setPage} />
     </div>
   )
 }

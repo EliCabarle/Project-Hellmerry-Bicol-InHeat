@@ -1,0 +1,13 @@
+Loading CSV...
+  1873704 rows
+Full record: 1981-01-01 .. 2025-12-31 (1873704 rows)
+Training Model on 1498963 rows...
+Out-of-Sample R²: 0.7232208951149434
+Calculating SHAP...
+model: r2_train=0.7581 r2_test=0.7232 on 1498963 train / 374741 test rows
+  Aroroy (Masbate): Wind (north-south, V10M), Wind (east-west, U10M), Longitude
+  Baao (Camarines Sur): Wind (north-south, V10M), Wind (east-west, U10M), Longitude
+  Bacacay (Albay): Wind (north-south, V10M), Longitude, Wind (east-west, U10M)
+  Bagamanoc (Catanduanes): Wind (north-south, V10M), Wind (east-west, U10M), Longitude
+  Balatan (Camarines Sur): Wind (north-south, V10M), Wind (east-west, U10M), Longitude
+wrote 114 municipalities -> C:\Users\winst\Desktop\NASA\apps\api\output\drivers.json

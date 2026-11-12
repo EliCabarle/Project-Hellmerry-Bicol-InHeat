@@ -53,7 +53,16 @@ def driver_index() -> dict[tuple[str, str], list[dict]]:
     }
 
 
-def build_record(city_data: dict, drivers: dict) -> dict:
+def spatial_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> spatial driver features, empty when calculate_spatial_drivers.py has not run."""
+    spatial = load_output("spatial_drivers.json")
+    return {
+        (row["name"], row["province"]): row
+        for row in spatial.get("municipalities", [])
+    }
+
+
+def build_record(city_data: dict, drivers: dict, spatial: dict) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
     latest = city_data.get("latest") or {}
@@ -72,6 +81,7 @@ def build_record(city_data: dict, drivers: dict) -> dict:
         "change_point_year": trend.get("change_point_year"),
         "change_point_p": trend.get("change_point_p"),
         "top_drivers": drivers.get((city_data.get("name"), city_data.get("province", ""))),
+        "spatial_drivers": spatial.get((city_data.get("name"), city_data.get("province", ""))),
         "lst_mean_c": LST_BY_KEY.get((city_data.get("name"), city_data.get("province", ""))),
         # latest-year annual means of the daily peak and nighttime heat index
         "heat_index_max_c": latest.get("mean_heat_index_c"),
@@ -88,8 +98,11 @@ def build_record(city_data: dict, drivers: dict) -> dict:
 def main(dry_run: bool) -> None:
     municipalities = load_output("narratives.json").get("municipalities", [])
     drivers = driver_index()
+    spatial = spatial_index()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
+    if not spatial:
+        print("warning: output/spatial_drivers.json missing - spatial_drivers will be null")
     if not LST_BY_KEY:
         print("warning: data/lst_means.csv missing - lst_mean_c will be null")
 
@@ -104,12 +117,13 @@ def main(dry_run: bool) -> None:
     print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
     success_count = 0
     for city_data in municipalities:
-        record = build_record(city_data, drivers)
+        record = build_record(city_data, drivers, spatial)
         try:
             if dry_run:
                 print(
                     f"[dry-run] {record['name']}|{record['province']} "
-                    f"slope={record['slope']} drivers={len(record['top_drivers'] or [])}"
+                    f"slope={record['slope']} drivers={len(record['top_drivers'] or [])} "
+                    f"spatial={bool(record['spatial_drivers'])}"
                 )
             else:
                 client.table("municipality_trends").upsert(

@@ -10,7 +10,7 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-heat-amber">Heat Points</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
       <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Quests</h1>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         Quests earn Heat Points — a game score, not a measurement of anything.
@@ -25,7 +25,7 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
       {/* Today's login */}
       <section className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-3 shadow-hud">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Daily login streak</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Daily login streak</h2>
           <span className="font-mono text-xs font-semibold text-heat-amber">{login?.hp ?? 0} HP earned today</span>
         </div>
         {login && login.day > 0 ? (
@@ -55,9 +55,9 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
                     : 'border-white/10 bg-black/20 text-slate-400'
                 }`}
               >
-                <div className="text-[9px] uppercase tracking-wider">Day {day}</div>
+                <div className="text-xs uppercase tracking-wider">Day {day}</div>
                 <div className="font-mono text-xs font-semibold">{hp} HP</div>
-                {current && <div className="text-[9px] font-semibold">Today</div>}
+                {current && <div className="text-xs font-semibold">Today</div>}
               </li>
             )
           })}
@@ -90,7 +90,7 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
                       {q.label}
                     </label>
                     <span className="font-mono text-xs text-slate-400">+{q.hp} HP</span>
-                    <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-500">Once a day</span>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Once a day</span>
                   </>
                 ) : (
                   <>
@@ -98,18 +98,22 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
                     <span className="font-mono text-xs text-slate-400">
                       {active} × +{q.hp} HP
                     </span>
-                    <button
-                      type="button"
-                      aria-label={`${q.label}: undo latest entry`}
-                      disabled={active === 0}
+                      <button
+                        type="button"
+                        min-h-11
+                        min-w-11
+                        aria-label={`${q.label}: undo latest entry`}
+                        disabled={active === 0}
                       onClick={() => onUndo(q.id)}
                       className="h-7 w-7 shrink-0 cursor-pointer rounded-md border border-white/10 bg-black/20 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
                     >
                       −
                     </button>
-                    <button
-                      type="button"
-                      aria-label={`${q.label}: add one`}
+                      <button
+                        type="button"
+                        min-h-11
+                        min-w-11
+                        aria-label={`${q.label}: add one`}
                       onClick={() => onAdd(q.id)}
                       className="h-7 w-7 shrink-0 cursor-pointer rounded-md border border-heat-amber/50 bg-heat-amber/20 text-sm font-semibold text-heat-amber hover:bg-heat-amber/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
                     >
@@ -124,7 +128,7 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
       </section>
 
       <div className="mt-4 flex items-baseline justify-between rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">Today&apos;s HP</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Today&apos;s HP</span>
         <span className="font-mono text-lg font-semibold text-slate-100">{derived.todayTotal} HP</span>
       </div>
     </div>

@@ -40,7 +40,7 @@ function Top10({ supabase, reloadKey = null }) {
 
   return (
     <section className="mt-4 rounded-xl border border-white/10 bg-heat-surface/60 px-3 py-3 text-sm">
-      <h2 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
         Top 10 explorers
       </h2>
       {!supabase ? (
@@ -59,7 +59,7 @@ function Top10({ supabase, reloadKey = null }) {
         <div className="mt-2 overflow-x-auto">
           <table className="w-full border-collapse text-xs tabular-nums">
             <thead>
-              <tr className="border-b border-white/10 text-left text-[9px] uppercase tracking-[0.14em] text-slate-500">
+              <tr className="border-b border-white/10 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <th scope="col" className="px-2 py-1.5">#</th>
                 <th scope="col" className="px-2 py-1.5">Explorer</th>
                 <th scope="col" className="px-2 py-1.5">Saved</th>
@@ -104,7 +104,7 @@ export default function Leaderboard({ supabase = null, reloadKey = null }) {
         Ranked by Heat Points, then saved places.
       </p>
       <Top10 supabase={supabase} reloadKey={reloadKey} />
-      <p className="mt-3 text-[11px] text-slate-500">
+      <p className="mt-3 text-xs text-slate-500">
         Public view · handles only, never names or emails.
       </p>
     </div>

@@ -2,6 +2,8 @@
 // from ../chartData.js so nothing here computes a statistic. All animation is
 // off: the campus/static PWA and prefers-reduced-motion see identical output.
 
+import { createContext, useContext, useEffect, useState } from 'react'
+import DualLabel from './DualLabel.jsx'
 import {
   Area,
   Bar,
@@ -20,12 +22,31 @@ import { AXIS_TICK, GRID_LINE, HEAT_AMBER, HEAT_COOL, MONO_FONT } from '../chart
 
 const fmtNum = (v) => (v == null ? '—' : Number.isInteger(v) ? String(v) : v.toFixed(2))
 
-function DarkTooltip({ active, payload, label, unitByDataKey = {} }) {
+// Coarse pointer (touch) devices have no hover: tooltips are suppressed and the
+// value is pinned into a readout slot inside the card instead. Detected once.
+const matchCoarse = typeof matchMedia === 'function' ? matchMedia('(hover: none), (pointer: coarse)') : null
+export const IS_COARSE = matchCoarse?.matches ?? false
+
+const ReadoutContext = createContext(null)
+export const useReadout = () => useContext(ReadoutContext)
+
+function DarkTooltip({ active, payload, label, unitByDataKey = {}, coarse = false, setReadout = null }) {
+  useEffect(() => {
+    if (!coarse || !setReadout) return
+    if (active && Array.isArray(payload) && payload.length > 0) {
+      setReadout(
+        `${label}: ${payload.map((e) => `${e.name}: ${fmtNum(e.value)}${unitByDataKey[e.dataKey] ?? ''}`).join(' · ')}`,
+      )
+    } else {
+      setReadout(null)
+    }
+  }, [active, payload, label, unitByDataKey, coarse, setReadout])
   if (!active || !Array.isArray(payload) || payload.length === 0) return null
+  if (coarse) return null
   return (
     <div
       role="presentation"
-      className="rounded-lg border border-white/10 bg-heat-surface/95 px-2.5 py-1.5 text-[10px] leading-4 text-slate-200 shadow-hud"
+      className="rounded-lg border border-white/10 bg-heat-surface/95 px-2.5 py-1.5 text-xs leading-5 text-slate-200 shadow-hud"
     >
       <div className="font-mono font-semibold text-slate-100">{label}</div>
       {payload.map((entry) => (
@@ -42,20 +63,29 @@ function DarkTooltip({ active, payload, label, unitByDataKey = {} }) {
   )
 }
 
-export function ChartCard({ title, yearNote, ariaLabel, children, table = null, footnote = null }) {
+export function ChartCard({ title, tech, yearNote, ariaLabel, children, table = null, footnote = null }) {
+  const [readout, setReadout] = useState(null)
   return (
-    <section
-      aria-label={ariaLabel ?? title}
-      className="flex flex-col rounded-xl border border-white/10 bg-heat-surface/70 p-3 shadow-hud"
-    >
-      <header className="mb-1 flex items-baseline justify-between gap-2">
-        <h2 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">{title}</h2>
-        {yearNote ? <span className="font-mono text-[10px] text-slate-500">{yearNote}</span> : null}
-      </header>
-      <div className="h-52 grow sm:h-60">{children}</div>
-      {table}
-      {footnote ? <p className="mt-2 text-[10px] leading-4 text-slate-500">{footnote}</p> : null}
-    </section>
+    <ReadoutContext.Provider value={{ readout, setReadout }}>
+      <section
+        aria-label={ariaLabel ?? title}
+        className="flex flex-col rounded-xl border border-white/10 bg-heat-surface/70 p-3 shadow-hud"
+      >
+        <header className="mb-1 flex items-baseline justify-between gap-2">
+          <DualLabel label={title} tech={tech} className="" />
+          {yearNote ? <span className="font-mono text-xs text-slate-500">{yearNote}</span> : null}
+        </header>
+        <p aria-live="polite" className="min-h-5 text-xs text-slate-300">
+          {readout ?? ''}
+        </p>
+        {/* `overflow-hidden` clips the Recharts tooltip to the plot bounds — the
+            footnote and expanded data table are siblings below this div, so they
+            are never clipped. `isolate` keeps tooltip paint inside this card. */}
+        <div className="relative isolate h-52 grow sm:h-60 overflow-hidden">{children}</div>
+        {table}
+        {footnote ? <p className="mt-2 text-xs leading-5 text-slate-500">{footnote}</p> : null}
+      </section>
+    </ReadoutContext.Provider>
   )
 }
 
@@ -63,13 +93,14 @@ export function ChartCard({ title, yearNote, ariaLabel, children, table = null, 
 // of LGUs with at least one danger day (right). One axis detail in the legend
 // covers both units.
 export function YearlyTrendChart({ data = [] }) {
+  const { setReadout } = useReadout()
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ComposedChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: -8 }}>
         <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="year"
-          tick={{ fill: AXIS_TICK, fontSize: 10, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickLine={false}
           axisLine={{ stroke: GRID_LINE }}
           minTickGap={26}
@@ -77,17 +108,17 @@ export function YearlyTrendChart({ data = [] }) {
         <YAxis
           yAxisId="hi"
           domain={['auto', 'auto']}
-          tick={{ fill: AXIS_TICK, fontSize: 10, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickFormatter={(v) => v.toFixed(1)}
           tickLine={false}
           axisLine={false}
           width={44}
           label={{
-            value: '°C mean heat index',
+            value: 'Mean heat index (°C)',
             angle: -90,
             position: 'insideLeft',
             fill: AXIS_TICK,
-            fontSize: 10,
+            fontSize: 11,
             offset: 10,
           }}
         />
@@ -96,35 +127,33 @@ export function YearlyTrendChart({ data = [] }) {
           orientation="right"
           domain={[0, 'auto']}
           allowDecimals={false}
-          tick={{ fill: AXIS_TICK, fontSize: 10, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickLine={false}
           axisLine={false}
           width={34}
           label={{
-            value: 'LGUs in danger',
+            value: 'LGUs with danger days',
             angle: 90,
             position: 'insideRight',
             fill: AXIS_TICK,
-            fontSize: 10,
+            fontSize: 11,
             offset: 4,
           }}
         />
-        {/* Tooltip stabilisation: isAnimationActive=false removes the default
-            transform 400ms ease (swim), allowEscapeViewBox x=true removes the
-            edge flip, position pins the axis recharts would otherwise follow
-            with the raw pointer — x stays snapped to the hovered year. */}
+        {/* Tooltip stays inside the plot (x-escape off): recharts clamps it at the
+            edges. On coarse pointers the bubble is suppressed in favour of the
+            card readout slot. */}
         <Tooltip
-          content={<DarkTooltip unitByDataKey={{ meanHeatIndexC: ' °C' }} />}
+          content={<DarkTooltip unitByDataKey={{ meanHeatIndexC: ' °C' }} coarse={IS_COARSE} setReadout={setReadout} />}
           cursor={{ stroke: GRID_LINE, strokeDasharray: '3 3' }}
           isAnimationActive={false}
-          allowEscapeViewBox={{ x: true, y: false }}
-          position={{ y: 30 }}
+          allowEscapeViewBox={{ x: false, y: false }}
         />
         <Legend
           verticalAlign="top"
           height={20}
-          iconSize={9}
-          wrapperStyle={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          iconSize={11}
+          wrapperStyle={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
         />
         <Area
           yAxisId="hi"
@@ -156,6 +185,7 @@ export function YearlyTrendChart({ data = [] }) {
 // Binned bar chart used for the heat-index and warming-rate distributions and
 // the danger-day bands. Bin fills arrive pre-wired (map ramp colours).
 export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAngle = 0 }) {
+  const { setReadout } = useReadout()
   const angleHeight = labelAngle ? 44 : 26
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -163,7 +193,7 @@ export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAng
         <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fill: AXIS_TICK, fontSize: 9, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           interval={0}
           angle={labelAngle || 0}
           textAnchor={labelAngle ? 'end' : 'middle'}
@@ -173,20 +203,20 @@ export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAng
         />
         <YAxis
           allowDecimals={false}
-          tick={{ fill: AXIS_TICK, fontSize: 10, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickLine={false}
           axisLine={false}
           width={40}
-          label={{ value: unit, angle: -90, position: 'insideLeft', fill: AXIS_TICK, fontSize: 10, offset: 8 }}
+          label={{ value: unit, angle: -90, position: 'insideLeft', fill: AXIS_TICK, fontSize: 11, offset: 8 }}
         />
-        {/* Same stabilisation trio; y pinned to the plot top so the box hugs the
-            hovered bar instead of riding the pointer. */}
+        {/* Tooltip stays inside the plot (x-escape off): recharts clamps it at the
+            edges. On coarse pointers the bubble is suppressed in favour of the
+            card readout slot. */}
         <Tooltip
-          content={<DarkTooltip unitByDataKey={{ count: '' }} />}
+          content={<DarkTooltip unitByDataKey={{ count: '' }} coarse={IS_COARSE} setReadout={setReadout} />}
           cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }}
           isAnimationActive={false}
-          allowEscapeViewBox={{ x: true, y: false }}
-          position={{ y: 6 }}
+          allowEscapeViewBox={{ x: false, y: false }}
         />
         <Bar dataKey="count" name={unit} radius={[3, 3, 0, 0]} maxBarSize={48} isAnimationActive={false}>
           {bins.map((bin, i) => (
@@ -206,6 +236,7 @@ function shortLabel(label = '') {
 }
 
 export function DriverBarChart({ drivers = [] }) {
+  const { setReadout } = useReadout()
   const data = drivers.map((d) => ({ ...d, shortLabel: shortLabel(d?.label), pct: d.meanShare * 100 }))
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -215,7 +246,7 @@ export function DriverBarChart({ drivers = [] }) {
           type="number"
           domain={[0, 100]}
           tickFormatter={(v) => `${Math.round(v)}%`}
-          tick={{ fill: AXIS_TICK, fontSize: 9, fontFamily: MONO_FONT }}
+          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickLine={false}
           axisLine={{ stroke: GRID_LINE }}
         />
@@ -223,23 +254,22 @@ export function DriverBarChart({ drivers = [] }) {
           type="category"
           dataKey="shortLabel"
           width={lgusWidth(drivers)}
-          tick={{ fill: AXIS_TICK, fontSize: 9 }}
+          tick={{ fill: AXIS_TICK, fontSize: 11 }}
           tickLine={false}
           axisLine={false}
         />
-        {/* layout="vertical": x is the raw pointer axis — pin it just right of the
-            YAxis label block (same width the axis uses) so there is no horizontal
-            jitter; y stays snapped to the hovered bar. */}
+        {/* Tooltip stays inside the plot (x-escape off): recharts clamps it at the
+            edges. On coarse pointers the bubble is suppressed in favour of the
+            card readout slot. */}
         <Tooltip
-          content={<DriverTooltip drivers={drivers} />}
+          content={<DriverTooltip coarse={IS_COARSE} setReadout={setReadout} />}
           cursor={{ fill: 'rgba(255, 255, 255, 0.04)' }}
           isAnimationActive={false}
-          allowEscapeViewBox={{ x: true, y: false }}
-          position={{ x: lgusWidth(drivers) + 8 }}
+          allowEscapeViewBox={{ x: false, y: false }}
         />
         <Bar
           dataKey="pct"
-          name="Mean share"
+          name="Mean SHAP share"
           fill={HEAT_COOL}
           fillOpacity={0.85}
           radius={[0, 3, 3, 0]}
@@ -256,19 +286,32 @@ function lgusWidth(drivers) {
   return Math.min(200, Math.max(110, longest * 5.2))
 }
 
-function DriverTooltip({ active, payload }) {
+function DriverTooltip({ active, payload, coarse = false, setReadout = null }) {
+  useEffect(() => {
+    if (!coarse || !setReadout) return
+    if (active && Array.isArray(payload) && payload.length > 0) {
+      const row = payload[0]?.payload ?? {}
+      setReadout(
+        `${row?.label ?? '—'}: ${Math.round((row?.meanShare ?? 0) * 100)}% · top driver for ${
+          row?.lgus ?? '—'
+        } LGUs`,
+      )
+    } else {
+      setReadout(null)
+    }
+  }, [active, payload, coarse, setReadout])
   if (!active || !Array.isArray(payload) || payload.length === 0) return null
+  if (coarse) return null
   const row = payload[0]?.payload ?? {}
   return (
     <div
       role="presentation"
-      className="rounded-lg border border-white/10 bg-heat-surface/95 px-2.5 py-1.5 text-[10px] leading-4 text-slate-200 shadow-hud"
+      className="rounded-lg border border-white/10 bg-heat-surface/95 px-2.5 py-1.5 text-xs leading-5 text-slate-200 shadow-hud"
     >
       <div className="font-semibold text-slate-100">{row?.label ?? '—'}</div>
       <div className="mt-0.5 font-mono text-slate-300">Mean share {Math.round(row?.meanShare * 100)}%</div>
-      <div className="text-slate-500">
-        Top driver for {Number.isInteger(row?.lgus) ? row.lgus : '—'} LGUs (association, not causation)
-      </div>
+      <div className="mt-0.5 text-xs text-slate-500">Top driver for {row?.lgus ?? '—'} LGUs</div>
+      <div className="mt-0.5 text-xs text-slate-500 italic">Association, not causation.</div>
     </div>
   )
 }

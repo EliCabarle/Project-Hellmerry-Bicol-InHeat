@@ -1,0 +1,32 @@
+{
+  "doc_path": "docs/ARCHITECTURE.md",
+  "claims_checked": 69,
+  "claims_passed": 65,
+  "claims_failed": 4,
+  "failures": [
+    {
+      "line": 48,
+      "claim": "fetch_boundaries.py pulls geoBoundaries adm3 municipality polygons",
+      "expected": "geoBoundaries as the boundary source in fetch_boundaries.py",
+      "actual": "ZIP_URL = https://github.com/faeldon/philippines-json-maps/releases/latest/download/geojson-lowres.zip (properties are adm1_psgc/adm3_psgc); only a stale print statement says 'geoBoundaries zip'"
+    },
+    {
+      "line": 48,
+      "claim": "Landsat C2 L2, MOD44B.061, MCD12Q1.061 and ECOSTRESS pulls use Earthdata Login credentials from apps/api/.env",
+      "expected": "Earthdata-authenticated pull scripts in apps/api",
+      "actual": "no Landsat/MOD44B/MCD12Q1/ECOSTRESS pull scripts exist and no .py file reads EARTHDATA_* credentials; apps/api/AGENTS.md workboard marks these pulls 'todo'"
+    },
+    {
+      "line": 49,
+      "claim": "calculate_drivers.py builds driver features (elevation, distance to coast, wind, canopy, land cover, LST)",
+      "expected": "elevation, distance-to-coast, canopy, land-cover and LST features in calculate_drivers.py",
+      "actual": "FEATURES = [\"u10m_ms\", \"v10m_ms\", \"lat\", \"lon\"] — only wind + lat/lon proxies; code comment: 'terrain and LST are not in the model yet'"
+    },
+    {
+      "line": 53,
+      "claim": "useSession.js creates the Supabase anon client from VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY",
+      "expected": "anon client creation in useSession.js",
+      "actual": "client is created in apps/web/src/lib/supabase.js (reads import.meta.env.VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY, lines 3-9); useSession.js only imports { supabase, supabaseConfigured } from './lib/supabase'"
+    }
+  ]
+}

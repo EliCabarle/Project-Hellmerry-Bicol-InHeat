@@ -12,6 +12,10 @@ agrees, e.g. --out ../web/public/data/narratives.json.
 Usage:
   python generate_static_json.py
   python generate_static_json.py --trends output/trends.json --out output/narratives.json
+
+When output/drivers.json exists (calculate_drivers.py), each municipality also
+gains a top_drivers list; when it does not, the key is omitted and the dashboard
+hides its driver chart instead of showing blanks.
 """
 
 from __future__ import annotations
@@ -39,6 +43,7 @@ from calculate_trends import DANGER_C  # single source for the 42 °C Danger flo
 
 API_DIR = Path(__file__).resolve().parent
 IN_JSON = API_DIR / "output" / "trends.json"
+DRIVERS_JSON = API_DIR / "output" / "drivers.json"
 OUT_JSON = API_DIR / "output" / "narratives.json"
 # Boundary source of truth for the completeness check (114 municipalities).
 GEOJSON_PATH = (
@@ -209,50 +214,57 @@ def _danger_summary(series: list[dict]) -> dict:
     }
 
 
-def build(trends: dict) -> dict:
+def build(trends: dict, drivers: dict | None = None) -> dict:
     municipalities = []
     for row in trends["municipalities"]:
         latest = row["series"][-1] if row["series"] else None
         band = danger_band(latest["mean_heat_index_c"]) if latest else None
         danger = _danger_summary(row["series"])
-        municipalities.append(
-            {
-                "id": slugify(row["name"], row["province"]),
-                "name": row["name"],
-                "province": row["province"],
-                "lat": row["lat"],
-                "lon": row["lon"],
-                "trend": {
-                    "slope_c_per_year": row["slope_c_per_year"],
-                    "slope_ci95": row["slope_ci95"],
-                    # .get: a trends.json predating the CI/change-point run has no keys
-                    "slope_ci_low": row.get("slope_ci_low"),
-                    "slope_ci_high": row.get("slope_ci_high"),
-                    "p_value": row["p_value"],
-                    "is_significant": row["is_significant"],
-                    "alpha": row["alpha"],
-                    "direction": row["trend_direction"],
-                    "change_point_year": row.get("change_point_year"),
-                    "change_point_p": row.get("change_point_p"),
-                },
-                "sample": row["sample"],
-                "latest": {
-                    "year": latest["year"] if latest else None,
-                    "mean_heat_index_c": (
-                        latest["mean_heat_index_c"] if latest else None
-                    ),
-                    "nighttime_heat_index_c": (
-                        latest.get("mean_nighttime_heat_index_c") if latest else None
-                    ),
-                    "danger_band": band[0] if band else None,
-                    "danger_days": latest["danger_days"] if latest else None,
-                },
-                "total_danger_days_45y": danger["total_danger_days_45y"],
-                "peak_danger_days": danger["peak_danger_days"],
-                "narration": render_narration(row),
-                "series": row["series"],
-            }
+        # RF/SHAP driver ranking (calculate_drivers.py). Keyed on (name, province),
+        # same contract as push_to_supabase.driver_index(). Omitted entirely when
+        # drivers.json is absent, so the dashboard can hide its driver chart.
+        municipality_drivers = (
+            drivers.get((row["name"], row["province"]))
+            if drivers is not None
+            else "absent"
         )
+        municipality = {
+            "id": slugify(row["name"], row["province"]),
+            "name": row["name"],
+            "province": row["province"],
+            "lat": row["lat"],
+            "lon": row["lon"],
+            "trend": {
+                "slope_c_per_year": row["slope_c_per_year"],
+                "slope_ci95": row["slope_ci95"],
+                # .get: a trends.json predating the CI/change-point run has no keys
+                "slope_ci_low": row.get("slope_ci_low"),
+                "slope_ci_high": row.get("slope_ci_high"),
+                "change_point_year": row.get("change_point_year"),
+                "change_point_p": row.get("change_point_p"),
+                "p_value": row["p_value"],
+                "is_significant": row["is_significant"],
+                "alpha": row["alpha"],
+                "direction": row["trend_direction"],
+            },
+            "sample": row["sample"],
+            "latest": {
+                "year": latest["year"] if latest else None,
+                "mean_heat_index_c": (latest["mean_heat_index_c"] if latest else None),
+                "nighttime_heat_index_c": (
+                    latest.get("mean_nighttime_heat_index_c") if latest else None
+                ),
+                "danger_band": band[0] if band else None,
+                "danger_days": latest["danger_days"] if latest else None,
+            },
+            "total_danger_days_45y": danger["total_danger_days_45y"],
+            "peak_danger_days": danger["peak_danger_days"],
+            "narration": render_narration(row),
+            "series": row["series"],
+        }
+        if municipality_drivers != "absent":
+            municipality["top_drivers"] = municipality_drivers
+        municipalities.append(municipality)
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -310,6 +322,21 @@ def _missing_municipalities(payload: dict) -> list[tuple[str, str]]:
     return sorted(expected - produced)
 
 
+def load_driver_index() -> dict | None:
+    """(name, province) -> top_drivers, or None when drivers.json is absent.
+
+    None means "no driver data anywhere" — build() then omits the top_drivers
+    key entirely instead of writing nulls into every municipality.
+    """
+    if not DRIVERS_JSON.exists():
+        return None
+    drivers = json.loads(DRIVERS_JSON.read_text(encoding="utf-8"))
+    return {
+        (row["name"], row["province"]): row["top_drivers"]
+        for row in drivers.get("municipalities", [])
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trends", default=str(IN_JSON))
@@ -317,7 +344,12 @@ def main() -> None:
     args = parser.parse_args()
 
     trends = json.loads(Path(args.trends).read_text(encoding="utf-8"))
-    payload = build(trends)
+    drivers = load_driver_index()
+    if drivers is None:
+        print(
+            "warning: output/drivers.json missing - top_drivers omitted from narratives"
+        )
+    payload = build(trends, drivers)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

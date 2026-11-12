@@ -1,2 +1,2 @@
-export { default } from './src/RankingScreen.jsx'
+export { default } from './src/DashboardScreen.jsx'
 export { rankMunicipalities } from './src/ranking.js'

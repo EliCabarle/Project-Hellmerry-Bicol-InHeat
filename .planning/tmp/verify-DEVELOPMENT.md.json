@@ -1,0 +1,14 @@
+{
+  "doc_path": "docs/DEVELOPMENT.md",
+  "claims_checked": 47,
+  "claims_passed": 46,
+  "claims_failed": 1,
+  "failures": [
+    {
+      "line": 51,
+      "claim": "`npm run build` (apps/web/) — Production build (static PWA bundle: manifest + service worker)",
+      "expected": "PWA manifest + service worker present (manifest/sw file in apps/web or PWA plugin in vite.config.js)",
+      "actual": "apps/web/public/ contains only favicon.svg; no manifest.json, no service worker file, and vite.config.js has no PWA plugin — `npm run build` is a plain `vite build`; web AGENTS.md workboard lists 'PWA manifest + service worker' as todo"
+    }
+  ]
+}

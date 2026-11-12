@@ -4,7 +4,13 @@
 // Layer toggles go through the layer-registry seam; layer-uhi-terrain's registry
 // is not shipped yet, so the host can pass layerRegistry and/or onLayerChange.
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   DAY_PLAY_MS,
   DAY_STEP_CHOICES,
@@ -14,7 +20,7 @@ import {
   clampZoom,
   formatTimestamp,
   timelineStore,
-} from '../state/timelineStore.js'
+} from "../state/timelineStore.js";
 import {
   addDays,
   dateFromDayOfYear,
@@ -24,8 +30,8 @@ import {
   parseDateQuery,
   resolveQuery,
   spelledDate,
-} from '../state/dateModel.js'
-import { DAILY_MISSING_REASON } from '../data/dailyStore.js'
+} from "../state/dateModel.js";
+import { DAILY_MISSING_REASON } from "../data/dailyStore.js";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -38,58 +44,65 @@ import {
   IconSearch,
   IconThermometer,
   IconTrend,
-} from './Icons.jsx'
+} from "./Icons.jsx";
 
 // Selectors are module-level so getSnapshot stays stable. They must return a
 // primitive or a reference that only changes when the slice changes.
-const selectTimestamps = (s) => s.timestamps
-const selectIndex = (s) => s.index
-const selectPlaying = (s) => s.playing
-const selectDate = (s) => s.date
-const selectViewMode = (s) => s.viewMode
-const selectDayStep = (s) => s.dayStep
-const selectRangeMin = (s) => s.range?.min ?? null
-const selectRangeMax = (s) => s.range?.max ?? null
+const selectTimestamps = (s) => s.timestamps;
+const selectIndex = (s) => s.index;
+const selectPlaying = (s) => s.playing;
+const selectDate = (s) => s.date;
+const selectViewMode = (s) => s.viewMode;
+const selectDayStep = (s) => s.dayStep;
+const selectRangeMin = (s) => s.range?.min ?? null;
+const selectRangeMax = (s) => s.range?.max ?? null;
 
 export function useTimelineState(selector = (s) => s, store = timelineStore) {
-  const getSnapshot = useCallback(() => selector(store.getState()), [selector, store])
-  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot)
+  const getSnapshot = useCallback(
+    () => selector(store.getState()),
+    [selector, store],
+  );
+  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
 // Single seam for swapping in a core store later: components only ever call these.
 export function useTimelineActions(store = timelineStore) {
-  return store.actions
+  return store.actions;
 }
 
 export function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(
     () =>
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  )
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const onChange = (event) => setReduced(event.matches)
-    if (mq.addEventListener) mq.addEventListener('change', onChange)
-    else mq.addListener(onChange)
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = (event) => setReduced(event.matches);
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else mq.addListener(onChange);
     return () => {
-      if (mq.removeEventListener) mq.removeEventListener('change', onChange)
-      else mq.removeListener(onChange)
-    }
-  }, [])
-  return reduced
+      if (mq.removeEventListener) mq.removeEventListener("change", onChange);
+      else mq.removeListener(onChange);
+    };
+  }, []);
+  return reduced;
 }
 
 const GLASS =
-  'pointer-events-auto rounded-xl border border-white/10 bg-heat-surface/90 text-slate-100 shadow-hud backdrop-blur-md'
+  "pointer-events-auto rounded-xl border border-white/10 bg-heat-surface/90 text-slate-100 shadow-hud backdrop-blur-md";
 const BTN =
-  'inline-flex cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep'
-const ICON_BTN = `${BTN} h-9 w-9`
-const SMALL_BTN = `${BTN} h-8 px-2 text-[11px] font-semibold`
+  "inline-flex cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep";
+const ICON_BTN = `${BTN} h-9 w-9`;
+const SMALL_BTN = `${BTN} h-8 px-2 text-[11px] font-semibold`;
 const SEARCH_INPUT =
-  'w-full min-w-0 rounded-md border border-white/10 bg-black/25 px-2 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
+  "w-full min-w-0 rounded-md border border-white/10 bg-black/25 px-2 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber";
 
 function ModeButton({ active, children, onClick }) {
   return (
@@ -98,40 +111,45 @@ function ModeButton({ active, children, onClick }) {
       aria-pressed={active}
       onClick={onClick}
       className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
-        active ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+        active
+          ? "bg-heat-amber text-slate-950"
+          : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
       }`}
     >
       {children}
     </button>
-  )
+  );
 }
 
-const SEARCH_PLACEHOLDER = '2019-04-23, Apr 2019, 2019'
+const SEARCH_PLACEHOLDER = "2019-04-23, Apr 2019, 2019";
 
 function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
-  const [text, setText] = useState('')
-  const [status, setStatus] = useState(null) // {kind:'ok'|'error', message}
+  const [text, setText] = useState("");
+  const [status, setStatus] = useState(null); // {kind:'ok'|'error', message}
 
   const submit = (event) => {
-    event.preventDefault()
-    const parsed = parseDateQuery(text, { min: rangeMin, max: rangeMax })
+    event.preventDefault();
+    const parsed = parseDateQuery(text, { min: rangeMin, max: rangeMax });
     if (parsed.error) {
-      setStatus({ kind: 'error', message: `${parsed.error} ${parsed.hint ?? ''}`.trim() })
-      return
+      setStatus({
+        kind: "error",
+        message: `${parsed.error} ${parsed.hint ?? ""}`.trim(),
+      });
+      return;
     }
     if (!dailyReady) {
       // No daily files: land on the year, say why, never invent a value.
-      actions.setYear(parsed.y)
+      actions.setYear(parsed.y);
       setStatus({
-        kind: 'ok',
+        kind: "ok",
         message: `${DAILY_MISSING_REASON} — showing ${parsed.y} as a year only.`,
-      })
-      return
+      });
+      return;
     }
-    const resolved = resolveQuery(parsed)
-    actions.setDate(resolved.iso)
-    setStatus({ kind: 'ok', message: resolved.notice })
-  }
+    const resolved = resolveQuery(parsed);
+    actions.setDate(resolved.iso);
+    setStatus({ kind: "ok", message: resolved.notice });
+  };
 
   return (
     <form role="search" onSubmit={submit} className="flex flex-col gap-1.5">
@@ -146,9 +164,9 @@ function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
           value={text}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              setText('')
-              setStatus(null)
+            if (event.key === "Escape") {
+              setText("");
+              setStatus(null);
             }
           }}
           placeholder={SEARCH_PLACEHOLDER}
@@ -159,15 +177,23 @@ function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
           Go
         </button>
       </div>
-      <div role="status" aria-live="polite" className="min-h-4 text-[10px] leading-4">
+      <div
+        role="status"
+        aria-live="polite"
+        className="min-h-4 text-[10px] leading-4"
+      >
         {status ? (
-          <span className={status.kind === 'error' ? 'text-heat-hot' : 'text-slate-400'}>
+          <span
+            className={
+              status.kind === "error" ? "text-heat-hot" : "text-slate-400"
+            }
+          >
             {status.message}
           </span>
         ) : null}
       </div>
     </form>
-  )
+  );
 }
 
 function DayPanel({
@@ -177,35 +203,37 @@ function DayPanel({
   dailyReason,
   onHeightChange,
 }) {
-  const date = useTimelineState(selectDate, store)
-  const dayStep = useTimelineState(selectDayStep, store)
-  const playing = useTimelineState(selectPlaying, store)
-  const rangeMin = useTimelineState(selectRangeMin, store)
-  const rangeMax = useTimelineState(selectRangeMax, store)
-  const index = useTimelineState(selectIndex, store)
-  const timestamps = useTimelineState(selectTimestamps, store)
-  const actions = useTimelineActions(store)
-  const rootRef = useRef(null)
+  const date = useTimelineState(selectDate, store);
+  const dayStep = useTimelineState(selectDayStep, store);
+  const playing = useTimelineState(selectPlaying, store);
+  const rangeMin = useTimelineState(selectRangeMin, store);
+  const rangeMax = useTimelineState(selectRangeMax, store);
+  const index = useTimelineState(selectIndex, store);
+  const timestamps = useTimelineState(selectTimestamps, store);
+  const actions = useTimelineActions(store);
+  const rootRef = useRef(null);
 
   // Measure this panel so the info card can clear it without a hard-coded offset.
   useEffect(() => {
-    const el = rootRef.current
-    if (!el) return undefined
-    const publish = () => onHeightChange?.(el.offsetHeight)
-    publish()
-    if (typeof ResizeObserver === 'undefined') return undefined
-    const ro = new ResizeObserver(publish)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [onHeightChange])
+    const el = rootRef.current;
+    if (!el) return undefined;
+    const publish = () => onHeightChange?.(el.offsetHeight);
+    publish();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onHeightChange]);
 
-  const disabled = !dailyReady
-  const year = date ? Number(date.slice(0, 4)) : null
-  const doy = date ? dayOfYear(date) : 1
-  const maxDoy = year ? daysInYear(year) : 366
-  const safeIndex = clampIndex(index, timestamps.length)
-  const currentYear = timestamps.length ? Number(formatTimestamp(timestamps[safeIndex]).slice(0, 4)) : null
-  const valueText = date ? spelledDate(date) : 'No date selected'
+  const disabled = !dailyReady;
+  const year = date ? Number(date.slice(0, 4)) : null;
+  const doy = date ? dayOfYear(date) : 1;
+  const maxDoy = year ? daysInYear(year) : 366;
+  const safeIndex = clampIndex(index, timestamps.length);
+  const currentYear = timestamps.length
+    ? Number(formatTimestamp(timestamps[safeIndex]).slice(0, 4))
+    : null;
+  const valueText = date ? spelledDate(date) : "No date selected";
 
   return (
     <div
@@ -258,13 +286,13 @@ function DayPanel({
         <input
           id="bih-date-picker"
           type="date"
-          value={date ?? ''}
+          value={date ?? ""}
           min={rangeMin ?? undefined}
           max={rangeMax ?? undefined}
           disabled={disabled}
           onChange={(event) => {
-            const v = event.target.value
-            if (isValidISO(v)) actions.setDate(v)
+            const v = event.target.value;
+            if (isValidISO(v)) actions.setDate(v);
           }}
           className={`${SEARCH_INPUT} w-auto flex-1 font-mono`}
         />
@@ -284,21 +312,29 @@ function DayPanel({
           disabled={disabled}
           aria-valuetext={valueText}
           onChange={(event) => {
-            const iso = dateFromDayOfYear(year, Number(event.target.value))
-            if (iso) actions.setDate(iso)
+            const iso = dateFromDayOfYear(year, Number(event.target.value));
+            if (iso) actions.setDate(iso);
           }}
           className="bih-range w-full cursor-pointer disabled:cursor-not-allowed"
         />
         <button
           type="button"
-          aria-label={playing ? 'Pause day playback' : 'Play day playback'}
+          aria-label={playing ? "Pause day playback" : "Play day playback"}
           aria-pressed={playing}
           disabled={disabled || reducedMotion}
-          title={reducedMotion ? 'Autoplay is off because your system prefers reduced motion' : undefined}
+          title={
+            reducedMotion
+              ? "Autoplay is off because your system prefers reduced motion"
+              : undefined
+          }
           onClick={() => actions.toggle()}
           className={ICON_BTN}
         >
-          {playing ? <IconPause className="h-4 w-4" /> : <IconPlay className="h-4 w-4" />}
+          {playing ? (
+            <IconPause className="h-4 w-4" />
+          ) : (
+            <IconPlay className="h-4 w-4" />
+          )}
         </button>
         <label htmlFor="bih-day-speed" className="sr-only">
           Playback speed in days per tick
@@ -312,23 +348,23 @@ function DayPanel({
         >
           {DAY_STEP_CHOICES.map((n) => (
             <option key={n} value={n}>
-              {n} day{DAY_STEP_CHOICES.length > 1 && n > 1 ? 's' : ''}/tick
+              {n} day{DAY_STEP_CHOICES.length > 1 && n > 1 ? "s" : ""}/tick
             </option>
           ))}
         </select>
       </div>
 
       <div className="flex justify-between font-mono text-[10px] text-slate-500">
-        <span>{year ? `${year}-01-01` : '—'}</span>
+        <span>{year ? `${year}-01-01` : "—"}</span>
         <span aria-live="polite" className="text-slate-300">
           {valueText}
         </span>
-        <span>{year ? `${year}-12-31` : '—'}</span>
+        <span>{year ? `${year}-12-31` : "—"}</span>
       </div>
 
       {currentYear !== null && currentYear !== year ? (
         <div className="text-[10px] text-slate-500">
-          Year slider is on {currentYear}; day controls show {year ?? '—'}.
+          Year slider is on {currentYear}; day controls show {year ?? "—"}.
         </div>
       ) : null}
 
@@ -338,40 +374,55 @@ function DayPanel({
         </div>
       ) : null}
 
-      <DateSearch actions={actions} rangeMin={rangeMin} rangeMax={rangeMax} dailyReady={dailyReady} />
+      <DateSearch
+        actions={actions}
+        rangeMin={rangeMin}
+        rangeMax={rangeMax}
+        dailyReady={dailyReady}
+      />
     </div>
-  )
+  );
 }
 
-function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeightChange, dailyReady, dailyReason }) {
-  const timestamps = useTimelineState(selectTimestamps, store)
-  const index = useTimelineState(selectIndex, store)
-  const playing = useTimelineState(selectPlaying, store)
-  const actions = useTimelineActions(store)
-  const rootRef = useRef(null)
+function TimeScrubber({
+  store,
+  reducedMotion,
+  viewMode,
+  onViewModeChange,
+  renderMode,
+  onRenderModeChange,
+  onHeightChange,
+  dailyReady,
+  dailyReason,
+}) {
+  const timestamps = useTimelineState(selectTimestamps, store);
+  const index = useTimelineState(selectIndex, store);
+  const playing = useTimelineState(selectPlaying, store);
+  const actions = useTimelineActions(store);
+  const rootRef = useRef(null);
 
   useEffect(() => {
-    const el = rootRef.current
-    if (!el) return undefined
-    const publish = () => onHeightChange?.(el.offsetHeight)
-    publish()
-    if (typeof ResizeObserver === 'undefined') return undefined
-    const ro = new ResizeObserver(publish)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [onHeightChange])
+    const el = rootRef.current;
+    if (!el) return undefined;
+    const publish = () => onHeightChange?.(el.offsetHeight);
+    publish();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onHeightChange]);
 
-  const count = timestamps.length
-  const canStep = count > 1
-  const safeIndex = clampIndex(index, count)
-  const current = count ? formatTimestamp(timestamps[safeIndex]) : ''
-  const first = count ? formatTimestamp(timestamps[0]) : '—'
-  const last = count ? formatTimestamp(timestamps[count - 1]) : '—'
+  const count = timestamps.length;
+  const canStep = count > 1;
+  const safeIndex = clampIndex(index, count);
+  const current = count ? formatTimestamp(timestamps[safeIndex]) : "";
+  const first = count ? formatTimestamp(timestamps[0]) : "—";
+  const last = count ? formatTimestamp(timestamps[count - 1]) : "—";
   const valueText = count
     ? `${current} (${safeIndex + 1} of ${count})`
-    : 'No timestamps available'
+    : "No timestamps available";
 
-  if (viewMode === 'day') {
+  if (viewMode === "day") {
     return (
       <div ref={rootRef} className="w-full">
         <DayPanel
@@ -382,7 +433,7 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
           onHeightChange={onHeightChange}
         />
       </div>
-    )
+    );
   }
 
   return (
@@ -394,23 +445,55 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Historical time</span>
-          <span className="font-mono text-sm font-semibold text-slate-100" aria-live="polite">
-            {current || 'No data'}
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Historical time
+          </span>
+          <span
+            className="font-mono text-sm font-semibold text-slate-100"
+            aria-live="polite"
+          >
+            {current || "No data"}
           </span>
         </div>
-        <div role="group" aria-label="Map data mode" className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5">
-          <ModeButton active={viewMode === 'trend'} onClick={() => onViewModeChange?.('trend')}>
-            <IconTrend className="h-3.5 w-3.5" />
-            Trend
-          </ModeButton>
-          <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
-            <IconThermometer className="h-3.5 w-3.5" />
-            Year
-          </ModeButton>
-          <ModeButton active={viewMode === 'day'} onClick={() => onViewModeChange?.('day')}>
-            Day
-          </ModeButton>
+        <div className="flex items-center gap-2">
+          <div
+            role="group"
+            aria-label="Map data mode"
+            className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
+          >
+            <ModeButton
+              active={viewMode === "trend"}
+              onClick={() => onViewModeChange?.("trend")}
+            >
+              <IconTrend className="h-3.5 w-3.5" />
+              Trend
+            </ModeButton>
+            <ModeButton
+              active={viewMode === "year"}
+              onClick={() => onViewModeChange?.("year")}
+            >
+              <IconThermometer className="h-3.5 w-3.5" />
+              Year
+            </ModeButton>
+          </div>
+          <div
+            role="group"
+            aria-label="Map view"
+            className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
+          >
+            <ModeButton
+              active={renderMode === "2d"}
+              onClick={() => onRenderModeChange?.("2d")}
+            >
+              2D
+            </ModeButton>
+            <ModeButton
+              active={renderMode === "3d"}
+              onClick={() => onRenderModeChange?.("3d")}
+            >
+              3D
+            </ModeButton>
+          </div>
         </div>
       </div>
 
@@ -420,8 +503,8 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
           aria-label="Previous year"
           disabled={!canStep}
           onClick={() => {
-            onViewModeChange?.('year')
-            actions.prev()
+            onViewModeChange?.("year");
+            actions.prev();
           }}
           className={ICON_BTN}
         >
@@ -429,25 +512,33 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
         </button>
         <button
           type="button"
-          aria-label={playing ? 'Pause playback' : 'Play playback'}
+          aria-label={playing ? "Pause playback" : "Play playback"}
           aria-pressed={playing}
           disabled={!canStep || reducedMotion}
-          title={reducedMotion ? 'Autoplay is off because your system prefers reduced motion' : undefined}
+          title={
+            reducedMotion
+              ? "Autoplay is off because your system prefers reduced motion"
+              : undefined
+          }
           onClick={() => {
-            onViewModeChange?.('year')
-            actions.toggle()
+            onViewModeChange?.("year");
+            actions.toggle();
           }}
           className={ICON_BTN}
         >
-          {playing ? <IconPause className="h-4 w-4" /> : <IconPlay className="h-4 w-4" />}
+          {playing ? (
+            <IconPause className="h-4 w-4" />
+          ) : (
+            <IconPlay className="h-4 w-4" />
+          )}
         </button>
         <button
           type="button"
           aria-label="Next year"
           disabled={!canStep}
           onClick={() => {
-            onViewModeChange?.('year')
-            actions.next()
+            onViewModeChange?.("year");
+            actions.next();
           }}
           className={ICON_BTN}
         >
@@ -463,8 +554,8 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
           aria-label="Selected historical year"
           aria-valuetext={valueText}
           onChange={(event) => {
-            onViewModeChange?.('year')
-            actions.seek(Number(event.target.value))
+            onViewModeChange?.("year");
+            actions.seek(Number(event.target.value));
           }}
           className="bih-range w-full cursor-pointer disabled:cursor-not-allowed"
         />
@@ -475,64 +566,106 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeig
         <span>{last}</span>
       </div>
     </div>
-  )
+  );
 }
 
 // The mode switcher must also be reachable from Day view (it lives inside the
 // trend/year panel otherwise), so Day renders a slim header with the same trio.
-function DayModeHeader({ viewMode, onViewModeChange }) {
+function DayModeHeader({
+  viewMode,
+  onViewModeChange,
+  renderMode,
+  onRenderModeChange,
+}) {
   return (
-    <div
-      role="group"
-      aria-label="Map data mode"
-      className="pointer-events-auto inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
-    >
-      <ModeButton active={viewMode === 'trend'} onClick={() => onViewModeChange?.('trend')}>
-        <IconTrend className="h-3.5 w-3.5" />
-        Trend
-      </ModeButton>
-      <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
-        <IconThermometer className="h-3.5 w-3.5" />
-        Year
-      </ModeButton>
-      <ModeButton active={viewMode === 'day'} onClick={() => onViewModeChange?.('day')}>
-        Day
-      </ModeButton>
+    <div className="pointer-events-auto flex items-center gap-2">
+      <div
+        role="group"
+        aria-label="Map data mode"
+        className="inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
+      >
+        <ModeButton
+          active={viewMode === "trend"}
+          onClick={() => onViewModeChange?.("trend")}
+        >
+          <IconTrend className="h-3.5 w-3.5" />
+          Trend
+        </ModeButton>
+        <ModeButton
+          active={viewMode === "year"}
+          onClick={() => onViewModeChange?.("year")}
+        >
+          <IconThermometer className="h-3.5 w-3.5" />
+          Year
+        </ModeButton>
+        <ModeButton
+          active={viewMode === "day"}
+          onClick={() => onViewModeChange?.("day")}
+        >
+          Day
+        </ModeButton>
+      </div>
+      <div
+        role="group"
+        aria-label="Map view"
+        className="inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
+      >
+        <ModeButton
+          active={renderMode === "2d"}
+          onClick={() => onRenderModeChange?.("2d")}
+        >
+          2D
+        </ModeButton>
+        <ModeButton
+          active={renderMode === "3d"}
+          onClick={() => onRenderModeChange?.("3d")}
+        >
+          3D
+        </ModeButton>
+      </div>
     </div>
-  )
+  );
 }
 
 function ZoomPanel({ map, limits, onReset }) {
-  const min = limits?.min ?? 2
-  const max = limits?.max ?? 18
-  const [zoom, setZoom] = useState(() => map?.getZoom() ?? min)
-  const targetRef = useRef(map?.getZoom() ?? min)
+  const min = limits?.min ?? 2;
+  const max = limits?.max ?? 18;
+  const [zoom, setZoom] = useState(() => map?.getZoom() ?? min);
+  const targetRef = useRef(map?.getZoom() ?? min);
 
   useEffect(() => {
-    if (!map) return
-    targetRef.current = map.getZoom()
-    setZoom(map.getZoom())
+    if (!map) return;
+    targetRef.current = map.getZoom();
+    setZoom(map.getZoom());
     const onZoomEnd = () => {
-      targetRef.current = map.getZoom()
-      setZoom(map.getZoom())
-    }
-    map.on('zoomend', onZoomEnd)
+      targetRef.current = map.getZoom();
+      setZoom(map.getZoom());
+    };
+    map.on("zoomend", onZoomEnd);
     return () => {
-      map.off('zoomend', onZoomEnd)
-    }
-  }, [map])
+      map.off("zoomend", onZoomEnd);
+    };
+  }, [map]);
 
   // Rapid clicks must stack from the pending target, not the mid-animation zoom,
   // otherwise a burst of clicks gets stuck below max.
   const step = (delta) => {
-    if (!map) return
-    const next = clampZoom((targetRef.current ?? map.getZoom()) + delta, min, max)
-    targetRef.current = next
-    map.setZoom(next)
-  }
+    if (!map) return;
+    const next = clampZoom(
+      (targetRef.current ?? map.getZoom()) + delta,
+      min,
+      max,
+    );
+    targetRef.current = next;
+    map.setZoom(next);
+  };
 
   return (
-    <div role="group" aria-label="Map zoom" className={`${GLASS} flex items-center gap-0.5 p-1`}>
+    <div
+      role="group"
+      aria-label="Map zoom"
+      className={`${GLASS} flex items-center gap-0.5 p-1`}
+    >
       <button
         type="button"
         aria-label="Zoom out"
@@ -542,7 +675,10 @@ function ZoomPanel({ map, limits, onReset }) {
       >
         <IconMinus className="h-4 w-4" />
       </button>
-      <span className="min-w-9 text-center font-mono text-[10px] text-slate-400" aria-live="polite">
+      <span
+        className="min-w-9 text-center font-mono text-[10px] text-slate-400"
+        aria-live="polite"
+      >
         z{Number(zoom).toFixed(1)}
       </span>
       <button
@@ -555,43 +691,56 @@ function ZoomPanel({ map, limits, onReset }) {
         <IconPlus className="h-4 w-4" />
       </button>
       <span className="mx-0.5 h-5 w-px bg-white/10" aria-hidden="true" />
-      <button type="button" aria-label="Reset view to Bicol" onClick={onReset} className={ICON_BTN}>
+      <button
+        type="button"
+        aria-label="Reset view to Bicol"
+        onClick={onReset}
+        className={ICON_BTN}
+      >
         <IconReset className="h-4 w-4" />
       </button>
     </div>
-  )
+  );
 }
 
 const KIND_LABELS = {
-  'heat-index': 'Heat index (felt)',
-  lst: 'Land surface temp (LST)',
-  canopy: 'Tree cover',
-  'land-cover': 'Land cover',
-  terrain: 'Terrain',
-}
+  "heat-index": "Heat index (felt)",
+  lst: "Land surface temp (LST)",
+  canopy: "Tree cover",
+  "land-cover": "Land cover",
+  terrain: "Terrain",
+};
 
 function LayerPanel({ registry, onLayerChange }) {
-  const [local, setLocal] = useState({})
+  const [local, setLocal] = useState({});
   // Only layers the host/registry actually supports — no invented overlays.
-  const layers = Array.isArray(registry?.layers) ? registry.layers.filter((layer) => layer?.id) : []
-  if (layers.length === 0) return null
+  const layers = Array.isArray(registry?.layers)
+    ? registry.layers.filter((layer) => layer?.id)
+    : [];
+  if (layers.length === 0) return null;
 
   const isOn = (id) =>
-    typeof registry?.isActive === 'function' ? Boolean(registry.isActive(id)) : Boolean(local[id])
+    typeof registry?.isActive === "function"
+      ? Boolean(registry.isActive(id))
+      : Boolean(local[id]);
 
   const toggle = (id) => {
-    if (!canToggleLayer(registry, id, onLayerChange)) return
-    const next = !isOn(id)
-    if (typeof registry?.setActive === 'function') registry.setActive(id, next)
-    else onLayerChange(id, next)
-    setLocal((current) => ({ ...current, [id]: next }))
-  }
+    if (!canToggleLayer(registry, id, onLayerChange)) return;
+    const next = !isOn(id);
+    if (typeof registry?.setActive === "function") registry.setActive(id, next);
+    else onLayerChange(id, next);
+    setLocal((current) => ({ ...current, [id]: next }));
+  };
 
   return (
-    <div role="group" aria-label="Map layers" className={`${GLASS} flex flex-col gap-1 p-1.5`}>
+    <div
+      role="group"
+      aria-label="Map layers"
+      className={`${GLASS} flex flex-col gap-1 p-1.5`}
+    >
       {layers.map((layer) => {
-        const on = isOn(layer.id)
-        const kind = KIND_LABELS[layer.kind] ?? ''
+        const on = isOn(layer.id);
+        const kind = KIND_LABELS[layer.kind] ?? "";
         return (
           <button
             key={layer.id}
@@ -599,16 +748,18 @@ function LayerPanel({ registry, onLayerChange }) {
             aria-pressed={on}
             disabled={!canToggleLayer(registry, layer.id, onLayerChange)}
             onClick={() => toggle(layer.id)}
-            className={`${BTN} justify-start gap-2 px-2 py-1.5 text-left text-xs ${on ? 'bg-white/10' : ''}`}
+            className={`${BTN} justify-start gap-2 px-2 py-1.5 text-left text-xs ${on ? "bg-white/10" : ""}`}
           >
             <IconLayers className="h-3.5 w-3.5 text-slate-400" />
             <span>{layer.label ?? layer.id}</span>
-            {kind ? <span className="ml-1 text-[10px] text-slate-500">{kind}</span> : null}
+            {kind ? (
+              <span className="ml-1 text-[10px] text-slate-500">{kind}</span>
+            ) : null}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 export default function MapControlsOverlay({
@@ -619,44 +770,48 @@ export default function MapControlsOverlay({
   onLayerChange,
   onTimeChange,
   onReset,
-  viewMode = 'trend',
+  viewMode = "trend",
   onViewModeChange,
+  renderMode = "2d",
+  onRenderModeChange,
   zoomLimits = { min: 7, max: 18 },
   dailyReady = false,
   dailyReason = null,
   onHeightChange,
 }) {
-  const actions = useTimelineActions(store)
-  const selected = useTimelineState(selectTimestamps, store)
-  const index = useTimelineState(selectIndex, store)
-  const playing = useTimelineState(selectPlaying, store)
-  const reducedMotion = usePrefersReducedMotion()
+  const actions = useTimelineActions(store);
+  const selected = useTimelineState(selectTimestamps, store);
+  const index = useTimelineState(selectIndex, store);
+  const playing = useTimelineState(selectPlaying, store);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
-    const previousCount = store.getState().timestamps.length
-    actions.setTimestamps(timestamps)
+    const previousCount = store.getState().timestamps.length;
+    actions.setTimestamps(timestamps);
     // Open on the latest year, not 1981, when the data first arrives.
-    if (previousCount === 0 && timestamps.length > 0) actions.seek(timestamps.length - 1)
-  }, [actions, store, timestamps])
+    if (previousCount === 0 && timestamps.length > 0)
+      actions.seek(timestamps.length - 1);
+  }, [actions, store, timestamps]);
 
   // Existing feature contract: publish selected time/index to the host/layers.
   useEffect(() => {
-    if (typeof onTimeChange === 'function') onTimeChange(selected[index] ?? null, index)
-  }, [index, onTimeChange, selected])
+    if (typeof onTimeChange === "function")
+      onTimeChange(selected[index] ?? null, index);
+  }, [index, onTimeChange, selected]);
 
   // Playback timer: years wrap via store tick; days step at DAY_PLAY_MS and
   // stop at Dec 31 inside dayTick. Reduced motion disables both buttons and
   // this clock.
   useEffect(() => {
-    if (!playing || reducedMotion) return undefined
-    if (viewMode === 'day') {
-      const timer = setInterval(() => actions.dayTick(), DAY_PLAY_MS)
-      return () => clearInterval(timer)
+    if (!playing || reducedMotion) return undefined;
+    if (viewMode === "day") {
+      const timer = setInterval(() => actions.dayTick(), DAY_PLAY_MS);
+      return () => clearInterval(timer);
     }
-    if (selected.length < 2) return undefined
-    const timer = setInterval(() => actions.tick(), PLAYBACK_MS)
-    return () => clearInterval(timer)
-  }, [actions, playing, reducedMotion, selected.length, viewMode])
+    if (selected.length < 2) return undefined;
+    const timer = setInterval(() => actions.tick(), PLAYBACK_MS);
+    return () => clearInterval(timer);
+  }, [actions, playing, reducedMotion, selected.length, viewMode]);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col justify-between p-3">
@@ -664,8 +819,13 @@ export default function MapControlsOverlay({
         <div className="flex flex-col items-end gap-2">
           <LayerPanel registry={layerRegistry} onLayerChange={onLayerChange} />
           <ZoomPanel map={map} limits={zoomLimits} onReset={onReset} />
-          {viewMode === 'day' ? (
-            <DayModeHeader viewMode={viewMode} onViewModeChange={onViewModeChange} />
+          {viewMode === "day" ? (
+            <DayModeHeader
+              viewMode={viewMode}
+              onViewModeChange={onViewModeChange}
+              renderMode={renderMode}
+              onRenderModeChange={onRenderModeChange}
+            />
           ) : null}
         </div>
       </div>
@@ -675,11 +835,13 @@ export default function MapControlsOverlay({
           reducedMotion={reducedMotion}
           viewMode={viewMode}
           onViewModeChange={onViewModeChange}
+          renderMode={renderMode}
+          onRenderModeChange={onRenderModeChange}
           onHeightChange={onHeightChange}
           dailyReady={dailyReady}
           dailyReason={dailyReason}
         />
       </div>
     </div>
-  )
+  );
 }

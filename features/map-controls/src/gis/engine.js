@@ -6,6 +6,9 @@
 
 import { DAY_NO_DATA, dayColor, recordForYear, trendColor, yearColor } from './yearRamp.js'
 
+// The one selection/outline token: 2D styles, 3D paint and the trace all read this.
+export const SELECT_COLOUR = '#67e8f9'
+
 const HIGHLIGHT = {
   // Region V / Bicol — heat palette used only during the loading state
   fill: true,
@@ -176,7 +179,7 @@ export function getMunicipalityStyle(
     ...(sig ? {} : { dashArray: '4 3' }),
   }
   if (selected) {
-    return { ...style, weight: style.weight + 1.5, color: '#67e8f9' }
+    return { ...style, weight: style.weight + 1.5, color: SELECT_COLOUR }
   }
   return style
 }

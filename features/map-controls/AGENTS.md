@@ -43,3 +43,4 @@
 |---|---|---|
 | Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
 | LGU boundary source (PSA/PSGC) | **No** | verify at h6 (CONCEPT §13) |
+| Progressive selection trace (3D) | **Verified 2026-11-12** | `gis/trace.js` + `test_trace.mjs` (7 pass). A ribbon extrusion at `depth + lift + 2 m`, not a line: MapLibre 5.24.1 has no line elevation and lines depth-test against extrusions; partial draw is a sliced ring prefix (no `line-trim-offset`). `TRACE_MS` 620 vs the 700 ms camera settle, starts at the ring vertex nearest the pre-move centre, deselect clears, reduced motion paints once. In-browser at 1280×800 and 390×844 by pixel count, not by eye |

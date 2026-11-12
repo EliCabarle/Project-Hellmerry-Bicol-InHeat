@@ -237,6 +237,11 @@ def build(trends: dict, drivers: dict | None = None) -> dict:
             "trend": {
                 "slope_c_per_year": row["slope_c_per_year"],
                 "slope_ci95": row["slope_ci95"],
+                # .get: a trends.json predating the CI/change-point run has no keys
+                "slope_ci_low": row.get("slope_ci_low"),
+                "slope_ci_high": row.get("slope_ci_high"),
+                "change_point_year": row.get("change_point_year"),
+                "change_point_p": row.get("change_point_p"),
                 "p_value": row["p_value"],
                 "is_significant": row["is_significant"],
                 "alpha": row["alpha"],

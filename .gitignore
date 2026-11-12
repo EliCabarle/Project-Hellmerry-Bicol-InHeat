@@ -7,3 +7,4 @@ build/
 .DS_Store
 graphify-out/
 .playwright-mcp/
+.opencode/tmp/

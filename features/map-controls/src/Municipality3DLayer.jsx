@@ -17,6 +17,7 @@ import {
 } from './gis/trace.js'
 import { tooltipHtml } from './components/municipalityTooltip.js'
 import { usePrefersReducedMotion } from './components/MapControlsOverlay.jsx'
+import { COUNTRY_BOUNDS, MIN_ZOOM, MAX_ZOOM, BOUNDS_VISCOSITY } from './gis/countryFrame.js'
 
 const IMAGERY_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
 const LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
@@ -68,6 +69,13 @@ function boundsOf(feature) {
   return Number.isFinite(minX) ? [[minX, minY], [maxX, maxY]] : null
 }
 
+function centroidOf(feature) {
+  const bounds = boundsOf(feature)
+  if (!bounds) return null
+  const [[minX, minY], [maxX, maxY]] = bounds
+  return [(minX + maxX) / 2, (minY + maxY) / 2]
+}
+
 export default function Municipality3DLayer({
   joined,
   selectedKey,
@@ -110,14 +118,20 @@ export default function Municipality3DLayer({
     const depths = new Map()
     const byKey = new Map()
     const rings = new Map()
+    const centroids = new Map()
+    const records = new Map()
     for (const [i, f] of (joined?.features ?? []).entries()) {
       // promoteId needs a unique id; a nameless feature would otherwise collapse the source.
       const key = featureKey(f) || `unnamed-${i}`
       const style = getMunicipalityStyle(f, { selected: false, viewMode, year })
       const depth = depthFor(f, viewMode, year)
+      const centroid = centroidOf(f)
+      const name = f?.properties?.adm3_en ?? f?.properties?.shapeName ?? ''
       depths.set(key, depth)
       byKey.set(key, f)
       rings.set(key, ringsOf(f.geometry))
+      if (centroid) centroids.set(key, centroid)
+      records.set(key, { id: key, name, centroid, vertexRange: ringsOf(f.geometry) })
       features.push({
         type: 'Feature',
         geometry: f.geometry,
@@ -132,7 +146,7 @@ export default function Municipality3DLayer({
         },
       })
     }
-    return { collection: { type: 'FeatureCollection', features }, depths, byKey, rings }
+    return { collection: { type: 'FeatureCollection', features }, depths, byKey, rings, centroids, records }
   }, [joined, viewMode, year])
 
   const dataRef = useRef(data)
@@ -274,11 +288,18 @@ export default function Municipality3DLayer({
   useEffect(() => {
     let map
     try {
+      const mlBounds = [
+        [COUNTRY_BOUNDS[0][1], COUNTRY_BOUNDS[0][0]],
+        [COUNTRY_BOUNDS[1][1], COUNTRY_BOUNDS[1][0]],
+      ]
       map = new maplibregl.Map({
         container: hostRef.current,
         style: STYLE,
         center: viewRef.current?.center ?? [123.5, 13.3],
-        zoom: viewRef.current?.zoom ?? 8,
+        zoom: Math.max(viewRef.current?.zoom ?? 8, MIN_ZOOM),
+        minZoom: MIN_ZOOM,
+        maxZoom: MAX_ZOOM,
+        maxBounds: mlBounds,
         pitch: 45,
         maxPitch: 60,
         attributionControl: { compact: true },

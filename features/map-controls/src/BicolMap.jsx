@@ -18,16 +18,13 @@ import MapControlsOverlay, { usePrefersReducedMotion } from './components/MapCon
 import MunicipalityInfoCard from './components/MunicipalityInfoCard.jsx'
 import MunicipalityIndex from './components/MunicipalityIndex.jsx'
 import { timelineStore } from './state/timelineStore.js'
+import { COUNTRY_BOUNDS, STUDY_REGION_BOUNDS, MIN_ZOOM, MAX_ZOOM, BOUNDS_VISCOSITY } from './gis/countryFrame.js'
 
 // 3D is a separate entity with its own renderer, so it is loaded on demand and
 // never lands in the 2D bundle.
 const Municipality3DLayer = lazy(() => import('./Municipality3DLayer.jsx'))
 
 const geojson = JSON.parse(raw)
-const BICOL_BOUNDS = [
-  [11.5, 121.5],
-  [15.2, 125.8],
-]
 
 const IMAGERY_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
 const LABELS_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'
@@ -213,7 +210,7 @@ export default function BicolMap({
   layerRegistry = null,
   onLayerChange,
   onTimeChange,
-  zoomLimits = { min: 7, max: 18 },
+  zoomLimits = { min: MIN_ZOOM, max: MAX_ZOOM },
   status = 'idle',
   error = null,
   reload,
@@ -303,17 +300,17 @@ export default function BicolMap({
       <MapContainer
         ref={setMap}
         center={[13.3, 123.5]}
-        zoom={8}
+        zoom={Math.max(8, MIN_ZOOM)}
         role="region"
         aria-label="Bicol municipality heat map"
-        minZoom={zoomLimits.min}
-        maxZoom={zoomLimits.max}
+        minZoom={zoomLimits?.min ?? MIN_ZOOM}
+        maxZoom={zoomLimits?.max ?? MAX_ZOOM}
         zoomControl={false}
         attributionControl
         zoomSnap={0.5}
         zoomDelta={0.5}
-        maxBounds={BICOL_BOUNDS}
-        maxBoundsViscosity={0.55}
+        maxBounds={COUNTRY_BOUNDS}
+        maxBoundsViscosity={BOUNDS_VISCOSITY}
         className="bih-map-frame h-full w-full"
       >
         <TileLayer
@@ -321,8 +318,9 @@ export default function BicolMap({
           attribution="Imagery © Esri, Maxar, Earthstar Geographics"
           maxZoom={18}
           maxNativeZoom={18}
+          noWrap={true}
         />
-        <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} />
+        <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} noWrap={true} />
 
         {renderMode === '2d' && (
           <MapViewport

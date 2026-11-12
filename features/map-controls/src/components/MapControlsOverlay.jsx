@@ -6,6 +6,8 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import {
+  DAY_PLAY_MS,
+  DAY_STEP_CHOICES,
   PLAYBACK_MS,
   canToggleLayer,
   clampIndex,
@@ -13,6 +15,17 @@ import {
   formatTimestamp,
   timelineStore,
 } from '../state/timelineStore.js'
+import {
+  addDays,
+  dateFromDayOfYear,
+  dayOfYear,
+  daysInYear,
+  isValidISO,
+  parseDateQuery,
+  resolveQuery,
+  spelledDate,
+} from '../state/dateModel.js'
+import { DAILY_MISSING_REASON } from '../data/dailyStore.js'
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -22,6 +35,7 @@ import {
   IconPlay,
   IconPlus,
   IconReset,
+  IconSearch,
   IconThermometer,
   IconTrend,
 } from './Icons.jsx'
@@ -31,6 +45,11 @@ import {
 const selectTimestamps = (s) => s.timestamps
 const selectIndex = (s) => s.index
 const selectPlaying = (s) => s.playing
+const selectDate = (s) => s.date
+const selectViewMode = (s) => s.viewMode
+const selectDayStep = (s) => s.dayStep
+const selectRangeMin = (s) => s.range?.min ?? null
+const selectRangeMax = (s) => s.range?.max ?? null
 
 export function useTimelineState(selector = (s) => s, store = timelineStore) {
   const getSnapshot = useCallback(() => selector(store.getState()), [selector, store])
@@ -68,6 +87,9 @@ const GLASS =
 const BTN =
   'inline-flex cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep'
 const ICON_BTN = `${BTN} h-9 w-9`
+const SMALL_BTN = `${BTN} h-8 px-2 text-[11px] font-semibold`
+const SEARCH_INPUT =
+  'w-full min-w-0 rounded-md border border-white/10 bg-black/25 px-2 py-1.5 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
 
 function ModeButton({ active, children, onClick }) {
   return (
@@ -84,11 +106,260 @@ function ModeButton({ active, children, onClick }) {
   )
 }
 
-function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
+const SEARCH_PLACEHOLDER = '2019-04-23, Apr 2019, 2019'
+
+function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
+  const [text, setText] = useState('')
+  const [status, setStatus] = useState(null) // {kind:'ok'|'error', message}
+
+  const submit = (event) => {
+    event.preventDefault()
+    const parsed = parseDateQuery(text, { min: rangeMin, max: rangeMax })
+    if (parsed.error) {
+      setStatus({ kind: 'error', message: `${parsed.error} ${parsed.hint ?? ''}`.trim() })
+      return
+    }
+    if (!dailyReady) {
+      // No daily files: land on the year, say why, never invent a value.
+      actions.setYear(parsed.y)
+      setStatus({
+        kind: 'ok',
+        message: `${DAILY_MISSING_REASON} — showing ${parsed.y} as a year only.`,
+      })
+      return
+    }
+    const resolved = resolveQuery(parsed)
+    actions.setDate(resolved.iso)
+    setStatus({ kind: 'ok', message: resolved.notice })
+  }
+
+  return (
+    <form role="search" onSubmit={submit} className="flex flex-col gap-1.5">
+      <label htmlFor="bih-date-search" className="sr-only">
+        Search a date, month or year
+      </label>
+      <div className="flex items-center gap-1.5">
+        <IconSearch className="pointer-events-none h-3.5 w-3.5 shrink-0 text-slate-500" />
+        <input
+          id="bih-date-search"
+          type="search"
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              setText('')
+              setStatus(null)
+            }
+          }}
+          placeholder={SEARCH_PLACEHOLDER}
+          autoComplete="off"
+          className={SEARCH_INPUT}
+        />
+        <button type="submit" className={`${SMALL_BTN} shrink-0`}>
+          Go
+        </button>
+      </div>
+      <div role="status" aria-live="polite" className="min-h-4 text-[10px] leading-4">
+        {status ? (
+          <span className={status.kind === 'error' ? 'text-heat-hot' : 'text-slate-400'}>
+            {status.message}
+          </span>
+        ) : null}
+      </div>
+    </form>
+  )
+}
+
+function DayPanel({
+  store,
+  reducedMotion,
+  dailyReady,
+  dailyReason,
+  onHeightChange,
+}) {
+  const date = useTimelineState(selectDate, store)
+  const dayStep = useTimelineState(selectDayStep, store)
+  const playing = useTimelineState(selectPlaying, store)
+  const rangeMin = useTimelineState(selectRangeMin, store)
+  const rangeMax = useTimelineState(selectRangeMax, store)
+  const index = useTimelineState(selectIndex, store)
+  const timestamps = useTimelineState(selectTimestamps, store)
+  const actions = useTimelineActions(store)
+  const rootRef = useRef(null)
+
+  // Measure this panel so the info card can clear it without a hard-coded offset.
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el) return undefined
+    const publish = () => onHeightChange?.(el.offsetHeight)
+    publish()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(publish)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [onHeightChange])
+
+  const disabled = !dailyReady
+  const year = date ? Number(date.slice(0, 4)) : null
+  const doy = date ? dayOfYear(date) : 1
+  const maxDoy = year ? daysInYear(year) : 366
+  const safeIndex = clampIndex(index, timestamps.length)
+  const currentYear = timestamps.length ? Number(formatTimestamp(timestamps[safeIndex]).slice(0, 4)) : null
+  const valueText = date ? spelledDate(date) : 'No date selected'
+
+  return (
+    <div
+      ref={rootRef}
+      role="group"
+      aria-label="Day view controls"
+      className={`${GLASS} flex w-full flex-col gap-2 px-3 py-2.5 sm:px-4`}
+    >
+      <div className="flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          className={SMALL_BTN}
+          disabled={disabled}
+          onClick={() => actions.stepDay(-1)}
+          aria-label="Previous day"
+        >
+          −1 day
+        </button>
+        <button
+          type="button"
+          className={SMALL_BTN}
+          disabled={disabled}
+          onClick={() => actions.stepDay(1)}
+          aria-label="Next day"
+        >
+          +1 day
+        </button>
+        <span className="mx-0.5 h-5 w-px bg-white/10" aria-hidden="true" />
+        <button
+          type="button"
+          className={SMALL_BTN}
+          disabled={year === null}
+          onClick={() => actions.setYear(year - 1)}
+          aria-label="Previous year"
+        >
+          −1 year
+        </button>
+        <button
+          type="button"
+          className={SMALL_BTN}
+          disabled={year === null}
+          onClick={() => actions.setYear(year + 1)}
+          aria-label="Next year"
+        >
+          +1 year
+        </button>
+        <label htmlFor="bih-date-picker" className="sr-only">
+          Selected date
+        </label>
+        <input
+          id="bih-date-picker"
+          type="date"
+          value={date ?? ''}
+          min={rangeMin ?? undefined}
+          max={rangeMax ?? undefined}
+          disabled={disabled}
+          onChange={(event) => {
+            const v = event.target.value
+            if (isValidISO(v)) actions.setDate(v)
+          }}
+          className={`${SEARCH_INPUT} w-auto flex-1 font-mono`}
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <label htmlFor="bih-day-slider" className="sr-only">
+          Day of year
+        </label>
+        <input
+          id="bih-day-slider"
+          type="range"
+          min={1}
+          max={maxDoy}
+          step={1}
+          value={doy}
+          disabled={disabled}
+          aria-valuetext={valueText}
+          onChange={(event) => {
+            const iso = dateFromDayOfYear(year, Number(event.target.value))
+            if (iso) actions.setDate(iso)
+          }}
+          className="bih-range w-full cursor-pointer disabled:cursor-not-allowed"
+        />
+        <button
+          type="button"
+          aria-label={playing ? 'Pause day playback' : 'Play day playback'}
+          aria-pressed={playing}
+          disabled={disabled || reducedMotion}
+          title={reducedMotion ? 'Autoplay is off because your system prefers reduced motion' : undefined}
+          onClick={() => actions.toggle()}
+          className={ICON_BTN}
+        >
+          {playing ? <IconPause className="h-4 w-4" /> : <IconPlay className="h-4 w-4" />}
+        </button>
+        <label htmlFor="bih-day-speed" className="sr-only">
+          Playback speed in days per tick
+        </label>
+        <select
+          id="bih-day-speed"
+          value={dayStep}
+          disabled={disabled}
+          onChange={(event) => actions.setDayStep(Number(event.target.value))}
+          className="h-9 shrink-0 cursor-pointer rounded-md border border-white/10 bg-black/25 px-1.5 text-[11px] text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {DAY_STEP_CHOICES.map((n) => (
+            <option key={n} value={n}>
+              {n} day{DAY_STEP_CHOICES.length > 1 && n > 1 ? 's' : ''}/tick
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex justify-between font-mono text-[10px] text-slate-500">
+        <span>{year ? `${year}-01-01` : '—'}</span>
+        <span aria-live="polite" className="text-slate-300">
+          {valueText}
+        </span>
+        <span>{year ? `${year}-12-31` : '—'}</span>
+      </div>
+
+      {currentYear !== null && currentYear !== year ? (
+        <div className="text-[10px] text-slate-500">
+          Year slider is on {currentYear}; day controls show {year ?? '—'}.
+        </div>
+      ) : null}
+
+      {disabled && dailyReason ? (
+        <div className="rounded-md border border-white/10 bg-black/25 px-2 py-1.5 text-[11px] text-slate-400">
+          {dailyReason}
+        </div>
+      ) : null}
+
+      <DateSearch actions={actions} rangeMin={rangeMin} rangeMax={rangeMax} dailyReady={dailyReady} />
+    </div>
+  )
+}
+
+function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, onHeightChange, dailyReady, dailyReason }) {
   const timestamps = useTimelineState(selectTimestamps, store)
   const index = useTimelineState(selectIndex, store)
   const playing = useTimelineState(selectPlaying, store)
   const actions = useTimelineActions(store)
+  const rootRef = useRef(null)
+
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el) return undefined
+    const publish = () => onHeightChange?.(el.offsetHeight)
+    publish()
+    if (typeof ResizeObserver === 'undefined') return undefined
+    const ro = new ResizeObserver(publish)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [onHeightChange])
 
   const count = timestamps.length
   const canStep = count > 1
@@ -100,8 +371,27 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
     ? `${current} (${safeIndex + 1} of ${count})`
     : 'No timestamps available'
 
+  if (viewMode === 'day') {
+    return (
+      <div ref={rootRef} className="w-full">
+        <DayPanel
+          store={store}
+          reducedMotion={reducedMotion}
+          dailyReady={dailyReady}
+          dailyReason={dailyReason}
+          onHeightChange={onHeightChange}
+        />
+      </div>
+    )
+  }
+
   return (
-    <div role="group" aria-label="Historical time controls" className={`${GLASS} flex w-full flex-col gap-2 px-3 py-2.5 sm:px-4`}>
+    <div
+      ref={rootRef}
+      role="group"
+      aria-label="Historical time controls"
+      className={`${GLASS} flex w-full flex-col gap-2 px-3 py-2.5 sm:px-4`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">Historical time</span>
@@ -117,6 +407,9 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
           <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
             <IconThermometer className="h-3.5 w-3.5" />
             Year
+          </ModeButton>
+          <ModeButton active={viewMode === 'day'} onClick={() => onViewModeChange?.('day')}>
+            Day
           </ModeButton>
         </div>
       </div>
@@ -181,6 +474,30 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
         <span>{first}</span>
         <span>{last}</span>
       </div>
+    </div>
+  )
+}
+
+// The mode switcher must also be reachable from Day view (it lives inside the
+// trend/year panel otherwise), so Day renders a slim header with the same trio.
+function DayModeHeader({ viewMode, onViewModeChange }) {
+  return (
+    <div
+      role="group"
+      aria-label="Map data mode"
+      className="pointer-events-auto inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
+    >
+      <ModeButton active={viewMode === 'trend'} onClick={() => onViewModeChange?.('trend')}>
+        <IconTrend className="h-3.5 w-3.5" />
+        Trend
+      </ModeButton>
+      <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
+        <IconThermometer className="h-3.5 w-3.5" />
+        Year
+      </ModeButton>
+      <ModeButton active={viewMode === 'day'} onClick={() => onViewModeChange?.('day')}>
+        Day
+      </ModeButton>
     </div>
   )
 }
@@ -305,6 +622,9 @@ export default function MapControlsOverlay({
   viewMode = 'trend',
   onViewModeChange,
   zoomLimits = { min: 7, max: 18 },
+  dailyReady = false,
+  dailyReason = null,
+  onHeightChange,
 }) {
   const actions = useTimelineActions(store)
   const selected = useTimelineState(selectTimestamps, store)
@@ -324,12 +644,19 @@ export default function MapControlsOverlay({
     if (typeof onTimeChange === 'function') onTimeChange(selected[index] ?? null, index)
   }, [index, onTimeChange, selected])
 
-  // Playback timer — 900 ms, loops via store wrap, cleaned up on pause/unmount.
+  // Playback timer: years wrap via store tick; days step at DAY_PLAY_MS and
+  // stop at Dec 31 inside dayTick. Reduced motion disables both buttons and
+  // this clock.
   useEffect(() => {
-    if (!playing || reducedMotion || selected.length < 2) return
+    if (!playing || reducedMotion) return undefined
+    if (viewMode === 'day') {
+      const timer = setInterval(() => actions.dayTick(), DAY_PLAY_MS)
+      return () => clearInterval(timer)
+    }
+    if (selected.length < 2) return undefined
     const timer = setInterval(() => actions.tick(), PLAYBACK_MS)
     return () => clearInterval(timer)
-  }, [actions, playing, reducedMotion, selected.length])
+  }, [actions, playing, reducedMotion, selected.length, viewMode])
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col justify-between p-3">
@@ -337,6 +664,9 @@ export default function MapControlsOverlay({
         <div className="flex flex-col items-end gap-2">
           <LayerPanel registry={layerRegistry} onLayerChange={onLayerChange} />
           <ZoomPanel map={map} limits={zoomLimits} onReset={onReset} />
+          {viewMode === 'day' ? (
+            <DayModeHeader viewMode={viewMode} onViewModeChange={onViewModeChange} />
+          ) : null}
         </div>
       </div>
       <div className="w-full max-w-2xl self-center">
@@ -345,6 +675,9 @@ export default function MapControlsOverlay({
           reducedMotion={reducedMotion}
           viewMode={viewMode}
           onViewModeChange={onViewModeChange}
+          onHeightChange={onHeightChange}
+          dailyReady={dailyReady}
+          dailyReason={dailyReason}
         />
       </div>
     </div>

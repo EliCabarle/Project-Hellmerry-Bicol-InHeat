@@ -18,6 +18,8 @@ import MapControlsOverlay, { usePrefersReducedMotion } from './components/MapCon
 import MunicipalityInfoCard from './components/MunicipalityInfoCard.jsx'
 import MunicipalityIndex from './components/MunicipalityIndex.jsx'
 import { timelineStore } from './state/timelineStore.js'
+import { dayOfYear } from './state/dateModel.js'
+import { DAILY_MISSING_REASON, dailyStore, valuesForDay } from './data/dailyStore.js'
 
 const geojson = JSON.parse(raw)
 const BICOL_BOUNDS = [
@@ -76,12 +78,12 @@ function ariaLabelFor(feature) {
 // react-leaflet does not re-run style() on state change. Keep one persistent
 // GeoJSON layer and update styles in place; remounting 114 features on every
 // selection made zoom feel janky.
-function MunicipalityLayer({ joined, selectedKey, viewMode, year, onSelect }) {
+function MunicipalityLayer({ joined, selectedKey, viewMode, year, date, dayValues, onSelect }) {
   const layerRef = useRef(null)
-  const stateRef = useRef({ selectedKey, viewMode, year })
+  const stateRef = useRef({ selectedKey, viewMode, year, date, dayValues })
   const selectRef = useRef(onSelect)
   const entryKey = joined?.features?.[0] ? featureKey(joined.features[0]) : null
-  stateRef.current = { selectedKey, viewMode, year }
+  stateRef.current = { selectedKey, viewMode, year, date, dayValues }
   selectRef.current = onSelect
 
   const styleFor = useCallback(
@@ -90,6 +92,7 @@ function MunicipalityLayer({ joined, selectedKey, viewMode, year, onSelect }) {
         selected: featureKey(feature) === stateRef.current.selectedKey,
         viewMode: stateRef.current.viewMode,
         year: stateRef.current.year,
+        dayValues: stateRef.current.dayValues,
       }),
     [],
   )
@@ -106,15 +109,15 @@ function MunicipalityLayer({ joined, selectedKey, viewMode, year, onSelect }) {
       if (el) el.setAttribute('tabindex', featureKey(child.feature) === tabbable ? '0' : '-1')
       if (featureKey(child.feature) === selectedKey) child.bringToFront()
     })
-  }, [entryKey, joined, selectedKey, styleFor, viewMode, year])
+  }, [entryKey, joined, selectedKey, styleFor, viewMode, year, dayValues])
 
   useEffect(() => {
     const layer = layerRef.current
     if (!layer) return
     layer.eachLayer((child) => {
-      child.setTooltipContent(tooltipHtml(child.feature, { year }))
+      child.setTooltipContent(tooltipHtml(child.feature, { year, viewMode, date, dayValues }))
     })
-  }, [joined, year])
+  }, [joined, year, viewMode, date, dayValues])
 
   return (
     <GeoJSON
@@ -123,7 +126,7 @@ function MunicipalityLayer({ joined, selectedKey, viewMode, year, onSelect }) {
       data={joined}
       style={styleFor}
       onEachFeature={(feature, layer) => {
-        layer.bindTooltip(tooltipHtml(feature, { year: stateRef.current.year }), {
+        layer.bindTooltip(tooltipHtml(feature, { ...stateRef.current, year: stateRef.current.year }), {
           sticky: true,
           className: 'bih-tip',
           direction: 'top',
@@ -235,6 +238,16 @@ export default function BicolMap({
     () => activeStore.getState().index,
     () => activeStore.getState().index,
   )
+  const viewMode = useSyncExternalStore(
+    activeStore.subscribe,
+    () => activeStore.getState().viewMode,
+    () => activeStore.getState().viewMode,
+  )
+  const date = useSyncExternalStore(
+    activeStore.subscribe,
+    () => activeStore.getState().date,
+    () => activeStore.getState().date,
+  )
   const derivedTimestamps = useMemo(() => {
     if (timestamps.length > 0) return timestamps
     const series = narratives?.municipalities?.[0]?.series
@@ -246,11 +259,61 @@ export default function BicolMap({
   const selectedYear = derivedTimestamps.length
     ? Number(derivedTimestamps[Math.min(selectedIndex, derivedTimestamps.length - 1)])
     : latestYear
-  const [viewMode, setViewMode] = useState('trend')
   const [selectedKey, setSelectedKey] = useState(null)
   const [indexOpen, setIndexOpen] = useState(false)
   const [resetToken, setResetToken] = useState(0)
   const [map, setMap] = useState(null)
+  // Measured height of the timeline panel (px) — the info card clears it.
+  const [overlayHeight, setOverlayHeight] = useState(0)
+  const onOverlayHeightChange = useCallback((h) => setOverlayHeight(h), [])
+  const changeViewMode = useCallback((mode) => activeStore.actions.setViewMode(mode), [activeStore])
+
+  // Range comes from the data period — every day clamp/search bound derives from it.
+  useEffect(() => {
+    const period = narratives?.meta?.period
+    if (period?.start && period?.end) activeStore.actions.setRange(period.start, period.end)
+  }, [activeStore, narratives])
+
+  // Daily data: index once, then only the selected year's file (LRU keeps 3).
+  const [dailyIndex, setDailyIndex] = useState(null)
+  useEffect(() => {
+    let alive = true
+    dailyStore.loadIndex().then((s) => {
+      if (alive) setDailyIndex(s)
+    })
+    return () => {
+      alive = false
+    }
+  }, [])
+  const [dailyYear, setDailyYear] = useState(null) // {year, ...yearState}
+  const dailyReady = dailyIndex?.status === 'ready'
+  const dailyReason =
+    dailyIndex?.status === 'ready'
+      ? null
+      : dailyIndex?.status === 'missing'
+        ? DAILY_MISSING_REASON
+        : dailyIndex?.status === 'error'
+          ? "Daily data couldn't be loaded"
+          : 'Loading daily data…'
+  useEffect(() => {
+    if (!dailyReady || viewMode !== 'day' || !date) return undefined
+    let alive = true
+    const y = Number(date.slice(0, 4))
+    dailyStore.loadYear(y).then((s) => {
+      if (alive) setDailyYear({ year: y, ...s })
+    })
+    return () => {
+      alive = false
+    }
+  }, [dailyReady, date, viewMode])
+  const dayValues = useMemo(() => {
+    if (!dailyReady || viewMode !== 'day' || !date || dailyYear?.status !== 'ready') return null
+    if (dailyYear.year !== Number(date.slice(0, 4))) return null
+    const doy = dayOfYear(date)
+    if (doy == null) return null
+    const meta = dailyIndex.meta
+    return valuesForDay(dailyYear.file, doy - 1, meta.ids, meta.scale ?? 0.1)
+  }, [dailyIndex, dailyYear, date, viewMode, dailyReady])
 
   // Applies the cross-screen focus once per token, never fighting internal
   // selection afterwards.
@@ -320,6 +383,8 @@ export default function BicolMap({
             selectedKey={selectedKey}
             viewMode={viewMode}
             year={displayYear}
+            date={date}
+            dayValues={dayValues}
             onSelect={setSelectedKey}
           />
         )}
@@ -329,17 +394,29 @@ export default function BicolMap({
         coverage={coverage}
         viewMode={viewMode}
         year={viewMode === 'year' ? selectedYear : latestYear}
+        date={date}
         onBrowse={() => setIndexOpen(true)}
       />
 
       {ready && (
-        <MunicipalityInfoCard feature={selectedFeature} year={displayYear} onClose={() => setSelectedKey(null)} />
+        <MunicipalityInfoCard
+          feature={selectedFeature}
+          year={displayYear}
+          viewMode={viewMode}
+          date={date}
+          dayValues={dayValues}
+          bottomOffset={overlayHeight > 0 ? overlayHeight + 20 : 168}
+          onClose={() => setSelectedKey(null)}
+        />
       )}
 
       {indexOpen && (
         <MunicipalityIndex
           features={joined?.features ?? []}
           selectedKey={selectedKey}
+          viewMode={viewMode}
+          date={date}
+          dayValues={dayValues}
           onSelect={setSelectedKey}
           onClose={() => setIndexOpen(false)}
         />
@@ -388,8 +465,11 @@ export default function BicolMap({
         onTimeChange={onTimeChange}
         onReset={resetView}
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
+        onViewModeChange={changeViewMode}
         zoomLimits={zoomLimits}
+        dailyReady={dailyReady}
+        dailyReason={dailyReason}
+        onHeightChange={onOverlayHeightChange}
       />
     </div>
   )

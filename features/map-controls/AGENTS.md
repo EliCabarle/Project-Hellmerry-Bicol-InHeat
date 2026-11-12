@@ -31,9 +31,10 @@
 
 | Item | CORE/STRETCH | Status | Owner |
 |---|---|---|---|
-| Region V basemap + municipality polygons | CORE | todo | map-controls |
-| Time scrubber | CORE | todo | map-controls |
-| Municipality tooltips + significance flags | CORE | todo | map-controls |
+| Region V basemap + municipality polygons | CORE | built (tests green) | map-controls |
+| Time scrubber (Trend/Year/Day modes) | CORE | built — Day mode needs lead's `/data/daily/` files | map-controls |
+| Municipality tooltips + significance flags | CORE | built (tests green) | map-controls |
+| Day view + date search | CORE | built — 404 fallback is the live path until daily files ship | map-controls |
 | Demo seed: warming municipality view | CORE | todo | map-controls |
 | Demo seed: opposite/flat trend view | CORE | todo | map-controls |
 
@@ -43,3 +44,7 @@
 |---|---|---|
 | Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
 | LGU boundary source (PSA/PSGC) | **No** | verify at h6 (CONCEPT §13) |
+| Tests `test_date` `test_daily` `test_engine` `test_year` | Verified | all green 2026-11-12 (`node *.mjs` from this dir) |
+| `apps/web` production build with this slice | Verified | `npm run build` green 2026-11-12 |
+| Daily files `/data/daily/index.json` + `{YYYY}.json` | **No** | lead-built, absent from client → disabled-Day + year-only search is the live path |
+| Visual/keyboard checks (320/375/768/1440, reduced motion) | **No** | Playwright MCP dead in env — manual pass pending |

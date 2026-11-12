@@ -1,9 +1,22 @@
+import { useState } from 'react'
 import { recordForYear, formatTrend, dayBand } from '../gis/yearRamp.js'
 import { spelledDate } from '../state/dateModel.js'
 import { IconThermometer, IconTrend, IconX } from './Icons.jsx'
 
 const fmtInt = (n) => new Intl.NumberFormat('en-US').format(n)
 const fmtP = (p) => (p == null ? '—' : p < 0.001 ? 'p < 0.001' : `p = ${p.toFixed(3)}`)
+
+// Narration language is a reading preference, not app locale: UI chrome stays
+// English, only the pre-written explanation switches (CONCEPT: UI EN, narration EN + fil).
+const LANG_KEY = 'bih:narration-lang'
+
+function readNarrationLang() {
+  try {
+    return localStorage.getItem(LANG_KEY) === 'fil' ? 'fil' : 'en'
+  } catch {
+    return 'en'
+  }
+}
 
 function Metric({ label, value, hint }) {
   return (
@@ -26,6 +39,8 @@ export default function MunicipalityInfoCard({
   bottomOffset = 168,
   onClose,
 }) {
+  // Hook must run before the !feature early return.
+  const [lang, setLang] = useState(readNarrationLang)
   if (!feature) return null
   const p = feature.properties ?? {}
   const n = p.narrative
@@ -38,6 +53,20 @@ export default function MunicipalityInfoCard({
   const heat = Number.isFinite(row?.mean_heat_index_c) ? `${row.mean_heat_index_c.toFixed(1)} °C` : '—'
   const danger = Number.isFinite(row?.danger_days) ? fmtInt(row.danger_days) : '—'
   const significant = Boolean(trend.is_significant)
+  // Pre-written explanation from the narrative bank: the numbers are already in
+  // the sentence, so nothing is computed or fetched here. FIL falls back to EN.
+  const narration = n?.narration ?? null
+  const hasFil = Boolean(narration?.fil)
+  const narrLang = lang === 'fil' && hasFil ? 'fil' : 'en'
+  const narrText = narration?.[narrLang] ?? null
+  const chooseLang = (next) => {
+    setLang(next)
+    try {
+      localStorage.setItem(LANG_KEY, next)
+    } catch {
+      // private mode: the choice just doesn't persist
+    }
+  }
 
   const isDay = viewMode === 'day'
   const dayValue = isDay && n && dayValues instanceof Map ? dayValues.get(n.id) : undefined
@@ -147,6 +176,41 @@ export default function MunicipalityInfoCard({
               <IconThermometer className="h-3 w-3" />
               {row?.danger_band ?? '—'}
             </span>
+          </div>
+
+          <div className="mt-2.5 rounded-lg border border-white/10 bg-black/20 px-2.5 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                In plain language
+              </span>
+              {hasFil ? (
+                <div role="group" aria-label="Narration language" className="flex items-center gap-0.5 rounded-md border border-white/10 bg-black/30 p-0.5">
+                  {[['en', 'EN'], ['fil', 'Filipino']].map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => chooseLang(id)}
+                      aria-pressed={narrLang === id}
+                      className={`cursor-pointer rounded px-1.5 py-0.5 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+                        narrLang === id
+                          ? 'bg-heat-amber text-slate-950'
+                          : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            {narrText ? (
+              // lang matters: Filipino text without it is a WCAG 3.1.2 failure.
+              <p lang={narrLang} className="mt-1.5 text-[11px] leading-4 text-slate-300">
+                {narrText}
+              </p>
+            ) : (
+              <p className="mt-1.5 text-[11px] leading-4 text-slate-500">Explanation pending for this area.</p>
+            )}
           </div>
 
           <div className="mt-2.5 space-y-1 border-t border-white/10 pt-2 text-[11px] leading-4 text-slate-400">

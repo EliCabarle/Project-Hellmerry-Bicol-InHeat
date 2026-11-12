@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
-import { createProgress, derive, manilaDate, STORAGE_KEY } from './progressStore.js'
+import { createProgress, derive, manilaDate } from './progressStore.js'
+import { syncScore, readScore } from './scoreStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
 import HeatBar from './components/HeatBar.jsx'
 import QuestsTab from './components/QuestsTab.jsx'
@@ -77,9 +78,14 @@ export default function DashboardScreen({
   const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
   const canSave = Boolean(supabase && user)
 
-  const [store] = useState(() => createProgress())
+  // One progress store per account: the key follows `user`, so signing out drops
+  // back to the guest log and a second account never sees the first one's HP.
+  const store = useMemo(() => createProgress({ userId: user?.id ?? null }), [user?.id])
   const [events, setEvents] = useState(() => store.read())
   const [announcement, setAnnouncement] = useState('')
+  // Leaderboard publish result, separate from progressSaveError so a successful
+  // publish cannot clear a "could not save progress" alert, or the reverse.
+  const [scoreNote, setScoreNote] = useState(null)
   const [active, setActive] = useState('dashboard')
   const tabRefs = useRef({})
   const levelRef = useRef(null)
@@ -138,15 +144,65 @@ export default function DashboardScreen({
     setProgressSaveError(r.ok ? null : r.error)
   }, [store])
 
-  // Another tab wrote progress: re-read this slice's one key.
+  // Another tab wrote progress: re-read this slice's one key. `store.key` moves
+  // with the account, so a write belonging to the other account is ignored.
   useEffect(() => {
     const onStorage = (e) => {
-      if (e.key != null && e.key !== STORAGE_KEY) return
+      if (e.key != null && e.key !== store.key) return
       setEvents(store.read())
     }
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
   }, [store])
+
+  // Publish this account's HP total as its leaderboard score. Guests never reach
+  // the network: no account, nothing recorded anywhere. The server caps the value
+  // by account age, so `cappedTo` is a real answer, not an error.
+  // Order is read -> restore -> publish: a browser with no local log must adopt
+  // the stored score first, or it would publish 0 and wipe it. If the read fails
+  // nothing is published at all — a stale board beats a reset one.
+  // The number is read from the store, not from `events`: on an account switch the
+  // state is one commit behind the new key, and publishing that lag would send the
+  // previous account's HP.
+  useEffect(() => {
+    if (!user || !supabase) {
+      setScoreNote(null)
+      return
+    }
+    let cancelled = false
+    const run = async () => {
+      const { score, error: readErr } = await readScore(supabase, user.id)
+      if (cancelled) return
+      if (readErr) {
+        setScoreNote(`Leaderboard score not synced — ${readErr.message}`)
+        return
+      }
+
+      // Adopt an existing score so the HeatBar shows what the account already has.
+      if (score != null) {
+        const restored = store.restoreTo(score)
+        if (cancelled) return
+        if (!restored.noop) setEvents(restored.events)
+      }
+
+      const totalHP = derive(store.read(), today).totalHP
+      const { cappedTo, error: err } = await syncScore(supabase, totalHP)
+      if (cancelled) return
+      if (err) {
+        setScoreNote(`Leaderboard score not updated — ${err.message}`)
+        return
+      }
+      setScoreNote(
+        cappedTo == null
+          ? null
+          : `Leaderboard score capped at ${cappedTo} HP for this account's age — local HP is unchanged.`,
+      )
+    }
+    run()
+    return () => {
+      cancelled = true
+    }
+  }, [supabase, user, store, derived.totalHP, today])
 
   // Announce level-ups politely; never announce the initial level.
   useEffect(() => {
@@ -598,7 +654,7 @@ export default function DashboardScreen({
       >
         <QuestsTab
           derived={derived}
-          saveError={progressSaveError}
+          saveError={progressSaveError ?? scoreNote}
           onToggleDaily={(id) => act(() => store.toggleDaily(id))}
           onAdd={(id) => act(() => store.addQuest(id))}
           onUndo={(id) => act(() => store.undoQuest(id))}
@@ -622,7 +678,7 @@ export default function DashboardScreen({
         hidden={active !== 'leaderboard'}
         className="bih-scroll min-h-0 flex-1 overflow-y-auto"
       >
-        <Leaderboard supabase={supabase} />
+        <Leaderboard supabase={supabase} reloadKey={derived.totalHP} />
       </div>
     </div>
   )

@@ -39,8 +39,9 @@
 | Single-scroll dashboard (S1): one page scrollbar, sticky header via `overflow-clip` | CORE | built | gamified-dashboard |
 | Tab shell: HeatBar + ARIA tablist (Dashboard / Quests / History / Leaderboard), roving tabindex | CORE | built | gamified-dashboard |
 | Danger-band exceedance ordering | CORE | built | gamified-dashboard |
-| Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`) | gamified-dashboard |
-| Leaderboard UI (handle-only) | CORE | built, gated — `LEADERBOARD_ENABLED = false` in `components/Leaderboard.jsx`; tab shows "Leaderboard, coming soon" + skeleton, zero network | gamified-dashboard |
+| Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`), one storage key per account via `progressKey(userId)` | gamified-dashboard |
+| HP → leaderboard score | CORE | built — `src/scoreStore.js` reads the stored score on sign-in, `progressStore.restoreTo` adopts it locally (so a fresh browser shows it instead of resetting), then `set_my_score` publishes the total (`supabase/migrations/0004_set_my_score.sql`, caps at 100 HP/day of account age); guests never publish | gamified-dashboard |
+| Leaderboard UI (handle-only) | CORE | built, live — reads public `leaderboard` view via `leaderboardStore.js`; `LEADERBOARD_ENABLED = true` in `components/Leaderboard.jsx` is the kill switch | gamified-dashboard |
 | Local-only progress fallback (h30 path) | CORE | built — progress is local-only, works logged-out and offline, no auth | gamified-dashboard |
 | Exportable progress / infographic | STRETCH | todo | gamified-dashboard |
 

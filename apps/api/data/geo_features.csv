@@ -1,0 +1,115 @@
+name,province,elevation_m,distance_to_coast_km,ndvi_mean
+Bacacay,Albay,6.5,0.817,0.6924
+Camalig,Albay,173.2,12.954,0.7428
+Daraga,Albay,89.4,7.535,0.7371
+Guinobatan,Albay,316.1,15.88,0.7328
+Jovellar,Albay,73.6,2.294,0.7446
+City of Legazpi,Albay,102.4,0.939,0.7161
+Libon,Albay,58.1,6.35,0.7246
+City of Ligao,Albay,250.3,17.688,0.7171
+Malilipot,Albay,291.8,4.003,0.6421
+Malinao,Albay,385.6,7.385,0.7058
+Manito,Albay,326.2,3.55,0.6817
+Oas,Albay,114.3,8.932,0.7265
+Pio Duran,Albay,109.7,4.352,0.7152
+Polangui,Albay,158.1,8.184,0.7183
+Rapu-Rapu,Albay,0.1,0.192,0.6773
+Santo Domingo,Albay,113.1,2.783,0.6562
+City of Tabaco,Albay,132.0,5.013,0.6662
+Tiwi,Albay,453.8,3.34,0.6842
+Basud,Camarines Norte,117.9,7.585,0.7345
+Capalonga,Camarines Norte,61.0,6.611,0.7167
+Daet,Camarines Norte,12.5,5.037,0.6563
+San Lorenzo Ruiz,Camarines Norte,203.5,4.639,0.691
+Jose Panganiban,Camarines Norte,53.7,3.698,0.7178
+Labo,Camarines Norte,166.8,8.651,0.7369
+Mercedes,Camarines Norte,304.9,2.848,0.7304
+Paracale,Camarines Norte,3.5,3.931,0.7204
+San Vicente,Camarines Norte,103.0,10.401,0.6983
+Santa Elena,Camarines Norte,40.1,4.067,0.6978
+Talisay,Camarines Norte,9.2,3.982,0.6623
+Vinzons,Camarines Norte,0.0,0.939,0.6616
+Baao,Camarines Sur,214.2,3.644,0.661
+Balatan,Camarines Sur,114.6,3.476,0.7637
+Bato,Camarines Sur,49.9,1.474,0.7082
+Bombon,Camarines Sur,1.6,4.86,0.6304
+Buhi,Camarines Sur,88.2,6.079,0.6892
+Bula,Camarines Sur,8.8,5.399,0.6823
+Cabusao,Camarines Sur,1.3,1.542,0.6033
+Calabanga,Camarines Sur,76.4,3.821,0.6617
+Camaligan,Camarines Sur,5.7,11.492,0.5682
+Canaman,Camarines Sur,2.7,8.513,0.5561
+Caramoan,Camarines Sur,145.2,2.792,0.7621
+Del Gallego,Camarines Sur,105.7,4.14,0.7383
+Gainza,Camarines Sur,3.4,13.219,0.5478
+Garchitorena,Camarines Sur,149.1,3.298,0.7034
+Goa,Camarines Sur,192.7,14.189,0.7386
+City of Iriga,Camarines Sur,471.6,9.775,0.7227
+Lagonoy,Camarines Sur,442.0,10.591,0.7478
+Libmanan,Camarines Sur,86.3,12.949,0.7031
+Lupi,Camarines Sur,159.7,8.698,0.761
+Magarao,Camarines Sur,3.3,6.464,0.6124
+Milaor,Camarines Sur,3.0,14.713,0.5879
+Minalabac,Camarines Sur,5.8,8.061,0.6517
+Nabua,Camarines Sur,,4.182,0.6652
+City of Naga,Camarines Sur,,10.054,0.6402
+Ocampo,Camarines Sur,126.8,13.517,0.6815
+Pamplona,Camarines Sur,8.2,9.503,0.6416
+Pasacao,Camarines Sur,141.8,3.581,0.74
+Pili,Camarines Sur,61.9,12.663,0.6711
+Presentacion,Camarines Sur,301.9,4.063,0.7227
+Ragay,Camarines Sur,232.7,7.636,0.7494
+Sagñay,Camarines Sur,224.8,1.99,0.7129
+San Fernando,Camarines Sur,106.7,5.59,0.6969
+San Jose,Camarines Sur,5.1,0.927,0.6345
+Sipocot,Camarines Sur,99.6,9.352,0.7616
+Siruma,Camarines Sur,18.5,3.458,0.7125
+Tigaon,Camarines Sur,131.2,7.238,0.6701
+Tinambac,Camarines Sur,138.1,5.54,0.7438
+Bagamanoc,Catanduanes,127.6,1.811,0.725
+Baras,Catanduanes,252.4,2.718,0.7043
+Bato,Catanduanes,21.6,1.816,0.7079
+Caramoran,Catanduanes,541.6,4.92,0.7031
+Gigmoto,Catanduanes,239.0,3.898,0.6743
+Pandan,Catanduanes,206.7,3.515,0.7251
+Panganiban,Catanduanes,4.3,1.154,0.6802
+San Andres,Catanduanes,390.7,4.673,0.715
+San Miguel,Catanduanes,377.9,11.643,0.7051
+Viga,Catanduanes,87.7,7.133,0.6984
+Virac,Catanduanes,40.3,4.539,0.7369
+Aroroy,Masbate,5.0,0.362,0.688
+Baleno,Masbate,160.8,5.788,0.738
+Balud,Masbate,229.2,3.856,0.6508
+Batuan,Masbate,140.3,2.213,0.7375
+Cataingan,Masbate,93.8,4.223,0.7211
+Cawayan,Masbate,14.2,4.812,0.6526
+Claveria,Masbate,302.7,2.408,0.7481
+Dimasalang,Masbate,56.7,4.895,0.7489
+Esperanza,Masbate,5.9,1.737,0.691
+Mandaon,Masbate,6.9,1.511,0.635
+City of Masbate,Masbate,18.4,3.233,0.7102
+Milagros,Masbate,0.0,1.222,0.6388
+Mobo,Masbate,188.1,6.206,0.7452
+Monreal,Masbate,280.3,3.042,0.7506
+Palanas,Masbate,350.3,5.773,0.7518
+Pio V. Corpus,Masbate,66.0,3.407,0.7315
+Placer,Masbate,35.6,4.677,0.684
+San Fernando,Masbate,135.4,4.433,0.7411
+San Jacinto,Masbate,51.6,5.124,0.7334
+San Pascual,Masbate,46.6,5.791,0.7168
+Uson,Masbate,78.9,3.679,0.725
+Barcelona,Sorsogon,72.7,3.704,0.7206
+Bulan,Sorsogon,25.2,5.257,0.7326
+Bulusan,Sorsogon,263.3,3.605,0.6764
+Casiguran,Sorsogon,63.3,3.345,0.7019
+Castilla,Sorsogon,45.9,5.629,0.7231
+Donsol,Sorsogon,76.3,3.752,0.7399
+Gubat,Sorsogon,24.3,2.175,0.7185
+Irosin,Sorsogon,40.2,10.957,0.7089
+Juban,Sorsogon,62.2,5.64,0.7103
+Magallanes,Sorsogon,82.5,4.441,0.7234
+Matnog,Sorsogon,178.1,5.585,0.7427
+Pilar,Sorsogon,33.1,3.8,0.7341
+Prieto Diaz,Sorsogon,90.9,3.427,0.6943
+Santa Magdalena,Sorsogon,46.5,2.279,0.753
+City of Sorsogon,Sorsogon,446.0,5.212,0.6833

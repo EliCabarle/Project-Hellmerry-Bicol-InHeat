@@ -64,8 +64,13 @@ def build_record(city_data: dict, drivers: dict) -> dict:
         "longitude": city_data.get("lon"),
         # column is `slope`; the source key is slope_c_per_year
         "slope": trend.get("slope_c_per_year"),
+        "slope_ci_low": trend.get("slope_ci_low"),
+        "slope_ci_high": trend.get("slope_ci_high"),
         "p_value": trend.get("p_value"),
         "is_significant": trend.get("is_significant"),
+        # Pettitt: year the regime shifted, and the p that makes it readable
+        "change_point_year": trend.get("change_point_year"),
+        "change_point_p": trend.get("change_point_p"),
         "top_drivers": drivers.get((city_data.get("name"), city_data.get("province", ""))),
         "lst_mean_c": LST_BY_KEY.get((city_data.get("name"), city_data.get("province", ""))),
         # latest-year annual means of the daily peak and nighttime heat index

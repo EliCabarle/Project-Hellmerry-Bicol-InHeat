@@ -302,3 +302,7 @@ Built from the **project content only** (47 files; `.opencode/` tooling docs and
 **Privacy/compliance:** leaderboard and any user-facing identity use a **user-chosen handle, never a real name** — `AuthButton` now onboards via `apps/web/src/lib/profile.js` (`user_profiles.handle`, 3–20 `[A-Za-z0-9_]`, case-insensitive unique) and displays that handle; it never shows the Google name/email. No minor's name/voice/likeness in video or materials. UI in English; narration EN + Filipino (Bicolano = STRETCH, needs a native speaker). Every link must resolve in a logged-out private window (test h44). Attribution box: PAGASA station data, PSA/PSGC boundaries, **Esri World Imagery (`Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community`) + Reference labels (`Esri, HERE, Garmin, (c) OpenStreetMap contributors, and the GIS user community`; labels-layer attribution still to be wired into the layer)**, faeldon source pending lead decision (B17), fonts/icons, FIRMS notice if STRETCH ships.
 
 **Document discipline:** this file goes stale the moment `main` moves — its "last verified" date is the first thing a reader should check. When you land work, update §1/§2 status rows and re-stamp the facts you changed. CONCEPT/AGENTS win any conflict with this file.
+
+**Recent Findings cuz of changes in the training model weve used**
+
+ "Anything that quotes the old 0.72 (HANDOFF.md, project page, video script) is now contradicted by the artifact."

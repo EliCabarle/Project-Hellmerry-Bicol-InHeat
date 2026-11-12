@@ -161,6 +161,31 @@ class TrendTest(unittest.TestCase):
         self.assertFalse(row["is_significant"])
         self.assertIn("note", row)
 
+    def test_confidence_interval_brackets_the_slope(self):
+        frame = _daily(
+            [
+                ("Legazpi", "Albay", f"{y}-03-01", 30.0 + (y - 1981) * 0.05)
+                for y in range(1981, 2026)
+            ]
+        )
+        row = trend_for(annual_means(frame))
+        self.assertLessEqual(row["slope_ci_low"], row["slope"])
+        self.assertLessEqual(row["slope"], row["slope_ci_high"])
+        self.assertIsNotNone(row["change_point_year"])
+        self.assertIsNotNone(row["change_point_p"])
+
+    def test_pettitt_finds_the_year_the_regime_shifted(self):
+        # flat 1981-2000, +2 degC step from 2001: the split is at the step
+        frame = _daily(
+            [
+                ("Naga", "Camarines Sur", f"{y}-03-01", 30.0 if y <= 2000 else 32.0)
+                for y in range(1981, 2011)
+            ]
+        )
+        row = trend_for(annual_means(frame))
+        self.assertEqual(row["change_point_year"], 2001)
+        self.assertLess(row["change_point_p"], 0.05)
+
 
 class NarrationTest(unittest.TestCase):
     def _row(
@@ -515,8 +540,12 @@ class SupabaseRecordTest(unittest.TestCase):
             "lon": 123.2,
             "trend": {
                 "slope_c_per_year": 0.0313,
+                "slope_ci_low": 0.0281,
+                "slope_ci_high": 0.0345,
                 "p_value": 0.0001,
                 "is_significant": True,
+                "change_point_year": 2015,
+                "change_point_p": 0.003,
             },
             "total_danger_days_45y": 10,
             "peak_danger_days": {"year": 2024, "days": 9},
@@ -528,9 +557,24 @@ class SupabaseRecordTest(unittest.TestCase):
         record = build_record(city, drivers)
 
         self.assertEqual(record["slope"], 0.0313)
+        self.assertEqual(record["slope_ci_low"], 0.0281)
+        self.assertEqual(record["slope_ci_high"], 0.0345)
+        self.assertEqual(record["change_point_year"], 2015)
+        self.assertEqual(record["change_point_p"], 0.003)
         self.assertEqual(record["top_drivers"], [{"feature": "lat"}])
         self.assertEqual(record["peak_danger_year"], 2024)
         self.assertIsNone(build_record(city, {})["top_drivers"])
+
+    def test_pre_ci_narratives_row_pushes_nulls_not_a_crash(self):
+        # an output file written before the CI/change-point run has no such keys
+        city = {
+            "name": "Naga",
+            "province": "Camarines Sur",
+            "trend": {"slope_c_per_year": 0.0313, "p_value": 0.0001},
+        }
+        record = build_record(city, {})
+        self.assertIsNone(record["slope_ci_low"])
+        self.assertIsNone(record["change_point_year"])
 
 
 if __name__ == "__main__":

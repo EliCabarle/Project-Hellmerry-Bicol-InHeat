@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "./AGENTS.md"
+  ],
+  "permission": {
+    "bash": {
+      "git status": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git add *": "allow",
+      "git commit *": "allow",
+      "playwright *": "allow",
+      "ctx7 *": "allow",
+      "npx *": "allow",
+      "*": "ask"
+    },
+    "edit": "allow",
+    "webfetch": "allow"
+  },
+  "formatter": true,
+  "snapshot": true,
+  "tool_output": {
+    "max_lines": 300,
+    "max_bytes": 60000
+  }
+}

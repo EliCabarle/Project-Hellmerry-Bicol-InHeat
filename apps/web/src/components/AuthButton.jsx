@@ -7,7 +7,7 @@ const pill =
   'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-heat-surface/90 px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
 
 const quietButton =
-  'cursor-pointer rounded-md px-2 py-1 font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep disabled:cursor-not-allowed disabled:opacity-50'
+  'cursor-pointer min-h-11 rounded-md px-2 py-1 font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep disabled:cursor-not-allowed disabled:opacity-50'
 
 // Session state is owned by useSession() in app.jsx and passed down, so screens
 // and the header agree on who is signed in.
@@ -161,7 +161,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
       )}
 
       {error && (
-        <span role="alert" className="max-w-[9rem] truncate text-[11px] text-rose-300" title={errorDetail ?? undefined}>
+        <span role="alert" className="max-w-[9rem] truncate text-xs text-rose-300" title={errorDetail ?? undefined}>
           {error}
         </span>
       )}

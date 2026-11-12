@@ -37,7 +37,7 @@
 | Map screen mount + layout | CORE | todo | web |
 | Ranking screen mount | CORE | todo | web |
 | Narration screen mount | CORE | todo | web |
-| PWA manifest + service worker | CORE | todo | web |
+| PWA manifest + service worker | CORE | done — `public/manifest.webmanifest`, `public/sw.js`, icons in `public/icons/` | web |
 | Supabase anon client + auth flag | CORE | todo | web |
 | Static-JSON loader | CORE | todo | web |
 | 2 "Try this" demo seeds wired | CORE | todo | web |
@@ -47,4 +47,4 @@
 | Item | Verified? | Notes |
 |---|---|---|
 | Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
-| Run commands execute | No | scripts fill in as prototype is built |
+| Run commands execute | Yes | `npm ci && npm run build && npm run preview` verified 2026-11-12; installable PWA verified in Chrome (SW activated, offline reload renders map + dashboard) |

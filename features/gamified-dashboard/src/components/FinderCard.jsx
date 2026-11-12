@@ -7,6 +7,7 @@
 // the tab order.
 
 import { outlineStroke } from '../finderData.js'
+import { LABELS } from '../labels.js'
 import { fmtInt, fmtP, fmtSlope, SigPill } from './DashboardTable.jsx'
 import { HEAT_COOL } from '../chartColors.js'
 import { joinKey } from '../../../map-controls/src/gis/engine.js'
@@ -28,7 +29,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
         <div aria-hidden={flipped || undefined} className={FACE}>
           <div className="flex items-baseline justify-between gap-2">
             <h3 className="truncate text-sm font-semibold text-white">{card.name}</h3>
-            <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-slate-500">
+            <span className="shrink-0 font-mono text-xs text-slate-500">
               {card.isCity ? 'City' : 'Mun'} · {card.province}
             </span>
           </div>
@@ -57,7 +58,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
                 <SigPill trend={card.trend} />
               </>
             ) : (
-              <span className="text-[11px] text-slate-500">No trend data yet</span>
+              <span className="text-xs text-slate-500">No trend data yet</span>
             )}
           </div>
 
@@ -65,7 +66,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
             <button
               type="button"
               onClick={() => onFlip?.(true)}
-              className="mt-1.5 cursor-pointer rounded-md bg-heat-amber px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-950 hover:bg-heat-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+              className="mt-1.5 min-h-11 cursor-pointer rounded-md bg-heat-amber px-2 py-1 text-xs font-bold uppercase tracking-[0.1em] text-slate-950 hover:bg-heat-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
             >
               Why it heats →
             </button>
@@ -76,28 +77,35 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
         <div aria-hidden={!flipped || undefined} className={`${FACE} [transform:rotateY(180deg)] overflow-y-auto`}>
           <div className="flex items-baseline justify-between gap-2">
             <h3 className="truncate text-sm font-semibold text-white">{card.name}</h3>
-            <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.12em] text-slate-500">
+            <span className="shrink-0 font-mono text-xs text-slate-500">
               {card.province}
             </span>
           </div>
 
           {card.latest ? (
-            <div className="mt-1 grid grid-cols-2 gap-1 text-[10px] leading-4">
-              <span className="text-slate-500">
-                Mean HI {card.latest.year}: <span className="font-mono text-slate-100">{card.latest.mean_heat_index_c?.toFixed?.(1) ?? '—'} °C</span>
-              </span>
-              <span className="text-slate-500">
+            <div className="mt-1 grid grid-cols-2 gap-1 text-xs leading-5">
+              <div className="text-slate-500">
+                <span className="font-semibold">{`Mean HI ${card.latest.year}:`}</span>{' '}
+                <span className="font-mono text-slate-100">{card.latest.mean_heat_index_c?.toFixed?.(1) ?? '—'} °C</span>
+              </div>
+              <div className="text-slate-500">
                 {band ? <span className="font-mono font-semibold text-heat-amber">{band}</span> : 'band —'}
-              </span>
-              <span className="text-slate-500">
-                p: <span className="font-mono text-slate-300">{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
-              </span>
-              <span className="text-slate-500">
-                Sample: <span className="font-mono text-slate-300">{card.sample?.n_days != null ? `${fmtInt(card.sample.n_days)} d · ${fmtInt(card.sample.n_years ?? 0)} y` : '—'}</span>
-              </span>
-              <span className="col-span-2 text-slate-500">
-                Danger days 45y: <span className="font-mono text-slate-100">{Number.isFinite(card.totalDangerDays) ? fmtInt(card.totalDangerDays) : '—'}</span>
-              </span>
+              </div>
+              <div className="text-slate-500">
+                <span className="font-semibold">{LABELS.finderBackP.plain}:</span>{' '}
+                <span className="font-mono text-slate-300">{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
+                <span className="block text-xs font-mono text-slate-400">{LABELS.finderBackP.tech}</span>
+              </div>
+              <div className="text-slate-500">
+                <span className="font-semibold">{LABELS.finderBackSample.plain}:</span>{' '}
+                <span className="font-mono text-slate-300">{card.sample?.n_days != null ? `${fmtInt(card.sample.n_days)} d · ${fmtInt(card.sample.n_years ?? 0)} y` : '—'}</span>
+                <span className="block text-xs font-mono text-slate-400">{LABELS.finderBackSample.tech}</span>
+              </div>
+              <div className="col-span-2 text-slate-500">
+                <span className="font-semibold">{LABELS.hotspotsHeaderDanger.plain}:</span>{' '}
+                <span className="font-mono text-slate-100">{Number.isFinite(card.totalDangerDays) ? fmtInt(card.totalDangerDays) : '—'}</span>
+                <span className="block text-xs font-mono text-slate-400">{LABELS.hotspotsHeaderDanger.tech}</span>
+              </div>
             </div>
           ) : (
             <p className="mt-1 text-[11px] text-slate-500">No trend data yet</p>
@@ -109,11 +117,12 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
 
           {card.drivers.length > 0 && (
             <div className="mt-1.5">
-              <div className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">Top drivers (RF·SHAP)</div>
+              <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">{LABELS.finderBackDrivers.plain}</div>
+              <div className="text-xs font-mono text-slate-400">{LABELS.finderBackDrivers.tech}</div>
               <ul className="mt-1 space-y-1">
                 {card.drivers.map((d) => (
                   <li key={d.feature ?? d.label} className="flex items-center gap-1.5 text-[9px]">
-                    <span className="w-[7.5rem] shrink-0 truncate text-slate-400">{d.label}</span>
+                    <span className="w-[7.5rem] shrink-0 truncate text-xs text-slate-400">{d.label}</span>
                     <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-white/10">
                       <span className="block h-full rounded-full" style={{ width: `${Math.round((d.share ?? 0) * 100)}%`, background: HEAT_COOL }} />
                     </span>
@@ -121,7 +130,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
                   </li>
                 ))}
               </ul>
-              <p className="mt-0.5 text-[8.5px] text-slate-500">Association, not causation.</p>
+              <p className="mt-0.5 text-xs text-slate-500">{LABELS.finderBackCausation.plain} — {LABELS.finderBackCausation.tech}</p>
             </div>
           )}
 
@@ -130,14 +139,14 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
               <button
                 type="button"
                 onClick={() => onShowOnMap?.(joinKey(card.name, card.province))}
-                className="cursor-pointer rounded-md bg-heat-amber px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-slate-950 hover:bg-heat-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                className="min-h-11 cursor-pointer rounded-md bg-heat-amber px-2 py-1 text-xs font-bold uppercase tracking-[0.1em] text-slate-950 hover:bg-heat-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
               >
                 Show on map
               </button>
               <button
                 type="button"
                 onClick={() => onFlip?.(false)}
-                className="cursor-pointer rounded-md border border-white/10 px-2 py-1 text-[10px] font-semibold text-slate-300 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                className="min-h-11 cursor-pointer rounded-md border border-white/10 px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
               >
                 ← Outline
               </button>

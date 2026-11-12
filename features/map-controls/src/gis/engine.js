@@ -4,7 +4,10 @@
 // Municipality boundaries: geoBoundaries (PSA/PSGC-aligned, adm3) — CC BY 4.0 (same note as slice 1).
 // Fallback used pending PSA/PSGC official source verification at h6 (CONCEPT 8/13).
 
-import { recordForYear, trendColor, yearColor } from './yearRamp.js'
+import { DAY_NO_DATA, dayColor, recordForYear, trendColor, yearColor } from './yearRamp.js'
+
+// The one selection/outline token: 2D styles, 3D paint and the trace all read this.
+export const SELECT_COLOUR = '#67e8f9'
 
 const HIGHLIGHT = {
   // Region V / Bicol — heat palette used only during the loading state
@@ -139,11 +142,35 @@ function yearBase(feature, year) {
   }
 }
 
+// Daily branch: values arrive as Map<narrativeId, °C|null> for the selected
+// day (null = no measurement that day). A missing day gets the distinct
+// no-data veil — never a band colour, never interpolated.
+function dayBase(feature, dayValues) {
+  const id = feature?.properties?.narrative?.id
+  const value = dayValues instanceof Map ? dayValues.get(id) : undefined
+  const fill = (Number.isFinite(value) ? dayColor(value) : null) ?? DAY_NO_DATA
+  return {
+    fill: true,
+    fillColor: fill,
+    fillOpacity: 0.62,
+    color: '#0b1220',
+    weight: isCity(feature) ? 2.2 : 1.6,
+  }
+}
+
 // Significance renders as border pattern (solid vs dashed), never by fill hue alone.
-export function getMunicipalityStyle(feature, { selected = false, viewMode = 'trend', year = null } = {}) {
+export function getMunicipalityStyle(
+  feature,
+  { selected = false, viewMode = 'trend', year = null, dayValues = null } = {},
+) {
   const n = feature?.properties?.narrative
   if (!n) return MUN_PENDING
-  const base = viewMode === 'year' ? yearBase(feature, year) : trendBase(feature)
+  const base =
+    viewMode === 'year'
+      ? yearBase(feature, year)
+      : viewMode === 'day'
+        ? dayBase(feature, dayValues)
+        : trendBase(feature)
   const sig = n.trend?.is_significant
   const style = {
     ...base,
@@ -152,7 +179,7 @@ export function getMunicipalityStyle(feature, { selected = false, viewMode = 'tr
     ...(sig ? {} : { dashArray: '4 3' }),
   }
   if (selected) {
-    return { ...style, weight: style.weight + 1.5, color: '#67e8f9' }
+    return { ...style, weight: style.weight + 1.5, color: SELECT_COLOUR }
   }
   return style
 }

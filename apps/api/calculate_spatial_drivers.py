@@ -26,6 +26,7 @@ import numpy as np
 import pandas as pd
 import shap
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import LeaveOneOut, GroupKFold, cross_val_score
 
 API_DIR = Path(__file__).resolve().parent
 DEFAULT_TRENDS = API_DIR / "output" / "trends.json"
@@ -132,13 +133,60 @@ def main() -> None:
     r2_train = float(model.score(X, y))
     print(f"Random Forest trained on {len(df)} municipalities. Train R²: {r2_train:.4f}")
 
+    n = len(df)
+
+    # ---- Leave-One-Out Cross-Validation ----
+    # Aggregate out-of-fold predictions across all 114 held-out points, then
+    # compute a single overall R² (per-fold R² is undefined with n_test=1).
+    loo_model = RandomForestRegressor(
+        n_estimators=N_ESTIMATORS,
+        n_jobs=-1,
+        random_state=RANDOM_STATE,
+    )
+    loo_predictions = np.zeros(n)
+    for train_idx, test_idx in LeaveOneOut().split(X):
+        fold_model = RandomForestRegressor(
+            n_estimators=N_ESTIMATORS,
+            n_jobs=1,
+            random_state=RANDOM_STATE,
+        )
+        fold_model.fit(X.iloc[train_idx], y.iloc[train_idx])
+        loo_predictions[test_idx] = fold_model.predict(X.iloc[test_idx])[0]
+    loo_r2 = float(
+        1
+        - np.sum((y - loo_predictions) ** 2)
+        / np.sum((y - np.mean(y)) ** 2)
+    )
+    loo_r2_std = 0.0  # single overall LOOCV R², no per-fold std
+    print(f"LOOCV: overall R²={loo_r2:.4f} (n={n})")
+
+    # ---- Grouped CV by province (spatial leakage test) ----
+    gkf_model = RandomForestRegressor(
+        n_estimators=N_ESTIMATORS,
+        n_jobs=-1,
+        random_state=RANDOM_STATE,
+    )
+    groups = df["province"].values
+    gkf_scores = cross_val_score(
+        gkf_model, X, y, groups=groups, cv=GroupKFold(n_splits=5), scoring="r2"
+    )
+    gkf_r2_mean = float(gkf_scores.mean())
+    print(f"Province-grouped 5-fold CV: mean R²={gkf_r2_mean:.4f} (folds={len(gkf_scores)})")
+
+    overfit_gap = r2_train - loo_r2
+    print(f"Overfit gap (train - LOOCV): {overfit_gap:.4f}")
+
+    # ---- SHAP using LOOCV-held-out predictions ----
+    # OOF predictions computed above; report mean |SHAP| using full model explainer
+    # on X, alongside the honest OOF R² as the real performance number.
+    # OOF predictions computed in LOOCV loop above
     explainer = shap.TreeExplainer(model)
     shap_values = np.abs(np.asarray(explainer.shap_values(X)))
     importance = pd.DataFrame(shap_values, columns=FEATURES).mean().sort_values(
         ascending=False
     )
 
-    print("\nSpatial driver importances (mean |SHAP|):")
+    print("\nSpatial driver importances (mean |SHAP|, full model):")
     for feature, value in importance.items():
         print(f"  {feature:<28} {value:+.6f}")
 
@@ -157,6 +205,10 @@ def main() -> None:
         ),
         "train_rows": int(len(df)),
         "r2_train": round(r2_train, 4),
+        "spatial_r2_cv_mean": round(loo_r2, 4),
+        "spatial_r2_cv_std": round(loo_r2_std, 4),
+        "spatial_r2_grouped": round(gkf_r2_mean, 4),
+        "overfit_gap": round(overfit_gap, 4),
         "importances": {
             feature: round(float(value), 6) for feature, value in importance.items()
         },
@@ -174,6 +226,10 @@ def main() -> None:
         encoding="utf-8",
     )
     print(f"\nwrote spatial driver results -> {out}")
+    print(
+        f"SPATIAL CV DONE | Training R²={r2_train:.4f} | LOOCV R²={loo_r2:.4f} | "
+        f"Grouped R²={gkf_r2_mean:.4f} | Overfit gap={overfit_gap:.4f}"
+    )
 
 
 if __name__ == "__main__":

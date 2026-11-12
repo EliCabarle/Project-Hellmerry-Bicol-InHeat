@@ -1,0 +1,32 @@
+{
+  "doc_path": "docs/CONFIGURATION.md",
+  "claims_checked": 48,
+  "claims_passed": 44,
+  "claims_failed": 4,
+  "failures": [
+    {
+      "line": 17,
+      "claim": "each [of fetch_power_data.py, seed_locations.py, push_to_supabase.py] loads apps/api/.env explicitly",
+      "expected": "explicit .env path in all three scripts, e.g. load_dotenv(<path>)",
+      "actual": "seed_locations.py line 5 calls bare load_dotenv() with no path (relies on find_dotenv walk-up); only fetch_power_data.py (load_dotenv(API_DIR / '.env')) and push_to_supabase.py (load_dotenv(dotenv_path=BASE_DIR / '.env')) pass an explicit path"
+    },
+    {
+      "line": 53,
+      "claim": "there is no config/ directory or *.config.js beyond Vite's defaults",
+      "expected": "only vite.config.js under apps/web (plus no config/ directory)",
+      "actual": "apps/web/tailwind.config.js and apps/web/postcss.config.js also exist; config/ directory absent as claimed"
+    },
+    {
+      "line": 83,
+      "claim": "apps/api/.env (dotenv file loaded by python-dotenv, contains server secrets + Supabase URL/key)",
+      "expected": "file exists",
+      "actual": "file not found at apps/api/.env — Test-Path false, recursive Get-ChildItem -Force -Filter '.env*' and hidden glob '**/.env*' both return nothing; no .env file exists anywhere in the repo (HANDOFF.md line 213 asserts it exists)"
+    },
+    {
+      "line": 84,
+      "claim": "apps/web/.env (dotenv file auto-loaded by Vite, contains VITE_* public vars)",
+      "expected": "file exists",
+      "actual": "file not found at apps/web/.env — no .env file exists anywhere in the repo (HANDOFF.md lines 143/213 assert it exists); this also makes the line 40 'currently also holds the service-role key' statement stale"
+    }
+  ]
+}

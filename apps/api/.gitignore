@@ -1,0 +1,13 @@
+# Never commit server-side secrets (root AGENTS.md "Environment")
+.env
+
+# Local virtualenv
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Generated pipeline artifacts - regenerate with fetch_power_data.py / calculate_trends.py
+data/
+output/

@@ -8,12 +8,14 @@ import { fetchTop10 } from '../leaderboardStore.js'
 export const LEADERBOARD_ENABLED = true
 
 // Existing Top-10 UI, markup unchanged, now owned by this component.
-function Top10({ supabase }) {
+function Top10({ supabase, reloadKey = null }) {
   const [board, setBoard] = useState(null) // null = still loading
   const [boardError, setBoardError] = useState(null)
 
   // The leaderboard view is public, so this loads without a session — a judge can
   // see it logged out. It does not depend on the trend data either.
+  // `reloadKey` is the signed-in user's HP total: it changes the moment a score
+  // is published, so the board shows that row instead of a stale fetch.
   useEffect(() => {
     if (!LEADERBOARD_ENABLED || !supabase) return
     let cancelled = false
@@ -23,12 +25,14 @@ function Top10({ supabase }) {
         setBoardError(err.message)
         return
       }
+      // A successful retry clears an earlier failure instead of leaving the alert.
+      setBoardError(null)
       setBoard(data ?? [])
     })
     return () => {
       cancelled = true
     }
-  }, [supabase])
+  }, [supabase, reloadKey])
 
   // Until a task awards points every score is 0; a column of zeros reads as broken,
   // so it appears the first time any row has one. No code change needed later.
@@ -79,7 +83,7 @@ function Top10({ supabase }) {
   )
 }
 
-export default function Leaderboard({ supabase = null }) {
+export default function Leaderboard({ supabase = null, reloadKey = null }) {
   if (!LEADERBOARD_ENABLED) {
     return (
       <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
@@ -99,7 +103,7 @@ export default function Leaderboard({ supabase = null }) {
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         Ranked by Heat Points, then saved places.
       </p>
-      <Top10 supabase={supabase} />
+      <Top10 supabase={supabase} reloadKey={reloadKey} />
       <p className="mt-3 text-[11px] text-slate-500">
         Public view · handles only, never names or emails.
       </p>

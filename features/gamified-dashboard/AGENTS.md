@@ -40,7 +40,7 @@
 | Tab shell: HeatBar + ARIA tablist (Dashboard / Quests / History / Leaderboard), roving tabindex | CORE | built | gamified-dashboard |
 | Danger-band exceedance ordering | CORE | built | gamified-dashboard |
 | Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`) | gamified-dashboard |
-| Leaderboard UI (handle-only) | CORE | built, gated — `LEADERBOARD_ENABLED = false` in `components/Leaderboard.jsx`; tab shows "Leaderboard, coming soon" + skeleton, zero network | gamified-dashboard |
+| Leaderboard UI (handle-only) | CORE | built, live — reads public `leaderboard` view via `leaderboardStore.js`; `LEADERBOARD_ENABLED = true` in `components/Leaderboard.jsx` is the kill switch | gamified-dashboard |
 | Local-only progress fallback (h30 path) | CORE | built — progress is local-only, works logged-out and offline, no auth | gamified-dashboard |
 | Exportable progress / infographic | STRETCH | todo | gamified-dashboard |
 

@@ -3,7 +3,9 @@ import { fetchTop10 } from '../leaderboardStore.js'
 
 // h30 fallback path: while false the tab makes no network call at all and
 // renders only a coming-soon placeholder with an aria-hidden skeleton.
-export const LEADERBOARD_ENABLED = false
+// Live since public.leaderboard returns rows to the anon key; flip back to false
+// only if the view or its grant breaks.
+export const LEADERBOARD_ENABLED = true
 
 // Existing Top-10 UI, markup unchanged, now owned by this component.
 function Top10({ supabase }) {
@@ -33,10 +35,10 @@ function Top10({ supabase }) {
   const showScore = Boolean(board?.some((r) => (r?.score ?? 0) > 0))
 
   return (
-    <details className="mt-4 rounded-xl border border-white/10 bg-heat-surface/60 px-3 py-2.5 text-sm">
-      <summary className="cursor-pointer select-none text-xs font-semibold text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
+    <section className="mt-4 rounded-xl border border-white/10 bg-heat-surface/60 px-3 py-3 text-sm">
+      <h2 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
         Top 10 explorers
-      </summary>
+      </h2>
       {!supabase ? (
         <p className="mt-2 text-xs text-slate-400">Leaderboard is unavailable in this build.</p>
       ) : boardError ? (
@@ -73,7 +75,7 @@ function Top10({ supabase }) {
           </table>
         </div>
       )}
-    </details>
+    </section>
   )
 }
 
@@ -93,7 +95,14 @@ export default function Leaderboard({ supabase = null }) {
   }
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
+      <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Leaderboard</h1>
+      <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
+        Ranked by Heat Points, then saved places.
+      </p>
       <Top10 supabase={supabase} />
+      <p className="mt-3 text-[11px] text-slate-500">
+        Public view · handles only, never names or emails.
+      </p>
     </div>
   )
 }

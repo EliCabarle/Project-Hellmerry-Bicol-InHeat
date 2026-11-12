@@ -34,7 +34,7 @@ Read this table before opening any source file. It is the cheapest way to find t
 
 | Slice / area | Real files | State |
 |---|---|---|
-| `features/map-controls` | `src/BicolMap.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/engine.js`, `src/gis/yearRamp.js`, `src/state/timelineStore.js`, `test_engine.mjs`, `test_year.mjs` | **built** — 114 municipality features, trend + year fill modes, significance as border pattern, roving-tabindex keyboard |
+| `features/map-controls` | `src/BicolMap.jsx`, `src/Municipality3DLayer.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/{engine,yearRamp,lift}.js`, `src/state/timelineStore.js`, `test_{engine,year,lift}.mjs` | **built** — 114 municipality features, trend + year fill modes, significance as border pattern, roving-tabindex keyboard; **2D/3D toggle + hover lift added 2026-11-12** |
 | `features/gamified-dashboard` | `src/RankingScreen.jsx`, `src/components/RankingTable.jsx`, `src/ranking.js`, `src/savedStore.js`, `src/leaderboardStore.js`, `test_ranking.mjs`, `test_saved.mjs` | **built** — slope/danger ordering, flag-not-filter, saved places, public leaderboard read |
 | `features/layer-uhi-terrain` | `AGENTS.md` only | **not started** — layer registry, LST, canopy, land cover |
 | `features/chatbot-llm` | `AGENTS.md` only | **not started** — narrative renderer, glossary, template fallback |
@@ -49,6 +49,9 @@ Facts already established — **do not re-derive these:**
 - **Significance is rendered, never filtered**: filled shapes stay, non-significant get `dashArray` + muted border. Changing that is a science regression, not a style choice.
 - **Two colour sources only**: `gis/yearRamp.js` (`YEAR_*` heat ramp, `TREND_*` rate ramp). No component may invent a local ramp.
 - **Style updates happen in place.** `BicolMap.jsx` keeps one persistent GeoJSON layer; remounting 114 features per selection was the cause of janky zoom. Never reintroduce a remount.
+- **3D is a separate entity, not a mode of the 2D layer.** `Municipality3DLayer.jsx` (MapLibre GL JS) mounts only while `renderMode === '3d'`; `MunicipalityLayer` unmounts, so the two renderers never draw at once. It is `React.lazy`-loaded — the 2D bundle carries zero MapLibre bytes. It reuses `getMunicipalityStyle` for colour and `gis/lift.js` for height, so neither ramp nor join key is duplicated.
+- **Lift is one case, never a sum.** `liftFor` returns `LIFT_RATIO` (0.30) of the area's own depth for *either* hover *or* selection, so hover-on-selected cannot double-lift. `LIFT_MS` 150, ease-out cubic, rAF loop stops when nothing animates, `prefers-reduced-motion` sets the offset instantly. Depth is metres (`DEPTH_BASE` 3000 + `DEPTH_SPAN` 9000 over the ramp domain), so the lift reads the same at every zoom.
+- **MapLibre does not transition feature-state-driven paint**, so the lift animates via `source.updateData` on the `_lift` property. Fine at 114 features; revisit if a slice ever extrudes thousands.
 - **Layer-toggle seam already exists** (`MapControlsOverlay` takes `layerRegistry` / `onLayerChange`, guarded by `timelineStore.canToggleLayer`). `layer-uhi-terrain` is expected to own the registry — build on the seam, do not add booleans.
 - `apps/api/data/` and `apps/api/output/` do not exist yet; they appear when the pipeline runs.
 
@@ -148,6 +151,7 @@ Process gotchas:
 - No minor's name, voice, or likeness in video or materials.
 - Cut lines are hard: h30 (auth), h42 (STRETCH freeze), h44 (video fallback). Do not renegotiate.
 - `.gitignore` populated 2026-11-10 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside `apps/api/.env`.
+- **`maplibre-gl` is the only non-Leaflet map dependency**: declared in `apps/web/package.json` and aliased in `apps/web/vite.config.js` (because `features/` sits outside the Vite root, bare imports need the alias). Cross-boundary dep add approved by the lead 2026-11-12. It is lazy-loaded — never import it from a non-lazy module or the 2D bundle pays for it.
 - Parallel work follows the write-boundary contract below.
 
 ### Role / Write-Boundary Contract
@@ -169,9 +173,12 @@ Rule: an agent or team member writes **only inside its own boundary**; cross-bou
 
 | Item | Status | Notes |
 |---|---|---|
-| Code state of all slices | **Verified 2026-11-10** | See `## What exists now` — map-controls and gamified-dashboard built; layer-uhi-terrain and chatbot-llm contracts only |
+| Code state of all slices | **Verified 2026-11-12** | See `## What exists now` — map-controls and gamified-dashboard built; layer-uhi-terrain and chatbot-llm contracts only; **2D/3D toggle + hover lift implemented 2026-11-12** |
 | Root `.gitignore` | **Verified** | Populated 2026-11-10; `.env` covered |
 | Run commands | **Verified to exist** | `apps/web` has dev/build/preview scripts; `apps/api` has `main.py` + 9 pipeline scripts. Root `package.json` has no scripts |
+| 2D/3D toggle + hover lift | **Verified in-browser 2026-11-12** | Headless Chrome against the dev server: hover lifts exactly one area at `0.30 ×` its own depth, ratio unchanged at z8/z10.5/z13, selection holds lift with no double, fast sweep leaves nothing stale, reduced-motion offset is instant, tooltip + 2D hover + 2D↔3D remount unchanged, FPS 198 vs 202. `node test_lift.mjs` 5 pass |
+| MapLibre bundle split | **Verified** | `maplibre-gl` appears only in the lazy `Municipality3DLayer` chunk (1.06 MB / 288 kB gz); the `index` chunk contains zero MapLibre bytes |
+| 3D keyboard picking | **Not implemented** | 3D has no roving-tabindex path to municipalities; the DOM municipality index still selects areas in either mode |
 | Stack decisions (static PWA + Supabase, build-time LLM, RF/SHAP, Theil-Sen/Mann-Kendall) | **CONCEPT-derived** | Authoritative but TENTATIVE — lock hours h0–h22 per CONCEPT Sect 13 |
 | Challenge statement verbatim | **Captured 2026-11-02** | Re-verify live page at h0 (page is JS-rendered) |
 | Event name + local close time | **Unverified** | Verify at h0 — OPEN in CONCEPT Sect 13 |

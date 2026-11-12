@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import L from 'leaflet'
 import { MapContainer, GeoJSON, TileLayer, useMap } from 'react-leaflet'
 import raw from './data/ph-regions.geojson?raw'
@@ -18,6 +18,10 @@ import MapControlsOverlay, { usePrefersReducedMotion } from './components/MapCon
 import MunicipalityInfoCard from './components/MunicipalityInfoCard.jsx'
 import MunicipalityIndex from './components/MunicipalityIndex.jsx'
 import { timelineStore } from './state/timelineStore.js'
+
+// 3D is a separate entity with its own renderer, so it is loaded on demand and
+// never lands in the 2D bundle.
+const Municipality3DLayer = lazy(() => import('./Municipality3DLayer.jsx'))
 
 const geojson = JSON.parse(raw)
 const BICOL_BOUNDS = [
@@ -251,6 +255,21 @@ export default function BicolMap({
   const [indexOpen, setIndexOpen] = useState(false)
   const [resetToken, setResetToken] = useState(0)
   const [map, setMap] = useState(null)
+  const [renderMode, setRenderMode] = useState('2d')
+  const [map3d, setMap3d] = useState(null)
+  const [view3d, setView3d] = useState(null)
+
+  // Hand the current 2D camera to the 3D entity so toggling does not jump.
+  const changeRenderMode = (mode) => {
+    if (mode === renderMode) return
+    if (mode === '3d') {
+      const center = map?.getCenter()
+      setView3d({ center: center ? [center.lng, center.lat] : [123.5, 13.3], zoom: map?.getZoom() ?? 8 })
+    } else {
+      setMap3d(null)
+    }
+    setRenderMode(mode)
+  }
 
   // Applies the cross-screen focus once per token, never fighting internal
   // selection afterwards.
@@ -305,16 +324,18 @@ export default function BicolMap({
         />
         <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} />
 
-        <MapViewport
-          bicolFeature={bicolFeature}
-          selectedFeature={selectedFeature}
-          resetToken={resetToken}
-        />
+        {renderMode === '2d' && (
+          <MapViewport
+            bicolFeature={bicolFeature}
+            selectedFeature={selectedFeature}
+            resetToken={resetToken}
+          />
+        )}
 
         {/* loading: solid region fills; ready: outline only so satellite and municipality fills show */}
         <GeoJSON data={geojson} style={ready ? getRegionOutlineStyle : getRegionStyle} />
 
-        {ready && joined && (
+        {renderMode === '2d' && ready && joined && (
           <MunicipalityLayer
             joined={joined}
             selectedKey={selectedKey}
@@ -324,6 +345,23 @@ export default function BicolMap({
           />
         )}
       </MapContainer>
+
+      {renderMode === '3d' && ready && joined && (
+        <Suspense fallback={null}>
+          <Municipality3DLayer
+            joined={joined}
+            selectedKey={selectedKey}
+            selectedFeature={selectedFeature}
+            viewMode={viewMode}
+            year={displayYear}
+            initialView={view3d}
+            resetToken={resetToken}
+            onSelect={setSelectedKey}
+            onReady={setMap3d}
+            onUnavailable={() => setRenderMode('2d')}
+          />
+        </Suspense>
+      )}
 
       <MunicipalityLegend
         coverage={coverage}
@@ -380,7 +418,7 @@ export default function BicolMap({
       )}
 
       <MapControlsOverlay
-        map={map}
+        map={renderMode === '3d' ? map3d : map}
         timestamps={derivedTimestamps}
         store={activeStore}
         layerRegistry={layerRegistry}
@@ -389,6 +427,8 @@ export default function BicolMap({
         onReset={resetView}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        renderMode={renderMode}
+        onRenderModeChange={changeRenderMode}
         zoomLimits={zoomLimits}
       />
     </div>

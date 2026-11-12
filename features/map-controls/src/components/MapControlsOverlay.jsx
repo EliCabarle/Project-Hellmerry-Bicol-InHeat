@@ -84,7 +84,7 @@ function ModeButton({ active, children, onClick }) {
   )
 }
 
-function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
+function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange, renderMode, onRenderModeChange }) {
   const timestamps = useTimelineState(selectTimestamps, store)
   const index = useTimelineState(selectIndex, store)
   const playing = useTimelineState(selectPlaying, store)
@@ -109,15 +109,25 @@ function TimeScrubber({ store, reducedMotion, viewMode, onViewModeChange }) {
             {current || 'No data'}
           </span>
         </div>
-        <div role="group" aria-label="Map data mode" className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5">
-          <ModeButton active={viewMode === 'trend'} onClick={() => onViewModeChange?.('trend')}>
-            <IconTrend className="h-3.5 w-3.5" />
-            Trend
-          </ModeButton>
-          <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
-            <IconThermometer className="h-3.5 w-3.5" />
-            Year
-          </ModeButton>
+        <div className="flex items-center gap-2">
+          <div role="group" aria-label="Map data mode" className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5">
+            <ModeButton active={viewMode === 'trend'} onClick={() => onViewModeChange?.('trend')}>
+              <IconTrend className="h-3.5 w-3.5" />
+              Trend
+            </ModeButton>
+            <ModeButton active={viewMode === 'year'} onClick={() => onViewModeChange?.('year')}>
+              <IconThermometer className="h-3.5 w-3.5" />
+              Year
+            </ModeButton>
+          </div>
+          <div role="group" aria-label="Map view" className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5">
+            <ModeButton active={renderMode === '2d'} onClick={() => onRenderModeChange?.('2d')}>
+              2D
+            </ModeButton>
+            <ModeButton active={renderMode === '3d'} onClick={() => onRenderModeChange?.('3d')}>
+              3D
+            </ModeButton>
+          </div>
         </div>
       </div>
 
@@ -304,6 +314,8 @@ export default function MapControlsOverlay({
   onReset,
   viewMode = 'trend',
   onViewModeChange,
+  renderMode = '2d',
+  onRenderModeChange,
   zoomLimits = { min: 7, max: 18 },
 }) {
   const actions = useTimelineActions(store)
@@ -345,6 +357,8 @@ export default function MapControlsOverlay({
           reducedMotion={reducedMotion}
           viewMode={viewMode}
           onViewModeChange={onViewModeChange}
+          renderMode={renderMode}
+          onRenderModeChange={onRenderModeChange}
         />
       </div>
     </div>

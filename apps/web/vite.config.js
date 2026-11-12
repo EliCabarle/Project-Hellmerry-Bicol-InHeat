@@ -34,6 +34,7 @@ export default defineConfig({
       'react-dom': path.resolve(here, 'node_modules', 'react-dom'),
       'react-leaflet': path.resolve(here, 'node_modules', 'react-leaflet'),
       leaflet: path.resolve(here, 'node_modules', 'leaflet'),
+      'maplibre-gl': path.resolve(here, 'node_modules', 'maplibre-gl'),
       recharts: path.resolve(here, 'node_modules', 'recharts'),
     },
   },

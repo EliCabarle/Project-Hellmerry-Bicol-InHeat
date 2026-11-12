@@ -5,6 +5,7 @@ import {
   createProgress,
   derive,
   manilaDate,
+  progressKey,
   recentDays,
   streakHp,
   STORAGE_KEY,
@@ -270,4 +271,60 @@ test('recentDays includes every day, zeros included', () => {
 
 test('streakHp helper caps at day 7', () => {
   assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9].map(streakHp), [1, 2, 4, 8, 16, 32, 64, 64, 64], 'cap 64')
+})
+
+test('progress keys are per account — two users never share HP', () => {
+  const storage = fakeStorage()
+  const now = () => atDay(0)
+
+  // Guests keep the original key: whatever is already on a device stays readable.
+  assert2(createProgress({ storage }).key === STORAGE_KEY, 'guest uses the legacy key')
+  assert2(createProgress({ storage, userId: 'u1' }).key === `${STORAGE_KEY}.u1`, 'account key is namespaced')
+  assert2(progressKey('u1') !== progressKey('u2'), 'two accounts never collide')
+
+  // Same storage, two accounts: each reads only its own log, so a leaderboard push
+  // can never carry one account's HP into the other's score.
+  const a = createProgress({ storage, userId: 'u1', now })
+  const b = createProgress({ storage, userId: 'u2', now })
+  a.toggleDaily('vegan')
+  assert.equal(derive(a.read()).totalHP, 16, 'account A keeps its own 16 HP')
+  assert.equal(derive(b.read()).totalHP, 0, 'account B does not inherit A')
+  b.toggleDaily('vegan')
+  assert.equal(derive(a.read()).totalHP, 16, 'B writing does not disturb A')
+})
+
+test('restoreTo adopts a stored score exactly once and never lowers HP', () => {
+  const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0) })
+
+  // Fresh browser, existing account: the score read on sign-in becomes local HP.
+  const first = store.restoreTo(250)
+  assert.equal(first.ok, true, 'restore saved')
+  assert.equal(derive(store.read()).totalHP, 250, 'local HP equals the stored score')
+
+  // Sign-in runs again (remount, token refresh): must not stack a second copy.
+  assert.equal(store.restoreTo(250).noop, true, 'same score is a no-op')
+  assert.equal(derive(store.read()).totalHP, 250, 'still 250, not 500')
+
+  // A device that is already ahead is left alone — restore never subtracts.
+  assert.equal(store.restoreTo(100).noop, true, 'lower target is a no-op')
+  assert.equal(derive(store.read()).totalHP, 250, 'HP never lowered')
+})
+
+test('restored HP counts toward level but not toward "earned today"', () => {
+  const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0) })
+  store.restoreTo(400)
+  const d = derive(store.read(), manilaDate(atDay(0)))
+  assert.equal(d.totalHP, 400, 'total includes the restored HP')
+  assert.equal(d.level, 5, 'level follows the total')
+  assert.equal(d.todayTotal, 0, 'nothing was earned today')
+  assert.equal(d.activeDays, 0, 'no fake bar in History')
+  assert.equal(d.currentStreak, 0, 'restore is not a login')
+  assert.deepEqual(d.todayCounts, {}, 'restore is not a quest count')
+})
+
+test('restoreTo refuses a negative or missing target instead of writing junk', () => {
+  const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0) })
+  assert.equal(store.restoreTo(-10).noop, true, 'negative target is ignored')
+  assert.equal(store.restoreTo(null).noop, true, 'null target is ignored')
+  assert.equal(store.read().length, 0, 'no event written')
 })

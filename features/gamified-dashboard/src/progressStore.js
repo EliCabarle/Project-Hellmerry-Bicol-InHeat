@@ -8,6 +8,11 @@ export const TZ = 'Asia/Manila'
 export const STORAGE_KEY = 'bih.progress.v1'
 export const HISTORY_DAYS = 30
 
+// HP is per account, not per device: two accounts on one browser must not read
+// each other's log. Guests keep the original key so nothing already on disk is
+// lost or needs migrating — a guest's HP simply stops showing once signed in.
+export const progressKey = (userId) => (userId ? `${STORAGE_KEY}.${userId}` : STORAGE_KEY)
+
 // Level bands, verbatim from the brief. Level 65–66 corrects the brief's
 // overlapping 64–66 range (33–64 already owns level 64).
 export const TITLES = [
@@ -68,6 +73,11 @@ function addDays(date, n) {
   return new Date(Date.UTC(y, m - 1, d) + n * 86400000).toISOString().slice(0, 10)
 }
 
+// Event kinds this log accepts. 'restore' is HP adopted from the leaderboard on
+// sign-in, so a browser can display a score earned elsewhere; it is not HP earned
+// today, which is why derive() keeps it out of the per-day totals.
+const KINDS = ['login', 'quest', 'restore']
+
 function isEvent(e) {
   return Boolean(
     e &&
@@ -76,7 +86,7 @@ function isEvent(e) {
       e.id &&
       typeof e.date === 'string' &&
       DATE_RE.test(e.date) &&
-      (e.kind === 'login' || e.kind === 'quest') &&
+      KINDS.includes(e.kind) &&
       (e.kind !== 'quest' || (typeof e.questId === 'string' && !!e.questId)) &&
       typeof e.hp === 'number' &&
       Number.isFinite(e.hp) &&
@@ -93,9 +103,9 @@ function safeLocalStorage() {
   }
 }
 
-function readEvents(storage) {
+function readEvents(storage, key) {
   try {
-    const raw = storage?.getItem(STORAGE_KEY)
+    const raw = storage?.getItem(key)
     if (typeof raw !== 'string' || !raw) return []
     const parsed = JSON.parse(raw)
     if (!parsed || parsed.v !== 1 || !Array.isArray(parsed.events)) return []
@@ -105,9 +115,9 @@ function readEvents(storage) {
   }
 }
 
-function writeEvents(storage, events) {
+function writeEvents(storage, key, events) {
   try {
-    storage?.setItem(STORAGE_KEY, JSON.stringify({ v: 1, events }))
+    storage?.setItem(key, JSON.stringify({ v: 1, events }))
     return storage != null
   } catch {
     return false
@@ -156,7 +166,12 @@ export function derive(list, today = null) {
   const inLevel = Math.min(HP_PER_LEVEL - 1, Math.max(0, totalHP % HP_PER_LEVEL))
 
   const dayTotals = {}
-  for (const e of events) dayTotals[e.date] = (dayTotals[e.date] ?? 0) + e.hp
+  for (const e of events) {
+    // Restored HP counts toward the total and the level, but it was not earned
+    // today — excluding it keeps "Today's HP" and the History bars honest.
+    if (e.kind === 'restore') continue
+    dayTotals[e.date] = (dayTotals[e.date] ?? 0) + e.hp
+  }
 
   const loginDates = [...new Set(events.filter((e) => e.kind === 'login').map((e) => e.date))].sort()
   const dateSet = new Set(loginDates)
@@ -226,13 +241,15 @@ export function createProgress(options = {}) {
   const storage = 'storage' in options ? options.storage : safeLocalStorage()
   const now = options.now ?? (() => new Date())
   const quests = options.quests ?? QUESTS
+  // One key per account (options.userId); guests share the original key.
+  const key = progressKey(options.userId)
 
-  const read = () => readEvents(storage)
+  const read = () => readEvents(storage, key)
 
   const append = (event) => {
     const prev = read()
     const next = [...prev, event]
-    if (!writeEvents(storage, next)) {
+    if (!writeEvents(storage, key, next)) {
       return { ok: false, events: prev, error: 'Could not save progress on this device.' }
     }
     return { ok: true, events: next }
@@ -241,6 +258,11 @@ export function createProgress(options = {}) {
   const findQuest = (questId) => quests.find((q) => q.id === questId) ?? null
 
   return {
+    // The storage key this store reads and writes. The shell compares it against
+    // `storage` event keys, so a write from another tab on a different account
+    // is ignored instead of re-read under the wrong key.
+    key,
+
     // Never throws: missing, corrupt or inaccessible storage reads as empty.
     read,
 
@@ -300,6 +322,17 @@ export function createProgress(options = {}) {
       return append({
         id: makeId(at), date: today, kind: 'quest', questId, hp: -stack[stack.length - 1], at,
       })
+    },
+
+    // Adopt a score that already exists on the account (read on sign-in) so this
+    // browser shows what was earned elsewhere. Appends the positive difference
+    // only: local HP is never lowered, and an already-higher device is left alone.
+    restoreTo(targetHP) {
+      const events = read()
+      const delta = Math.floor(Number(targetHP) || 0) - derive(events).totalHP
+      if (delta <= 0) return { ok: true, events, noop: true }
+      const at = now().getTime()
+      return append({ id: makeId(at), date: manilaDate(now()), kind: 'restore', hp: delta, at })
     },
 
     derive(today = manilaDate(now())) {

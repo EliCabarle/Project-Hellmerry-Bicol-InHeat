@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { trendLegend, yearLegend } from '../gis/yearRamp.js'
+import { dayLegend, trendLegend, yearLegend } from '../gis/yearRamp.js'
+import { spelledDate } from '../state/dateModel.js'
 import { IconChevronDown, IconList } from './Icons.jsx'
 
 const swatch = (color) => (
@@ -24,13 +25,19 @@ export default function MunicipalityLegend({
   coverage = { withData: 0, total: 0 },
   viewMode = 'trend',
   year = null,
+  date = null,
   onBrowse,
 }) {
   const [open, setOpen] = useState(
     () => typeof window === 'undefined' || window.matchMedia('(min-width: 768px)').matches,
   )
-  const bins = viewMode === 'year' ? yearLegend() : trendLegend()
-  const title = viewMode === 'year' ? `Mean heat index · ${year ?? 'latest'}` : 'Warming rate · °C/yr'
+  const bins = viewMode === 'day' ? dayLegend() : viewMode === 'year' ? yearLegend() : trendLegend()
+  const title =
+    viewMode === 'day'
+      ? `Daily peak heat index · ${date ? spelledDate(date) : '—'}`
+      : viewMode === 'year'
+        ? `Mean heat index · ${year ?? 'latest'}`
+        : 'Warming rate · °C/yr'
 
   return (
     <div className="pointer-events-auto absolute left-3 top-3 z-[600] w-[17.5rem] max-w-[calc(100vw-1.5rem)]">
@@ -66,7 +73,7 @@ export default function MunicipalityLegend({
             </div>
 
             <div className="mt-2.5 space-y-1 border-t border-white/10 pt-2">
-              <LegendRow color="#3b82f6" label="Decreasing trend" />
+              {viewMode !== 'day' && <LegendRow color="#3b82f6" label="Decreasing trend" />}
               <LegendRow color="#1f2937" label="Data pending" />
               <div className="flex items-center gap-2">
                 <span aria-hidden="true" className="inline-block h-2.5 w-5 rounded-sm border-2 border-heat-hotline" />
@@ -80,6 +87,7 @@ export default function MunicipalityLegend({
 
             <div className="mt-2.5 border-t border-white/10 pt-2 text-[10px] leading-4 text-slate-500">
               {coverage.withData} of {coverage.total} LGUs joined. POWER 0.5° grid · municipality resolution.
+              {viewMode === 'day' ? ' Daily value shown for this day; neighbours share one grid cell.' : ''}
             </div>
 
             {onBrowse && (

@@ -9,13 +9,13 @@ export default function HeatBar({ level, title, inLevel, totalHP, announcement =
     <header className="shrink-0 border-b border-white/10 bg-heat-deep/90 px-3 py-3 sm:px-5">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-heat-amber">Heat Points</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
           <p className="mt-0.5 truncate text-lg font-semibold tracking-tight text-white sm:text-xl">
             Level {level} · <span className="text-slate-300">{title}</span>
           </p>
         </div>
         <div className="w-full sm:max-w-xs">
-          <div className="flex items-baseline justify-between font-mono text-[11px] text-slate-400">
+          <div className="flex items-baseline justify-between font-mono text-xs text-slate-400">
             <span>
               {inLevel} / {HP_PER_LEVEL} HP
             </span>

@@ -3,8 +3,11 @@
 // fixed-height, non-scrolling coverflow: the spotlight card is fully
 // interactive and flips front↔back (D-full), neighbours are decorative
 // previews. One bounded stage — this section adds no scroll container.
-
-import { useEffect, useMemo, useState } from 'react'
+//
+// Mobile: swipe left/right advances one card (Prev/Next buttons and arrow keys
+// kept). A stationary tap still flips the card — a claimed drag can't fire a
+// tap action.
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { joinCards, countByProvince, provincesOf } from '../finderData.js'
 import FinderCard from './FinderCard.jsx'
 
@@ -18,6 +21,12 @@ const OFFSET_STYLES = {
 const OPACITIES = { '-1': 'opacity-45', '0': 'opacity-100', '1': 'opacity-45' }
 
 const clampIndex = (i, n) => Math.max(0, Math.min(i, Math.max(0, n - 1)))
+
+// Swipe thresholds
+const SWIPE_DX_PX = 40
+const SWIPE_LOCK_DX_PX = 10
+const CLICK_SUPPRESS_MS = 300
+const SWIPE_VELOCITY_PX_PER_MS = 0.5
 
 export default function MunicipalityFinder({ geojson = null, narratives = null, onShowOnMap = null }) {
   const municipalities = narratives?.municipalities ?? []
@@ -52,6 +61,75 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
     }
   }
 
+  // Swipe state (pointer events, no library). Ref-based so a drag never forces
+  // a re-render; the card swap is a discrete state change on release only.
+  const pointerStartRef = useRef(null) // { x, y, t }
+  const lockedRef = useRef(null) // 'x' | 'abort' | null
+  const activePointersRef = useRef(0)
+  const swipedAtRef = useRef(0)
+
+  const onPointerDown = (e) => {
+    if (activePointersRef.current > 0) return // ignore pinch/multi-touch
+    activePointersRef.current = 1
+    pointerStartRef.current = { x: e.clientX, y: e.clientY, t: performance.now() }
+    lockedRef.current = null
+  }
+
+  const onPointerMove = (e) => {
+    const s = pointerStartRef.current
+    if (!s || lockedRef.current === 'abort') return
+    const dx = e.clientX - s.x
+    const dy = e.clientY - s.y
+    if (lockedRef.current === 'x') {
+      e.preventDefault() // claimed the gesture — block page scroll
+      return
+    }
+    if (Math.abs(dx) > SWIPE_LOCK_DX_PX && Math.abs(dx) > Math.abs(dy)) {
+      lockedRef.current = 'x'
+      e.target.setPointerCapture(e.pointerId)
+      return
+    }
+    if (Math.abs(dy) > SWIPE_LOCK_DX_PX && Math.abs(dy) >= Math.abs(dx)) {
+      lockedRef.current = 'abort' // vertical page scroll owns this
+      return
+    }
+  }
+
+  const onPointerUp = (e) => {
+    const s = pointerStartRef.current
+    if (!s) { lockedRef.current = null; return }
+    if (lockedRef.current === 'x') {
+      const dx = e.clientX - s.x
+      const dt = performance.now() - s.t
+      const velocity = Math.abs(dx) / Math.max(dt, 1)
+      const advanced =
+        Math.abs(dx) >= SWIPE_DX_PX || (Math.abs(dx) >= SWIPE_LOCK_DX_PX && velocity >= SWIPE_VELOCITY_PX_PER_MS)
+      if (advanced) {
+        go(dx < 0 ? 1 : -1) // left = next, right = previous
+        swipedAtRef.current = performance.now()
+      }
+      e.target.releasePointerCapture(e.pointerId)
+    }
+    pointerStartRef.current = null
+    lockedRef.current = null
+    activePointersRef.current = 0
+  }
+
+  const onPointerCancel = () => {
+    pointerStartRef.current = null
+    lockedRef.current = null
+    activePointersRef.current = 0
+  }
+
+  // A drag-release must not fire the flip / Show-on-map button; a stationary
+  // tap (no lock claimed) passes straight through.
+  const onClickCapture = (e) => {
+    if (performance.now() - swipedAtRef.current < CLICK_SUPPRESS_MS) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+  }
+
   if (!geojson) return null
 
   const step = (i) => {
@@ -63,20 +141,20 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
     <section aria-label="Municipality finder" className="mt-4 rounded-xl border border-white/10 bg-heat-surface/50 p-3 shadow-hud">
       <header className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Municipality finder</h2>
-          <p className="text-[10px] text-slate-500">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Municipality finder</h2>
+          <p className="text-xs text-slate-500">
             Browse every LGU&rsquo;s outline — flip a card for its trend, sample and why it heats.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <label htmlFor="finder-province" className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+          <label htmlFor="finder-province" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Province
           </label>
           <select
             id="finder-province"
             value={province}
             onChange={(e) => setProvince(e.target.value)}
-            className="cursor-pointer rounded-lg border border-white/10 bg-heat-deep/90 px-2 py-1.5 font-mono text-xs text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+            className="cursor-pointer min-h-11 rounded-lg border border-white/10 bg-heat-deep/90 px-2 py-1.5 font-mono text-xs text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
           >
             <option value="All">All ({municipalities.length})</option>
             {provinces.map((p) => (
@@ -92,13 +170,20 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
         <p className="py-10 text-center text-xs text-slate-500">No municipalities for this filter.</p>
       ) : (
         <>
-          {/* Stage: fixed height, no scroll. Center card is the only interactive one. */}
+          {/* Stage: fixed height, no scroll. `overflow-clip` keeps neighbour spill
+              inside the section on narrow viewports; `touch-pan-y` lets the page
+              scroll vertically when the gesture isn't claimed. */}
           <div
             role="group"
-            aria-label="Municipality card carousel — use left and right arrow keys to browse"
+            aria-label="Municipality card carousel — swipe left or right, or use the arrow keys"
             tabIndex={0}
             onKeyDown={onKeyDown}
-            className="relative mx-auto mt-2 h-[21rem] max-w-3xl [perspective:1200px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber/60"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerCancel}
+            onClickCapture={onClickCapture}
+            className="relative mx-auto mt-2 h-[21rem] max-w-3xl overflow-clip touch-pan-y [perspective:1200px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber/60"
           >
             {cards.map((card, i) => {
               const offset = step(i)
@@ -108,7 +193,7 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
                 <div
                   key={card.key}
                   aria-hidden={!isCenter || undefined}
-                  className={`absolute left-1/2 top-0 h-[19rem] w-[17rem] -translate-x-1/2 transition-opacity duration-500 ${
+                  className={`absolute left-1/2 top-0 h-[19rem] w-[clamp(13rem,72vw,17rem)] -translate-x-1/2 transition-opacity duration-500 ${
                     isCenter ? 'z-20' : 'z-10 pointer-events-none'
                   } ${OPACITIES[offset]}`}
                 >
@@ -131,17 +216,20 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
             })}
           </div>
 
-          <div className="mt-1 flex items-center justify-center gap-3">
+          <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               onClick={() => go(-1)}
               disabled={clampIndex(index, cards.length) === 0}
               aria-label={`Previous municipality (${cards.length > 0 ? cards[clampIndex(index, cards.length)]?.name ?? '' : ''})`}
-              className="cursor-pointer rounded-md border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
+              className="cursor-pointer min-h-11 shrink-0 rounded-md border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
             >
               ← Prev
             </button>
-            <p aria-live="polite" className="min-w-40 text-center font-mono text-[10px] text-slate-400">
+            <p
+              aria-live="polite"
+              className="order-last w-full min-w-0 truncate text-center font-mono text-xs text-slate-400 sm:order-none sm:w-auto sm:min-w-40"
+            >
               {current ? `${current.name} — ${clampIndex(index, cards.length) + 1} of ${cards.length}` : '—'}
             </p>
             <button
@@ -149,7 +237,7 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
               onClick={() => go(1)}
               disabled={clampIndex(index, cards.length) >= cards.length - 1}
               aria-label={`Next municipality (${cards.length > 0 ? cards[clampIndex(index, cards.length) + 1]?.name ?? '' : ''})`}
-              className="cursor-pointer rounded-md border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
+              className="cursor-pointer min-h-11 shrink-0 rounded-md border border-white/10 bg-black/25 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next →
             </button>

@@ -34,7 +34,7 @@ export default function HistoryTab({ derived, events, today }) {
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-heat-amber">Heat Points</p>
+      <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
       <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">History</h1>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         A game score kept on this device. Self-reported, honor system.
@@ -43,30 +43,30 @@ export default function HistoryTab({ derived, events, today }) {
       {/* Summary */}
       <dl className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-          <dt className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Total HP</dt>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total HP</dt>
           <dd className="mt-0.5 font-mono text-lg font-semibold text-slate-100">{derived.totalHP}</dd>
         </div>
         <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-          <dt className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Level</dt>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Level</dt>
           <dd className="mt-0.5 font-mono text-lg font-semibold text-slate-100">
             {derived.level} · <span className="text-sm text-heat-amber">{derived.title}</span>
           </dd>
         </div>
         <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-          <dt className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Streak (current / best)</dt>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Streak (current / best)</dt>
           <dd className="mt-0.5 font-mono text-lg font-semibold text-slate-100">
             {derived.currentStreak} / {derived.bestStreak}
           </dd>
         </div>
         <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-          <dt className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">Active days</dt>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Active days</dt>
           <dd className="mt-0.5 font-mono text-lg font-semibold text-slate-100">{derived.activeDays}</dd>
         </div>
       </dl>
 
       {stats.length > 0 && (
         <div className="mt-2 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-          <div className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Net quests logged per type
           </div>
           <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
@@ -91,7 +91,7 @@ export default function HistoryTab({ derived, events, today }) {
         <>
           {/* 30-day chart: every Manila day included, zero days shown as zero */}
           <section className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-3 shadow-hud">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
               HP per day · last {HISTORY_DAYS} days
             </h2>
             <div aria-hidden="true" className="mt-2 flex h-28 items-end gap-[2px]">
@@ -108,7 +108,7 @@ export default function HistoryTab({ derived, events, today }) {
                 )
               })}
             </div>
-            <div aria-hidden="true" className="mt-1 flex justify-between font-mono text-[9px] text-slate-500">
+            <div aria-hidden="true" className="mt-1 flex justify-between font-mono text-xs text-slate-500">
               <span>{days[0]}</span>
               <span>{days[days.length - 1]}</span>
             </div>
@@ -137,7 +137,7 @@ export default function HistoryTab({ derived, events, today }) {
             <div className="mt-2 space-y-3">
               {loggedDays.map((date) => (
                 <section key={date}>
-                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {dayTitle(date)} · {date}
                   </h3>
                   <ul className="mt-1 divide-y divide-white/5 rounded-xl border border-white/10 bg-heat-surface/70 shadow-hud">

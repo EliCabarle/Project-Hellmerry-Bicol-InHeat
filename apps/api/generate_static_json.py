@@ -225,10 +225,15 @@ def build(trends: dict) -> dict:
                 "trend": {
                     "slope_c_per_year": row["slope_c_per_year"],
                     "slope_ci95": row["slope_ci95"],
+                    # .get: a trends.json predating the CI/change-point run has no keys
+                    "slope_ci_low": row.get("slope_ci_low"),
+                    "slope_ci_high": row.get("slope_ci_high"),
                     "p_value": row["p_value"],
                     "is_significant": row["is_significant"],
                     "alpha": row["alpha"],
                     "direction": row["trend_direction"],
+                    "change_point_year": row.get("change_point_year"),
+                    "change_point_p": row.get("change_point_p"),
                 },
                 "sample": row["sample"],
                 "latest": {

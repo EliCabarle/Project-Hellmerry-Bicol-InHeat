@@ -1,0 +1,105 @@
+{
+  "project": "Bicol In-Heat",
+  "module": "advanced_ml_benchmark",
+  "target": "heat_index_max_c",
+  "features": [
+    "u10m_ms",
+    "v10m_ms",
+    "lat",
+    "lon",
+    "elevation_m",
+    "distance_to_coast_km",
+    "ndvi_mean",
+    "lag1_heat",
+    "lag3_heat",
+    "rolling3_mean",
+    "month"
+  ],
+  "n_samples": 1872657,
+  "n_features": 11,
+  "cv": {
+    "method": "TimeSeriesSplit",
+    "n_splits": 5
+  },
+  "models": {
+    "ridge": {
+      "mean_r2": 0.9236161965432332,
+      "mean_rmse": 0.7786742819464221,
+      "fold_r2": [
+        0.91591,
+        0.924302,
+        0.917786,
+        0.927459,
+        0.932624
+      ],
+      "fold_rmse": [
+        0.814005,
+        0.794736,
+        0.773661,
+        0.760479,
+        0.75049
+      ]
+    },
+    "random_forest": {
+      "mean_r2": 0.983508140964711,
+      "mean_rmse": 0.30414774678589623,
+      "fold_r2": [
+        0.944486,
+        0.986898,
+        0.996682,
+        0.998938,
+        0.990537
+      ],
+      "fold_rmse": [
+        0.661385,
+        0.330633,
+        0.155424,
+        0.092035,
+        0.281262
+      ]
+    },
+    "xgboost": {
+      "mean_r2": 0.9339921723474827,
+      "mean_rmse": 0.7239166331128273,
+      "fold_r2": [
+        0.92457,
+        0.935534,
+        0.931138,
+        0.938607,
+        0.940112
+      ],
+      "fold_rmse": [
+        0.770951,
+        0.733411,
+        0.708058,
+        0.699608,
+        0.707556
+      ]
+    }
+  },
+  "winner": {
+    "model": "random_forest",
+    "mean_r2": 0.983508140964711,
+    "mean_rmse": 0.30414774678589623
+  },
+  "ranking": [
+    {
+      "rank": 1,
+      "model": "random_forest",
+      "mean_r2": 0.983508140964711,
+      "mean_rmse": 0.30414774678589623
+    },
+    {
+      "rank": 2,
+      "model": "xgboost",
+      "mean_r2": 0.9339921723474827,
+      "mean_rmse": 0.7239166331128273
+    },
+    {
+      "rank": 3,
+      "model": "ridge",
+      "mean_r2": 0.9236161965432332,
+      "mean_rmse": 0.7786742819464221
+    }
+  ]
+}

@@ -390,9 +390,7 @@ export default function DashboardScreen({
                   tabRefs.current[t.id] = el
                 }}
                 onClick={() => setActive(t.id)}
-                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
-                  selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-                }`}
+                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm ${selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'}`}
               >
                 {t.label}
               </button>
@@ -621,7 +619,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={mode === 'slope'}
               onClick={() => setMode('slope')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
                 mode === 'slope' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -631,7 +629,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={mode === 'danger'}
               onClick={() => setMode('danger')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
                 mode === 'danger' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -663,7 +661,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={savedOnly}
               onClick={() => setSavedOnly((v) => !v)}
-              className={`shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold bih-btn ${
                 savedOnly
                   ? 'border-heat-amber/50 bg-heat-amber/20 text-heat-amber'
                   : 'border-white/10 bg-heat-surface/70 text-slate-300 hover:bg-white/5 hover:text-white'
@@ -694,7 +692,7 @@ export default function DashboardScreen({
             <button
               type="button"
               onClick={() => reload?.()}
-              className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+              className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 bih-btn"
             >
               Try again
             </button>
@@ -771,7 +769,7 @@ function ProvinceSelector({ provinces = [], value, onChange }) {
         role="tab"
         aria-pressed={value === 'All'}
         onClick={() => onChange('All')}
-        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
           value === 'All' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
         }`}
       >
@@ -784,7 +782,7 @@ function ProvinceSelector({ provinces = [], value, onChange }) {
           role="tab"
           aria-pressed={value === p}
           onClick={() => onChange(p)}
-          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
             value === p ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
           }`}
         >
@@ -807,7 +805,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledPrev}
         onClick={() => onChangePage((p) => Math.max(1, p - 1))}
         aria-label="Previous page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
           disabledPrev
             ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
             : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
@@ -823,7 +821,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledNext}
         onClick={() => onChangePage((p) => Math.min(totalPages, p + 1))}
         aria-label="Next page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
           disabledNext
             ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
             : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'

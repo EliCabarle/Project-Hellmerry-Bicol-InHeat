@@ -1,0 +1,57 @@
+{
+  "project": "Bicol In-Heat",
+  "module": "volatility_attribution",
+  "n_municipalities": 112,
+  "features": [
+    "elevation_m",
+    "distance_to_coast_km",
+    "ndvi_mean",
+    "mean_wind_speed"
+  ],
+  "feature_labels": {
+    "elevation_m": "Elevation (m)",
+    "distance_to_coast_km": "Distance to coast (km)",
+    "ndvi_mean": "Mean NDVI (vegetation)",
+    "mean_wind_speed": "Mean wind speed (m/s)"
+  },
+  "model_volatility": {
+    "target": "annual_peak_std",
+    "r2_train": 0.9833,
+    "r2_test": 0.9139
+  },
+  "model_mean_slope": {
+    "target": "slope_c_per_year",
+    "r2_train": 0.9856,
+    "r2_test": 0.9522
+  },
+  "shap_importance_volatility": {
+    "elevation_m": 0.003581,
+    "distance_to_coast_km": 0.006705,
+    "ndvi_mean": 0.007812,
+    "mean_wind_speed": 0.117035
+  },
+  "shap_importance_mean_slope": {
+    "elevation_m": 0.000102,
+    "distance_to_coast_km": 0.000516,
+    "ndvi_mean": 0.0004,
+    "mean_wind_speed": 0.006193
+  },
+  "shap_share_volatility": {
+    "elevation_m": 0.026502,
+    "distance_to_coast_km": 0.049621,
+    "ndvi_mean": 0.057809,
+    "mean_wind_speed": 0.866068
+  },
+  "shap_share_mean_slope": {
+    "elevation_m": 0.014162,
+    "distance_to_coast_km": 0.071613,
+    "ndvi_mean": 0.05542,
+    "mean_wind_speed": 0.858806
+  },
+  "key_finding": {
+    "ndvi_share_volatility": 0.057809,
+    "ndvi_share_mean_slope": 0.05542,
+    "ndvi_drives_volatility_more": true,
+    "interpretation": "Vegetation (NDVI) is a stronger driver of heat-index volatility than of mean warming"
+  }
+}

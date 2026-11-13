@@ -38,4 +38,13 @@ export default defineConfig({
       recharts: path.resolve(here, 'node_modules', 'recharts'),
     },
   },
+  // Dev: frontend calls /api/qa and Vite forwards to the FastAPI server on 8000.
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
+  },
 })

@@ -9,6 +9,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
+try:  # `uvicorn main:app` from apps/api
+    from routers import qa
+except ImportError:  # `uvicorn apps.api.main:app` from the repo root
+    from apps.api.routers import qa
+
 app = FastAPI(
     title="Bicol In-Heat API",
     description="Backend API for Bicol In-Heat (2026 NASA Space Apps Challenge)",
@@ -23,6 +28,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(qa.router)
 
 class MunicipalityLocation(BaseModel):
     id: int

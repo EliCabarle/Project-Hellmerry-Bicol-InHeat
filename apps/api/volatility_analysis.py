@@ -23,6 +23,20 @@ import pandas as pd
 from scipy.stats import theilslopes
 import pymannkendall as mk
 
+
+def benjamini_hochberg(p_values: list) -> list:
+    """FDR-adjusted q-values (Benjamini-Hochberg), same length/order as input."""
+    p = np.asarray(p_values, dtype=float)
+    n = len(p)
+    order = np.argsort(p)
+    ranked = p[order]
+    q = ranked * n / (np.arange(n) + 1)
+    q = np.minimum.accumulate(q[::-1])[::-1]
+    q = np.clip(q, 0.0, 1.0)
+    out = np.empty(n, dtype=float)
+    out[order] = q
+    return out.tolist()
+
 API_DIR = Path(__file__).resolve().parent
 POWER_CSV = API_DIR / "data" / "power_daily_full.csv"
 OUT_JSON = API_DIR / "output" / "volatility_analysis.json"
@@ -137,8 +151,26 @@ def main() -> None:
             }
         )
 
-    # Summary stats
-    sig_vol = [r for r in results if r["vol_trend"]["significant"] is True]
+    # Apply Benjamini-Hochberg FDR correction across all 114 vol_trend p-values
+    p_values = [
+        r["vol_trend"]["p_value"]
+        for r in results
+        if r["vol_trend"]["p_value"] is not None
+    ]
+    q_values = benjamini_hochberg(p_values) if p_values else []
+    q_iter = iter(q_values)
+    for r in results:
+        if r["vol_trend"]["p_value"] is not None:
+            q = next(q_iter)
+            r["vol_trend"]["fdr_q"] = round(float(q), 6)
+            r["vol_trend"]["significant_fdr"] = bool(q < 0.05)
+        else:
+            r["vol_trend"]["fdr_q"] = None
+            r["vol_trend"]["significant_fdr"] = None
+
+    # Summary stats: raw significance and FDR-corrected significance
+    sig_vol_raw = [r for r in results if r["vol_trend"]["significant"] is True]
+    sig_vol_fdr = [r for r in results if r["vol_trend"]["significant_fdr"] is True]
     pos_vol = [r for r in results if r["vol_trend"]["direction"] == "increasing"]
     neg_vol = [r for r in results if r["vol_trend"]["direction"] == "decreasing"]
 
@@ -150,14 +182,17 @@ def main() -> None:
             "danger_days_var: variance of annual 42°C+ day count; "
             "p99_p50_gap: 99th-50th percentile daily heat gap; "
             "rolling_5yr_vol: 5-yr rolling std of annual peak heat; "
-            "vol_trend: Theil-Sen + Hamed-Rao MK on rolling_5yr_vol series"
+            "vol_trend: Theil-Sen + Hamed-Rao MK on rolling_5yr_vol series; "
+            "fdr_q: Benjamini-Hochberg FDR q-value across all municipalities"
         ),
         "n_municipalities": len(results),
         "volatility_trend_summary": {
-            "significant_increasing": len(sig_vol),
+            "significant_increasing_raw": len(sig_vol_raw),
+            "significant_increasing_fdr": len(sig_vol_fdr),
             "increasing": len(pos_vol),
             "decreasing": len(neg_vol),
-            "share_significant": round(len(sig_vol) / len(results), 4),
+            "share_significant_raw": round(len(sig_vol_raw) / len(results), 4),
+            "share_significant_fdr": round(len(sig_vol_fdr) / len(results), 4),
         },
         "municipalities": results,
     }
@@ -165,7 +200,7 @@ def main() -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nWrote {OUT_JSON} ({len(results)} municipalities)")
-    print(f"Volatility increasing: {len(pos_vol)} | significant: {len(sig_vol)}")
+    print(f"Volatility increasing: {len(pos_vol)} | significant raw: {len(sig_vol_raw)} | significant FDR: {len(sig_vol_fdr)}")
 
     # Print Naga line as specified
     naga = next((r for r in results if r["name"] == "City of Naga" and r["province"] == "Camarines Sur"), None)

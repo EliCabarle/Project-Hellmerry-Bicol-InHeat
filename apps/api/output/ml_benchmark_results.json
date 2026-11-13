@@ -2,7 +2,7 @@
   "project": "Bicol In-Heat",
   "module": "advanced_ml_benchmark",
   "target": "heat_index_max_c",
-  "features": [
+  "base_features": [
     "u10m_ms",
     "v10m_ms",
     "lat",
@@ -10,19 +10,22 @@
     "elevation_m",
     "distance_to_coast_km",
     "ndvi_mean",
-    "lag1_heat",
-    "lag3_heat",
-    "rolling3_mean",
     "month"
   ],
+  "lag_features": [
+    "lag1_heat",
+    "lag3_heat",
+    "rolling3_mean"
+  ],
   "n_samples": 1872657,
-  "n_features": 11,
+  "n_base_features": 8,
+  "n_lag_features": 3,
   "cv": {
     "method": "TimeSeriesSplit",
     "n_splits": 5
   },
   "models": {
-    "ridge": {
+    "ridge_with_lags": {
       "mean_r2": 0.9236161965432332,
       "mean_rmse": 0.7786742819464221,
       "fold_r2": [
@@ -40,60 +43,134 @@
         0.75049
       ]
     },
-    "random_forest": {
-      "mean_r2": 0.983508140964711,
-      "mean_rmse": 0.30414774678589623,
+    "random_forest_with_lags": {
+      "mean_r2": 0.9835090558235162,
+      "mean_rmse": 0.30413970601392926,
       "fold_r2": [
-        0.944486,
-        0.986898,
-        0.996682,
+        0.944497,
+        0.986887,
+        0.996686,
         0.998938,
         0.990537
       ],
       "fold_rmse": [
-        0.661385,
-        0.330633,
-        0.155424,
-        0.092035,
-        0.281262
+        0.661318,
+        0.330777,
+        0.15532,
+        0.09202,
+        0.281264
       ]
     },
-    "xgboost": {
-      "mean_r2": 0.9339921723474827,
-      "mean_rmse": 0.7239166331128273,
+    "xgboost_with_lags": {
+      "mean_r2": 0.9339921776967783,
+      "mean_rmse": 0.7239173288863501,
       "fold_r2": [
-        0.92457,
+        0.924574,
         0.935534,
         0.931138,
         0.938607,
-        0.940112
+        0.940108
       ],
       "fold_rmse": [
-        0.770951,
+        0.770928,
         0.733411,
-        0.708058,
+        0.708057,
         0.699608,
-        0.707556
+        0.707583
+      ]
+    },
+    "ridge_without_lags": {
+      "mean_r2": 0.2722577556574092,
+      "mean_rmse": 2.4041169944166083,
+      "fold_r2": [
+        0.194695,
+        0.295704,
+        0.229347,
+        0.302333,
+        0.339209
+      ],
+      "fold_rmse": [
+        2.519032,
+        2.424151,
+        2.368687,
+        2.358409,
+        2.350307
+      ]
+    },
+    "random_forest_without_lags": {
+      "mean_r2": 0.809105761260977,
+      "mean_rmse": 1.193868249311139,
+      "fold_r2": [
+        0.602334,
+        0.826902,
+        0.858446,
+        0.901189,
+        0.856657
+      ],
+      "fold_rmse": [
+        1.770161,
+        1.201788,
+        1.015171,
+        0.887558,
+        1.094663
+      ]
+    },
+    "xgboost_without_lags": {
+      "mean_r2": 0.6404980418708208,
+      "mean_rmse": 1.6892973998901044,
+      "fold_r2": [
+        0.577599,
+        0.650459,
+        0.638147,
+        0.65844,
+        0.677845
+      ],
+      "fold_rmse": [
+        1.824383,
+        1.707776,
+        1.623096,
+        1.650169,
+        1.641061
       ]
     }
   },
-  "winner": {
+  "winner_without_lags": {
     "model": "random_forest",
-    "mean_r2": 0.983508140964711,
-    "mean_rmse": 0.30414774678589623
+    "mean_r2": 0.809105761260977,
+    "mean_rmse": 1.193868249311139
   },
-  "ranking": [
+  "ranking_without_lags": [
     {
       "rank": 1,
       "model": "random_forest",
-      "mean_r2": 0.983508140964711,
-      "mean_rmse": 0.30414774678589623
+      "mean_r2": 0.809105761260977,
+      "mean_rmse": 1.193868249311139
     },
     {
       "rank": 2,
       "model": "xgboost",
-      "mean_r2": 0.9339921723474827,
-      "mean_rmse": 0.7239166331128273
+      "mean_r2": 0.6404980418708208,
+      "mean_rmse": 1.6892973998901044
+    },
+    {
+      "rank": 3,
+      "model": "ridge",
+      "mean_r2": 0.2722577556574092,
+      "mean_rmse": 2.4041169944166083
+    }
+  ],
+  "ranking_with_lags": [
+    {
+      "rank": 1,
+      "model": "random_forest",
+      "mean_r2": 0.9835090558235162,
+      "mean_rmse": 0.30413970601392926
+    },
+    {
+      "rank": 2,
+      "model": "xgboost",
+      "mean_r2": 0.9339921776967783,
+      "mean_rmse": 0.7239173288863501
     },
     {
       "rank": 3,

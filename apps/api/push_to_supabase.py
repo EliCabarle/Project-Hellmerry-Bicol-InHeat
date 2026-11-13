@@ -287,6 +287,9 @@ def build_record(
         "vol_trend_direction": volatility.get(key, {}).get("vol_trend_direction"),
         # ENSO / ONI (model-level, repeated per row)
         "enso_heat_correlation": enso.get("enso_heat_correlation"),
+        # Person-Days of Danger (public health prioritization metric)
+        "person_days_danger": city_data.get("person_days_danger"),
+        "person_days_density": city_data.get("person_days_density"),
     }
 
 
@@ -338,6 +341,7 @@ def main(dry_run: bool) -> None:
         "annual_peak_std", "danger_days_var", "p99_p50_gap",
         "vol_trend_slope", "vol_trend_p_value", "vol_trend_significant", "vol_trend_direction",
         "enso_heat_correlation",
+        "person_days_danger", "person_days_density",
     )
     drop_cols = None  # None = unknown, True = schema lacks mi/vol columns
     for city_data in municipalities:

@@ -44,17 +44,26 @@ def load_annual_heat() -> pd.DataFrame:
     df["year"] = df["date"].dt.year
     df = df[(df["year"] >= START_YEAR) & (df["year"] <= END_YEAR)]
 
-    # Annual mean heat index per year (across all municipalities and days)
+    # Annual mean heat index per municipality-year (114 values per year)
+    annual_means_per_muni = (
+        df.groupby(["year", "name"])[TARGET]
+        .mean()
+        .reset_index()
+    )
+
+    # Annual mean heat index across all municipalities (for Analysis A)
     annual_mean = (
-        df.groupby("year")[TARGET]
+        annual_means_per_muni.groupby("year")[TARGET]
         .mean()
         .reset_index()
         .rename(columns={TARGET: "annual_mean_heat"})
     )
 
-    # Annual volatility: std of daily heat index within each year
+    # Annual volatility: std of annual means across municipalities per year.
+    # This removes within-year seasonality and captures interannual variability
+    # across the 114 municipalities.
     annual_vol = (
-        df.groupby("year")[TARGET]
+        annual_means_per_muni.groupby("year")[TARGET]
         .std(ddof=1)
         .reset_index()
         .rename(columns={TARGET: "annual_volatility"})

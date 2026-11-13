@@ -1,22 +1,28 @@
-"""Block-bootstrap confidence intervals for Theil-Sen trend slopes.
+"""Block-bootstrap confidence intervals + FDR for heat-index trends.
 
-Loads output/trends.json and data/power_daily_full.csv. For each municipality,
-reconstructs the 45-year annual mean heat index series, then block-bootstraps
-(block size = 5 years, 1000 iterations) to compute a bias-corrected 95% CI on
-the Theil-Sen slope. Flags significant_bootstrap = True if 0 is not in the CI.
+Recomputes, for every municipality in `output/trends.json`, a moving-block
+bootstrap confidence interval for the Theil-Sen slope and a Benjamini-Hochberg
+FDR-adjusted p-value. This is the statistical upgrade the gap analysis flags as
+the #1 PhD-level fix:
 
-Updates output/trends.json and output/narratives.json with:
-  - slope_ci_bootstrap_low
-  - slope_ci_bootstrap_high
-  - significant_bootstrap (bool)
+* The scipy Theil-Sen CI assumes iid residuals. Annual climate series are
+  autocorrelated, so that CI is too narrow. A moving-block bootstrap resamples
+  contiguous blocks of years, preserving the serial correlation, giving an
+  honest CI.
+* Testing 114 municipalities at alpha = 0.05 without correction yields ~5-6
+  false "significant" trends by chance. Benjamini-Hochberg FDR controls the
+  false-discovery rate.
 
 Usage:
   python bootstrap_ci.py
+  python bootstrap_ci.py --in output/trends.json --out output/bootstrap_ci_results.json
 """
 
 from __future__ import annotations
 
+import argparse
 import json
+import random
 from pathlib import Path
 
 import numpy as np
@@ -24,182 +30,170 @@ import pandas as pd
 from scipy.stats import theilslopes
 
 API_DIR = Path(__file__).resolve().parent
-TRENDS_JSON = API_DIR / "output" / "trends.json"
-NARRATIVES_JSON = API_DIR / "output" / "narratives.json"
-POWER_CSV = API_DIR / "data" / "power_daily_full.csv"
+IN_JSON = API_DIR / "output" / "trends.json"
+OUT_JSON = API_DIR / "output" / "bootstrap_ci_results.json"
 
-BLOCK_SIZE = 5
-N_BOOTSTRAP = 1000
-RANDOM_STATE = 42
 ALPHA = 0.05
+BLOCK_YEARS = 5  # standard block length for annual climate series
+N_BOOTSTRAP = 300  # 300 replications is ample for a 95% percentile CI
+RANDOM_SEED = 42
 
 
-def load_annual_series() -> dict:
-    """Reconstruct per-municipality annual mean heat index series from daily CSV."""
-    df = pd.read_csv(POWER_CSV, encoding="utf-8")
-    df["date"] = pd.to_datetime(df["date"], errors="coerce")
-    df["year"] = df["date"].dt.year
-    df = df.dropna(subset=["heat_index_max_c", "year", "name", "province"])
-
-    annual = (
-        df.groupby(["name", "province", "year"], sort=False)
-        .agg(mean_heat_index_c=("heat_index_max_c", "mean"))
-        .reset_index()
-    )
-
-    series = {}
-    for (name, province), group in annual.groupby(["name", "province"], sort=False):
-        group = group.sort_values("year")
-        series[(name, province)] = {
-            "years": group["year"].to_numpy(dtype=float),
-            "values": group["mean_heat_index_c"].to_numpy(dtype=float),
-        }
-    return series
+def theil_sen_slope(years: np.ndarray, values: np.ndarray) -> float:
+    return float(theilslopes(values, years, alpha=0.95)[0])
 
 
-def block_bootstrap_ci(years: np.ndarray, values: np.ndarray) -> dict:
-    """Block-bootstrap BCa-style 95% CI on Theil-Sen slope.
+def block_bootstrap_ci(
+    years: np.ndarray, values: np.ndarray, block: int = BLOCK_YEARS, n: int = N_BOOTSTRAP
+) -> tuple[float, float]:
+    """Moving-block bootstrap 95% CI for the Theil-Sen slope.
 
-    Resamples blocks of BLOCK_SIZE consecutive years with replacement,
-    recomputes Theil-Sen slope for each bootstrap replicate, and returns the
-    percentile 95% CI plus a significance flag.
+    Resamples contiguous blocks of *block* years (with replacement) until the
+    series length is rebuilt, refits Theil-Sen on each resample, and returns
+    the 2.5 / 97.5 percentiles of the bootstrap slope distribution.
     """
+    rng = random.Random(RANDOM_SEED)
     n_years = len(values)
-    n_blocks = int(np.ceil(n_years / BLOCK_SIZE))
-    rng = np.random.default_rng(RANDOM_STATE)
+    if n_years < block * 2:
+        # too short to block: fall back to analytical CI
+        _, _, lo, hi = theilslopes(values, years, alpha=0.95)
+        return float(lo), float(hi)
 
-    # Original Theil-Sen slope
-    orig_slope, _, _, _ = theilslopes(values, years, alpha=0.95)
-    orig_slope = float(orig_slope)
-
-    # Block-bootstrap replicates
     slopes = []
-    for _ in range(N_BOOTSTRAP):
-        # Sample n_blocks blocks with replacement
-        block_starts = rng.integers(0, max(1, n_years - BLOCK_SIZE + 1), size=n_blocks)
-        boot_idx = []
-        for bs in block_starts:
-            end = min(bs + BLOCK_SIZE, n_years)
-            boot_idx.extend(range(bs, end))
-        boot_idx = boot_idx[:n_years]  # truncate to n_years
-        boot_years = years[boot_idx]
-        boot_values = values[boot_idx]
-        if len(boot_years) < 2 or np.std(boot_years) == 0:
-            slopes.append(np.nan)
+    for _ in range(n):
+        # draw enough blocks to cover the series, then truncate
+        n_blocks = (n_years + block - 1) // block
+        blocks = [rng.randrange(0, n_years - block + 1) for _ in range(n_blocks)]
+        resample_idx = sorted(i for b in blocks for i in range(b, min(b + block, n_years)))
+        resample_idx = resample_idx[:n_years]
+        if len(resample_idx) < 3:
             continue
-        b_slope, _, _, _ = theilslopes(boot_values, boot_years, alpha=0.95)
-        slopes.append(float(b_slope))
+        yrs = years[resample_idx]
+        vals = values[resample_idx]
+        slopes.append(theil_sen_slope(yrs, vals))
 
-    slopes = np.array(slopes)
-    valid = ~np.isnan(slopes)
-    slopes_valid = slopes[valid]
+    if not slopes:
+        _, _, lo, hi = theilslopes(values, years, alpha=0.95)
+        return float(lo), float(hi)
 
-    if len(slopes_valid) < 10:
-        return {
-            "slope_ci_bootstrap_low": None,
-            "slope_ci_bootstrap_high": None,
-            "significant_bootstrap": None,
-            "orig_slope": orig_slope,
-            "n_valid": int(valid.sum()),
-        }
+    lo = float(np.percentile(slopes, 2.5))
+    hi = float(np.percentile(slopes, 97.5))
+    return lo, hi
 
-    # Percentile 95% CI
-    ci_low = float(np.percentile(slopes_valid, 2.5))
-    ci_high = float(np.percentile(slopes_valid, 97.5))
-    significant = bool((ci_low > 0) or (ci_high < 0))
 
-    return {
-        "slope_ci_bootstrap_low": round(ci_low, 6),
-        "slope_ci_bootstrap_high": round(ci_high, 6),
-        "significant_bootstrap": significant,
-        "orig_slope": round(orig_slope, 6),
-        "n_valid": int(valid.sum()),
-    }
+def benjamini_hochberg(p_values: list[float]) -> list[float]:
+    """FDR-adjusted q-values (Benjamini-Hochberg), same length/order as input."""
+    p = np.asarray(p_values, dtype=float)
+    n = len(p)
+    order = np.argsort(p)
+    ranked = p[order]
+    q = ranked * n / (np.arange(n) + 1)
+    # enforce monotonicity: q[i] = min(q[i], q[i+1], ...) walking from the end
+    q = np.minimum.accumulate(q[::-1])[::-1]
+    q = np.clip(q, 0.0, 1.0)
+    out = np.empty(n, dtype=float)
+    out[order] = q
+    return out.tolist()
 
 
 def main() -> None:
-    # Load trends.json
-    with open(TRENDS_JSON, encoding="utf-8") as f:
-        trends = json.load(f)
-    muni_trends = trends["municipalities"]
-    n_total = len(muni_trends)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--in", dest="in_json", default=str(IN_JSON))
+    parser.add_argument("--out", default=str(OUT_JSON))
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="process only first N municipalities (quick test)",
+    )
+    parser.add_argument(
+        "--n-bootstrap",
+        type=int,
+        default=N_BOOTSTRAP,
+        help="bootstrap replications",
+    )
+    args = parser.parse_args()
 
-    # Reconstruct annual series from daily CSV
-    series = load_annual_series()
-    original_significant = sum(1 for r in muni_trends if r.get("is_significant") is True)
+    payload = json.loads(Path(args.in_json).read_text(encoding="utf-8"))
+    municipalities = payload["municipalities"]
+    if args.limit is not None:
+        municipalities = municipalities[: args.limit]
 
-    # Bootstrap each municipality
-    bootstrap_significant = 0
-    lost_significance = []
-    results = {}
-
-    for row in muni_trends:
-        name = row["name"]
-        province = row["province"]
-        key = (name, province)
-
-        if key not in series:
-            row["slope_ci_bootstrap_low"] = None
-            row["slope_ci_bootstrap_high"] = None
-            row["significant_bootstrap"] = None
-            results[key] = None
+    rng = random.Random(RANDOM_SEED)
+    results = []
+    for muni in municipalities:
+        series = muni.get("series") or []
+        points = [(s["year"], s["mean_heat_index_c"]) for s in series if s.get("mean_heat_index_c") is not None]
+        if len(points) < 8:
+            results.append(
+                {
+                    "name": muni["name"],
+                    "province": muni["province"],
+                    "skipped": "too few annual points",
+                    "n_years": len(points),
+                }
+            )
             continue
+        years = np.array([p[0] for p in points], dtype=float)
+        values = np.array([p[1] for p in points], dtype=float)
 
-        s = series[key]
-        if len(s["values"]) < 10:
-            row["slope_ci_bootstrap_low"] = None
-            row["slope_ci_bootstrap_high"] = None
-            row["significant_bootstrap"] = None
-            results[key] = None
-            continue
+        slope = theil_sen_slope(years, values)
+        boot_lo, boot_hi = block_bootstrap_ci(years, values, block=BLOCK_YEARS, n=args.n_bootstrap)
+        _, _, ana_lo, ana_hi = theilslopes(values, years, alpha=0.95)
 
-        ci = block_bootstrap_ci(s["years"], s["values"])
-        results[key] = ci
-        row["slope_ci_bootstrap_low"] = ci["slope_ci_bootstrap_low"]
-        row["slope_ci_bootstrap_high"] = ci["slope_ci_bootstrap_high"]
-        row["significant_bootstrap"] = ci["significant_bootstrap"]
+        results.append(
+            {
+                "name": muni["name"],
+                "province": muni["province"],
+                "n_years": int(len(points)),
+                "slope": round(slope, 6),
+                "slope_ci_bootstrap_low": round(boot_lo, 6),
+                "slope_ci_bootstrap_high": round(boot_hi, 6),
+                "slope_ci_analytical_low": round(float(ana_lo), 6),
+                "slope_ci_analytical_high": round(float(ana_hi), 6),
+                "bootstrap_ci_wider": (boot_hi - boot_lo) > (float(ana_hi) - float(ana_lo)),
+                "in_stored_p_value": muni.get("p_value"),
+                "in_stored_fdr": muni.get("p_value_fdr"),
+            }
+        )
 
-        if ci["significant_bootstrap"] is True:
-            bootstrap_significant += 1
-        if row.get("is_significant") is True and ci["significant_bootstrap"] is False:
-            lost_significance.append(
-                {"name": name, "province": province, "slope": row.get("slope_c_per_year")}
+    # FDR across municipalities that have a stored p-value
+    pvals = [r["in_stored_p_value"] for r in results if r.get("in_stored_p_value") is not None]
+    qvals = benjamini_hochberg(pvals) if pvals else []
+    q_iter = iter(qvals)
+    for r in results:
+        if r.get("in_stored_p_value") is not None:
+            r["recomputed_fdr_q"] = round(next(q_iter), 6)
+
+    out = {
+        "generated_at": __import__("datetime").datetime.now().isoformat(),
+        "method": (
+            "moving-block bootstrap Theil-Sen 95% CI "
+            f"(block={BLOCK_YEARS} years, {args.n_bootstrap} replications) + "
+            "Benjamini-Hochberg FDR"
+        ),
+        "alpha": ALPHA,
+        "block_years": BLOCK_YEARS,
+        "n_bootstrap": args.n_bootstrap,
+        "n_municipalities": len(results),
+        "municipalities": results,
+    }
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    wider = sum(1 for r in results if r.get("bootstrap_ci_wider"))
+    print(f"wrote {len(results)} municipalities -> {out_path}")
+    print(f"bootstrap CI wider than analytical in {wider} cases (expected: autocorrelation widens CI)")
+    # show a few
+    for r in results[:5]:
+        if "slope" in r:
+            print(
+                f"  {r['name']}: slope={r['slope']:+.4f} "
+                f"boot=[{r['slope_ci_bootstrap_low']:+.4f},{r['slope_ci_bootstrap_high']:+.4f}] "
+                f"ana=[{r['slope_ci_analytical_low']:+.4f},{r['slope_ci_analytical_high']:+.4f}]"
             )
-
-    # Write trends.json
-    Path(TRENDS_JSON).write_text(
-        json.dumps(trends, ensure_ascii=False, separators=(",", ":")),
-        encoding="utf-8",
-    )
-
-    # Update narratives.json
-    with open(NARRATIVES_JSON, encoding="utf-8") as f:
-        narratives = json.load(f)
-    n_index = {(r["name"], r["province"]): r for r in narratives["municipalities"]}
-    for row in muni_trends:
-        key = (row["name"], row["province"])
-        if key in n_index:
-            nrow = n_index[key]
-            nrow.setdefault("trend", {})
-            nrow["trend"]["slope_ci_bootstrap_low"] = row.get("slope_ci_bootstrap_low")
-            nrow["trend"]["slope_ci_bootstrap_high"] = row.get(
-                "slope_ci_bootstrap_high"
-            )
-            nrow["trend"]["significant_bootstrap"] = row.get(
-                "significant_bootstrap"
-            )
-    Path(NARRATIVES_JSON).write_text(
-        json.dumps(narratives, ensure_ascii=False, separators=(",", ":")),
-        encoding="utf-8",
-    )
-
-    print(
-        f"BOOTSTRAP DONE | Original: {original_significant}/{n_total} significant | "
-        f"After bootstrap: {bootstrap_significant}/{n_total} significant"
-    )
-    print(f"Lost significance after bootstrap: {len(lost_significance)}")
-    for item in lost_significance[:10]:
-        print(f"  {item['name']} ({item['province']}): slope={item['slope']}")
 
 
 if __name__ == "__main__":

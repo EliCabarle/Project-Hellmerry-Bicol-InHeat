@@ -7,6 +7,7 @@
 import { DAY_NO_DATA, dayColor, recordForYear, trendColor, yearColor } from './yearRamp.js'
 import {
   colourFor,
+  dimColor,
   metricFor,
   MISSING_TINT,
 } from './metric.js'
@@ -169,11 +170,25 @@ function dayBase(feature, dayValues) {
 // callers that don't pass a ramp (e.g. tests) keep their current behaviour.
 export function getMunicipalityStyle(
   feature,
-  { selected = false, viewMode = 'trend', year = null, dayValues = null } = {},
+  {
+    selected = false,
+    hovered = false,
+    selectedKey = null,
+    hoveredKey = null,
+    viewMode = 'trend',
+    year = null,
+    dayValues = null,
+  } = {},
   ramp = null,
 ) {
   const n = feature?.properties?.narrative
   if (!n) return MUN_PENDING
+  const key = featureKey(feature)
+  const isSelected = selectedKey != null ? key === selectedKey : selected
+  const isHovered = hoveredKey != null ? key === hoveredKey : hovered
+  const anyTarget = selectedKey != null || hoveredKey != null
+  // Dimming exempts both the selected and the hovered area (default DIM_EXCLUDE).
+  const dimmed = anyTarget && !isSelected && !isHovered
   const metric = metricFor(feature, { viewMode, year, dayValues })
   const sig = n.trend?.is_significant
   let fillColor
@@ -191,6 +206,7 @@ export function getMunicipalityStyle(
       viewMode === 'year' ? yearBase(feature, year) : trendBase(feature)
     fillColor = base.fillColor
   }
+  if (dimmed) fillColor = dimColor(fillColor)
   const style = {
     fill: true,
     fillColor,
@@ -199,7 +215,7 @@ export function getMunicipalityStyle(
     weight: sig ? (isCity(feature) ? 2.5 : 2) : (isCity(feature) ? 2 : 1.5),
     ...(sig ? {} : { dashArray: '4 3' }),
   }
-  if (selected) {
+  if (isSelected) {
     return { ...style, weight: style.weight + 1.5, color: SELECT_COLOUR }
   }
   return style

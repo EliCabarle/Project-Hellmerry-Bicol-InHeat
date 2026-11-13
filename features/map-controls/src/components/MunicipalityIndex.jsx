@@ -9,10 +9,12 @@ const arrow = (dir) => (dir === 'increasing' ? 'â–²' : dir === 'decreasing' ? 'â
 export default function MunicipalityIndex({
   features = [],
   selectedKey = null,
+  hoveredKey = null,
   viewMode = 'trend',
   date = null,
   dayValues = null,
   onSelect,
+  onHover,
   onClose,
 }) {
   const [query, setQuery] = useState('')
@@ -95,6 +97,8 @@ export default function MunicipalityIndex({
                     onSelect?.(key)
                     onClose?.()
                   }}
+                  onMouseEnter={() => onHover?.(key)}
+                  onMouseLeave={() => onHover?.(null)}
                   aria-current={selected ? 'true' : undefined}
                   className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
                     selected ? 'bg-heat-amber/20 text-white' : 'hover:bg-white/5'

@@ -18,6 +18,83 @@ export const RAMP = ['#fde68a', '#fbbf24', '#fb923c', '#f97316', '#b91c1c']
 // Neutral surface tint for areas with no usable value — clearly outside the ramp.
 export const MISSING_TINT = '#475569'
 
+// ---- dimming (brief: spotlight / de-emphasise non-targets) ----
+// Customizable constants. DIM_EXCLUDE default = both selected and hovered stay bright.
+export const DIM_LEVEL = 0.55 // of normal brightness; safe 0.35–0.70
+export const DIM_AXIS = 'lightness' // 'lightness' | 'saturation'
+export const DIM_MS = 150 // eased colour duration (ms)
+export const KEEP_OUTLINE = true // boundaries stay at full strength while dimmed
+export const DIM_EXCLUDE = 'selected-plus-hovered' // 'selected' | 'selected-plus-hovered'
+
+function parseHex(hex) {
+  const h = String(hex).replace(/^#/, '')
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
+  const n = parseInt(full, 16)
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+}
+
+function rgbToHsl(r, g, b) {
+  r /= 255
+  g /= 255
+  b /= 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h = 0
+  let s
+  const l = (max + min) / 2
+  if (max !== min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break
+      case g: h = (b - r) / d + 2; break
+      case b: h = (r - g) / d + 4; break
+    }
+    h /= 6
+  } else {
+    s = 0
+  }
+  return [h, s, l]
+}
+
+function hue2rgb(p, q, t) {
+  if (t < 0) t += 1
+  if (t > 1) t -= 1
+  if (t < 1 / 6) return p + (q - p) * 6 * t
+  if (t < 1 / 2) return q
+  if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+  return p
+}
+
+function hslToRgb(h, s, l) {
+  let r, g, b
+  if (s === 0) {
+    r = g = b = l
+  } else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+    const p = 2 * l - q
+    r = hue2rgb(p, q, h + 1 / 3)
+    g = hue2rgb(p, q, h)
+    b = hue2rgb(p, q, h - 1 / 3)
+  }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
+}
+
+// Scale the chosen channel by DIM_LEVEL; result always stays between black and
+// the original colour, so dimmed areas never drop out of view.
+export function dimColor(color, { level = DIM_LEVEL, axis = DIM_AXIS } = {}) {
+  if (!color) return color
+  const [r, g, b] = parseHex(color)
+  const [h, s, l] = rgbToHsl(r, g, b)
+  let nl = l
+  let ns = s
+  if (axis === 'saturation') ns = Math.max(0, Math.min(1, s * level))
+  else nl = Math.max(0, Math.min(1, l * level))
+  const [rr, gg, bb] = hslToRgb(h, ns, nl)
+  const pad = (v) => v.toString(16).padStart(2, '0')
+  return `#${pad(rr)}${pad(gg)}${pad(bb)}`
+}
+
 // ---- metric shape: value per area, low-confidence flag, label + units ----
 // { value, lowConfidence, missing, label, units }
 export function metricFor(feature, { viewMode = 'trend', year = null, dayValues = null } = {}) {

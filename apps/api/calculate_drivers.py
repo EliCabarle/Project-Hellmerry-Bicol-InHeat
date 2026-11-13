@@ -38,14 +38,26 @@ from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 
 API_DIR = Path(__file__).resolve().parent
 IN_CSV = API_DIR / "data" / "power_daily_full.csv"
+GEO_CSV = API_DIR / "data" / "geo_features.csv"
 OUT_JSON = API_DIR / "output" / "drivers.json"
 
-FEATURES = ["u10m_ms", "v10m_ms", "lat", "lon"]
+FEATURES = [
+    "u10m_ms",
+    "v10m_ms",
+    "lat",
+    "lon",
+    "elevation_m",
+    "distance_to_coast_km",
+    "ndvi_mean",
+]
 LABELS = {
     "u10m_ms": "Wind (east-west, U10M)",
     "v10m_ms": "Wind (north-south, V10M)",
     "lat": "Latitude",
     "lon": "Longitude",
+    "elevation_m": "Elevation (m)",
+    "distance_to_coast_km": "Distance to coast (km)",
+    "ndvi_mean": "Mean NDVI (vegetation)",
 }
 TARGET = "heat_index_max_c"
 TOP_N = 3
@@ -167,12 +179,24 @@ def main() -> None:
     args = parser.parse_args()
 
     print("Loading CSV...")
+    # The power CSV does not yet contain the geographic features, so read only
+    # its own columns here; geo features are merged in below.
+    power_cols = ["name", "province", "date", "u10m_ms", "v10m_ms", "lat", "lon", TARGET]
     frame = pd.read_csv(
         args.csv,
-        usecols=["name", "province", "date", *FEATURES, TARGET],
+        usecols=power_cols,
     )
     print(f"  {len(frame)} rows")
     frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+
+    # Merge geographic driver features (elevation, distance to coast, NDVI).
+    # Left join keeps every daily power row; missing geo values are filled with
+    # the column median so the Random Forest never sees NaN.
+    geo = pd.read_csv(GEO_CSV)
+    frame = frame.merge(geo, on=["name", "province"], how="left")
+    for col in ["elevation_m", "distance_to_coast_km", "ndvi_mean"]:
+        frame[col] = frame[col].fillna(frame[col].median())
+
     start = frame["date"].min()
     end = frame["date"].max()
     print(f"Full record: {start.date()} .. {end.date()} ({len(frame)} rows)")

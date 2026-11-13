@@ -38,6 +38,7 @@ import {
   START_ZOOM,
   FLIGHT_MS,
 } from "./gis/countryFrame.js";
+import { entryDelays, ENTRY_DURATION_MS } from "./gis/entry.js";
 
 // 3D is a separate entity with its own renderer, so it is loaded on demand and
 // never lands in the 2D bundle.
@@ -115,6 +116,7 @@ function MunicipalityLayer({
   date,
   dayValues,
   onSelect,
+  triggerStagger,
 }) {
   const layerRef = useRef(null);
   const stateRef = useRef({ selectedKey, viewMode, year, date, dayValues });
@@ -122,6 +124,7 @@ function MunicipalityLayer({
   const entryKey = joined?.features?.[0]
     ? featureKey(joined.features[0])
     : null;
+  const reducedMotion = usePrefersReducedMotion();
   stateRef.current = { selectedKey, viewMode, year, date, dayValues };
   selectRef.current = onSelect;
 
@@ -153,6 +156,36 @@ function MunicipalityLayer({
       if (featureKey(child.feature) === selectedKey) child.bringToFront();
     });
   }, [entryKey, joined, selectedKey, styleFor, viewMode, year, dayValues]);
+
+  // Staggered opacity reveal strictly on 3D→2D switch: areas fade in top-down
+  // in one capped wave, then hold at full opacity. Never on initial mount,
+  // never on a year/scrub change. Reduced motion skips it entirely.
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer || reducedMotion || !triggerStagger) return;
+    const items = [];
+    layer.eachLayer((child) => {
+      const el = child.getElement?.();
+      if (el) items.push(child);
+    });
+    // Centroid north-to-south (top-down), same order as the 3D wave.
+    items.sort(
+      (a, b) => b.getBounds().getCenter().lat - a.getBounds().getCenter().lat,
+    );
+    const delays = entryDelays(items.length);
+    items.forEach((child, i) => {
+      const el = child.getElement();
+      el.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        {
+          duration: ENTRY_DURATION_MS,
+          delay: delays[i],
+          easing: "cubic-bezier(0.215, 0.61, 0.355, 1)", // easeOutCubic
+          fill: "backwards",
+        },
+      );
+    });
+  }, [triggerStagger, reducedMotion]);
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -339,6 +372,9 @@ export default function BicolMap({
 
   // Remembers the opening flight happened so it never replays this session.
   const opened = useRef(false);
+  // True only on the render right after a 3D→2D switch: the 2D stagger plays
+  // strictly on mode switch, never on initial mount or on a scrub.
+  const switchTo2dFrom3d = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
 
   // Hand the current 2D camera to the 3D entity so toggling does not jump.
@@ -353,6 +389,8 @@ export default function BicolMap({
     } else {
       setMap3d(null);
     }
+    // The 2D stagger plays strictly when entering 2D from 3D.
+    switchTo2dFrom3d.current = renderMode === "3d" && mode === "2d";
     setRenderMode(mode);
   };
   // Measured height of the timeline panel (px) — the info card clears it.
@@ -528,6 +566,7 @@ export default function BicolMap({
             date={date}
             dayValues={dayValues}
             onSelect={setSelectedKey}
+            triggerStagger={switchTo2dFrom3d.current}
           />
         )}
       </MapContainer>

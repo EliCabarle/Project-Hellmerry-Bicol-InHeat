@@ -190,6 +190,17 @@ def volatility_index() -> dict[tuple[str, str], dict]:
     }
 
 
+def enso_index() -> dict:
+    """Read enso_results.json and return the model-level Pearson r for mean heat."""
+    path = BASE_DIR / "output" / "enso_results.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        "enso_heat_correlation": data.get("analysis_a_mean_heat", {}).get("pearson_r"),
+    }
+
+
 def build_record(
     city_data: dict,
     drivers: dict,
@@ -201,6 +212,7 @@ def build_record(
     spatial_meta: dict,
     morans_i: dict,
     volatility: dict,
+    enso: dict,
 ) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
@@ -273,6 +285,8 @@ def build_record(
         "vol_trend_p_value": volatility.get(key, {}).get("vol_trend_p_value"),
         "vol_trend_significant": volatility.get(key, {}).get("vol_trend_significant"),
         "vol_trend_direction": volatility.get(key, {}).get("vol_trend_direction"),
+        # ENSO / ONI (model-level, repeated per row)
+        "enso_heat_correlation": enso.get("enso_heat_correlation"),
     }
 
 
@@ -287,6 +301,7 @@ def main(dry_run: bool) -> None:
     spatial_meta = spatial_metadata()
     morans_i = morans_i_index()
     volatility = volatility_index()
+    enso = enso_index()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
     if not spatial:
@@ -322,12 +337,13 @@ def main(dry_run: bool) -> None:
         "morans_i_local", "lisa_cluster",
         "annual_peak_std", "danger_days_var", "p99_p50_gap",
         "vol_trend_slope", "vol_trend_p_value", "vol_trend_significant", "vol_trend_direction",
+        "enso_heat_correlation",
     )
     drop_cols = None  # None = unknown, True = schema lacks mi/vol columns
     for city_data in municipalities:
         record = build_record(
             city_data, drivers, spatial, trends, backtest, forecast,
-            population, spatial_meta, morans_i, volatility,
+            population, spatial_meta, morans_i, volatility, enso,
         )
         # Convert NaN floats (Python and numpy) to None for JSON compliance.
         record = {

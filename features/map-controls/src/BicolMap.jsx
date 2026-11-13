@@ -35,6 +35,8 @@ import {
   MIN_ZOOM,
   MAX_ZOOM,
   BOUNDS_VISCOSITY,
+  START_ZOOM,
+  FLIGHT_MS,
 } from "./gis/countryFrame.js";
 
 // 3D is a separate entity with its own renderer, so it is loaded on demand and
@@ -54,19 +56,15 @@ const IMAGERY_URL =
 const LABELS_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
+// Country framing centre, derived from the single country-bounds source.
+const COUNTRY_CENTER = [
+  (COUNTRY_BOUNDS[0][0] + COUNTRY_BOUNDS[1][0]) / 2,
+  (COUNTRY_BOUNDS[0][1] + COUNTRY_BOUNDS[1][1]) / 2,
+];
+
 function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
   const map = useMap();
   const reducedMotion = usePrefersReducedMotion();
-  const fitted = useRef(false);
-
-  useEffect(() => {
-    if (!bicolFeature || fitted.current) return;
-    const bounds = L.geoJSON(bicolFeature).getBounds();
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [28, 28], animate: false });
-      fitted.current = true;
-    }
-  }, [bicolFeature, map]);
 
   useEffect(() => {
     if (resetToken === 0 || !bicolFeature) return;
@@ -339,6 +337,10 @@ export default function BicolMap({
   const [map3d, setMap3d] = useState(null);
   const [view3d, setView3d] = useState(null);
 
+  // Remembers the opening flight happened so it never replays this session.
+  const opened = useRef(false);
+  const reducedMotion = usePrefersReducedMotion();
+
   // Hand the current 2D camera to the 3D entity so toggling does not jump.
   const changeRenderMode = (mode) => {
     if (mode === renderMode) return;
@@ -421,6 +423,37 @@ export default function BicolMap({
     if (focusToken && initialSelectedKey) setSelectedKey(initialSelectedKey);
   }, [focusToken, initialSelectedKey]);
 
+  // One-time opening flight: country (the initial frame) → study region.
+  // Runs once per session, only when the map is sized and data is ready.
+  // A deep link / preselection skips it and lands on its target instead.
+  useEffect(() => {
+    if (!ready || !map || opened.current) return;
+    if (initialSelectedKey) return;
+    opened.current = true;
+
+    const go = () => {
+      if (reducedMotion) {
+        map.fitBounds(STUDY_REGION_BOUNDS, { padding: [28, 28], animate: false });
+      } else {
+        map.flyToBounds(STUDY_REGION_BOUNDS, {
+          padding: [28, 28],
+          duration: FLIGHT_MS / 1000,
+        });
+      }
+    };
+
+    // Never start before the container has a size; a zero-height container
+    // produces a wrong fit that looks like a bug.
+    if (map.getSize().x > 0 && map.getSize().y > 0) {
+      go();
+    } else {
+      const frame = requestAnimationFrame(() => {
+        if (map.getSize().x > 0 && map.getSize().y > 0) go();
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [ready, map, reducedMotion, initialSelectedKey]);
+
   const displayYear = viewMode === "year" ? selectedYear : null;
   const selectedFeature = useMemo(
     () =>
@@ -449,8 +482,8 @@ export default function BicolMap({
     <div className="relative h-full w-full">
       <MapContainer
         ref={setMap}
-        center={[13.3, 123.5]}
-        zoom={Math.max(8, MIN_ZOOM)}
+        center={COUNTRY_CENTER}
+        zoom={START_ZOOM}
         role="region"
         aria-label="Bicol municipality heat map"
         minZoom={zoomLimits?.min ?? MIN_ZOOM}

@@ -23,3 +23,7 @@ export const MAX_ZOOM = 18
 
 // Viscosity for maxBounds resistance (0.4-0.85)
 export const BOUNDS_VISCOSITY = 0.6
+
+// One-time opening flight: country → study region, cold load only, once per session.
+export const START_ZOOM = 6
+export const FLIGHT_MS = 1500

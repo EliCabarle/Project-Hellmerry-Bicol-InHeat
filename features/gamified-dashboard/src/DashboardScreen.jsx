@@ -14,6 +14,7 @@ import HistoryTab from './components/HistoryTab.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
 import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
+import CollapsibleSection from './components/CollapsibleSection.jsx'
 import DualLabel from './components/DualLabel.jsx'
 import { LABELS } from './labels.js'
 import {
@@ -618,7 +619,8 @@ export default function DashboardScreen({
           <MunicipalityFinder geojson={geojson} narratives={narratives} onShowOnMap={onShowOnMap} />
         )}
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <CollapsibleSection title="Municipality ranking" ariaLabel="Municipality ranking">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div role="group" aria-label="Order dashboard by" className="flex shrink-0 rounded-lg border border-white/10 bg-black/20 p-0.5">
             <button
               type="button"
@@ -720,6 +722,7 @@ export default function DashboardScreen({
             mode={mode}
           />
         )}
+        </CollapsibleSection>
           </div>
         </div>
       </div>

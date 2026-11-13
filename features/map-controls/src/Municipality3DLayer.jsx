@@ -109,6 +109,7 @@ function centroidOf(feature) {
 export default function Municipality3DLayer({
   joined,
   selectedKey,
+  hoveredKey = null,
   selectedFeature,
   viewMode = "trend",
   year = null,
@@ -116,6 +117,7 @@ export default function Municipality3DLayer({
   initialView = null,
   resetToken = 0,
   onSelect,
+  onHover,
   onReady,
   onUnavailable,
 }) {
@@ -158,6 +160,8 @@ export default function Municipality3DLayer({
       const key = featureKey(f) || `unnamed-${i}`;
       const style = getMunicipalityStyle(f, {
         selected: false,
+        selectedKey,
+        hoveredKey,
         viewMode,
         year,
       }, ramp);
@@ -202,7 +206,7 @@ export default function Municipality3DLayer({
       centroids,
       records,
     };
-  }, [joined, viewMode, year]);
+  }, [joined, viewMode, year, selectedKey, hoveredKey]);
 
   const dataRef = useRef(data);
   dataRef.current = data;
@@ -490,6 +494,7 @@ export default function Municipality3DLayer({
       }
       const previous = hoverRef.current;
       hoverRef.current = id;
+      onHover?.(id);
       map.getCanvas().style.cursor = id == null ? "" : "pointer";
       if (previous != null) {
         map.setFeatureState({ source: SRC, id: previous }, { hover: false });
@@ -506,6 +511,7 @@ export default function Municipality3DLayer({
     map.on("mouseleave", FILL, () => {
       const previous = hoverRef.current;
       hoverRef.current = null;
+      onHover?.(null);
       map.getCanvas().style.cursor = "";
       hideTip();
       if (previous != null) {

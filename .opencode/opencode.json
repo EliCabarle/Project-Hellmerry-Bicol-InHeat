@@ -3,23 +3,21 @@
   "instructions": [
     "./AGENTS.md"
   ],
-  "permission": {
-    "bash": {
-      "git status": "allow",
-      "git log *": "allow",
-      "git diff *": "allow",
-      "git add *": "allow",
-      "git commit *": "allow",
-      "playwright *": "allow",
-      "ctx7 *": "allow",
-      "npx *": "allow",
-      "*": "ask"
-    },
-    "edit": "allow",
-    "webfetch": "allow"
-  },
+  "permissions": [
+    { "action": "shell", "resource": "git status *", "effect": "allow" },
+    { "action": "shell", "resource": "git log *", "effect": "allow" },
+    { "action": "shell", "resource": "git diff *", "effect": "allow" },
+    { "action": "shell", "resource": "git add *", "effect": "allow" },
+    { "action": "shell", "resource": "git commit *", "effect": "allow" },
+    { "action": "shell", "resource": "playwright *", "effect": "allow" },
+    { "action": "shell", "resource": "ctx7 *", "effect": "allow" },
+    { "action": "shell", "resource": "npx *", "effect": "allow" },
+    { "action": "shell", "resource": "*", "effect": "ask" },
+    { "action": "edit", "resource": "*", "effect": "allow" },
+    { "action": "webfetch", "resource": "*", "effect": "allow" }
+  ],
   "formatter": true,
-  "snapshot": true,
+  "snapshots": true,
   "tool_output": {
     "max_lines": 300,
     "max_bytes": 60000

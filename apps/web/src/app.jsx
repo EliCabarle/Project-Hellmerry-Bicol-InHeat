@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import BicolMap from '@features/map-controls'
 import DashboardScreen from '@features/gamified-dashboard'
+import NarrationScreen from '@features/narration/NarrationScreen.jsx'
 import AuthButton from './components/AuthButton'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
@@ -8,6 +9,7 @@ import useSession from './useSession'
 const SCREENS = [
   { id: 'map', label: 'Map' },
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'narration', label: 'Narration' },
 ]
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
@@ -117,6 +119,8 @@ export default function App() {
             initialSelectedKey={focus?.key ?? null}
             focusToken={focus?.token ?? 0}
           />
+        ) : screen === 'narration' ? (
+          <NarrationScreen />
         ) : (
           <DashboardScreen {...data} supabase={supabase} user={user} onShowOnMap={showOnMap} />
         )}

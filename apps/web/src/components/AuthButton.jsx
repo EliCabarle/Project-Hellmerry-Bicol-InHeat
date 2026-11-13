@@ -72,7 +72,10 @@ export default function AuthButton({ user = null, supabase = null, configured = 
     clearFailure()
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      // select_account forces Google's chooser: signOut() only clears the local
+      // Supabase session, so without this a shared device would silently reuse
+      // the previous Google account.
+      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
     })
     // On success the browser redirects to Google, so only failures reach here.
     if (err) setFailure('Sign-in failed — try again', err.message)

@@ -268,8 +268,8 @@
     "hash": "b3cfb4c0618d3841cdfcfa328562249f"
   },
   "D:/in-heat/NASA-ProjectHellMerry/apps/api/push_to_supabase.py": {
-    "mtime": 1794589258303.7378,
-    "hash": "aa7fa081f855207fc632908ed5b99825"
+    "mtime": 1794594365716.6055,
+    "hash": "3e31189ffce1b15a0b89bc4157b63488"
   },
   "D:/in-heat/NASA-ProjectHellMerry/apps/api/residual_diagnostics.py": {
     "mtime": 1794589258303.7378,
@@ -484,8 +484,8 @@
     "hash": "1e988a84f2b29af1c722b666341936f6"
   },
   "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/Municipality3DLayer.jsx": {
-    "mtime": 1794574977635.7266,
-    "hash": "e2030b046d0ac4b1b5efe5d91493cf51"
+    "mtime": 1794594807225.988,
+    "hash": "474f8e28556688304ce320a98f088c74"
   },
   "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/Icons.jsx": {
     "mtime": 1794406561438.8584,
@@ -1348,8 +1348,8 @@
     "hash": "6cedac61e4c8ea3a6837e4a5aabb361a"
   },
   "D:/in-heat/NASA-ProjectHellMerry/PITCH_STATS.md": {
-    "mtime": 1794589258262.7927,
-    "hash": "4dad825a162723c4ca84092a7b7c0197"
+    "mtime": 1794594365705.4912,
+    "hash": "77f34f32a242e0dae9b72bc8d00b76c1"
   },
   "D:/in-heat/NASA-ProjectHellMerry/README.md": {
     "mtime": 1794406561354.7456,
@@ -1462,5 +1462,37 @@
   "D:/in-heat/NASA-ProjectHellMerry/apps/web/public/icons/icon-512.png": {
     "mtime": 1794562715749.6287,
     "hash": "1e0dbdb3553132c9050a173160db7826"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/advanced_ml_benchmark.py": {
+    "mtime": 1794593960998.0757,
+    "hash": "45f7d08981833d7318ef190641321bb4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/enso_correlation.py": {
+    "mtime": 1794594365709.4004,
+    "hash": "5120a94d8a879d080b7024b0ee527461"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_enso_data.py": {
+    "mtime": 1794594365713.556,
+    "hash": "4c4699635fe91e9dd6013cde337bab77"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0012_volatility.sql": {
+    "mtime": 1794593960999.6067,
+    "hash": "2296d35052c571cc241b2dbf79dec706"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0013_enso.sql": {
+    "mtime": 1794594365713.556,
+    "hash": "0cf52ed4cb17fed15faf98a68d8c4a09"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/volatility_analysis.py": {
+    "mtime": 1794593961010.9048,
+    "hash": "514334f978850bdbaa4d5cc3de2fa7fc"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/volatility_attribution.py": {
+    "mtime": 1794593961014.3315,
+    "hash": "049e09ebd5f54e177d61d2b70072836d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.graphify/GRAPH_REPORT.md": {
+    "mtime": 1794593036557.6074,
+    "hash": "296f718f42f90b5a62ee8aa628e11d33"
   }
 }

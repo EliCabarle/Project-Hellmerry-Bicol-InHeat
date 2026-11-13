@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T06:51:19+00:00",
+  "generated_at": "2026-11-13T15:04:38+00:00",
   "meta": {
     "project": "Bicol In-Heat",
     "challenge": "Be An Earth System Trend Detective!",
@@ -35,7 +35,7 @@
     "disclaimer": "Municipality is the smallest unit: POWER's ~55 km grid cannot resolve barangays. Drivers are associations, not causation.",
     "precip_variable": "annual_total_precipitation_mm_2024",
     "precip_source": "NASA POWER PRECTOTCORR (GPM IMERG targeted; Earthdata creds not configured)",
-    "precip_heat_index_corr_2024": -0.379,
+    "precip_heat_index_corr_2024": -0.384,
     "precip_note": "Precipitation added as an Earth-system variable (water cycle) to complement heat index (atmosphere). GPM IMERG was the targeted source but requires Earthdata credentials; fell back to NASA POWER PRECTOTCORR (open)."
   },
   "municipalities": [
@@ -58,12 +58,7 @@
         "p_value": 1.7299827816952273e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 6e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.020834,
-        "slope_ci_bootstrap_high": 0.068426,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -406,32 +401,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0349,
-          "share": 0.461
+          "mean_abs_shap": 1.1109,
+          "share": 0.442
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4909,
-          "share": 0.219
+          "mean_abs_shap": 0.5842,
+          "share": 0.232
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4294,
-          "share": 0.191
+          "mean_abs_shap": 0.4033,
+          "share": 0.16
         }
       ],
-      "p_value_fdr": 6e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 106012.8,
-        "density": 234.33,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2724.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "baao-camarines-sur",
@@ -452,12 +440,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -800,32 +783,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1089,
-          "share": 0.427
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6596,
-          "share": 0.254
+          "mean_abs_shap": 0.9688,
+          "share": 0.39
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5565,
-          "share": 0.214
+          "mean_abs_shap": 0.6721,
+          "share": 0.271
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.5639,
+          "share": 0.227
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 59382.4,
-        "density": 556.3,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bacacay-albay",
@@ -846,12 +822,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -1194,32 +1165,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1696,
-          "share": 0.41
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.6899,
-          "share": 0.242
+          "mean_abs_shap": 1.2639,
+          "share": 0.433
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6594,
-          "share": 0.231
+          "mean_abs_shap": 0.6132,
+          "share": 0.21
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5674,
+          "share": 0.194
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 62784.2,
-        "density": 549.13,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bagamanoc-catanduanes",
@@ -1240,12 +1204,7 @@
         "p_value": 5.974598593638802e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03892,
-        "slope_ci_bootstrap_high": 0.076951,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -1588,32 +1547,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1824,
-          "share": 0.445
+          "mean_abs_shap": 1.2797,
+          "share": 0.481
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7433,
-          "share": 0.28
+          "mean_abs_shap": 0.7152,
+          "share": 0.269
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5243,
-          "share": 0.197
+          "mean_abs_shap": 0.4662,
+          "share": 0.175
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 12165.8,
-        "density": 177.36,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "balatan-camarines-sur",
@@ -1634,12 +1586,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -1982,32 +1929,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1115,
+          "mean_abs_shap": 1.2081,
           "share": 0.431
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6303,
-          "share": 0.244
+          "mean_abs_shap": 0.6703,
+          "share": 0.239
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5977,
-          "share": 0.232
+          "mean_abs_shap": 0.6056,
+          "share": 0.216
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 33218.1,
-        "density": 559.19,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "baleno-masbate",
@@ -2028,12 +1968,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -2376,32 +2311,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.077,
-          "share": 0.456
+          "mean_abs_shap": 0.8441,
+          "share": 0.397
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5973,
-          "share": 0.253
+          "mean_abs_shap": 0.5787,
+          "share": 0.272
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4283,
-          "share": 0.181
+          "mean_abs_shap": 0.4432,
+          "share": 0.209
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 25968.8,
-        "density": 166.57,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "balud-masbate",
@@ -2422,12 +2350,7 @@
         "p_value": 3.7582607992581174e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.025835,
-        "slope_ci_bootstrap_high": 0.071789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -2770,32 +2693,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0209,
-          "share": 0.5
+          "mean_abs_shap": 0.8059,
+          "share": 0.441
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4284,
-          "share": 0.21
+          "mean_abs_shap": 0.3992,
+          "share": 0.218
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3257,
-          "share": 0.16
+          "mean_abs_shap": 0.3263,
+          "share": 0.179
         }
       ],
-      "p_value_fdr": 6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 39559.5,
-        "density": 188.62,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2430.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "baras-catanduanes",
@@ -2816,12 +2732,7 @@
         "p_value": 4.5949688498581054e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.033815,
-        "slope_ci_bootstrap_high": 0.073325,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -3164,32 +3075,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0463,
-          "share": 0.398
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.7542,
-          "share": 0.287
+          "mean_abs_shap": 1.0491,
+          "share": 0.394
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6126,
-          "share": 0.233
+          "mean_abs_shap": 0.7022,
+          "share": 0.263
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6876,
+          "share": 0.258
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 9967.4,
-        "density": 139.84,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "barcelona-sorsogon",
@@ -3210,12 +3114,7 @@
         "p_value": 1.998550739346072e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.035437,
-        "slope_ci_bootstrap_high": 0.08609,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -3558,32 +3457,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.08,
-          "share": 0.427
+          "mean_abs_shap": 1.1993,
+          "share": 0.446
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.682,
-          "share": 0.27
+          "mean_abs_shap": 0.8276,
+          "share": 0.308
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6261,
-          "share": 0.248
+          "mean_abs_shap": 0.5021,
+          "share": 0.187
         }
       ],
-      "p_value_fdr": 7e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 17693.4,
-        "density": 304.33,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "basud-camarines-norte",
@@ -3604,12 +3496,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -3952,32 +3839,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.416,
-          "share": 0.519
+          "mean_abs_shap": 1.2732,
+          "share": 0.494
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.674,
-          "share": 0.247
+          "mean_abs_shap": 0.6024,
+          "share": 0.234
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3263,
-          "share": 0.12
+          "mean_abs_shap": 0.342,
+          "share": 0.133
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 38582.7,
-        "density": 145.89,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bato-camarines-sur",
@@ -3998,12 +3878,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -4346,32 +4221,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2283,
-          "share": 0.452
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6303,
-          "share": 0.232
+          "mean_abs_shap": 1.2113,
+          "share": 0.449
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6061,
-          "share": 0.223
+          "mean_abs_shap": 0.6158,
+          "share": 0.228
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.606,
+          "share": 0.224
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 51318.8,
-        "density": 607.1,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bato-catanduanes",
@@ -4392,12 +4260,7 @@
         "p_value": 4.5949688498581054e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.033815,
-        "slope_ci_bootstrap_high": 0.073325,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -4740,32 +4603,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3257,
-          "share": 0.46
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.7143,
-          "share": 0.248
+          "mean_abs_shap": 1.2888,
+          "share": 0.455
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6444,
-          "share": 0.224
+          "mean_abs_shap": 0.6855,
+          "share": 0.242
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6302,
+          "share": 0.223
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 19885.3,
-        "density": 390.94,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "batuan-masbate",
@@ -4786,12 +4642,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -5134,32 +4985,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9396,
-          "share": 0.434
+          "mean_abs_shap": 1.0737,
+          "share": 0.44
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5707,
-          "share": 0.263
+          "mean_abs_shap": 0.6522,
+          "share": 0.267
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4092,
-          "share": 0.189
+          "mean_abs_shap": 0.406,
+          "share": 0.166
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 12934.7,
-        "density": 246.97,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bombon-camarines-sur",
@@ -5180,12 +5024,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -5528,32 +5367,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2761,
-          "share": 0.467
+          "mean_abs_shap": 1.1831,
+          "share": 0.438
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6114,
-          "share": 0.224
+          "mean_abs_shap": 0.6709,
+          "share": 0.249
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5723,
-          "share": 0.209
+          "mean_abs_shap": 0.5379,
+          "share": 0.199
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 18940.4,
-        "density": 616.56,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "buhi-camarines-sur",
@@ -5574,12 +5406,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -5922,32 +5749,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2532,
-          "share": 0.438
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.651,
-          "share": 0.227
+          "mean_abs_shap": 1.0993,
+          "share": 0.396
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6457,
-          "share": 0.226
+          "mean_abs_shap": 0.6642,
+          "share": 0.239
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5607,
+          "share": 0.202
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 81433.8,
-        "density": 401.63,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bula-camarines-sur",
@@ -5968,12 +5788,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -6316,32 +6131,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2769,
-          "share": 0.453
+          "mean_abs_shap": 1.0267,
+          "share": 0.415
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.648,
-          "share": 0.23
+          "mean_abs_shap": 0.597,
+          "share": 0.241
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6271,
-          "share": 0.222
+          "mean_abs_shap": 0.5758,
+          "share": 0.233
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 79729.1,
-        "density": 476.92,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bulan-sorsogon",
@@ -6362,12 +6170,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -6710,32 +6513,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0612,
-          "share": 0.464
+          "mean_abs_shap": 0.9076,
+          "share": 0.427
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.574,
-          "share": 0.251
+          "mean_abs_shap": 0.5836,
+          "share": 0.275
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3615,
-          "share": 0.158
+          "mean_abs_shap": 0.3276,
+          "share": 0.154
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 78646.2,
-        "density": 388.93,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "bulusan-sorsogon",
@@ -6756,12 +6552,7 @@
         "p_value": 1.998550739346072e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.035437,
-        "slope_ci_bootstrap_high": 0.08609,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -7104,32 +6895,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9945,
-          "share": 0.397
+          "mean_abs_shap": 1.0744,
+          "share": 0.44
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.8031,
-          "share": 0.321
+          "mean_abs_shap": 0.7326,
+          "share": 0.3
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5578,
-          "share": 0.223
+          "mean_abs_shap": 0.4698,
+          "share": 0.193
         }
       ],
-      "p_value_fdr": 7e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 16146.7,
-        "density": 180.84,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "cabusao-camarines-sur",
@@ -7150,12 +6934,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -7498,32 +7277,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0915,
-          "share": 0.431
+          "mean_abs_shap": 1.3822,
+          "share": 0.469
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6182,
-          "share": 0.244
+          "mean_abs_shap": 0.6518,
+          "share": 0.221
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.574,
-          "share": 0.227
+          "mean_abs_shap": 0.5943,
+          "share": 0.202
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 14911.0,
-        "density": 392.7,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "calabanga-camarines-sur",
@@ -7544,12 +7316,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -7892,32 +7659,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2854,
-          "share": 0.459
+          "mean_abs_shap": 1.1406,
+          "share": 0.42
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6267,
-          "share": 0.224
+          "mean_abs_shap": 0.6419,
+          "share": 0.236
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5862,
-          "share": 0.209
+          "mean_abs_shap": 0.6347,
+          "share": 0.234
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 81106.1,
-        "density": 532.58,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "camalig-albay",
@@ -7938,12 +7698,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -8286,32 +8041,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1025,
-          "share": 0.459
+          "mean_abs_shap": 0.8825,
+          "share": 0.408
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.609,
-          "share": 0.253
+          "mean_abs_shap": 0.6475,
+          "share": 0.299
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3569,
-          "share": 0.149
+          "mean_abs_shap": 0.3201,
+          "share": 0.148
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 66995.9,
-        "density": 531.83,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "camaligan-camarines-sur",
@@ -8332,12 +8080,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -8680,32 +8423,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2626,
-          "share": 0.475
+          "mean_abs_shap": 1.2974,
+          "share": 0.464
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5909,
-          "share": 0.223
+          "mean_abs_shap": 0.7163,
+          "share": 0.256
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5494,
-          "share": 0.207
+          "mean_abs_shap": 0.5242,
+          "share": 0.187
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 24715.4,
-        "density": 3450.71,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "canaman-camarines-sur",
@@ -8726,12 +8462,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -9074,32 +8805,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1823,
-          "share": 0.446
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.6002,
-          "share": 0.226
+          "mean_abs_shap": 1.3018,
+          "share": 0.455
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5725,
-          "share": 0.216
+          "mean_abs_shap": 0.6596,
+          "share": 0.23
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6074,
+          "share": 0.212
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 47526.4,
-        "density": 1156.99,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "capalonga-camarines-norte",
@@ -9120,12 +8844,7 @@
         "p_value": 1.0985883314162947e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03562,
-        "slope_ci_bootstrap_high": 0.073537,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -9468,32 +9187,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.434,
-          "share": 0.472
+          "mean_abs_shap": 1.3333,
+          "share": 0.447
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.7008,
-          "share": 0.231
+          "mean_abs_shap": 0.753,
+          "share": 0.253
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6795,
-          "share": 0.224
+          "mean_abs_shap": 0.6262,
+          "share": 0.21
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 35587.8,
-        "density": 138.83,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "caramoan-camarines-sur",
@@ -9514,12 +9226,7 @@
         "p_value": 4.6395676189803225e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.028169,
-        "slope_ci_bootstrap_high": 0.070607,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -9862,32 +9569,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2264,
-          "share": 0.472
+          "mean_abs_shap": 1.1339,
+          "share": 0.436
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6603,
-          "share": 0.254
+          "mean_abs_shap": 0.6645,
+          "share": 0.255
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4021,
-          "share": 0.155
+          "mean_abs_shap": 0.3918,
+          "share": 0.151
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 45276.7,
-        "density": 176.02,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "caramoran-catanduanes",
@@ -9908,12 +9608,7 @@
         "p_value": 4.6395676189803225e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.028169,
-        "slope_ci_bootstrap_high": 0.070607,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -10256,32 +9951,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1968,
-          "share": 0.473
+          "mean_abs_shap": 1.4444,
+          "share": 0.511
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7153,
-          "share": 0.283
+          "mean_abs_shap": 0.6922,
+          "share": 0.245
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3483,
-          "share": 0.138
+          "mean_abs_shap": 0.3339,
+          "share": 0.118
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 30752.4,
-        "density": 110.8,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "casiguran-sorsogon",
@@ -10302,12 +9990,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -10650,32 +10333,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0511,
-          "share": 0.433
+          "mean_abs_shap": 1.1223,
+          "share": 0.456
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6901,
-          "share": 0.284
+          "mean_abs_shap": 0.6761,
+          "share": 0.275
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3568,
-          "share": 0.147
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3141,
+          "share": 0.128
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 22710.2,
-        "density": 255.87,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "castilla-sorsogon",
@@ -10696,12 +10372,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -11044,32 +10715,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.178,
-          "share": 0.464
+          "mean_abs_shap": 1.099,
+          "share": 0.47
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6585,
-          "share": 0.259
+          "mean_abs_shap": 0.6428,
+          "share": 0.275
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3562,
-          "share": 0.14
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3025,
+          "share": 0.129
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 53890.2,
-        "density": 276.49,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "cataingan-masbate",
@@ -11090,12 +10754,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -11438,32 +11097,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9922,
-          "share": 0.434
+          "mean_abs_shap": 1.0426,
+          "share": 0.465
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.5555,
-          "share": 0.243
+          "mean_abs_shap": 0.5095,
+          "share": 0.227
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5077,
-          "share": 0.222
+          "mean_abs_shap": 0.4714,
+          "share": 0.21
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 41486.1,
-        "density": 222.78,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "cawayan-masbate",
@@ -11484,12 +11136,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -11832,32 +11479,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9593,
-          "share": 0.447
+          "mean_abs_shap": 0.8772,
+          "share": 0.411
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.5476,
-          "share": 0.255
+          "mean_abs_shap": 0.5614,
+          "share": 0.263
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4318,
-          "share": 0.201
+          "mean_abs_shap": 0.4895,
+          "share": 0.229
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 51399.5,
-        "density": 194.42,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-iriga-camarines-sur",
@@ -11878,12 +11518,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -12226,32 +11861,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2351,
-          "share": 0.453
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6357,
-          "share": 0.233
+          "mean_abs_shap": 1.1491,
+          "share": 0.416
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5731,
-          "share": 0.21
+          "mean_abs_shap": 0.6931,
+          "share": 0.251
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.6083,
+          "share": 0.22
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 114105.9,
-        "density": 815.03,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-legazpi-albay",
@@ -12272,12 +11900,7 @@
         "p_value": 0.0021081927028232528,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.002127,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.004782,
-        "slope_ci_bootstrap_high": 0.059261,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -12620,32 +12243,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1818,
-          "share": 0.454
+          "mean_abs_shap": 1.0137,
+          "share": 0.435
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6796,
-          "share": 0.261
+          "mean_abs_shap": 0.6867,
+          "share": 0.295
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3827,
-          "share": 0.147
+          "mean_abs_shap": 0.2923,
+          "share": 0.125
         }
       ],
-      "p_value_fdr": 0.002127,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 185416.3,
-        "density": 1146.16,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-ligao-albay",
@@ -12666,12 +12282,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -13014,32 +12625,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0279,
-          "share": 0.426
+          "mean_abs_shap": 0.9631,
+          "share": 0.437
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7368,
-          "share": 0.305
+          "mean_abs_shap": 0.648,
+          "share": 0.294
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3258,
-          "share": 0.135
+          "mean_abs_shap": 0.2921,
+          "share": 0.133
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 104578.6,
-        "density": 415.82,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-masbate-masbate",
@@ -13060,12 +12664,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -13408,32 +13007,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1522,
-          "share": 0.462
+          "mean_abs_shap": 1.0667,
+          "share": 0.446
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6074,
-          "share": 0.243
+          "mean_abs_shap": 0.6434,
+          "share": 0.269
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4233,
-          "share": 0.17
+          "mean_abs_shap": 0.3981,
+          "share": 0.166
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 66548.8,
-        "density": 332.81,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-naga-camarines-sur",
@@ -13454,12 +13046,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -13802,32 +13389,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1944,
-          "share": 0.434
+          "mean_abs_shap": 1.1367,
+          "share": 0.436
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6692,
-          "share": 0.243
+          "mean_abs_shap": 0.6456,
+          "share": 0.248
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5975,
-          "share": 0.217
+          "mean_abs_shap": 0.5158,
+          "share": 0.198
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 196582.8,
-        "density": 2476.22,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-sorsogon-sorsogon",
@@ -13848,12 +13428,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -14196,32 +13771,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1008,
-          "share": 0.442
+          "mean_abs_shap": 0.9796,
+          "share": 0.41
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7213,
-          "share": 0.29
+          "mean_abs_shap": 0.7109,
+          "share": 0.298
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3527,
-          "share": 0.142
+          "mean_abs_shap": 0.3338,
+          "share": 0.14
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 135366.2,
-        "density": 481.75,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "city-of-tabaco-albay",
@@ -14242,12 +13810,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -14590,32 +14153,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3219,
-          "share": 0.444
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.6834,
-          "share": 0.23
+          "mean_abs_shap": 1.0881,
+          "share": 0.396
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.645,
-          "share": 0.217
+          "mean_abs_shap": 0.6352,
+          "share": 0.231
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5732,
+          "share": 0.209
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 91795.8,
-        "density": 758.28,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "claveria-masbate",
@@ -14636,12 +14192,7 @@
         "p_value": 8.84063472272878e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2.6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.021174,
-        "slope_ci_bootstrap_high": 0.064371,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -14984,32 +14535,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2662,
-          "share": 0.523
+          "mean_abs_shap": 1.158,
+          "share": 0.473
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5122,
-          "share": 0.212
+          "mean_abs_shap": 0.571,
+          "share": 0.233
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.434,
-          "share": 0.179
+          "mean_abs_shap": 0.4731,
+          "share": 0.193
         }
       ],
-      "p_value_fdr": 2.6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 33912.7,
-        "density": 202.51,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "daet-camarines-norte",
@@ -15030,12 +14574,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -15378,32 +14917,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3252,
-          "share": 0.502
+          "mean_abs_shap": 1.189,
+          "share": 0.461
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6604,
-          "share": 0.25
+          "mean_abs_shap": 0.6553,
+          "share": 0.254
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3487,
-          "share": 0.132
+          "mean_abs_shap": 0.3729,
+          "share": 0.145
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 84575.3,
-        "density": 1679.61,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "daraga-albay",
@@ -15424,12 +14956,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -15772,32 +15299,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.042,
-          "share": 0.441
+          "mean_abs_shap": 1.082,
+          "share": 0.456
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6151,
-          "share": 0.26
+          "mean_abs_shap": 0.6563,
+          "share": 0.277
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3676,
-          "share": 0.156
+          "mean_abs_shap": 0.3097,
+          "share": 0.131
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 103256.0,
-        "density": 839.09,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "del-gallego-camarines-sur",
@@ -15818,12 +15338,7 @@
         "p_value": 0.0003305367282120386,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000423,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": -0.00495,
-        "slope_ci_bootstrap_high": 0.0563,
-        "significant_bootstrap": false
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -16166,32 +15681,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2967,
-          "share": 0.523
+          "mean_abs_shap": 1.1887,
+          "share": 0.489
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5017,
-          "share": 0.202
+          "mean_abs_shap": 0.537,
+          "share": 0.221
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4308,
-          "share": 0.174
+          "mean_abs_shap": 0.4339,
+          "share": 0.178
         }
       ],
-      "p_value_fdr": 0.000423,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 24171.3,
-        "density": 113.08,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "dimasalang-masbate",
@@ -16212,12 +15720,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -16560,32 +16063,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0366,
-          "share": 0.453
-        },
-        {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.5668,
-          "share": 0.248
+          "mean_abs_shap": 0.9983,
+          "share": 0.457
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4641,
-          "share": 0.203
+          "mean_abs_shap": 0.5326,
+          "share": 0.244
+        },
+        {
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.4481,
+          "share": 0.205
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 25053.2,
-        "density": 307.62,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "donsol-sorsogon",
@@ -16606,12 +16102,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -16954,32 +16445,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0554,
-          "share": 0.443
+          "mean_abs_shap": 1.0426,
+          "share": 0.436
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6622,
-          "share": 0.278
+          "mean_abs_shap": 0.728,
+          "share": 0.304
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3492,
-          "share": 0.147
+          "mean_abs_shap": 0.3289,
+          "share": 0.138
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 46728.5,
-        "density": 305.43,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "esperanza-masbate",
@@ -17000,12 +16484,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -17348,32 +16827,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9882,
-          "share": 0.44
-        },
-        {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.5572,
-          "share": 0.248
+          "mean_abs_shap": 0.927,
+          "share": 0.424
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5089,
-          "share": 0.227
+          "mean_abs_shap": 0.5434,
+          "share": 0.248
+        },
+        {
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.5105,
+          "share": 0.233
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 16447.7,
-        "density": 239.64,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "gainza-camarines-sur",
@@ -17394,12 +16866,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -17742,32 +17209,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2713,
-          "share": 0.452
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.6492,
-          "share": 0.231
+          "mean_abs_shap": 1.2336,
+          "share": 0.433
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6213,
-          "share": 0.221
+          "mean_abs_shap": 0.6384,
+          "share": 0.224
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6093,
+          "share": 0.214
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 10876.6,
-        "density": 734.23,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "garchitorena-camarines-sur",
@@ -17788,12 +17248,7 @@
         "p_value": 4.6395676189803225e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.028169,
-        "slope_ci_bootstrap_high": 0.070607,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -18136,32 +17591,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.281,
-          "share": 0.479
+          "mean_abs_shap": 1.2135,
+          "share": 0.473
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7086,
-          "share": 0.265
+          "mean_abs_shap": 0.617,
+          "share": 0.241
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4037,
-          "share": 0.151
+          "mean_abs_shap": 0.3789,
+          "share": 0.148
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 18522.7,
-        "density": 80.9,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "gigmoto-catanduanes",
@@ -18182,12 +17630,7 @@
         "p_value": 5.974598593638802e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03892,
-        "slope_ci_bootstrap_high": 0.076951,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -18530,32 +17973,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1908,
-          "share": 0.465
+          "mean_abs_shap": 1.2768,
+          "share": 0.482
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6718,
-          "share": 0.262
+          "mean_abs_shap": 0.7241,
+          "share": 0.274
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4932,
-          "share": 0.193
+          "mean_abs_shap": 0.43,
+          "share": 0.162
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 8379.7,
-        "density": 79.29,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "goa-camarines-sur",
@@ -18576,12 +18012,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -18924,32 +18355,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3519,
-          "share": 0.494
+          "mean_abs_shap": 1.1418,
+          "share": 0.425
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6681,
-          "share": 0.244
+          "mean_abs_shap": 0.7114,
+          "share": 0.265
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3573,
-          "share": 0.131
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.4048,
+          "share": 0.151
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 54332.8,
-        "density": 289.86,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "gubat-sorsogon",
@@ -18970,12 +18394,7 @@
         "p_value": 1.998550739346072e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.035437,
-        "slope_ci_bootstrap_high": 0.08609,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -19318,32 +18737,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0601,
-          "share": 0.424
+          "mean_abs_shap": 1.2692,
+          "share": 0.46
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.8058,
-          "share": 0.322
+          "mean_abs_shap": 0.8249,
+          "share": 0.299
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4994,
-          "share": 0.2
+          "mean_abs_shap": 0.5026,
+          "share": 0.182
         }
       ],
-      "p_value_fdr": 7e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 55309.2,
-        "density": 534.32,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "guinobatan-albay",
@@ -19364,12 +18776,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -19712,32 +19119,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.019,
-          "share": 0.425
+          "mean_abs_shap": 0.9836,
+          "share": 0.404
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7669,
-          "share": 0.32
+          "mean_abs_shap": 0.7236,
+          "share": 0.297
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3573,
-          "share": 0.149
+          "mean_abs_shap": 0.3523,
+          "share": 0.145
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 64738.4,
-        "density": 371.13,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "irosin-sorsogon",
@@ -19758,12 +19158,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -20106,32 +19501,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0683,
-          "share": 0.474
+          "mean_abs_shap": 1.0554,
+          "share": 0.45
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5069,
-          "share": 0.225
+          "mean_abs_shap": 0.652,
+          "share": 0.278
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3854,
-          "share": 0.171
+          "mean_abs_shap": 0.3431,
+          "share": 0.146
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 56289.4,
-        "density": 421.3,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "jose-panganiban-camarines-norte",
@@ -20152,12 +19540,7 @@
         "p_value": 1.0985883314162947e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03562,
-        "slope_ci_bootstrap_high": 0.073537,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -20500,32 +19883,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.4205,
-          "share": 0.462
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7166,
-          "share": 0.233
+          "mean_abs_shap": 1.5482,
+          "share": 0.471
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.714,
-          "share": 0.232
+          "mean_abs_shap": 0.7735,
+          "share": 0.235
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.7469,
+          "share": 0.227
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 63864.5,
-        "density": 367.1,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "jovellar-albay",
@@ -20546,12 +19922,7 @@
         "p_value": 0.004460422003051745,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.00446,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.06236,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -20894,32 +20265,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9284,
-          "share": 0.398
+          "mean_abs_shap": 1.0424,
+          "share": 0.432
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7247,
-          "share": 0.31
+          "mean_abs_shap": 0.701,
+          "share": 0.291
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3901,
-          "share": 0.167
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3495,
+          "share": 0.145
         }
       ],
-      "p_value_fdr": 0.00446,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 12337.7,
-        "density": 149.91,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "juban-sorsogon",
@@ -20940,12 +20304,7 @@
         "p_value": 0.0017112515900292724,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001742,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 46,
@@ -21295,32 +20654,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9508,
-          "share": 0.435
+          "mean_abs_shap": 1.0631,
+          "share": 0.446
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6399,
-          "share": 0.293
+          "mean_abs_shap": 0.7134,
+          "share": 0.299
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.2996,
-          "share": 0.137
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.2905,
+          "share": 0.122
         }
       ],
-      "p_value_fdr": 0.001742,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 29181.4,
-        "density": 242.71,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "labo-camarines-norte",
@@ -21341,12 +20693,7 @@
         "p_value": 0.0003305367282120386,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000423,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": -0.00495,
-        "slope_ci_bootstrap_high": 0.0563,
-        "significant_bootstrap": false
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -21689,32 +21036,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.4043,
-          "share": 0.544
+          "mean_abs_shap": 1.3113,
+          "share": 0.516
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5207,
-          "share": 0.202
+          "mean_abs_shap": 0.539,
+          "share": 0.212
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4181,
+          "mean_abs_shap": 0.4127,
           "share": 0.162
         }
       ],
-      "p_value_fdr": 0.000423,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 90732.9,
-        "density": 143.81,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "lagonoy-camarines-sur",
@@ -21735,12 +21075,7 @@
         "p_value": 4.6395676189803225e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.028169,
-        "slope_ci_bootstrap_high": 0.070607,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -22083,32 +21418,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3782,
-          "share": 0.511
+          "mean_abs_shap": 1.2802,
+          "share": 0.469
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6584,
-          "share": 0.244
+          "mean_abs_shap": 0.7363,
+          "share": 0.27
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3782,
-          "share": 0.14
+          "mean_abs_shap": 0.3326,
+          "share": 0.122
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 65348.7,
-        "density": 169.8,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "libmanan-camarines-sur",
@@ -22129,12 +21457,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -22477,32 +21800,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9874,
-          "share": 0.406
+          "mean_abs_shap": 1.1934,
+          "share": 0.437
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6409,
-          "share": 0.264
+          "mean_abs_shap": 0.6394,
+          "share": 0.234
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5213,
-          "share": 0.214
+          "mean_abs_shap": 0.6002,
+          "share": 0.22
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 111982.5,
-        "density": 303.95,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "libon-albay",
@@ -22523,12 +21839,7 @@
         "p_value": 8.84063472272878e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2.6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.021174,
-        "slope_ci_bootstrap_high": 0.064371,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -22871,32 +22182,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0115,
-          "share": 0.458
+          "mean_abs_shap": 0.9619,
+          "share": 0.443
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5284,
-          "share": 0.239
+          "mean_abs_shap": 0.4815,
+          "share": 0.222
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4642,
-          "share": 0.21
+          "mean_abs_shap": 0.4675,
+          "share": 0.215
         }
       ],
-      "p_value_fdr": 2.6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 69741.5,
-        "density": 312.64,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "lupi-camarines-sur",
@@ -22917,12 +22221,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -23265,32 +22564,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3423,
-          "share": 0.488
+          "mean_abs_shap": 1.5557,
+          "share": 0.534
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7327,
-          "share": 0.266
+          "mean_abs_shap": 0.611,
+          "share": 0.21
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3443,
-          "share": 0.125
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.4039,
+          "share": 0.139
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 32269.2,
-        "density": 161.37,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "magallanes-sorsogon",
@@ -23311,12 +22603,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -23659,32 +22946,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9678,
-          "share": 0.416
+          "mean_abs_shap": 0.9812,
+          "share": 0.424
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6873,
-          "share": 0.296
+          "mean_abs_shap": 0.7265,
+          "share": 0.314
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3827,
-          "share": 0.165
+          "mean_abs_shap": 0.3125,
+          "share": 0.135
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 23090.5,
-        "density": 214.95,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "magarao-camarines-sur",
@@ -23705,12 +22985,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -24053,32 +23328,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2083,
-          "share": 0.437
+          "mean_abs_shap": 1.2981,
+          "share": 0.461
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6969,
-          "share": 0.252
+          "mean_abs_shap": 0.6617,
+          "share": 0.235
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5768,
-          "share": 0.208
+          "mean_abs_shap": 0.5515,
+          "share": 0.196
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 32922.3,
-        "density": 901.57,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "malilipot-albay",
@@ -24099,12 +23367,7 @@
         "p_value": 7.809393771651685e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.056921,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -24447,32 +23710,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1142,
-          "share": 0.414
+          "mean_abs_shap": 1.1891,
+          "share": 0.416
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6442,
-          "share": 0.239
+          "mean_abs_shap": 0.6142,
+          "share": 0.215
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6258,
-          "share": 0.232
+          "mean_abs_shap": 0.6076,
+          "share": 0.212
         }
       ],
-      "p_value_fdr": 3e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 32898.1,
-        "density": 793.37,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "malinao-albay",
@@ -24493,12 +23749,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -24841,32 +24092,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.176,
-          "share": 0.41
+          "mean_abs_shap": 1.0943,
+          "share": 0.407
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7089,
-          "share": 0.247
+          "mean_abs_shap": 0.6113,
+          "share": 0.228
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6529,
-          "share": 0.228
+          "mean_abs_shap": 0.5609,
+          "share": 0.209
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 48702.5,
-        "density": 448.56,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "mandaon-masbate",
@@ -24887,12 +24131,7 @@
         "p_value": 3.7582607992581174e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.025835,
-        "slope_ci_bootstrap_high": 0.071789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -25235,32 +24474,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.005,
-          "share": 0.495
+          "mean_abs_shap": 1.0427,
+          "share": 0.482
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.416,
-          "share": 0.205
+          "mean_abs_shap": 0.4963,
+          "share": 0.229
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.3526,
-          "share": 0.174
+          "mean_abs_shap": 0.3405,
+          "share": 0.157
         }
       ],
-      "p_value_fdr": 6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 44547.0,
-        "density": 137.1,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2430.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "manito-albay",
@@ -25281,12 +24513,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -25629,32 +24856,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1424,
-          "share": 0.446
+          "mean_abs_shap": 0.9773,
+          "share": 0.425
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7099,
-          "share": 0.277
+          "mean_abs_shap": 0.6237,
+          "share": 0.271
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3702,
-          "share": 0.144
+          "mean_abs_shap": 0.3209,
+          "share": 0.14
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 21931.9,
-        "density": 231.43,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "matnog-sorsogon",
@@ -25675,12 +24895,7 @@
         "p_value": 0.00016400085727674707,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.00022,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 49,
@@ -26051,32 +25266,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9969,
-          "share": 0.442
+          "mean_abs_shap": 1.0465,
+          "share": 0.447
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6149,
-          "share": 0.272
+          "mean_abs_shap": 0.6083,
+          "share": 0.26
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4108,
-          "share": 0.182
+          "mean_abs_shap": 0.3996,
+          "share": 0.171
         }
       ],
-      "p_value_fdr": 0.00022,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 38323.6,
-        "density": 283.26,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "mercedes-camarines-norte",
@@ -26097,12 +25305,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -26445,32 +25648,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.307,
-          "share": 0.472
+          "mean_abs_shap": 1.345,
+          "share": 0.504
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7633,
-          "share": 0.275
+          "mean_abs_shap": 0.6305,
+          "share": 0.236
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3548,
-          "share": 0.128
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3559,
+          "share": 0.133
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 39783.1,
-        "density": 355.54,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "milagros-masbate",
@@ -26491,12 +25687,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -26839,32 +26030,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.914,
-          "share": 0.428
-        },
-        {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.5821,
-          "share": 0.272
+          "mean_abs_shap": 1.1565,
+          "share": 0.487
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.438,
-          "share": 0.205
+          "mean_abs_shap": 0.4939,
+          "share": 0.208
+        },
+        {
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.4821,
+          "share": 0.203
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 56330.5,
-        "density": 117.95,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "milaor-camarines-sur",
@@ -26885,12 +26069,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -27233,32 +26412,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2295,
-          "share": 0.454
+          "mean_abs_shap": 1.2899,
+          "share": 0.453
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6298,
-          "share": 0.233
+          "mean_abs_shap": 0.6522,
+          "share": 0.229
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5681,
-          "share": 0.21
+          "mean_abs_shap": 0.5969,
+          "share": 0.209
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 42482.2,
-        "density": 1293.92,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "minalabac-camarines-sur",
@@ -27279,12 +26451,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -27627,32 +26794,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0258,
-          "share": 0.43
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.6181,
-          "share": 0.259
+          "mean_abs_shap": 1.1638,
+          "share": 0.425
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5212,
-          "share": 0.218
+          "mean_abs_shap": 0.6745,
+          "share": 0.246
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6039,
+          "share": 0.221
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 47498.3,
-        "density": 376.46,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "mobo-masbate",
@@ -27673,12 +26833,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -28021,32 +27176,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0016,
-          "share": 0.444
+          "mean_abs_shap": 1.1004,
+          "share": 0.456
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5519,
-          "share": 0.245
+          "mean_abs_shap": 0.6075,
+          "share": 0.252
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4892,
-          "share": 0.217
+          "mean_abs_shap": 0.419,
+          "share": 0.174
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 37668.8,
-        "density": 251.07,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "monreal-masbate",
@@ -28067,12 +27215,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -28415,32 +27558,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.8864,
-          "share": 0.402
+          "mean_abs_shap": 0.9741,
+          "share": 0.433
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6045,
-          "share": 0.274
+          "mean_abs_shap": 0.5525,
+          "share": 0.246
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4403,
-          "share": 0.2
+          "mean_abs_shap": 0.4332,
+          "share": 0.193
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 30889.9,
-        "density": 343.63,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "nabua-camarines-sur",
@@ -28461,12 +27597,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -28809,32 +27940,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1455,
-          "share": 0.445
+          "mean_abs_shap": 1.1053,
+          "share": 0.409
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6199,
-          "share": 0.241
+          "mean_abs_shap": 0.6423,
+          "share": 0.237
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5661,
-          "share": 0.22
+          "mean_abs_shap": 0.62,
+          "share": 0.229
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 82850.5,
-        "density": 961.5,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "oas-albay",
@@ -28855,12 +27979,7 @@
         "p_value": 8.84063472272878e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2.6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.021174,
-        "slope_ci_bootstrap_high": 0.064371,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -29203,32 +28322,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9348,
-          "share": 0.458
+          "mean_abs_shap": 1.336,
+          "share": 0.529
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4662,
-          "share": 0.228
+          "mean_abs_shap": 0.4937,
+          "share": 0.196
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4453,
-          "share": 0.218
+          "mean_abs_shap": 0.4402,
+          "share": 0.174
         }
       ],
-      "p_value_fdr": 2.6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 62829.0,
-        "density": 258.97,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "ocampo-camarines-sur",
@@ -29249,12 +28361,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -29597,32 +28704,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0828,
-          "share": 0.408
+          "mean_abs_shap": 1.4215,
+          "share": 0.505
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6411,
-          "share": 0.241
+          "mean_abs_shap": 0.6151,
+          "share": 0.218
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6304,
-          "share": 0.237
+          "mean_abs_shap": 0.5546,
+          "share": 0.197
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 43708.6,
-        "density": 362.17,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "palanas-masbate",
@@ -29643,12 +28743,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -29991,32 +29086,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9996,
-          "share": 0.424
+          "mean_abs_shap": 1.0037,
+          "share": 0.447
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.6065,
-          "share": 0.257
+          "mean_abs_shap": 0.538,
+          "share": 0.24
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.52,
-          "share": 0.221
+          "mean_abs_shap": 0.462,
+          "share": 0.206
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 23046.4,
-        "density": 178.08,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pamplona-camarines-sur",
@@ -30037,12 +29125,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -30385,32 +29468,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0856,
-          "share": 0.417
+          "mean_abs_shap": 1.0798,
+          "share": 0.404
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6437,
-          "share": 0.247
+          "mean_abs_shap": 0.7163,
+          "share": 0.268
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5903,
-          "share": 0.227
+          "mean_abs_shap": 0.5418,
+          "share": 0.203
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 35801.7,
-        "density": 542.22,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pandan-catanduanes",
@@ -30431,12 +29507,7 @@
         "p_value": 5.974598593638802e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03892,
-        "slope_ci_bootstrap_high": 0.076951,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -30779,32 +29850,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2565,
-          "share": 0.487
+          "mean_abs_shap": 1.1633,
+          "share": 0.461
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.63,
-          "share": 0.244
+          "mean_abs_shap": 0.6996,
+          "share": 0.277
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4916,
-          "share": 0.191
+          "mean_abs_shap": 0.4534,
+          "share": 0.18
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 15848.6,
-        "density": 147.21,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "panganiban-catanduanes",
@@ -30825,12 +29889,7 @@
         "p_value": 5.974598593638802e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03892,
-        "slope_ci_bootstrap_high": 0.076951,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -31173,32 +30232,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0861,
-          "share": 0.429
+          "mean_abs_shap": 1.3779,
+          "share": 0.464
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7837,
-          "share": 0.31
+          "mean_abs_shap": 0.794,
+          "share": 0.268
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4461,
-          "share": 0.176
+          "mean_abs_shap": 0.5644,
+          "share": 0.19
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 7253.1,
-        "density": 142.66,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "paracale-camarines-norte",
@@ -31219,12 +30271,7 @@
         "p_value": 1.0985883314162947e-09,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03562,
-        "slope_ci_bootstrap_high": 0.073537,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -31567,32 +30614,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2151,
-          "share": 0.419
+          "mean_abs_shap": 1.1864,
+          "share": 0.393
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.7871,
-          "share": 0.271
+          "mean_abs_shap": 0.791,
+          "share": 0.262
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7096,
-          "share": 0.245
+          "mean_abs_shap": 0.7576,
+          "share": 0.251
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 68362.2,
-        "density": 444.4,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pasacao-camarines-sur",
@@ -31613,12 +30653,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -31961,32 +30996,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9497,
-          "share": 0.392
+          "mean_abs_shap": 1.0491,
+          "share": 0.408
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6145,
-          "share": 0.254
+          "mean_abs_shap": 0.6344,
+          "share": 0.247
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5807,
-          "share": 0.24
+          "mean_abs_shap": 0.5897,
+          "share": 0.229
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 47888.8,
-        "density": 354.01,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pilar-sorsogon",
@@ -32007,12 +31035,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -32355,32 +31378,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.004,
-          "share": 0.432
+          "mean_abs_shap": 1.1447,
+          "share": 0.456
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6627,
-          "share": 0.285
+          "mean_abs_shap": 0.6832,
+          "share": 0.272
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.3398,
-          "share": 0.146
+          "mean_abs_shap": 0.339,
+          "share": 0.135
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 69797.6,
-        "density": 337.95,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pili-camarines-sur",
@@ -32401,12 +31417,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -32749,32 +31760,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2043,
-          "share": 0.456
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5959,
-          "share": 0.225
+          "mean_abs_shap": 1.2686,
+          "share": 0.459
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5761,
-          "share": 0.218
+          "mean_abs_shap": 0.6007,
+          "share": 0.217
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.5916,
+          "share": 0.214
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 86735.9,
-        "density": 711.17,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pio-duran-albay",
@@ -32795,12 +31799,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -33143,32 +32142,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0988,
-          "share": 0.452
+          "mean_abs_shap": 1.1301,
+          "share": 0.462
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6806,
-          "share": 0.28
+          "mean_abs_shap": 0.6678,
+          "share": 0.273
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3338,
-          "share": 0.137
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3274,
+          "share": 0.134
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 40571.9,
-        "density": 290.12,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "pio-v-corpus-masbate",
@@ -33189,12 +32181,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -33537,32 +32524,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0865,
-          "share": 0.463
+          "mean_abs_shap": 0.9402,
+          "share": 0.44
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.5398,
-          "share": 0.23
+          "mean_abs_shap": 0.5034,
+          "share": 0.235
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5075,
-          "share": 0.216
+          "mean_abs_shap": 0.4957,
+          "share": 0.232
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 20701.0,
-        "density": 226.06,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "placer-masbate",
@@ -33583,12 +32563,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -33931,32 +32906,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0788,
-          "share": 0.464
+          "mean_abs_shap": 1.0559,
+          "share": 0.458
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.5305,
-          "share": 0.228
+          "mean_abs_shap": 0.5386,
+          "share": 0.234
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.483,
-          "share": 0.208
+          "mean_abs_shap": 0.488,
+          "share": 0.212
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 62014.0,
-        "density": 309.17,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "polangui-albay",
@@ -33977,12 +32945,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -34325,32 +33288,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0825,
-          "share": 0.4
+          "mean_abs_shap": 1.1842,
+          "share": 0.441
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6468,
-          "share": 0.239
+          "mean_abs_shap": 0.5979,
+          "share": 0.223
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6206,
-          "share": 0.229
+          "mean_abs_shap": 0.4704,
+          "share": 0.175
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 79655.1,
-        "density": 636.44,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "presentacion-camarines-sur",
@@ -34371,12 +33327,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -34719,32 +33670,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2218,
-          "share": 0.413
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.7655,
-          "share": 0.259
+          "mean_abs_shap": 1.0823,
+          "share": 0.405
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6039,
-          "share": 0.204
+          "mean_abs_shap": 0.618,
+          "share": 0.231
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5818,
+          "share": 0.218
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 14590.8,
-        "density": 92.44,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "prieto-diaz-sorsogon",
@@ -34765,12 +33709,7 @@
         "p_value": 1.3185338318955075e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 5e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.035437,
-        "slope_ci_bootstrap_high": 0.08609,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 46,
@@ -35120,32 +34059,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0545,
-          "share": 0.418
+          "mean_abs_shap": 0.9692,
+          "share": 0.391
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7965,
-          "share": 0.316
+          "mean_abs_shap": 0.8081,
+          "share": 0.326
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5318,
-          "share": 0.211
+          "mean_abs_shap": 0.5485,
+          "share": 0.221
         }
       ],
-      "p_value_fdr": 5e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 19690.7,
-        "density": 349.51,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "ragay-camarines-sur",
@@ -35166,12 +34098,7 @@
         "p_value": 0.0003305367282120386,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000423,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": -0.00495,
-        "slope_ci_bootstrap_high": 0.0563,
-        "significant_bootstrap": false
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -35514,32 +34441,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2904,
-          "share": 0.514
+          "mean_abs_shap": 1.4565,
+          "share": 0.537
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5237,
-          "share": 0.208
+          "mean_abs_shap": 0.5102,
+          "share": 0.188
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4243,
-          "share": 0.169
+          "mean_abs_shap": 0.4411,
+          "share": 0.163
         }
       ],
-      "p_value_fdr": 0.000423,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 56271.3,
-        "density": 149.46,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "rapu-rapu-albay",
@@ -35560,12 +34480,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -35908,32 +34823,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2514,
-          "share": 0.44
+          "mean_abs_shap": 1.0403,
+          "share": 0.39
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.689,
-          "share": 0.242
+          "mean_abs_shap": 0.6533,
+          "share": 0.245
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.5462,
-          "share": 0.192
+          "mean_abs_shap": 0.4891,
+          "share": 0.183
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 36442.0,
-        "density": 242.08,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "sagnay-camarines-sur",
@@ -35954,12 +34862,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -36302,32 +35205,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.428,
-          "share": 0.458
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6993,
-          "share": 0.224
+          "mean_abs_shap": 0.9995,
+          "share": 0.391
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6758,
-          "share": 0.217
+          "mean_abs_shap": 0.552,
+          "share": 0.216
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.5402,
+          "share": 0.211
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 36450.0,
-        "density": 350.82,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-andres-catanduanes",
@@ -36348,12 +35244,7 @@
         "p_value": 4.5949688498581054e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.033815,
-        "slope_ci_bootstrap_high": 0.073325,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -36696,32 +35587,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0396,
-          "share": 0.395
+          "mean_abs_shap": 1.2185,
+          "share": 0.457
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.716,
-          "share": 0.272
+          "mean_abs_shap": 0.7028,
+          "share": 0.264
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.69,
-          "share": 0.262
+          "mean_abs_shap": 0.5299,
+          "share": 0.199
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 31534.8,
-        "density": 176.19,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-fernando-camarines-sur",
@@ -36742,12 +35626,7 @@
         "p_value": 1.9525348062821024e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.001811,
-        "slope_ci_bootstrap_high": 0.055727,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -37090,32 +35969,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0507,
-          "share": 0.432
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.5797,
-          "share": 0.238
+          "mean_abs_shap": 1.1326,
+          "share": 0.446
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5698,
-          "share": 0.234
+          "mean_abs_shap": 0.5529,
+          "share": 0.218
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5501,
+          "share": 0.217
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 41354.5,
-        "density": 488.68,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-fernando-masbate",
@@ -37136,12 +36008,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -37484,32 +36351,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9651,
-          "share": 0.427
+          "mean_abs_shap": 0.8404,
+          "share": 0.405
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5947,
-          "share": 0.263
+          "mean_abs_shap": 0.5496,
+          "share": 0.265
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4325,
-          "share": 0.192
+          "mean_abs_shap": 0.4051,
+          "share": 0.195
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 26298.2,
-        "density": 330.6,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-jacinto-masbate",
@@ -37530,12 +36390,7 @@
         "p_value": 1.7565610879843874e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 3.2e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.015614,
-        "slope_ci_bootstrap_high": 0.062206,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -37554,7 +36409,7 @@
         "days": 0
       },
       "narration": {
-        "en": "San Jacinto is getting hotter by about 0.042 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.9 °C, inside PAGASA's Extreme Caution band. San Jacinto has never exceeded the 42 °C Danger threshold.",
+        "en": "San Jacinto is getting hotter by about 0.042 °C per year (p < 0.001). The trend is statistically significant, so it is unlikely to be chance. In 2025 the average heat index was 34.9 °C, inside PAGASA's Extreme Caution band. San Jacinto has never exceeded the 42 °C Danger threshold. In 2024, annual precipitation totaled 2733 mm. Regionally, 2024 precipitation correlates drier with heat index (r=-0.38).",
         "fil": "Ang San Jacinto ay umiinit nang humigit-kumulang 0.042 °C bawat taon (p < 0.001). Makabuluhan ang kalakarang ito, kaya malabong nagkataon lamang. Noong 2025, ang karaniwang heat index ay 34.9 °C, nasa antas ng Labis na Pag-iingat ng PAGASA. Hindi pa kailanman lumampas ang San Jacinto sa 42 °C na antas ng Panganib."
       },
       "series": [
@@ -37878,32 +36733,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9617,
-          "share": 0.426
+          "mean_abs_shap": 1.0759,
+          "share": 0.474
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5999,
-          "share": 0.266
+          "mean_abs_shap": 0.5702,
+          "share": 0.251
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.4429,
-          "share": 0.196
+          "mean_abs_shap": 0.3463,
+          "share": 0.153
         }
       ],
-      "p_value_fdr": 3.2e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 25020.8,
-        "density": 228.47,
-        "exposed": false
-      },
-      "annual_precip_mm_2024": null,
-      "precip_source": "power:error:ConnectionError",
-      "precip_heat_index_corr_2024": -0.379
+      "annual_precip_mm_2024": 2733.3,
+      "precip_source": "power:PRECTOTCORR",
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-jose-camarines-sur",
@@ -37924,12 +36772,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -38272,32 +37115,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1581,
-          "share": 0.412
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.67,
-          "share": 0.238
+          "mean_abs_shap": 1.2869,
+          "share": 0.436
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6658,
-          "share": 0.237
+          "mean_abs_shap": 0.6399,
+          "share": 0.217
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.5978,
+          "share": 0.203
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 44352.9,
-        "density": 891.64,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-lorenzo-ruiz-camarines-norte",
@@ -38318,12 +37154,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -38666,32 +37497,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.4026,
-          "share": 0.479
+          "mean_abs_shap": 1.3698,
+          "share": 0.492
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7212,
-          "share": 0.246
+          "mean_abs_shap": 0.6701,
+          "share": 0.241
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.4153,
-          "share": 0.142
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.4051,
+          "share": 0.145
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 9955.0,
-        "density": 112.05,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-miguel-catanduanes",
@@ -38712,12 +37536,7 @@
         "p_value": 4.5949688498581054e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.033815,
-        "slope_ci_bootstrap_high": 0.073325,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -39060,32 +37879,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0051,
-          "share": 0.386
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.7194,
-          "share": 0.276
+          "mean_abs_shap": 1.0343,
+          "share": 0.396
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6775,
-          "share": 0.26
+          "mean_abs_shap": 0.6528,
+          "share": 0.25
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6436,
+          "share": 0.247
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 19756.6,
-        "density": 81.36,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-pascual-masbate",
@@ -39106,12 +37918,7 @@
         "p_value": 8.84063472272878e-06,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2.6e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.021174,
-        "slope_ci_bootstrap_high": 0.064371,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -39454,32 +38261,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0834,
-          "share": 0.486
-        },
-        {
-          "feature": "u10m_ms",
-          "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5113,
-          "share": 0.23
+          "mean_abs_shap": 0.9011,
+          "share": 0.442
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4577,
-          "share": 0.205
+          "mean_abs_shap": 0.4586,
+          "share": 0.225
+        },
+        {
+          "feature": "u10m_ms",
+          "label": "Wind (east-west, U10M)",
+          "mean_abs_shap": 0.4215,
+          "share": 0.207
         }
       ],
-      "p_value_fdr": 2.6e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 43507.7,
-        "density": 171.15,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "san-vicente-camarines-norte",
@@ -39500,12 +38300,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -39848,32 +38643,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.7179,
-          "share": 0.536
+          "mean_abs_shap": 1.3133,
+          "share": 0.487
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.8022,
-          "share": 0.25
+          "mean_abs_shap": 0.6767,
+          "share": 0.251
         },
         {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.3483,
-          "share": 0.109
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.3522,
+          "share": 0.131
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 11691.8,
-        "density": 228.37,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "santa-elena-camarines-norte",
@@ -39894,12 +38682,7 @@
         "p_value": 0.0003305367282120386,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000423,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": -0.00495,
-        "slope_ci_bootstrap_high": 0.0563,
-        "significant_bootstrap": false
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -40242,32 +39025,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.1504,
-          "share": 0.478
+          "mean_abs_shap": 1.6269,
+          "share": 0.562
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.5342,
-          "share": 0.222
+          "mean_abs_shap": 0.6067,
+          "share": 0.209
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.48,
-          "share": 0.2
+          "mean_abs_shap": 0.4073,
+          "share": 0.141
         }
       ],
-      "p_value_fdr": 0.000423,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 33982.5,
-        "density": 170.75,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "santa-magdalena-sorsogon",
@@ -40288,12 +39064,7 @@
         "p_value": 4.788676938938252e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.012486,
-        "slope_ci_bootstrap_high": 0.067885,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -40636,32 +39407,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.979,
-          "share": 0.401
+          "mean_abs_shap": 1.1358,
+          "share": 0.436
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6514,
-          "share": 0.267
+          "mean_abs_shap": 0.6358,
+          "share": 0.244
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.415,
-          "share": 0.17
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3394,
+          "share": 0.13
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 14297.9,
-        "density": 276.16,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 2789.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "santo-domingo-albay",
@@ -40682,12 +39446,7 @@
         "p_value": 0.0015793527984799827,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.001622,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.002013,
-        "slope_ci_bootstrap_high": 0.059023,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -41030,32 +39789,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.0212,
-          "share": 0.434
+          "mean_abs_shap": 1.0821,
+          "share": 0.445
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7463,
-          "share": 0.317
+          "mean_abs_shap": 0.7055,
+          "share": 0.29
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3053,
-          "share": 0.13
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3105,
+          "share": 0.128
         }
       ],
-      "p_value_fdr": 0.001622,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 31767.1,
-        "density": 587.26,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "sipocot-camarines-sur",
@@ -41076,12 +39828,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -41424,32 +40171,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2151,
-          "share": 0.473
+          "mean_abs_shap": 1.5048,
+          "share": 0.5
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6175,
-          "share": 0.24
+          "mean_abs_shap": 0.7573,
+          "share": 0.252
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4137,
-          "share": 0.161
+          "mean_abs_shap": 0.3815,
+          "share": 0.127
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 79589.0,
-        "density": 314.61,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "siruma-camarines-sur",
@@ -41470,12 +40210,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -41818,32 +40553,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.4919,
-          "share": 0.516
+          "mean_abs_shap": 1.5708,
+          "share": 0.515
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6807,
-          "share": 0.236
+          "mean_abs_shap": 0.7295,
+          "share": 0.239
         },
         {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.3624,
-          "share": 0.125
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.3628,
+          "share": 0.119
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 11252.7,
-        "density": 93.56,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "talisay-camarines-norte",
@@ -41864,12 +40592,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -42212,32 +40935,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.3682,
-          "share": 0.47
+          "mean_abs_shap": 1.2545,
+          "share": 0.477
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.8,
-          "share": 0.275
+          "mean_abs_shap": 0.6517,
+          "share": 0.248
         },
         {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.3924,
-          "share": 0.135
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.3694,
+          "share": 0.141
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 22988.3,
-        "density": 711.81,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "tigaon-camarines-sur",
@@ -42258,12 +40974,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -42606,32 +41317,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9901,
-          "share": 0.361
+          "mean_abs_shap": 1.3157,
+          "share": 0.437
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7456,
-          "share": 0.272
+          "mean_abs_shap": 0.6908,
+          "share": 0.23
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6788,
-          "share": 0.247
+          "mean_abs_shap": 0.5968,
+          "share": 0.198
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 42349.0,
-        "density": 551.01,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "tinambac-camarines-sur",
@@ -42652,12 +41356,7 @@
         "p_value": 4.380578082496811e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.006533,
-        "slope_ci_bootstrap_high": 0.067789,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -43000,32 +41699,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2291,
-          "share": 0.45
+          "mean_abs_shap": 1.4126,
+          "share": 0.503
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7276,
-          "share": 0.267
+          "mean_abs_shap": 0.6249,
+          "share": 0.223
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.4217,
-          "share": 0.154
+          "mean_abs_shap": 0.4016,
+          "share": 0.143
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 65044.4,
-        "density": 195.52,
-        "exposed": true
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "tiwi-albay",
@@ -43046,12 +41738,7 @@
         "p_value": 5.393376884321732e-05,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 7.3e-05,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.010176,
-        "slope_ci_bootstrap_high": 0.060453,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -43394,32 +42081,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.175,
-          "share": 0.41
+          "mean_abs_shap": 1.4201,
+          "share": 0.471
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.694,
-          "share": 0.242
+          "mean_abs_shap": 0.7021,
+          "share": 0.233
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.6716,
-          "share": 0.234
+          "mean_abs_shap": 0.5333,
+          "share": 0.177
         }
       ],
-      "p_value_fdr": 7.3e-05,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 45983.7,
-        "density": 367.58,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "uson-masbate",
@@ -43440,12 +42120,7 @@
         "p_value": 0.000699742457843433,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.000814,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.018584,
-        "slope_ci_bootstrap_high": 0.063303,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -43788,32 +42463,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9056,
-          "share": 0.433
-        },
-        {
-          "feature": "lat",
-          "label": "Latitude",
-          "mean_abs_shap": 0.489,
-          "share": 0.234
+          "mean_abs_shap": 0.9158,
+          "share": 0.443
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.4853,
-          "share": 0.232
+          "mean_abs_shap": 0.469,
+          "share": 0.227
+        },
+        {
+          "feature": "lat",
+          "label": "Latitude",
+          "mean_abs_shap": 0.4645,
+          "share": 0.225
         }
       ],
-      "p_value_fdr": 0.000814,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 57901.4,
-        "density": 245.94,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "viga-catanduanes",
@@ -43834,12 +42502,7 @@
         "p_value": 5.974598593638802e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.03892,
-        "slope_ci_bootstrap_high": 0.076951,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -44182,32 +42845,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2979,
-          "share": 0.492
+          "mean_abs_shap": 1.0372,
+          "share": 0.411
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.6825,
-          "share": 0.259
+          "mean_abs_shap": 0.7799,
+          "share": 0.309
         },
         {
           "feature": "lon",
           "label": "Longitude",
-          "mean_abs_shap": 0.495,
-          "share": 0.188
+          "mean_abs_shap": 0.4784,
+          "share": 0.19
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 20872.0,
-        "density": 124.63,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "vinzons-camarines-norte",
@@ -44228,12 +42884,7 @@
         "p_value": 3.720838621656952e-07,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 2e-06,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.037692,
-        "slope_ci_bootstrap_high": 0.083926,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -44576,32 +43227,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 1.2929,
-          "share": 0.446
+          "mean_abs_shap": 1.2039,
+          "share": 0.404
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.7229,
-          "share": 0.249
+          "mean_abs_shap": 0.7958,
+          "share": 0.267
         },
         {
           "feature": "lat",
           "label": "Latitude",
-          "mean_abs_shap": 0.7204,
-          "share": 0.248
+          "mean_abs_shap": 0.7232,
+          "share": 0.243
         }
       ],
-      "p_value_fdr": 2e-06,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 36782.7,
-        "density": 429.23,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     },
     {
       "id": "virac-catanduanes",
@@ -44622,12 +43266,7 @@
         "p_value": 4.5949688498581054e-11,
         "is_significant": true,
         "alpha": 0.05,
-        "direction": "increasing",
-        "p_value_fdr": 0.0,
-        "significant_fdr": true,
-        "slope_ci_bootstrap_low": 0.033815,
-        "slope_ci_bootstrap_high": 0.073325,
-        "significant_bootstrap": true
+        "direction": "increasing"
       },
       "sample": {
         "n_years": 45,
@@ -44970,32 +43609,25 @@
         {
           "feature": "v10m_ms",
           "label": "Wind (north-south, V10M)",
-          "mean_abs_shap": 0.9554,
-          "share": 0.394
-        },
-        {
-          "feature": "lon",
-          "label": "Longitude",
-          "mean_abs_shap": 0.7261,
-          "share": 0.299
+          "mean_abs_shap": 0.9085,
+          "share": 0.377
         },
         {
           "feature": "u10m_ms",
           "label": "Wind (east-west, U10M)",
-          "mean_abs_shap": 0.562,
-          "share": 0.232
+          "mean_abs_shap": 0.6458,
+          "share": 0.268
+        },
+        {
+          "feature": "lon",
+          "label": "Longitude",
+          "mean_abs_shap": 0.6324,
+          "share": 0.262
         }
       ],
-      "p_value_fdr": 0.0,
-      "significant_fdr": true,
-      "population": {
-        "pop_2020": 50695.0,
-        "density": 377.9,
-        "exposed": false
-      },
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.379
+      "precip_heat_index_corr_2024": -0.384
     }
   ]
 }

@@ -220,14 +220,17 @@ export default function DashboardScreen({
     return () => window.removeEventListener('storage', onStorage)
   }, [store])
 
-  // Publish this account's HP as events. Guests never reach the network: no
-  // account, nothing recorded anywhere. Order is read -> restore -> push: a
-  // browser with no local log must adopt the stored score first, or its first
-  // push would omit what was earned elsewhere. Pushing is idempotent — the
-  // server dedupes on its primary key — so re-sending the log is safe.
-  // The log is read from the store, not from `events`: on an account switch the
-  // state is one commit behind the new key, and pushing that lag would send the
-  // previous account's HP.
+  // Publish this account's HP as events, then make the local total match what the
+  // server actually stored. Order is push -> read -> reconcile:
+  //   - pushing first means the server sees everything it will accept;
+  //   - a failed push (offline) returns early, so a legitimate local log is never
+  //     lowered to a stale score;
+  //   - only a *successful* push can reveal drift, and reconciling after it lowers
+  //     exactly the HP the server refused (pre-0009 history, duplicate awards).
+  // Pushing is idempotent — the server dedupes on its primary key — so re-sending
+  // the log is safe. The log is read from the store, not from `events`: on an
+  // account switch the state is one commit behind the new key, and pushing that
+  // lag would send the previous account's HP.
   useEffect(() => {
     if (!user || !supabase) {
       setScoreNote(null)
@@ -235,6 +238,13 @@ export default function DashboardScreen({
     }
     let cancelled = false
     const run = async () => {
+      const { error: pushErr } = await pushEvents(supabase, store.read(), today)
+      if (cancelled) return
+      if (pushErr) {
+        setScoreNote(`Leaderboard score not updated — ${pushErr.message}`)
+        return
+      }
+
       const { score, error: readErr } = await readScore(supabase, user.id)
       if (cancelled) return
       if (readErr) {
@@ -242,18 +252,11 @@ export default function DashboardScreen({
         return
       }
 
-      // Adopt an existing score so the HeatBar shows what the account already has.
+      // Adopt — or shed — HP so the HeatBar shows the account's real score.
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
         if (!restored.noop) setEvents(restored.events)
-      }
-
-      const { error: err } = await pushEvents(supabase, store.read(), today)
-      if (cancelled) return
-      if (err) {
-        setScoreNote(`Leaderboard score not updated — ${err.message}`)
-        return
       }
       setScoreNote(null)
       setSyncTick((n) => n + 1)

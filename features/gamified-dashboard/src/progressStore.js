@@ -423,13 +423,17 @@ export function createProgress(options = {}) {
       return r
     },
 
-    // Adopt a score that already exists on the account (read on sign-in) so this
-    // browser shows what was earned elsewhere. Appends the positive difference
-    // only: local HP is never lowered, and an already-higher device is left alone.
+    // Make the local total equal the stored score, in both directions. A `restore`
+    // event is local-only (never pushed), so a negative one is safe. Lowering is
+    // what removes HP this device holds but the server refused: 0009 dropped the
+    // pre-event table without a backfill, and duplicate awards can never pass the
+    // server's primary key.
     restoreTo(targetHP) {
       const events = read()
-      const delta = Math.floor(Number(targetHP) || 0) - derive(events).totalHP
-      if (delta <= 0) return { ok: true, events, noop: true }
+      const target = Math.floor(Number(targetHP))
+      if (!Number.isFinite(target) || target < 0) return { ok: true, events, noop: true }
+      const delta = target - derive(events).totalHP
+      if (delta === 0) return { ok: true, events, noop: true }
       const at = now().getTime()
       return append({ id: makeId(at), date: manilaDate(now()), kind: 'restore', hp: delta, at })
     },

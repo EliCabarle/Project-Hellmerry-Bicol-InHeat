@@ -333,7 +333,7 @@ test('catalog store draws five CSV quests and awards their drawn HP', () => {
   assert.equal(store.read().at(-1).label, target.title, 'title snapshotted into the event')
 })
 
-test('restoreTo adopts a stored score exactly once and never lowers HP', () => {
+test('restoreTo syncs the local total to the stored score exactly once', () => {
   const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0) })
 
   // Fresh browser, existing account: the score read on sign-in becomes local HP.
@@ -344,10 +344,22 @@ test('restoreTo adopts a stored score exactly once and never lowers HP', () => {
   // Sign-in runs again (remount, token refresh): must not stack a second copy.
   assert.equal(store.restoreTo(250).noop, true, 'same score is a no-op')
   assert.equal(derive(store.read()).totalHP, 250, 'still 250, not 500')
+})
 
-  // A device that is already ahead is left alone — restore never subtracts.
-  assert.equal(store.restoreTo(100).noop, true, 'lower target is a no-op')
-  assert.equal(derive(store.read()).totalHP, 250, 'HP never lowered')
+test('restoreTo lowers a log that is ahead of the server', () => {
+  const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0) })
+  // Local history the server never accepted: pre-0009 HP, or duplicate awards
+  // the server's primary key deduped. Without this the bar overstates the score.
+  store.restoreTo(120)
+  const e = store.read()[0]
+  assert.equal(derive(store.read()).totalHP, 120, 'baseline 120')
+
+  const lowered = store.restoreTo(105)
+  assert.equal(lowered.ok, true, 'lower target is applied')
+  assert.equal(derive(store.read()).totalHP, 105, 'local HP follows the server down')
+  assert.equal(store.read()[1].kind, 'restore', 'recorded as a local-only adjustment')
+  assert.ok(store.read()[1].hp < 0, 'the adjustment is negative')
+  assert.equal(e.hp, 120, 'the original event is untouched')
 })
 
 test('restored HP counts toward level but not toward "earned today"', () => {

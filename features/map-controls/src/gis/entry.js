@@ -5,7 +5,7 @@
 // north-to-south (top-down). Clamp delay, not count — the last area still
 // starts by STAGGER_CAP - ENTRY_DURATION_MS no matter how many areas exist.
 export const STAGGER_MS = 18; // per-area delay (ms)
-export const STAGGER_CAP = 400; // total ms for the whole sequence
+export const STAGGER_CAP = 900; // total ms for the whole sequence (+500 ms so the eye can see each area rise/fade)
 export const ENTRY_DURATION_MS = 300; // ms for one area to ease from ENTRY_FROM to full
 export const ENTRY_FROM = 0; // start value as a fraction of full depth/opacity
 

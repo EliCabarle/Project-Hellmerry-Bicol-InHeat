@@ -3,14 +3,14 @@
   "branchName": "feat/time-series",
   "worktreePath": "D:\\in-heat\\NASA-ProjectHellMerry",
   "upstream": "origin/feat/time-series",
-  "mergeBase": "52f582fa55edd8c5ef46ec9717c5c321d318a190",
+  "mergeBase": "53828135d79403d3a0b83eba1e905c0e4101e5bd",
   "firstSeenHead": "d66b13b91e4370835f686355b8c5855c7ba84a81",
-  "lastSeenHead": "7753fcc1a4ecc03b5d8def6377a8a751cd47f438",
-  "lastAnalyzedHead": "7753fcc1a4ecc03b5d8def6377a8a751cd47f438",
+  "lastSeenHead": "53828135d79403d3a0b83eba1e905c0e4101e5bd",
+  "lastAnalyzedHead": "53828135d79403d3a0b83eba1e905c0e4101e5bd",
   "stale": false,
   "staleReason": null,
   "staleSince": null,
   "lifecycleEvent": null,
   "createdAt": "2026-11-13T17:31:02.624Z",
-  "updatedAt": "2026-11-13T18:59:32.662Z"
+  "updatedAt": "2026-11-13T20:28:41.107Z"
 }

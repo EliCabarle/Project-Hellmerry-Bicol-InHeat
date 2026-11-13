@@ -1,24 +1,24 @@
 # Graph Report - .  (2026-11-13)
 
 ## Corpus Check
-- Large corpus: 374 files · ~563,688 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
+- Large corpus: 376 files · ~561,825 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder, or use --no-semantic to run AST-only.
 
 ## Summary
-- 1523 nodes · 2272 edges · 140 communities detected
+- 1526 nodes · 2276 edges · 140 communities detected
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 87 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
-- Edge kinds: contains: 717 · calls: 537 · rationale_for: 342 · method: 310 · imports: 232 · uses: 87 · re_exports: 28 · reads_from: 6 · references: 6 · imports_from: 4 · inherits: 3
+- Edge kinds: contains: 718 · calls: 537 · rationale_for: 342 · method: 310 · imports: 235 · uses: 87 · re_exports: 28 · reads_from: 6 · references: 6 · imports_from: 4 · inherits: 3
 
 
 ## Input Scope
 - Requested: auto
 - Resolved: committed (source: default-auto)
-- Included files: 374 · Candidates: 685
+- Included files: 376 · Candidates: 696
 - Excluded: 0 untracked · 12010 ignored · 13 sensitive · 0 missing committed
 - Recommendation: Use --scope all or graphify.yaml inputs.corpus for a knowledge-base folder.
 
 ## Graph Freshness
-- Built from Git commit: `7753fcc`
+- Built from Git commit: `5382813`
 - Compare this hash to `git rev-parse HEAD` before trusting freshness-sensitive graph output.
 ## God Nodes (most connected - your core abstractions)
 1. `TailwindConfigGenerator` - 59 edges
@@ -72,19 +72,19 @@ Nodes (21): eventLabel(), questLabel(), LADDER, DAY0, activeStacks(), addDays(),
 
 ### Community 6 - "Community 6"
 Cohesion: 0.09
-Nodes (31): BM25, calculate_pattern_break(), detect_domain(), get_background_config(), get_color_for_emotion(), get_layout_for_goal(), get_typography_for_slide(), _load_csv() (+23 more)
+Nodes (25): arrow(), esc(), fmtC(), fmtInt(), fmtP(), tooltipHtml(), COUNTRY_BOUNDS, RAW_BOUNDS (+17 more)
 
 ### Community 7 - "Community 7"
+Cohesion: 0.09
+Nodes (31): BM25, calculate_pattern_break(), detect_domain(), get_background_config(), get_color_for_emotion(), get_layout_for_goal(), get_typography_for_slide(), _load_csv() (+23 more)
+
+### Community 8 - "Community 8"
 Cohesion: 0.10
 Nodes (7): read_rows(), split_values(), style_identities(), TestGeneratedCatalogContract, TestLandingAndStackContract, TestReasoningContract, TestStyleIdentityContract
 
-### Community 8 - "Community 8"
+### Community 9 - "Community 9"
 Cohesion: 0.09
 Nodes (32): backtest_index(), build_record(), driver_index(), enso_index(), forecast_index(), load_output(), main(), morans_i_index() (+24 more)
-
-### Community 9 - "Community 9"
-Cohesion: 0.10
-Nodes (24): arrow(), esc(), fmtC(), fmtInt(), fmtP(), tooltipHtml(), COUNTRY_BOUNDS, RAW_BOUNDS (+16 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.07
@@ -734,11 +734,11 @@ Nodes (1): Test adding custom colors.
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `joinKey()` connect `Community 13` to `Community 20`, `Community 31`, `Community 38`, `Community 3`?**
-  _High betweenness centrality (0.022) - this node is a cross-community bridge._
-- **Why does `DesignSystemGenerator` connect `Community 32` to `Community 11`, `Community 52`, `Community 48`, `Community 39`, `Community 92`, `Community 40`, `Community 82`, `Community 7`, `Community 75`, `Community 29`, `Community 83`?**
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+- **Why does `DesignSystemGenerator` connect `Community 32` to `Community 11`, `Community 52`, `Community 48`, `Community 39`, `Community 92`, `Community 40`, `Community 82`, `Community 8`, `Community 75`, `Community 29`, `Community 83`?**
   _High betweenness centrality (0.014) - this node is a cross-community bridge._
-- **Why does `featureKey()` connect `Community 31` to `Community 0`, `Community 13`, `Community 25`, `Community 3`, `Community 9`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `featureKey()` connect `Community 31` to `Community 0`, `Community 13`, `Community 25`, `Community 3`, `Community 6`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Are the 38 inferred relationships involving `TailwindConfigGenerator` (e.g. with `Test adding colors multiple times.` and `Test adding full color palette.`) actually correct?**
   _`TailwindConfigGenerator` has 38 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 25 inferred relationships involving `ShadcnInstaller` (e.g. with `Test adding components without shadcn config.` and `Test adding components that are already installed.`) actually correct?**

@@ -480,12 +480,12 @@
     "hash": "37584a5eb1dd5a7fe3cf278047265d78"
   },
   "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/BicolMap.jsx": {
-    "mtime": 1794589258336.653,
-    "hash": "1e988a84f2b29af1c722b666341936f6"
+    "mtime": 1794600821422.6729,
+    "hash": "8d123907511a1c206ffe19226e9b6e96"
   },
   "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/Municipality3DLayer.jsx": {
-    "mtime": 1794594807225.988,
-    "hash": "474f8e28556688304ce320a98f088c74"
+    "mtime": 1794601137712.3623,
+    "hash": "04ccca0c29bd8013f92923a0595ab1eb"
   },
   "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/Icons.jsx": {
     "mtime": 1794406561438.8584,
@@ -1308,11 +1308,11 @@
     "hash": "7f7b5ea808c4eb19b08ca7d0b8c1cfca"
   },
   "D:/in-heat/NASA-ProjectHellMerry/.planning/graphs/GRAPH_REPORT.md": {
-    "mtime": 1794406561297.8872,
-    "hash": "698654a33ba3c2985ff8fd663d5af605"
+    "mtime": 1794596372374.0776,
+    "hash": "7c94c0709e196fdec30da089437387f6"
   },
   "D:/in-heat/NASA-ProjectHellMerry/.planning/graphs/graph.html": {
-    "mtime": 1794406561315.8997,
+    "mtime": 1794406561492.9385,
     "hash": "ce542285eaebb685e8a5950c160dbc43"
   },
   "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T13-52-26-950Z.yml": {
@@ -1492,7 +1492,15 @@
     "hash": "049e09ebd5f54e177d61d2b70072836d"
   },
   "D:/in-heat/NASA-ProjectHellMerry/.graphify/GRAPH_REPORT.md": {
-    "mtime": 1794593036557.6074,
-    "hash": "296f718f42f90b5a62ee8aa628e11d33"
+    "mtime": 1794596372374.0776,
+    "hash": "7c94c0709e196fdec30da089437387f6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/entry.js": {
+    "mtime": 1794601671650.8313,
+    "hash": "219e48da3d749666dbcd4820eaca6122"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_entry.mjs": {
+    "mtime": 1794601715138.8477,
+    "hash": "cf23b8a1971b9a593c2c2b99d2d021ef"
   }
 }

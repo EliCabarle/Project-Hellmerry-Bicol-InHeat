@@ -11,7 +11,7 @@ import {
 
 test("stagger constants", () => {
   strictAssert.equal(STAGGER_MS, 18);
-  strictAssert.equal(STAGGER_CAP, 400);
+  strictAssert.equal(STAGGER_CAP, 900);
   strictAssert.equal(ENTRY_DURATION_MS, 300);
   strictAssert.equal(ENTRY_FROM, 0);
 });
@@ -51,11 +51,11 @@ test("entryDelays: clamped inside STAGGER_CAP for all sizes", () => {
   }
 });
 
-test("entryDelays: 114 areas max delay is 100 ms (scaled, not dropped)", () => {
+test("entryDelays: 114 areas max delay is 600 ms (scaled, not dropped)", () => {
   const d = entryDelays(114);
-  // unscaled would be 113 * 18 = 2034 ms; scaled to maxStart = 100 ms
-  strictAssert.equal(d[113], 100);
-  strictAssert.ok(d[112] < 100);
+  // unscaled would be 113 * 18 = 2034 ms; scaled to maxStart = STAGGER_CAP - ENTRY_DURATION_MS = 600 ms
+  strictAssert.equal(d[113], 600);
+  strictAssert.ok(d[112] < 600);
 });
 
 test("entryDelays: reduced motion => all delays 0", () => {

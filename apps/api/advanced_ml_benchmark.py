@@ -41,7 +41,7 @@ GEO_CSV = API_DIR / "data" / "geo_features.csv"
 OUT_JSON = API_DIR / "output" / "ml_benchmark_results.json"
 
 TARGET = "heat_index_max_c"
-FEATURES = [
+BASE_FEATURES = [
     "u10m_ms",
     "v10m_ms",
     "lat",
@@ -49,11 +49,14 @@ FEATURES = [
     "elevation_m",
     "distance_to_coast_km",
     "ndvi_mean",
+    "month",
+]
+LAG_FEATURES = [
     "lag1_heat",
     "lag3_heat",
     "rolling3_mean",
-    "month",
 ]
+FEATURES = BASE_FEATURES + LAG_FEATURES
 N_SPLITS = 5
 N_ESTIMATORS = 100
 RANDOM_STATE = 42
@@ -141,10 +144,7 @@ def main() -> None:
 
     print(f"  {len(df):,} rows after feature engineering + NaN drop")
 
-    X = df[FEATURES]
     y = df[TARGET]
-
-    # TimeSeriesSplit on date-sorted rows
     tscv = TimeSeriesSplit(n_splits=N_SPLITS)
 
     models = {
@@ -171,39 +171,73 @@ def main() -> None:
         print("  XGBoost not available - skipping")
 
     results = {}
+
+    # --- Benchmark WITH lag features (autocorrelation baseline) ---
+    X_with_lags = df[FEATURES]
+    print(f"\n=== WITH lag features ({len(LAG_FEATURES)} lag/rolling features) ===")
     for name, model in models.items():
-        print(f"\nTraining {name} ({N_SPLITS}-fold TimeSeriesSplit)...")
-        res = evaluate_model(model, name, X, y, tscv)
-        results[name] = res
+        print(f"\nTraining {name} ({N_SPLITS}-fold TimeSeriesSplit) WITH lags...")
+        res = evaluate_model(model, f"{name}_with_lags", X_with_lags, y, tscv)
+        results[f"{name}_with_lags"] = res
         print(f"  Mean R² = {res['mean_r2']:.4f} | Mean RMSE = {res['mean_rmse']:.4f}")
 
-    # Rank by mean R² (descending)
-    ranking = sorted(results.items(), key=lambda kv: kv[1]["mean_r2"], reverse=True)
+    # --- Benchmark WITHOUT lag features (honest geographic/wind predictive skill) ---
+    X_without_lags = df[BASE_FEATURES]
+    print(f"\n=== WITHOUT lag features ({len(BASE_FEATURES)} geo/wind features only) ===")
+    for name, model in models.items():
+        print(f"\nTraining {name} ({N_SPLITS}-fold TimeSeriesSplit) WITHOUT lags...")
+        res = evaluate_model(model, f"{name}_without_lags", X_without_lags, y, tscv)
+        results[f"{name}_without_lags"] = res
+        print(f"  Mean R² = {res['mean_r2']:.4f} | Mean RMSE = {res['mean_rmse']:.4f}")
+
+    # Rank by mean R² (descending) on the WITHOUT-lags results (honest skill)
+    without_lags_results = {k: v for k, v in results.items() if k.endswith("_without_lags")}
+    ranking = sorted(without_lags_results.items(), key=lambda kv: kv[1]["mean_r2"], reverse=True)
     winner_name, winner_res = ranking[0]
 
-    print(f"\nBENCHMARK DONE | " + ", ".join(
+    print(f"\nBENCHMARK DONE (WITHOUT lags - honest skill) | " + ", ".join(
         (f"{i+1}st" if i == 0 else f"{i+1}nd" if i == 1 else f"{i+1}rd" if i == 2 else f"{i+1}th")
-        + f": {name} (R²={res['mean_r2']:.4f})"
+        + f": {name.replace('_without_lags', '')} (R²={res['mean_r2']:.4f})"
         for i, (name, res) in enumerate(ranking)
+    ))
+    print(f"BENCHMARK DONE (WITH lags - autocorrelation baseline) | " + ", ".join(
+        f"{name.replace('_with_lags', '')} (R²={res['mean_r2']:.4f})"
+        for name, res in sorted(
+            [(k, v) for k, v in results.items() if k.endswith("_with_lags")],
+            key=lambda kv: kv[1]["mean_r2"],
+            reverse=True,
+        )
     ))
 
     payload = {
         "project": "Bicol In-Heat",
         "module": "advanced_ml_benchmark",
         "target": TARGET,
-        "features": FEATURES,
-        "n_samples": int(len(X)),
-        "n_features": int(len(FEATURES)),
+        "base_features": BASE_FEATURES,
+        "lag_features": LAG_FEATURES,
+        "n_samples": int(len(df)),
+        "n_base_features": int(len(BASE_FEATURES)),
+        "n_lag_features": int(len(LAG_FEATURES)),
         "cv": {"method": "TimeSeriesSplit", "n_splits": N_SPLITS},
         "models": results,
-        "winner": {
-            "model": winner_name,
+        "winner_without_lags": {
+            "model": winner_name.replace("_without_lags", ""),
             "mean_r2": winner_res["mean_r2"],
             "mean_rmse": winner_res["mean_rmse"],
         },
-        "ranking": [
-            {"rank": i + 1, "model": name, "mean_r2": res["mean_r2"], "mean_rmse": res["mean_rmse"]}
+        "ranking_without_lags": [
+            {"rank": i + 1, "model": name.replace("_without_lags", ""), "mean_r2": res["mean_r2"], "mean_rmse": res["mean_rmse"]}
             for i, (name, res) in enumerate(ranking)
+        ],
+        "ranking_with_lags": [
+            {"rank": i + 1, "model": name.replace("_with_lags", ""), "mean_r2": res["mean_r2"], "mean_rmse": res["mean_rmse"]}
+            for i, (name, res) in enumerate(
+                sorted(
+                    [(k, v) for k, v in results.items() if k.endswith("_with_lags")],
+                    key=lambda kv: kv[1]["mean_r2"],
+                    reverse=True,
+                )
+            )
         ],
     }
 

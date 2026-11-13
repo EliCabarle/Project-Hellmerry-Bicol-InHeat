@@ -419,7 +419,9 @@
       ],
       "annual_precip_mm_2024": 2724.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "baao-camarines-sur",
@@ -801,7 +803,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 593824,
+      "person_days_density": 5562.75
     },
     {
       "id": "bacacay-albay",
@@ -1183,7 +1187,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "bagamanoc-catanduanes",
@@ -1565,7 +1571,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "balatan-camarines-sur",
@@ -1947,7 +1955,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 332181,
+      "person_days_density": 5592.27
     },
     {
       "id": "baleno-masbate",
@@ -2329,7 +2339,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "balud-masbate",
@@ -2711,7 +2723,9 @@
       ],
       "annual_precip_mm_2024": 2430.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "baras-catanduanes",
@@ -3093,7 +3107,9 @@
       ],
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "barcelona-sorsogon",
@@ -3475,7 +3491,9 @@
       ],
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "basud-camarines-norte",
@@ -3857,7 +3875,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 38583,
+      "person_days_density": 145.89
     },
     {
       "id": "bato-camarines-sur",
@@ -4239,7 +4259,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 513188,
+      "person_days_density": 6071.08
     },
     {
       "id": "bato-catanduanes",
@@ -4621,7 +4643,9 @@
       ],
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "batuan-masbate",
@@ -5003,7 +5027,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "bombon-camarines-sur",
@@ -5385,7 +5411,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 189404,
+      "person_days_density": 6165.49
     },
     {
       "id": "buhi-camarines-sur",
@@ -5767,7 +5795,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "bula-camarines-sur",
@@ -6149,7 +6179,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 797291,
+      "person_days_density": 4769.06
     },
     {
       "id": "bulan-sorsogon",
@@ -6531,7 +6563,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "bulusan-sorsogon",
@@ -6913,7 +6947,9 @@
       ],
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "cabusao-camarines-sur",
@@ -7295,7 +7331,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 149110,
+      "person_days_density": 3927.05
     },
     {
       "id": "calabanga-camarines-sur",
@@ -7677,7 +7715,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 811061,
+      "person_days_density": 5325.77
     },
     {
       "id": "camalig-albay",
@@ -8059,7 +8099,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 602963,
+      "person_days_density": 4786.56
     },
     {
       "id": "camaligan-camarines-sur",
@@ -8441,7 +8483,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 247154,
+      "person_days_density": 34518.72
     },
     {
       "id": "canaman-camarines-sur",
@@ -8823,7 +8867,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 475264,
+      "person_days_density": 11569.23
     },
     {
       "id": "capalonga-camarines-norte",
@@ -9205,7 +9251,9 @@
       ],
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "caramoan-camarines-sur",
@@ -9587,7 +9635,9 @@
       ],
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "caramoran-catanduanes",
@@ -9969,7 +10019,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "casiguran-sorsogon",
@@ -10351,7 +10403,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 204392,
+      "person_days_density": 2302.75
     },
     {
       "id": "castilla-sorsogon",
@@ -10733,7 +10787,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 485012,
+      "person_days_density": 2488.39
     },
     {
       "id": "cataingan-masbate",
@@ -11115,7 +11171,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "cawayan-masbate",
@@ -11497,7 +11555,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "city-of-iriga-camarines-sur",
@@ -11879,7 +11939,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 1141059,
+      "person_days_density": 8150.42
     },
     {
       "id": "city-of-legazpi-albay",
@@ -12261,7 +12323,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 1668747,
+      "person_days_density": 10315.55
     },
     {
       "id": "city-of-ligao-albay",
@@ -12643,7 +12707,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 941207,
+      "person_days_density": 3742.37
     },
     {
       "id": "city-of-masbate-masbate",
@@ -13025,7 +13091,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "city-of-naga-camarines-sur",
@@ -13407,7 +13475,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 1965828,
+      "person_days_density": 24761.66
     },
     {
       "id": "city-of-sorsogon-sorsogon",
@@ -13789,7 +13859,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 1218296,
+      "person_days_density": 4335.73
     },
     {
       "id": "city-of-tabaco-albay",
@@ -14171,7 +14243,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "claveria-masbate",
@@ -14553,7 +14627,9 @@
       ],
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "daet-camarines-norte",
@@ -14935,7 +15011,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 84575,
+      "person_days_density": 1679.74
     },
     {
       "id": "daraga-albay",
@@ -15317,7 +15395,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 929304,
+      "person_days_density": 7551.63
     },
     {
       "id": "del-gallego-camarines-sur",
@@ -15699,7 +15779,9 @@
       ],
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 145028,
+      "person_days_density": 678.49
     },
     {
       "id": "dimasalang-masbate",
@@ -16081,7 +16163,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "donsol-sorsogon",
@@ -16463,7 +16547,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 420556,
+      "person_days_density": 2748.91
     },
     {
       "id": "esperanza-masbate",
@@ -16845,7 +16931,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "gainza-camarines-sur",
@@ -17227,7 +17315,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 108766,
+      "person_days_density": 7344.09
     },
     {
       "id": "garchitorena-camarines-sur",
@@ -17609,7 +17699,9 @@
       ],
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "gigmoto-catanduanes",
@@ -17991,7 +18083,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "goa-camarines-sur",
@@ -18373,7 +18467,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 54333,
+      "person_days_density": 289.85
     },
     {
       "id": "gubat-sorsogon",
@@ -18755,7 +18851,9 @@
       ],
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "guinobatan-albay",
@@ -19137,7 +19235,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 582646,
+      "person_days_density": 3340.09
     },
     {
       "id": "irosin-sorsogon",
@@ -19519,7 +19619,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "jose-panganiban-camarines-norte",
@@ -19901,7 +20003,9 @@
       ],
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "jovellar-albay",
@@ -20283,7 +20387,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 111039,
+      "person_days_density": 1349.2
     },
     {
       "id": "juban-sorsogon",
@@ -20672,7 +20778,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 262633,
+      "person_days_density": 2184.42
     },
     {
       "id": "labo-camarines-norte",
@@ -21054,7 +21162,9 @@
       ],
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 544397,
+      "person_days_density": 862.86
     },
     {
       "id": "lagonoy-camarines-sur",
@@ -21436,7 +21546,9 @@
       ],
       "annual_precip_mm_2024": 3334.4,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "libmanan-camarines-sur",
@@ -21818,7 +21930,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 1119825,
+      "person_days_density": 3039.53
     },
     {
       "id": "libon-albay",
@@ -22200,7 +22314,9 @@
       ],
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "lupi-camarines-sur",
@@ -22582,7 +22698,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 32269,
+      "person_days_density": 161.37
     },
     {
       "id": "magallanes-sorsogon",
@@ -22964,7 +23082,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 207814,
+      "person_days_density": 1934.59
     },
     {
       "id": "magarao-camarines-sur",
@@ -23346,7 +23466,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 329223,
+      "person_days_density": 9014.87
     },
     {
       "id": "malilipot-albay",
@@ -23728,7 +23850,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "malinao-albay",
@@ -24110,7 +24234,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "mandaon-masbate",
@@ -24492,7 +24618,9 @@
       ],
       "annual_precip_mm_2024": 2430.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "manito-albay",
@@ -24874,7 +25002,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 197387,
+      "person_days_density": 2082.8
     },
     {
       "id": "matnog-sorsogon",
@@ -25284,7 +25414,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "mercedes-camarines-norte",
@@ -25666,7 +25798,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 39783,
+      "person_days_density": 355.55
     },
     {
       "id": "milagros-masbate",
@@ -26048,7 +26182,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "milaor-camarines-sur",
@@ -26430,7 +26566,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 424822,
+      "person_days_density": 12940.05
     },
     {
       "id": "minalabac-camarines-sur",
@@ -26812,7 +26950,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 474983,
+      "person_days_density": 3764.63
     },
     {
       "id": "mobo-masbate",
@@ -27194,7 +27334,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "monreal-masbate",
@@ -27576,7 +27718,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "nabua-camarines-sur",
@@ -27958,7 +28102,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 828505,
+      "person_days_density": 9614.77
     },
     {
       "id": "oas-albay",
@@ -28340,7 +28486,9 @@
       ],
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "ocampo-camarines-sur",
@@ -28722,7 +28870,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 437086,
+      "person_days_density": 3621.56
     },
     {
       "id": "palanas-masbate",
@@ -29104,7 +29254,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "pamplona-camarines-sur",
@@ -29486,7 +29638,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 358017,
+      "person_days_density": 5422.04
     },
     {
       "id": "pandan-catanduanes",
@@ -29868,7 +30022,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "panganiban-catanduanes",
@@ -30250,7 +30406,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "paracale-camarines-norte",
@@ -30632,7 +30790,9 @@
       ],
       "annual_precip_mm_2024": 3134.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "pasacao-camarines-sur",
@@ -31014,7 +31174,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 478888,
+      "person_days_density": 3539.98
     },
     {
       "id": "pilar-sorsogon",
@@ -31396,7 +31558,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 628178,
+      "person_days_density": 3041.58
     },
     {
       "id": "pili-camarines-sur",
@@ -31778,7 +31942,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 867359,
+      "person_days_density": 7111.83
     },
     {
       "id": "pio-duran-albay",
@@ -32160,7 +32326,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 365147,
+      "person_days_density": 2610.99
     },
     {
       "id": "pio-v-corpus-masbate",
@@ -32542,7 +32710,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "placer-masbate",
@@ -32924,7 +33094,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "polangui-albay",
@@ -33306,7 +33478,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "presentacion-camarines-sur",
@@ -33688,7 +33862,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "prieto-diaz-sorsogon",
@@ -34077,7 +34253,9 @@
       ],
       "annual_precip_mm_2024": 3447.6,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "ragay-camarines-sur",
@@ -34459,7 +34637,9 @@
       ],
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 337628,
+      "person_days_density": 896.73
     },
     {
       "id": "rapu-rapu-albay",
@@ -34841,7 +35021,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "sagnay-camarines-sur",
@@ -35223,7 +35405,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-andres-catanduanes",
@@ -35605,7 +35789,9 @@
       ],
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-fernando-camarines-sur",
@@ -35987,7 +36173,9 @@
       ],
       "annual_precip_mm_2024": 3397.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 413545,
+      "person_days_density": 4887.08
     },
     {
       "id": "san-fernando-masbate",
@@ -36369,7 +36557,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-jacinto-masbate",
@@ -36751,7 +36941,9 @@
       ],
       "annual_precip_mm_2024": 2733.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-jose-camarines-sur",
@@ -37133,7 +37325,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-lorenzo-ruiz-camarines-norte",
@@ -37515,7 +37709,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 9955,
+      "person_days_density": 112.04
     },
     {
       "id": "san-miguel-catanduanes",
@@ -37897,7 +38093,9 @@
       ],
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-pascual-masbate",
@@ -38279,7 +38477,9 @@
       ],
       "annual_precip_mm_2024": 2693.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "san-vicente-camarines-norte",
@@ -38661,7 +38861,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 11692,
+      "person_days_density": 228.36
     },
     {
       "id": "santa-elena-camarines-norte",
@@ -39043,7 +39245,9 @@
       ],
       "annual_precip_mm_2024": 3550.9,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 203895,
+      "person_days_density": 1024.5
     },
     {
       "id": "santa-magdalena-sorsogon",
@@ -39425,7 +39629,9 @@
       ],
       "annual_precip_mm_2024": 2789.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 257362,
+      "person_days_density": 4971.26
     },
     {
       "id": "santo-domingo-albay",
@@ -39807,7 +40013,9 @@
       ],
       "annual_precip_mm_2024": 3148.8,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 285904,
+      "person_days_density": 5285.71
     },
     {
       "id": "sipocot-camarines-sur",
@@ -40189,7 +40397,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 79589,
+      "person_days_density": 314.62
     },
     {
       "id": "siruma-camarines-sur",
@@ -40571,7 +40781,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 11253,
+      "person_days_density": 93.56
     },
     {
       "id": "talisay-camarines-norte",
@@ -40953,7 +41165,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 22988,
+      "person_days_density": 711.7
     },
     {
       "id": "tigaon-camarines-sur",
@@ -41335,7 +41549,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "tinambac-camarines-sur",
@@ -41717,7 +41933,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 65044,
+      "person_days_density": 195.52
     },
     {
       "id": "tiwi-albay",
@@ -42099,7 +42317,9 @@
       ],
       "annual_precip_mm_2024": 3492.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "uson-masbate",
@@ -42481,7 +42701,9 @@
       ],
       "annual_precip_mm_2024": 2234.0,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "viga-catanduanes",
@@ -42863,7 +43085,9 @@
       ],
       "annual_precip_mm_2024": 3113.7,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "vinzons-camarines-norte",
@@ -43245,7 +43469,9 @@
       ],
       "annual_precip_mm_2024": 3599.3,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     },
     {
       "id": "virac-catanduanes",
@@ -43627,7 +43853,9 @@
       ],
       "annual_precip_mm_2024": 3268.1,
       "precip_source": "power:PRECTOTCORR",
-      "precip_heat_index_corr_2024": -0.384
+      "precip_heat_index_corr_2024": -0.384,
+      "person_days_danger": 0,
+      "person_days_density": 0.0
     }
   ]
 }

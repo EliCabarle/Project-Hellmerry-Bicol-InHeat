@@ -38,11 +38,6 @@ import {
   START_ZOOM,
   FLIGHT_MS,
 } from "./gis/countryFrame.js";
-import {
-  metricSummary,
-  LEGEND_STOPS,
-  SCALE_METHOD,
-} from "./gis/metric.js";
 
 // 3D is a separate entity with its own renderer, so it is loaded on demand and
 // never lands in the 2D bundle.
@@ -119,7 +114,6 @@ function MunicipalityLayer({
   year,
   date,
   dayValues,
-  ramp = null,
   onSelect,
 }) {
   const layerRef = useRef(null);
@@ -138,8 +132,8 @@ function MunicipalityLayer({
         viewMode: stateRef.current.viewMode,
         year: stateRef.current.year,
         dayValues: stateRef.current.dayValues,
-      }, ramp),
-    [ramp],
+      }),
+    [],
   );
 
   useEffect(() => {
@@ -335,26 +329,6 @@ export default function BicolMap({
         ],
       )
     : latestYear;
-
-  // Data-driven fill ramp for the active metric, computed once per metric
-  // change across all 114 areas. Day mode keeps its fixed PAGASA bands, so no
-  // ramp is produced there. Geometry is never rebuilt when this changes — only
-  // fill colours flow through setStyle / source.updateData.
-  const summary = useMemo(() => {
-    if (!joined || viewMode === "day") return null;
-    const year = viewMode === "year" ? displayYear : null;
-    return metricSummary(joined.features, { viewMode, year, dayValues: null });
-  }, [joined, viewMode, displayYear]);
-  const ramp = summary?.ramp ?? null;
-
-  const metricLabel =
-    viewMode === "trend"
-      ? "Warming rate"
-      : viewMode === "year"
-        ? "Mean heat index"
-        : "Peak heat index";
-  const metricUnits = viewMode === "trend" ? "°C/yr" : "°C";
-
   const [selectedKey, setSelectedKey] = useState(null);
   const [indexOpen, setIndexOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
@@ -553,7 +527,6 @@ export default function BicolMap({
             year={displayYear}
             date={date}
             dayValues={dayValues}
-            ramp={ramp}
             onSelect={setSelectedKey}
           />
         )}
@@ -567,7 +540,6 @@ export default function BicolMap({
             selectedFeature={selectedFeature}
             viewMode={viewMode}
             year={displayYear}
-            ramp={ramp}
             initialView={view3d}
             resetToken={resetToken}
             onSelect={setSelectedKey}
@@ -582,13 +554,6 @@ export default function BicolMap({
         viewMode={viewMode}
         year={viewMode === "year" ? selectedYear : latestYear}
         date={date}
-        ramp={ramp}
-        noDataCount={summary?.noDataCount ?? 0}
-        valueMin={summary?.min ?? null}
-        valueMax={summary?.max ?? null}
-        method={SCALE_METHOD}
-        metricLabel={metricLabel}
-        metricUnits={metricUnits}
         onBrowse={() => setIndexOpen(true)}
       />
 

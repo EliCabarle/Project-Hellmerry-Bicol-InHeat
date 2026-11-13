@@ -8,16 +8,7 @@ import {
   getMunicipalityStyle,
   SELECT_COLOUR,
 } from "./gis/engine.js";
-import {
-  DEPTH_BASE,
-  LIFT_MS,
-  LIFT_RATIO,
-  COLOR_LERP,
-  COLOR_THRESHOLD,
-  colorDistance,
-  lerpColor,
-  depthFor,
-} from "./gis/lift.js";
+import { DEPTH_BASE, LIFT_MS, LIFT_RATIO, depthFor } from "./gis/lift.js";
 import {
   TRACE_MS,
   easeOutCubic,
@@ -112,7 +103,6 @@ export default function Municipality3DLayer({
   selectedFeature,
   viewMode = "trend",
   year = null,
-  ramp = null,
   initialView = null,
   resetToken = 0,
   onSelect,
@@ -126,8 +116,6 @@ export default function Municipality3DLayer({
   const selectedRef = useRef(selectedKey);
   const liftRef = useRef(new Map());
   const animRef = useRef(new Map());
-  const fillRef = useRef(new Map()); // current fill colour per key
-  const fillTargetRef = useRef(new Map()); // target fill colour per key
   const rafRef = useRef(0);
   const traceRef = useRef(null);
   const yearRef = useRef(year);
@@ -160,16 +148,10 @@ export default function Municipality3DLayer({
         selected: false,
         viewMode,
         year,
-      }, ramp);
+      });
       const depth = depthFor(f, viewMode, year);
       const centroid = centroidOf(f);
       const name = f?.properties?.adm3_en ?? f?.properties?.shapeName ?? "";
-      const targetFill = style.fillColor ?? "#64748b";
-      fillTargetRef.current.set(key, targetFill);
-      // Keep the current colour so a data update fades from it rather than snapping;
-      // a brand-new key starts exactly on its target (no idle writes).
-      const currentFill = fillRef.current.get(key) ?? targetFill;
-      fillRef.current.set(key, currentFill);
       depths.set(key, depth);
       byKey.set(key, f);
       rings.set(key, ringsOf(f.geometry));
@@ -185,7 +167,7 @@ export default function Municipality3DLayer({
         geometry: f.geometry,
         properties: {
           _key: key,
-          _fill: currentFill,
+          _fill: style.fillColor ?? "#64748b",
           _line: style.color ?? "#fca5a5",
           _weight: style.weight ?? 1.5,
           _dash: style.dashArray ? 1 : 0,
@@ -214,17 +196,6 @@ export default function Municipality3DLayer({
       update: [...values].map(([id, value]) => ({
         id,
         addOrUpdateProperties: [{ key: "_lift", value }],
-      })),
-    });
-  }, []);
-
-  const setFills = useCallback((values) => {
-    const source = mapRef.current?.getSource(SRC);
-    if (!source || values.size === 0) return;
-    source.updateData({
-      update: [...values].map(([id, value]) => ({
-        id,
-        addOrUpdateProperties: [{ key: "_fill", value }],
       })),
     });
   }, []);
@@ -268,51 +239,18 @@ export default function Municipality3DLayer({
   // Ease-out cubic, one rAF loop that stops as soon as nothing is animating.
   const step = useCallback(() => {
     const now = performance.now();
-    const liftValues = new Map();
-    const fillValues = new Map();
+    const values = new Map();
     let active = false;
     for (const [key, anim] of animRef.current) {
       const p = Math.min(1, (now - anim.start) / LIFT_MS);
       const eased = 1 - (1 - p) ** 3;
       const value = anim.from + (anim.to - anim.from) * eased;
       liftRef.current.set(key, value);
-      liftValues.set(key, value);
+      values.set(key, value);
       if (p >= 1) animRef.current.delete(key);
       else active = true;
     }
-    // Colour: move each current fill toward its target by COLOR_LERP per frame.
-    // A mid-transition target change continues from the current colour. Stop
-    // writing once within the threshold so idle frames cost nothing.
-    for (const [key, current] of fillRef.current) {
-      const target = fillTargetRef.current.get(key);
-      if (target == null) continue;
-      if (current === target) continue;
-      if (reducedRef.current) {
-        fillRef.current.set(key, target);
-        fillValues.set(key, target);
-        fillRef.current.delete(key);
-        fillTargetRef.current.delete(key);
-        continue;
-      }
-      let next;
-      if (colorDistance(current, target) <= COLOR_THRESHOLD) {
-        next = target; // within threshold: snap exactly
-      } else {
-        const candidate = lerpColor(current, target, COLOR_LERP);
-        // Integer hex rounding can stall one step short; snap rather than loop forever.
-        next = candidate === current ? target : candidate;
-      }
-      fillRef.current.set(key, next);
-      fillValues.set(key, next);
-      if (next === target) {
-        fillRef.current.delete(key);
-        fillTargetRef.current.delete(key);
-      } else {
-        active = true;
-      }
-    }
-    if (liftValues.size) setLifts(liftValues);
-    if (fillValues.size) setFills(fillValues);
+    if (values.size) setLifts(values);
     const trace = traceRef.current;
     if (trace) {
       const p = Math.min(1, (now - trace.start) / TRACE_MS);
@@ -321,7 +259,7 @@ export default function Municipality3DLayer({
       if (p < 1) active = true;
     }
     rafRef.current = active ? requestAnimationFrame(step) : 0;
-  }, [paintTrace, setLifts, setFills]);
+  }, [paintTrace, setLifts]);
 
   const moveTo = useCallback(
     (key, to, { finishFirst = false } = {}) => {
@@ -564,27 +502,7 @@ export default function Municipality3DLayer({
     } else {
       clearTrace();
     }
-    // Colour: fade current fill toward the new target. Under reduced motion jump
-    // straight to the target; otherwise let the shared rAF loop lerp per frame.
-    if (reducedRef.current) {
-      const fillValues = new Map();
-      for (const [key, target] of fillTargetRef.current) {
-        fillRef.current.set(key, target);
-        fillValues.set(key, target);
-      }
-      fillTargetRef.current.clear();
-      if (fillValues.size) setFills(fillValues);
-    } else {
-      let colorActive = false;
-      for (const [key, current] of fillRef.current) {
-        if (fillTargetRef.current.get(key) != null && current !== fillTargetRef.current.get(key)) {
-          colorActive = true;
-          break;
-        }
-      }
-      if (colorActive && !rafRef.current) rafRef.current = requestAnimationFrame(step);
-    }
-  }, [clearTrace, data, ready, setFills, setLifts, startTrace, step, targetFor]);
+  }, [clearTrace, data, ready, setLifts, startTrace, targetFor]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -618,19 +536,11 @@ export default function Municipality3DLayer({
     cancelAnimationFrame(rafRef.current);
     rafRef.current = 0;
     if (values.size) setLifts(values);
-    // Colour: jump to target immediately under reduced motion.
-    const fillValues = new Map();
-    for (const [key, target] of fillTargetRef.current) {
-      fillRef.current.set(key, target);
-      fillValues.set(key, target);
-    }
-    fillTargetRef.current.clear();
-    if (fillValues.size) setFills(fillValues);
     if (traceRef.current) {
       traceRef.current.progress = 1;
       paintTrace(traceRef.current, 1);
     }
-  }, [paintTrace, reducedMotion, setFills, setLifts]);
+  }, [paintTrace, reducedMotion, setLifts]);
 
   useEffect(() => {
     const map = mapRef.current;

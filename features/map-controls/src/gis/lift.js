@@ -8,40 +8,6 @@ export const DEPTH_SPAN = 9000 // metres added across the full colour domain
 export const LIFT_RATIO = 0.30 // of the area's own depth
 export const LIFT_MS = 150
 
-// Colour fade: move current fill toward target fill by COLOR_LERP per frame,
-// snapping once within COLOR_THRESHOLD (per channel, max channel distance).
-export const COLOR_LERP = 0.18 // per frame; safe 0.08–0.30, ~150 ms equivalent
-export const COLOR_THRESHOLD = 1.5
-
-function hexToRgb(hex) {
-  const h = String(hex).replace(/^#/, '')
-  const n = parseInt(h, 16)
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-}
-
-export function rgbToHex(r, g, b) {
-  const pad = (v) => Math.round(v).toString(16).padStart(2, '0')
-  return `#${pad(r)}${pad(g)}${pad(b)}`
-}
-
-// Linear interpolate channel-by-channel; result always lies between from and to.
-export function lerpColor(fromColor, toColor, t) {
-  const f = hexToRgb(fromColor)
-  const to = hexToRgb(toColor)
-  return rgbToHex(
-    f[0] + (to[0] - f[0]) * t,
-    f[1] + (to[1] - f[1]) * t,
-    f[2] + (to[2] - f[2]) * t,
-  )
-}
-
-// Max per-channel absolute distance; 0 means identical.
-export function colorDistance(fromColor, toColor) {
-  const f = hexToRgb(fromColor)
-  const to = hexToRgb(toColor)
-  return Math.max(Math.abs(f[0] - to[0]), Math.abs(f[1] - to[1]), Math.abs(f[2] - to[2]))
-}
-
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
 
 export function depthFor(feature, viewMode = 'trend', year = null) {

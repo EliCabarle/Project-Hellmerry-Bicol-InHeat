@@ -22,6 +22,8 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
+import numbers
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -168,6 +170,26 @@ def morans_i_index() -> dict[tuple[str, str], dict]:
     }
 
 
+def volatility_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> volatility metrics from output/volatility_analysis.json."""
+    path = BASE_DIR / "output" / "volatility_analysis.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        (row["name"], row["province"]): {
+            "annual_peak_std": row.get("annual_peak_std"),
+            "danger_days_var": row.get("danger_days_var"),
+            "p99_p50_gap": row.get("p99_p50_gap"),
+            "vol_trend_slope": row.get("vol_trend", {}).get("slope"),
+            "vol_trend_p_value": row.get("vol_trend", {}).get("p_value"),
+            "vol_trend_significant": row.get("vol_trend", {}).get("significant"),
+            "vol_trend_direction": row.get("vol_trend", {}).get("direction"),
+        }
+        for row in data.get("municipalities", [])
+    }
+
+
 def build_record(
     city_data: dict,
     drivers: dict,
@@ -178,6 +200,7 @@ def build_record(
     population: dict,
     spatial_meta: dict,
     morans_i: dict,
+    volatility: dict,
 ) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
@@ -242,6 +265,14 @@ def build_record(
         # Moran's I / LISA
         "morans_i_local": morans_i.get(key, {}).get("morans_i_local"),
         "lisa_cluster": morans_i.get(key, {}).get("lisa_cluster"),
+        # Volatility Engine
+        "annual_peak_std": volatility.get(key, {}).get("annual_peak_std"),
+        "danger_days_var": volatility.get(key, {}).get("danger_days_var"),
+        "p99_p50_gap": volatility.get(key, {}).get("p99_p50_gap"),
+        "vol_trend_slope": volatility.get(key, {}).get("vol_trend_slope"),
+        "vol_trend_p_value": volatility.get(key, {}).get("vol_trend_p_value"),
+        "vol_trend_significant": volatility.get(key, {}).get("vol_trend_significant"),
+        "vol_trend_direction": volatility.get(key, {}).get("vol_trend_direction"),
     }
 
 
@@ -255,6 +286,7 @@ def main(dry_run: bool) -> None:
     population = population_index()
     spatial_meta = spatial_metadata()
     morans_i = morans_i_index()
+    volatility = volatility_index()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
     if not spatial:
@@ -271,6 +303,8 @@ def main(dry_run: bool) -> None:
         print("warning: output/spatial_drivers.json metadata missing - spatial_r2_cv_mean will be null")
     if not morans_i:
         print("warning: output/morans_i.json missing - morans_i_local/lisa_cluster will be null")
+    if not volatility:
+        print("warning: output/volatility_analysis.json missing - volatility fields will be null")
     if not LST_BY_KEY:
         print("warning: data/lst_means.csv missing - lst_mean_c will be null")
 
@@ -284,16 +318,25 @@ def main(dry_run: bool) -> None:
 
     print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
     success_count = 0
-    drop_morans_i = None  # None = unknown, True = schema lacks columns
+    MISSING_COLS = (
+        "morans_i_local", "lisa_cluster",
+        "annual_peak_std", "danger_days_var", "p99_p50_gap",
+        "vol_trend_slope", "vol_trend_p_value", "vol_trend_significant", "vol_trend_direction",
+    )
+    drop_cols = None  # None = unknown, True = schema lacks mi/vol columns
     for city_data in municipalities:
         record = build_record(
             city_data, drivers, spatial, trends, backtest, forecast,
-            population, spatial_meta, morans_i,
+            population, spatial_meta, morans_i, volatility,
         )
-        # If we already learned the schema lacks morans_i columns, strip them.
-        if drop_morans_i is True:
-            record = {k: v for k, v in record.items()
-                      if k not in ("morans_i_local", "lisa_cluster")}
+        # Convert NaN floats (Python and numpy) to None for JSON compliance.
+        record = {
+            k: (None if isinstance(v, numbers.Real) and pd.isna(v) else v)
+            for k, v in record.items()
+        }
+        # If we already learned the schema lacks mi/vol columns, strip them.
+        if drop_cols is True:
+            record = {k: v for k, v in record.items() if k not in MISSING_COLS}
         try:
             if dry_run:
                 print(
@@ -315,20 +358,19 @@ def main(dry_run: bool) -> None:
             success_count += 1
         except Exception as error:  # one bad row must not abort the rest
             msg = str(error)
-            if drop_morans_i is None and ("lisa_cluster" in msg or "morans_i_local" in msg):
-                # Schema lacks morans_i columns (migration not applied yet).
+            if drop_cols is None and any(c in msg for c in MISSING_COLS):
+                # Schema lacks mi/vol columns (migration not applied yet).
                 # Retry this row without them, then strip for all remaining rows.
-                record_no_mi = {k: v for k, v in record.items()
-                                if k not in ("morans_i_local", "lisa_cluster")}
+                record_no_mi = {k: v for k, v in record.items() if k not in MISSING_COLS}
                 try:
                     client.table("municipality_trends").upsert(
                         record_no_mi, on_conflict="name,province"
                     ).execute()
-                    drop_morans_i = True
-                    print(f"Uploaded {record['name']} (no morans_i columns in schema)")
+                    drop_cols = True
+                    print(f"Uploaded {record['name']} (no mi/vol columns in schema)")
                     success_count += 1
                 except Exception as retry_error:
-                    drop_morans_i = True
+                    drop_cols = True
                     print(f"Failed to upload {record['name']}: {retry_error}")
                 continue
             print(f"Failed to upload {record['name']}: {error}")

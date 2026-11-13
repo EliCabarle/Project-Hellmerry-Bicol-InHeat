@@ -511,7 +511,14 @@ export default function DashboardScreen({
               </ChartCard>
             </div>
 
+            <CollapsibleSection
+              ariaLabel="Toggle heat index distribution and warming rate charts"
+              collapsedLabel="Heat and warming charts"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartHeatDist.plain}
               tech={LABELS.chartHeatDist.tech}
               yearNote={yearLabel}
@@ -532,6 +539,7 @@ export default function DashboardScreen({
             </ChartCard>
 
             <ChartCard
+              collapsible={false}
               title={LABELS.chartWarming.plain}
               tech={LABELS.chartWarming.tech}
               yearNote={`${start ?? '—'}–${end ?? '—'}`}
@@ -550,8 +558,16 @@ export default function DashboardScreen({
             >
               <BinBarChart bins={trendDist} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
             </ChartCard>
+            </CollapsibleSection>
 
+            <CollapsibleSection
+              ariaLabel="Toggle danger days and driver charts"
+              collapsedLabel="Danger days and drivers"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartDangerDays.plain}
               tech={LABELS.chartDangerDays.tech}
               yearNote="45-year total"
@@ -576,6 +592,7 @@ export default function DashboardScreen({
 
             {drivers.length > 0 && (
               <ChartCard
+                collapsible={false}
                 title={LABELS.chartDrivers.plain}
                 tech={LABELS.chartDrivers.tech}
                 ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
@@ -595,6 +612,7 @@ export default function DashboardScreen({
                 <DriverBarChart drivers={drivers} />
               </ChartCard>
             )}
+            </CollapsibleSection>
           </div>
         )}
 

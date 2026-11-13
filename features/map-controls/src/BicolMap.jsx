@@ -38,10 +38,12 @@ import {
   START_ZOOM,
   FLIGHT_MS,
 } from "./gis/countryFrame.js";
+import { lerpColor } from "./gis/lift.js";
 import {
   metricSummary,
   LEGEND_STOPS,
   SCALE_METHOD,
+  DIM_MS,
 } from "./gis/metric.js";
 
 // 3D is a separate entity with its own renderer, so it is loaded on demand and
@@ -109,36 +111,150 @@ function ariaLabelFor(feature) {
   return `${name}${province}. ${t.direction ?? "flat"}, ${slope}, ${t.is_significant ? "significant" : "not significant"}.`;
 }
 
-// react-leaflet does not re-run style() on state change. Keep one persistent
-// GeoJSON layer and update styles in place; remounting 114 features on every
-// selection made zoom feel janky.
+// Dimming spotlight: while an area is targeted (hovered or selected) every other
+// area's fill is eased toward DIM_LEVEL of its normal colour. Boundaries stay at
+// full strength so the map never becomes unreadable. Colour only — geometry,
+// picking and camera are untouched.
 function MunicipalityLayer({
   joined,
   selectedKey,
+  hoveredKey,
   viewMode,
   year,
   date,
   dayValues,
   ramp = null,
   onSelect,
+  onHover,
 }) {
   const layerRef = useRef(null);
-  const stateRef = useRef({ selectedKey, viewMode, year, date, dayValues });
+  const stateRef = useRef({ selectedKey, hoveredKey, viewMode, year, date, dayValues });
   const selectRef = useRef(onSelect);
+  const hoverRef = useRef(onHover);
   const entryKey = joined?.features?.[0]
     ? featureKey(joined.features[0])
     : null;
-  stateRef.current = { selectedKey, viewMode, year, date, dayValues };
+  stateRef.current = { selectedKey, hoveredKey, viewMode, year, date, dayValues };
   selectRef.current = onSelect;
+  hoverRef.current = onHover;
+  const reducedMotion = usePrefersReducedMotion();
+
+  // current fill colour per key (what's on screen); in-flight colour animations.
+  const currentFillRef = useRef(new Map());
+  const animRef = useRef(new Map()); // key -> { from, to, start }
+  const rafRef = useRef(0);
+
+  // One fill-only rAF loop, mirroring the 3D entity's step loop: eases each
+  // animating key's fill toward its target, stops when nothing is animating.
+  const step = useCallback(() => {
+    const now = performance.now();
+    const layer = layerRef.current;
+    let active = false;
+    for (const [key, anim] of animRef.current) {
+      const p = Math.min(1, (now - anim.start) / DIM_MS);
+      const eased = 1 - (1 - p) ** 3;
+      const fillColor = lerpColor(anim.from, anim.to, eased);
+      currentFillRef.current.set(key, fillColor);
+      if (layer) {
+        layer.eachLayer((child) => {
+          if (featureKey(child.feature) === key) child.setStyle({ fillColor });
+        });
+      }
+      if (p >= 1) {
+        animRef.current.delete(key);
+        currentFillRef.current.set(key, anim.to);
+      } else {
+        active = true;
+      }
+    }
+    rafRef.current = active ? requestAnimationFrame(step) : 0;
+  }, []);
+
+  const startFill = useCallback(
+    (key, to) => {
+      if (key == null) return;
+      const from = currentFillRef.current.get(key) ?? to;
+      if (from === to) {
+        animRef.current.delete(key);
+        return;
+      }
+      if (reducedMotion) {
+        // Apply and clear instantly — no eased path under reduced motion.
+        animRef.current.delete(key);
+        currentFillRef.current.set(key, to);
+        const layer = layerRef.current;
+        if (layer) {
+          layer.eachLayer((child) => {
+            if (featureKey(child.feature) === key) child.setStyle({ fillColor: to });
+          });
+        }
+        return;
+      }
+      animRef.current.set(key, { from, to, start: performance.now() });
+      if (!rafRef.current) rafRef.current = requestAnimationFrame(step);
+    },
+    [reducedMotion, step],
+  );
+
+  // Recompute dim targets whenever selection/hover/metric changes. Keys whose
+  // target fill differs from what's on screen are eased toward it.
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+    const s = stateRef.current;
+    joined?.features?.forEach((feature) => {
+      const key = featureKey(feature);
+      const base = getMunicipalityStyle(feature, {
+        selected: key === s.selectedKey,
+        hovered: key === s.hoveredKey,
+        selectedKey: s.selectedKey,
+        hoveredKey: s.hoveredKey,
+        viewMode: s.viewMode,
+        year: s.year,
+        dayValues: s.dayValues,
+      }, ramp);
+      const target = base.fillColor;
+      const current = currentFillRef.current.get(key);
+      if (current === undefined) {
+        currentFillRef.current.set(key, target);
+        layer.eachLayer((child) => {
+          if (featureKey(child.feature) === key) child.setStyle({ fillColor: target });
+        });
+      } else if (current !== target) {
+        startFill(key, target);
+      }
+    });
+  }, [joined, ramp, selectedKey, hoveredKey, viewMode, year, dayValues, startFill]);
+
+  useEffect(() => {
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+      animRef.current.clear();
+    };
+  }, []);
 
   const styleFor = useCallback(
-    (feature) =>
-      getMunicipalityStyle(feature, {
-        selected: featureKey(feature) === stateRef.current.selectedKey,
+    (feature) => {
+      const key = featureKey(feature);
+      let fillColor = currentFillRef.current.get(key);
+      const anim = animRef.current.get(key);
+      if (anim) {
+        const p = Math.min(1, (performance.now() - anim.start) / DIM_MS);
+        const eased = 1 - (1 - p) ** 3;
+        fillColor = lerpColor(anim.from, anim.to, eased);
+      }
+      const base = getMunicipalityStyle(feature, {
+        selected: key === stateRef.current.selectedKey,
+        hovered: key === stateRef.current.hoveredKey,
+        selectedKey: stateRef.current.selectedKey,
+        hoveredKey: stateRef.current.hoveredKey,
         viewMode: stateRef.current.viewMode,
         year: stateRef.current.year,
         dayValues: stateRef.current.dayValues,
-      }, ramp),
+      }, ramp);
+      return { ...base, fillColor };
+    },
     [ramp],
   );
 
@@ -158,7 +274,7 @@ function MunicipalityLayer({
         );
       if (featureKey(child.feature) === selectedKey) child.bringToFront();
     });
-  }, [entryKey, joined, selectedKey, styleFor, viewMode, year, dayValues]);
+  }, [entryKey, joined, selectedKey, hoveredKey, styleFor, viewMode, year, dayValues]);
 
   useEffect(() => {
     const layer = layerRef.current;
@@ -264,6 +380,8 @@ function MunicipalityLayer({
         });
 
         layer.on("mouseover", () => {
+          const key = featureKey(feature);
+          hoverRef.current(key);
           const style = styleFor(feature);
           layer.setStyle({
             ...style,
@@ -271,7 +389,10 @@ function MunicipalityLayer({
             color: "#f8fafc",
           });
         });
-        layer.on("mouseout", () => layer.setStyle(styleFor(feature)));
+        layer.on("mouseout", () => {
+          hoverRef.current(null);
+          layer.setStyle(styleFor(feature));
+        });
         layer.on("click", select);
       }}
     />
@@ -356,6 +477,7 @@ export default function BicolMap({
   const metricUnits = viewMode === "trend" ? "°C/yr" : "°C";
 
   const [selectedKey, setSelectedKey] = useState(null);
+  const [hoveredKey, setHoveredKey] = useState(null);
   const [indexOpen, setIndexOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
   const [map, setMap] = useState(null);
@@ -549,12 +671,14 @@ export default function BicolMap({
           <MunicipalityLayer
             joined={joined}
             selectedKey={selectedKey}
+            hoveredKey={hoveredKey}
             viewMode={viewMode}
             year={displayYear}
             date={date}
             dayValues={dayValues}
             ramp={ramp}
             onSelect={setSelectedKey}
+            onHover={setHoveredKey}
           />
         )}
       </MapContainer>
@@ -564,6 +688,7 @@ export default function BicolMap({
           <Municipality3DLayer
             joined={joined}
             selectedKey={selectedKey}
+            hoveredKey={hoveredKey}
             selectedFeature={selectedFeature}
             viewMode={viewMode}
             year={displayYear}
@@ -571,6 +696,7 @@ export default function BicolMap({
             initialView={view3d}
             resetToken={resetToken}
             onSelect={setSelectedKey}
+            onHover={setHoveredKey}
             onReady={setMap3d}
             onUnavailable={() => setRenderMode("2d")}
           />
@@ -608,10 +734,12 @@ export default function BicolMap({
         <MunicipalityIndex
           features={joined?.features ?? []}
           selectedKey={selectedKey}
+          hoveredKey={hoveredKey}
           viewMode={viewMode}
           date={date}
           dayValues={dayValues}
           onSelect={setSelectedKey}
+          onHover={setHoveredKey}
           onClose={() => setIndexOpen(false)}
         />
       )}

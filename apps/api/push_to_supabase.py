@@ -218,6 +218,9 @@ def build_record(
         "population_2020": pop.get("population_2020"),
         "population_density": pop.get("population_density"),
         "exposed_flag": pop.get("exposed_flag"),
+        # Precipitation (Earth-system variable: annual 2024 total + heat-index correlation)
+        "annual_precip_mm_2024": city_data.get("annual_precip_mm_2024"),
+        "precip_heat_index_corr_2024": city_data.get("precip_heat_index_corr_2024"),
         # Spatial model CV (model-level, repeated per row)
         "spatial_r2_cv_mean": spatial_meta.get("spatial_r2_cv_mean"),
     }

@@ -8,3 +8,4 @@ build/
 graphify-out/
 .playwright-mcp/
 .opencode/tmp/
+recommended_opacity_levels_core_tokens.md

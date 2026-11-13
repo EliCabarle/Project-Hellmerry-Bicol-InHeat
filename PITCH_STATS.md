@@ -70,6 +70,16 @@ Source: `apps/api/output/cdo_validation.json`, `apps/api/VALIDATION.md` §2b.
 
 ---
 
+## 🌊 El Niño / Global Context (NEW)
+
+- **The Correlation:** We linked local Bicol heat to the NOAA Oceanic Niño Index (ONI) using 45 years of annual data (1981-2025).
+- **Mean Heat Result:** Pearson r = 0.1288 (p = 0.3990). ONI does NOT significantly correlate with annual mean heat index — El Niño does not simply make Bicol hotter on average.
+- **Volatility Result:** Pearson r = 0.4955 (p = 0.0005). ONI significantly correlates with annual heat-index volatility — **during El Niño years, Bicol's climate becomes much more unstable and unpredictable**.
+- **Interpretation:** El Niño events act as an accelerator for Bicol's heat *volatility*, not just mean temperature. This is the "Volatility Engine" finding: climate instability grows faster than average warming.
+- Source: `apps/api/output/enso_results.json`, `apps/api/data/oni_annual.csv` (NOAA CPC)
+
+---
+
 ## 6. Data Sources
 
 | Variable | Source | Product ID |
@@ -79,6 +89,7 @@ Source: `apps/api/output/cdo_validation.json`, `apps/api/VALIDATION.md` §2b.
 | Elevation, distance to coast, NDVI | SRTM / MODIS | geoFeatures |
 | Precipitation | NASA POWER | PRECTOTCORR |
 | Ground truth | NOAA CDO | GHCND stations |
+| El Niño / ONI | NOAA CPC | Oceanic Niño Index |
 | Boundaries | geoBoundaries adm3 | CC BY 4.0 |
 
-**Pipeline scripts:** `calculate_trends.py`, `calculate_drivers.py`, `calculate_spatial_drivers.py`, `bootstrap_ci.py`, `fdr_correction.py`, `backtest_model.py`, `fetch_cdo_validation.py`, `fetch_new_variable.py`, `residual_diagnostics.py`, `morans_i.py`, `generate_static_json.py`
+**Pipeline scripts:** `calculate_trends.py`, `calculate_drivers.py`, `calculate_spatial_drivers.py`, `bootstrap_ci.py`, `fdr_correction.py`, `backtest_model.py`, `fetch_cdo_validation.py`, `fetch_new_variable.py`, `fetch_enso_data.py`, `enso_correlation.py`, `residual_diagnostics.py`, `morans_i.py`, `volatility_analysis.py`, `volatility_attribution.py`, `advanced_ml_benchmark.py`, `generate_static_json.py`

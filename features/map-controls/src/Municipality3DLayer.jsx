@@ -112,6 +112,7 @@ export default function Municipality3DLayer({
   selectedFeature,
   viewMode = "trend",
   year = null,
+  ramp = null,
   initialView = null,
   resetToken = 0,
   onSelect,
@@ -159,7 +160,7 @@ export default function Municipality3DLayer({
         selected: false,
         viewMode,
         year,
-      });
+      }, ramp);
       const depth = depthFor(f, viewMode, year);
       const centroid = centroidOf(f);
       const name = f?.properties?.adm3_en ?? f?.properties?.shapeName ?? "";

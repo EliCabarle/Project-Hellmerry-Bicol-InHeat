@@ -5,6 +5,11 @@
 // Fallback used pending PSA/PSGC official source verification at h6 (CONCEPT 8/13).
 
 import { DAY_NO_DATA, dayColor, recordForYear, trendColor, yearColor } from './yearRamp.js'
+import {
+  colourFor,
+  metricFor,
+  MISSING_TINT,
+} from './metric.js'
 
 // The one selection/outline token: 2D styles, 3D paint and the trace all read this.
 export const SELECT_COLOUR = '#67e8f9'
@@ -159,21 +164,37 @@ function dayBase(feature, dayValues) {
 }
 
 // Significance renders as border pattern (solid vs dashed), never by fill hue alone.
+// `ramp` is the data-driven ramp for the active metric (computed once per metric
+// change by the host). When omitted, the existing fixed-break ramps apply, so
+// callers that don't pass a ramp (e.g. tests) keep their current behaviour.
 export function getMunicipalityStyle(
   feature,
   { selected = false, viewMode = 'trend', year = null, dayValues = null } = {},
+  ramp = null,
 ) {
   const n = feature?.properties?.narrative
   if (!n) return MUN_PENDING
-  const base =
-    viewMode === 'year'
-      ? yearBase(feature, year)
-      : viewMode === 'day'
-        ? dayBase(feature, dayValues)
-        : trendBase(feature)
+  const metric = metricFor(feature, { viewMode, year, dayValues })
   const sig = n.trend?.is_significant
+  let fillColor
+  if (viewMode === 'day') {
+    // Day keeps its PAGASA band colours (dayColor/DAY_BANDS); never the value ramp.
+    const base = dayBase(feature, dayValues)
+    fillColor = base.fillColor
+  } else if (viewMode === 'trend' && n.trend?.direction === 'decreasing') {
+    // Decreasing is its own category: approved counter-hue, never on the ramp.
+    fillColor = '#3b82f6'
+  } else if (ramp) {
+    fillColor = colourFor(metric, ramp)
+  } else {
+    const base =
+      viewMode === 'year' ? yearBase(feature, year) : trendBase(feature)
+    fillColor = base.fillColor
+  }
   const style = {
-    ...base,
+    fill: true,
+    fillColor,
+    fillOpacity: 0.62,
     color: sig ? '#fca5a5' : '#cbd5e1',
     weight: sig ? (isCity(feature) ? 2.5 : 2) : (isCity(feature) ? 2 : 1.5),
     ...(sig ? {} : { dashArray: '4 3' }),

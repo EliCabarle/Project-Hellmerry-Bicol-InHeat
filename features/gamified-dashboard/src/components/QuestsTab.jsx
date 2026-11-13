@@ -2,9 +2,18 @@ import { QUESTS, streakHp } from '../progressStore.js'
 
 const LADDER = Array.from({ length: 7 }, (_, i) => streakHp(i + 1)) // 1,2,4,8,16,32,64
 
-// Today's login card, streak ladder and the self-reported quest checklist.
-// HP is a game score: nothing here is verified and nothing here is measured.
-export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, onUndo }) {
+// Today's login card, streak ladder and the daily checklist drawn from the CSV.
+// A tick is pending (visual only) until Submit records it; a recorded quest is
+// locked. HP is a game score: nothing here is verified and nothing is measured.
+export default function QuestsTab({
+  derived,
+  displayTodayTotal,
+  pending = [],
+  saveError,
+  quests = QUESTS,
+  onTogglePending,
+  onSubmitQuest,
+}) {
   const login = derived.loginToday
   const cappedDay = login && login.day > 0 ? Math.min(login.day, 7) : 0
 
@@ -64,72 +73,61 @@ export default function QuestsTab({ derived, saveError, onToggleDaily, onAdd, on
         </ol>
       </section>
 
-      {/* Checklist */}
+      {/* Checklist — title + description only; the task number and difficulty stay hidden */}
       <section className="mt-4">
         <h2 className="text-sm font-semibold text-white">Today&apos;s quests</h2>
         <p className="mt-0.5 text-xs text-slate-500">Self-reported, honor system.</p>
-        <ul className="mt-2 space-y-2">
-          {QUESTS.map((q) => {
-            const active = derived.todayCounts[q.id] ?? 0
-            const daily = q.limit === 'daily'
-            return (
-              <li
-                key={q.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud"
-              >
-                {daily ? (
-                  <>
-                    <input
-                      type="checkbox"
-                      id={`quest-${q.id}`}
-                      checked={active > 0}
-                      onChange={() => onToggleDaily(q.id)}
-                      className="h-4 w-4 shrink-0 cursor-pointer accent-heat-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
-                    />
-                    <label htmlFor={`quest-${q.id}`} className="min-w-0 flex-1 cursor-pointer text-sm text-slate-200">
-                      {q.label}
-                    </label>
-                    <span className="font-mono text-xs text-slate-400">+{q.hp} HP</span>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Once a day</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="min-w-0 flex-1 text-sm text-slate-200">{q.label}</span>
-                    <span className="font-mono text-xs text-slate-400">
-                      {active} × +{q.hp} HP
+        {quests.length > 0 ? (
+          <ul className="mt-2 space-y-2">
+            {quests.map((q) => {
+              const recorded = (derived.todayCounts[q.id] ?? 0) > 0
+              const isPending = pending.includes(q.id)
+              return (
+                <li
+                  key={q.id}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud"
+                >
+                  <input
+                    type="checkbox"
+                    id={`quest-${q.id}`}
+                    checked={recorded || isPending}
+                    disabled={recorded}
+                    onChange={() => onTogglePending(q.id)}
+                    className="h-4 w-4 shrink-0 cursor-pointer accent-heat-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-default"
+                  />
+                  <label htmlFor={`quest-${q.id}`} className="min-w-0 flex-1 cursor-pointer">
+                    <span className="block text-sm text-slate-200">{q.title}</span>
+                    {q.description ? (
+                      <span className="mt-0.5 block text-xs leading-5 text-slate-400">{q.description}</span>
+                    ) : null}
+                  </label>
+                  {/* Submit records the tick and locks the row — the only path to published HP. */}
+                  {recorded ? (
+                    <span className="rounded border border-heat-cool/40 bg-heat-cool/10 px-1.5 py-0.5 text-xs font-semibold text-heat-cool">
+                      ✓ Recorded
                     </span>
-                      <button
-                        type="button"
-                        min-h-11
-                        min-w-11
-                        aria-label={`${q.label}: undo latest entry`}
-                        disabled={active === 0}
-                      onClick={() => onUndo(q.id)}
-                      className="h-7 w-7 shrink-0 cursor-pointer rounded-md border border-white/10 bg-black/20 text-sm font-semibold text-slate-300 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
+                  ) : isPending ? (
+                    <button
+                      type="button"
+                      onClick={() => onSubmitQuest(q.id)}
+                      className="cursor-pointer rounded-md bg-heat-amber px-2.5 py-1 text-xs font-semibold text-slate-950 transition-colors hover:bg-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep"
                     >
-                      −
+                      Submit
                     </button>
-                      <button
-                        type="button"
-                        min-h-11
-                        min-w-11
-                        aria-label={`${q.label}: add one`}
-                      onClick={() => onAdd(q.id)}
-                      className="h-7 w-7 shrink-0 cursor-pointer rounded-md border border-heat-amber/50 bg-heat-amber/20 text-sm font-semibold text-heat-amber hover:bg-heat-amber/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
-                    >
-                      +
-                    </button>
-                  </>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+                  ) : null}
+                  <span className="font-mono text-xs text-slate-400">+{q.hp} HP</span>
+                </li>
+              )
+            })}
+          </ul>
+        ) : (
+          <p className="mt-2 text-xs text-slate-500">Quests are loading — check back in a moment.</p>
+        )}
       </section>
 
       <div className="mt-4 flex items-baseline justify-between rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
         <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Today&apos;s HP</span>
-        <span className="font-mono text-lg font-semibold text-slate-100">{derived.todayTotal} HP</span>
+        <span className="font-mono text-lg font-semibold text-slate-100">{displayTodayTotal} HP</span>
       </div>
     </div>
   )

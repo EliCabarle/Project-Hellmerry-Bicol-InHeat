@@ -13,7 +13,7 @@ const assert = (cond, msg) => {
   console.log('ok:', msg)
 }
 
-// Records every rpc('set_my_score', …) call and answers with a chosen ceiling.
+// Records every rpc('set_my_score', ...) call and answers with a chosen ceiling.
 const stub = (answer = { data: null, error: null }) => {
   const calls = []
   return {

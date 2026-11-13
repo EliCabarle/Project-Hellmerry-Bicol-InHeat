@@ -40,7 +40,10 @@
 | Tab shell: HeatBar + ARIA tablist (Dashboard / Quests / History / Leaderboard), roving tabindex | CORE | built | gamified-dashboard |
 | Danger-band exceedance ordering | CORE | built | gamified-dashboard |
 | Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`), one storage key per account via `progressKey(userId)` | gamified-dashboard |
+| Daily CSV quests (5/day from `eco_quests_tasks.csv`, difficulty hidden, points by tier 1-15/16-27/28-68) | CORE (tier unconfirmed) | built 2026-11-14 — `src/questTasks.js` draws per Manila day (≥2 easy, avoids yesterday), same list all day, `label` snapshotted into each event | gamified-dashboard |
+| Collective monthly HP bar | — | **removed 2026-11-14** — it needed the `quest_events` log, which was backed out in favour of the score model. Re-add only with a backend that can aggregate monthly HP (the client-sent total cannot) | gamified-dashboard |
 | HP → leaderboard score | CORE | built — `src/scoreStore.js` reads the stored score on sign-in, `progressStore.restoreTo` adopts it locally (so a fresh browser shows it instead of resetting), then `set_my_score` publishes the total (`supabase/migrations/0004_set_my_score.sql`, caps at 100 HP/day of account age); guests never publish | gamified-dashboard |
+| Check → Submit → lock | CORE | built 2026-11-14 — a tick is **pending** (visual only, `progressStore.getPending`/`togglePending`, never written to the log or published) until **Submit** records it (`submitQuest`); a recorded quest is locked (checkbox disabled, `✓ Recorded`). Cuts the duplicate-points loop: the published total is now monotonic, so `restoreTo` can never re-add a prize the user unticked | gamified-dashboard |
 | Leaderboard UI (handle-only) | CORE | built, live — reads public `leaderboard` view via `leaderboardStore.js`; `LEADERBOARD_ENABLED = true` in `components/Leaderboard.jsx` is the kill switch | gamified-dashboard |
 | Local-only progress fallback (h30 path) | CORE | built — progress is local-only, works logged-out and offline, no auth | gamified-dashboard |
 | Exportable progress / infographic | STRETCH | todo | gamified-dashboard |
@@ -51,6 +54,10 @@
 
 | Item | Verified? | Notes |
 |---|---|---|
+| `test_questTasks.mjs` (6) + `test_score.mjs` (13) + `test_progress.mjs` (17) | Verified 2026-11-14 | `node test_*.mjs` from this directory, all 10 files exit 0 |
+| `npm run build` in apps/web | Verified 2026-11-14 | green; known >500 kB chunk warning only. `dist/data/eco_quests_tasks.csv` present |
+| `0008_restore_score_model.sql` | **Pending** | Run in the Supabase SQL editor. Re-creates `set_my_score` (dropped by 0005) and drops `quest_events`, its triggers, and the `monthly_hp` view. After this the only write path is the score RPC |
+| Quests tab in-browser | Verified 2026-11-14 | 5 CSV quests, title+description+HP, stable across reload. Headless Chrome on port 5181: tick → "Submit" + HeatBar +5 (no event written, pending `csv-17`); Submit → `✓ Recorded`, checkbox disabled, one `csv-17:5` event, HeatBar 6/100; second tick → +1 visual then uncheck → back to 6/100 with the log unchanged. Score sync is `readScore` -> `restoreTo` -> `set_my_score`; needs 0008 applied |
 | Scaffolding files 0 lines | Superseded | was true 2026-11-02; slice now has source — see Workboard |
 | Supabase schema for leaderboard | No | lands when `apps/api` writes it |
 | Dashboard build (charts + rename + hotspots) | Verified | tests green, `npm run build` green, 2026-11-11 |

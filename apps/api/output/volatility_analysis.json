@@ -1,13 +1,15 @@
 {
   "project": "Bicol In-Heat",
   "module": "volatility_analysis",
-  "method": "annual_peak_std: std of yearly max heat index; danger_days_var: variance of annual 42°C+ day count; p99_p50_gap: 99th-50th percentile daily heat gap; rolling_5yr_vol: 5-yr rolling std of annual peak heat; vol_trend: Theil-Sen + Hamed-Rao MK on rolling_5yr_vol series",
+  "method": "annual_peak_std: std of yearly max heat index; danger_days_var: variance of annual 42°C+ day count; p99_p50_gap: 99th-50th percentile daily heat gap; rolling_5yr_vol: 5-yr rolling std of annual peak heat; vol_trend: Theil-Sen + Hamed-Rao MK on rolling_5yr_vol series; fdr_q: Benjamini-Hochberg FDR q-value across all municipalities",
   "n_municipalities": 114,
   "volatility_trend_summary": {
-    "significant_increasing": 72,
+    "significant_increasing_raw": 72,
+    "significant_increasing_fdr": 0,
     "increasing": 72,
     "decreasing": 0,
-    "share_significant": 0.6316
+    "share_significant_raw": 0.6316,
+    "share_significant_fdr": 0.0
   },
   "municipalities": [
     {
@@ -186,7 +188,9 @@
         "slope": -0.005944,
         "p_value": 0.063203,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -366,7 +370,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -546,7 +552,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -726,7 +734,9 @@
         "slope": 0.012357,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -906,7 +916,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1086,7 +1098,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1266,7 +1280,9 @@
         "slope": -0.005859,
         "p_value": 0.109135,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1446,7 +1462,9 @@
         "slope": 0.006028,
         "p_value": 0.040553,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1626,7 +1644,9 @@
         "slope": 0.012037,
         "p_value": 0.000109,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1806,7 +1826,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -1986,7 +2008,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -2166,7 +2190,9 @@
         "slope": 0.006028,
         "p_value": 0.040553,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -2346,7 +2372,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -2526,7 +2554,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -2706,7 +2736,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -2886,7 +2918,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3066,7 +3100,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3246,7 +3282,9 @@
         "slope": 0.012037,
         "p_value": 0.000109,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3426,7 +3464,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3606,7 +3646,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3786,7 +3828,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -3966,7 +4010,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -4146,7 +4192,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -4326,7 +4374,9 @@
         "slope": 0.009547,
         "p_value": 0.04484,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -4506,7 +4556,9 @@
         "slope": 0.008533,
         "p_value": 0.02127,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -4686,7 +4738,9 @@
         "slope": 0.008533,
         "p_value": 0.02127,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -4866,7 +4920,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5046,7 +5102,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5226,7 +5284,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5406,7 +5466,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5586,7 +5648,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5766,7 +5830,9 @@
         "slope": 0.013981,
         "p_value": 0.168178,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -5946,7 +6012,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -6126,7 +6194,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -6306,7 +6376,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -6486,7 +6558,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -6666,7 +6740,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -6846,7 +6922,9 @@
         "slope": -0.002219,
         "p_value": 0.385014,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7026,7 +7104,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7206,7 +7286,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7386,7 +7468,9 @@
         "slope": 0.006415,
         "p_value": 0.211422,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7566,7 +7650,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7746,7 +7832,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -7926,7 +8014,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -8106,7 +8196,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -8286,7 +8378,9 @@
         "slope": 0.008533,
         "p_value": 0.02127,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -8466,7 +8560,9 @@
         "slope": 0.012357,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -8646,7 +8742,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -8826,7 +8924,9 @@
         "slope": 0.012037,
         "p_value": 0.000109,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9006,7 +9106,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9186,7 +9288,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9366,7 +9470,9 @@
         "slope": 0.009547,
         "p_value": 0.04484,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9546,7 +9652,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9726,7 +9834,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -9906,7 +10016,9 @@
         "slope": 0.006415,
         "p_value": 0.211422,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10086,7 +10198,9 @@
         "slope": 0.008533,
         "p_value": 0.02127,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10266,7 +10380,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10446,7 +10562,9 @@
         "slope": -0.002219,
         "p_value": 0.385014,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10626,7 +10744,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10806,7 +10926,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -10986,7 +11108,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -11166,7 +11290,9 @@
         "slope": 0.023029,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -11346,7 +11472,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -11526,7 +11654,9 @@
         "slope": -0.005859,
         "p_value": 0.109135,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -11706,7 +11836,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -11886,7 +12018,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12066,7 +12200,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12246,7 +12382,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12426,7 +12564,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12606,7 +12746,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12786,7 +12928,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -12966,7 +13110,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -13146,7 +13292,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -13326,7 +13474,9 @@
         "slope": -0.002219,
         "p_value": 0.385014,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -13506,7 +13656,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -13686,7 +13838,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -13866,7 +14020,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14046,7 +14202,9 @@
         "slope": 0.012357,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14226,7 +14384,9 @@
         "slope": 0.012357,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14406,7 +14566,9 @@
         "slope": 0.009547,
         "p_value": 0.04484,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14586,7 +14748,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14766,7 +14930,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -14946,7 +15112,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -15126,7 +15294,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -15306,7 +15476,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -15486,7 +15658,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -15666,7 +15840,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -15846,7 +16022,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16026,7 +16204,9 @@
         "slope": 0.012037,
         "p_value": 0.000109,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16206,7 +16386,9 @@
         "slope": 0.006415,
         "p_value": 0.211422,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16386,7 +16568,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16566,7 +16750,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16746,7 +16932,9 @@
         "slope": 0.006028,
         "p_value": 0.040553,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -16926,7 +17114,9 @@
         "slope": 0.008935,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -17106,7 +17296,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -17286,7 +17478,9 @@
         "slope": 0.000853,
         "p_value": 0.883493,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -17466,7 +17660,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -17646,7 +17842,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -17826,7 +18024,9 @@
         "slope": 0.006028,
         "p_value": 0.040553,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18006,7 +18206,9 @@
         "slope": -0.002219,
         "p_value": 0.385014,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18186,7 +18388,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18366,7 +18570,9 @@
         "slope": 0.006415,
         "p_value": 0.211422,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18546,7 +18752,9 @@
         "slope": 0.053704,
         "p_value": 0.00192,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18726,7 +18934,9 @@
         "slope": 0.017334,
         "p_value": 0.006433,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -18906,7 +19116,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19086,7 +19298,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19266,7 +19480,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19446,7 +19662,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19626,7 +19844,9 @@
         "slope": 0.013508,
         "p_value": 0.00431,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19806,7 +20026,9 @@
         "slope": 0.020462,
         "p_value": NaN,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -19986,7 +20208,9 @@
         "slope": 0.00567,
         "p_value": 0.154904,
         "significant": false,
-        "direction": "no trend"
+        "direction": "no trend",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -20166,7 +20390,9 @@
         "slope": 0.012357,
         "p_value": 0.0,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -20346,7 +20572,9 @@
         "slope": 0.010052,
         "p_value": 0.020521,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     },
@@ -20526,7 +20754,9 @@
         "slope": 0.006028,
         "p_value": 0.040553,
         "significant": true,
-        "direction": "increasing"
+        "direction": "increasing",
+        "fdr_q": NaN,
+        "significant_fdr": false
       },
       "n_years": 45
     }

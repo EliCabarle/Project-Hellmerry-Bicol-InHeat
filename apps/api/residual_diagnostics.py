@@ -65,10 +65,13 @@ def main() -> None:
     X = df[FEATURES]
     y = df[TARGET]
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, shuffle=True
-    )
-    print(f"Train: {len(X_train):,} rows | Test: {len(X_test):,} rows")
+    # Time-based split: train on earlier 80%, test on later 20%.
+    # No shuffle - shuffling time series leaks future information into training.
+    n = len(X)
+    split_idx = int(n * (1 - TEST_SIZE))
+    X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
+    y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+    print(f"Train: {len(X_train):,} rows | Test: {len(X_test):,} rows (time-based split, no shuffle)")
 
     model = RandomForestRegressor(
         n_estimators=N_ESTIMATORS, random_state=RANDOM_STATE, n_jobs=-1

@@ -98,7 +98,7 @@ export function usePrefersReducedMotion() {
 const GLASS =
   "pointer-events-auto rounded-xl border border-white/10 bg-heat-surface/90 text-slate-100 shadow-hud backdrop-blur-md";
 const BTN =
-  "inline-flex cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep";
+  "inline-flex cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 bih-btn hover:bg-white/10";
 const ICON_BTN = `${BTN} h-9 w-9`;
 const SMALL_BTN = `${BTN} h-8 px-2 text-[11px] font-semibold`;
 const SEARCH_INPUT =
@@ -110,10 +110,8 @@ function ModeButton({ active, children, onClick }) {
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
-        active
-          ? "bg-heat-amber text-slate-950"
-          : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
+      className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-semibold bih-btn ${
+        active ? "bg-heat-amber text-slate-950" : "text-slate-400 hover:bg-white/5 hover:text-slate-100"
       }`}
     >
       {children}

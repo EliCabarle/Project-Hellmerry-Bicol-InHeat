@@ -153,6 +153,21 @@ def spatial_metadata() -> dict:
     }
 
 
+def morans_i_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> {morans_i_local, lisa_cluster} from output/morans_i.json."""
+    path = BASE_DIR / "output" / "morans_i.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return {
+        (row["name"], row["province"]): {
+            "morans_i_local": row.get("morans_i_local"),
+            "lisa_cluster": row.get("lisa_cluster"),
+        }
+        for row in data.get("municipalities", [])
+    }
+
+
 def build_record(
     city_data: dict,
     drivers: dict,
@@ -162,6 +177,7 @@ def build_record(
     forecast: dict,
     population: dict,
     spatial_meta: dict,
+    morans_i: dict,
 ) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
@@ -223,6 +239,9 @@ def build_record(
         "precip_heat_index_corr_2024": city_data.get("precip_heat_index_corr_2024"),
         # Spatial model CV (model-level, repeated per row)
         "spatial_r2_cv_mean": spatial_meta.get("spatial_r2_cv_mean"),
+        # Moran's I / LISA
+        "morans_i_local": morans_i.get(key, {}).get("morans_i_local"),
+        "lisa_cluster": morans_i.get(key, {}).get("lisa_cluster"),
     }
 
 
@@ -235,6 +254,7 @@ def main(dry_run: bool) -> None:
     forecast = forecast_index()
     population = population_index()
     spatial_meta = spatial_metadata()
+    morans_i = morans_i_index()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
     if not spatial:
@@ -249,6 +269,8 @@ def main(dry_run: bool) -> None:
         print("warning: data/population.csv missing - population_2020/exposed_flag will be null")
     if not spatial_meta:
         print("warning: output/spatial_drivers.json metadata missing - spatial_r2_cv_mean will be null")
+    if not morans_i:
+        print("warning: output/morans_i.json missing - morans_i_local/lisa_cluster will be null")
     if not LST_BY_KEY:
         print("warning: data/lst_means.csv missing - lst_mean_c will be null")
 
@@ -262,11 +284,16 @@ def main(dry_run: bool) -> None:
 
     print(f"Found {len(municipalities)} municipalities. Pushing to Supabase...")
     success_count = 0
+    drop_morans_i = None  # None = unknown, True = schema lacks columns
     for city_data in municipalities:
         record = build_record(
             city_data, drivers, spatial, trends, backtest, forecast,
-            population, spatial_meta,
+            population, spatial_meta, morans_i,
         )
+        # If we already learned the schema lacks morans_i columns, strip them.
+        if drop_morans_i is True:
+            record = {k: v for k, v in record.items()
+                      if k not in ("morans_i_local", "lisa_cluster")}
         try:
             if dry_run:
                 print(
@@ -287,6 +314,23 @@ def main(dry_run: bool) -> None:
                 print(f"Uploaded {record['name']}")
             success_count += 1
         except Exception as error:  # one bad row must not abort the rest
+            msg = str(error)
+            if drop_morans_i is None and ("lisa_cluster" in msg or "morans_i_local" in msg):
+                # Schema lacks morans_i columns (migration not applied yet).
+                # Retry this row without them, then strip for all remaining rows.
+                record_no_mi = {k: v for k, v in record.items()
+                                if k not in ("morans_i_local", "lisa_cluster")}
+                try:
+                    client.table("municipality_trends").upsert(
+                        record_no_mi, on_conflict="name,province"
+                    ).execute()
+                    drop_morans_i = True
+                    print(f"Uploaded {record['name']} (no morans_i columns in schema)")
+                    success_count += 1
+                except Exception as retry_error:
+                    drop_morans_i = True
+                    print(f"Failed to upload {record['name']}: {retry_error}")
+                continue
             print(f"Failed to upload {record['name']}: {error}")
 
     print(f"\nSuccessfully pushed {success_count}/{len(municipalities)} municipalities!")

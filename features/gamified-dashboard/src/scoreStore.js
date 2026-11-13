@@ -4,8 +4,8 @@
 //
 // Local HP is self-reported and lives in localStorage (progressStore.js); this
 // module is the only thing that publishes it. The server is the real gate: it
-// caps the value at 100 HP per day of account age (0004_set_my_score.sql), so
-// the clamp below is only about not sending nonsense over the wire.
+// caps the value at 100 HP per day of account age (0008_restore_score_model.sql),
+// so the clamp below is only about not sending nonsense over the wire.
 
 // Mirrors the hard floor inside set_my_score. Keep the two in step.
 export const MAX_SCORE = 100000

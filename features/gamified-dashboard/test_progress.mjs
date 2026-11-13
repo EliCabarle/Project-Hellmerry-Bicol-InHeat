@@ -111,58 +111,59 @@ test('Manila midnight boundary: 15:59Z is the old day, 16:00Z the new day', () =
   assert.equal(store.read().at(-1).hp, 2, 'streak day 2 across the boundary')
 })
 
-test('once-per-day quest toggles to exactly one effective award', () => {
-  let now = atDay(0)
-  const store = createProgress({ storage: fakeStorage(), now: () => now })
-  let r = store.toggleDaily('vegan')
-  assert2(r.ok, 'first toggle awards')
-  assert.equal(derive(store.read(), '2026-01-01').todayCounts.vegan, 1, 'active = 1')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, 16, '+16 HP')
-  r = store.toggleDaily('vegan')
-  assert2(r.ok, 'second toggle compensates')
-  assert.equal(derive(store.read(), '2026-01-01').todayCounts.vegan, 0, 'active back to 0')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, 0, 'HP reversed, not negative')
-  r = store.toggleDaily('vegan')
-  assert.equal(derive(store.read(), '2026-01-01').todayCounts.vegan, 1, 'third toggle awards again')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, 16, 'never exceeds one effective award')
-  const logins = store.read().filter((e) => e.kind === 'login').length
-  assert2(logins === 0, 'store untouched by quest-only test')
+test('a check is pending (visual only) until Submit records it', () => {
+  const store = createProgress({ storage: fakeStorage(), now: () => atDay(0) })
+  let r = store.togglePending('vegan')
+  assert2(r.ok, 'check marks the quest pending')
+  assert.deepEqual(store.getPending(), ['vegan'], 'vegan is pending')
+  assert.equal(store.read().length, 0, 'nothing written to the event log yet')
+  assert.equal(derive(store.read()).totalHP, 0, 'pending HP is not published')
+  assert.equal(derive(store.read(), manilaDate(atDay(0))).todayCounts.vegan ?? 0, 0, 'not recorded yet')
+
+  r = store.submitQuest('vegan')
+  assert2(r.ok && !r.noop, 'Submit records the quest')
+  assert.deepEqual(store.getPending(), [], 'pending cleared')
+  assert.equal(derive(store.read()).totalHP, 16, '+16 HP recorded')
+  assert.equal(derive(store.read(), manilaDate(atDay(0))).todayCounts.vegan, 1, 'recorded count = 1')
+  assert.equal(store.read().at(-1).label, 'Went Vegan', 'label snapshotted at submit')
 })
 
-test('unlimited quest counts up; undo reverses the latest active entry', () => {
-  let now = atDay(0)
-  const store = createProgress({ storage: fakeStorage(), now: () => now })
-  store.addQuest('bottle')
-  store.addQuest('bottle')
-  store.addQuest('bottle')
-  assert.equal(derive(store.read(), '2026-01-01').todayCounts.bottle, 3, 'count = 3')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, 15, '3 x 5 HP')
-  let r = store.undoQuest('bottle')
-  assert2(r.ok, 'undo ok')
-  assert.equal(derive(store.read(), '2026-01-01').todayCounts.bottle, 2, 'count = 2 after undo')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, 10, 'HP reversed by 5')
-  store.undoQuest('bottle')
-  store.undoQuest('bottle')
-  const total = derive(store.read(), '2026-01-01').todayTotal
-  r = store.undoQuest('bottle')
-  assert2(r.ok && r.noop, 'undo with nothing active is a noop')
-  assert.equal(derive(store.read(), '2026-01-01').todayTotal, total, 'never goes negative')
-  assert.equal(total, 0, 'back to zero')
-  const comps = store.read().filter((e) => e.kind === 'quest' && e.hp < 0).length
-  assert.equal(comps, 3, 'append-only: 3 awards + 3 compensations, nothing deleted')
+test('unchecking before Submit removes the tick and writes nothing', () => {
+  const store = createProgress({ storage: fakeStorage(), now: () => atDay(0) })
+  store.togglePending('vegan')
+  store.togglePending('vegan')
+  assert.deepEqual(store.getPending(), [], 'pending cleared by the second tap')
+  assert.equal(store.read().length, 0, 'log untouched by check/uncheck')
+  assert.equal(derive(store.read()).totalHP, 0, 'no HP ever recorded')
 })
 
-test('undo is allowed only for today — past days stay immutable', () => {
+test('a recorded quest is locked: no uncheck, no double submit', () => {
+  const store = createProgress({ storage: fakeStorage(), now: () => atDay(0) })
+  store.togglePending('vegan')
+  store.submitQuest('vegan')
+  const r = store.togglePending('vegan')
+  assert2(r.ok === false, 'uncheck after Submit is refused')
+  assert.equal(derive(store.read()).totalHP, 16, 'total unchanged by the refused uncheck')
+  const again = store.submitQuest('vegan')
+  assert2(again.ok && again.noop, 'second Submit is a no-op')
+  assert.equal(derive(store.read()).totalHP, 16, 'never double-counts')
+  const awards = store.read().filter((e) => e.kind === 'quest').length
+  assert.equal(awards, 1, 'exactly one award event')
+})
+
+test('pending does not carry across Manila days', () => {
   let now = atDay(0)
   const store = createProgress({ storage: fakeStorage(), now: () => now })
-  store.addQuest('bottle') // awarded "yesterday" relative to the next step
-  const frozen = store.read()
+  store.togglePending('vegan')
+  assert.deepEqual(store.getPending(), ['vegan'], 'pending today')
   now = atDay(1)
-  const r = store.undoQuest('bottle')
-  assert2(r.ok && r.noop, 'undo across days is a noop')
-  assert.deepEqual(store.read(), frozen, 'log unchanged — yesterday not editable')
-  assert.equal(derive(store.read(), '2026-01-02').todayTotal, 0, 'no accidental HP today')
-  assert.equal(derive(store.read(), '2026-01-02').questStats.bottle.net, 1, 'yesterday award still active')
+  assert.deepEqual(store.getPending(), [], 'yesterday pending is forgotten')
+})
+
+test('togglePending refuses an unknown quest id', () => {
+  const store = createProgress({ storage: fakeStorage(), now: () => atDay(0) })
+  const r = store.togglePending('does-not-exist')
+  assert2(r.ok === false, 'unknown quest refused')
 })
 
 test('level boundaries 99/100/999/1000', () => {
@@ -236,10 +237,11 @@ test('derive does not mutate its input; failed writes are not presented as succe
     throw new Error('quota exceeded')
   }
   const store = createProgress({ storage, now: () => atDay(0) })
-  const r = store.toggleDaily('vegan')
+  const r = store.togglePending('vegan')
   assert2(r.ok === false, 'failed write reports ok:false')
   assert2(typeof r.error === 'string' && r.error.length > 0, 'failed write carries an error message')
-  assert.equal(store.read().length, 0, 'unpersisted event is not kept as if saved')
+  assert.deepEqual(store.getPending(), [], 'unpersisted pending tick is not kept')
+  assert.equal(store.read().length, 0, 'nothing recorded on a failed write')
   const c = store.checkIn()
   assert2(c.ok === false, 'failed check-in also reports failure')
   assert.equal(store.read().length, 0, 'no phantom login after failed write')
@@ -247,17 +249,19 @@ test('derive does not mutate its input; failed writes are not presented as succe
 
 test('HP snapshot survives a config change', () => {
   const storage = fakeStorage()
-  const questsA = [{ id: 'vegan', label: 'Went Vegan', hp: 16, limit: 'daily' }]
+  const questsA = [{ id: 'vegan', label: 'Went Vegan', hp: 16 }]
   const storeA = createProgress({ storage, now: () => atDay(0), quests: questsA })
-  storeA.toggleDaily('vegan')
-  assert.equal(derive(storeA.read()).totalHP, 16, 'awarded 16 under config A')
+  storeA.togglePending('vegan')
+  storeA.submitQuest('vegan')
+  assert.equal(derive(storeA.read()).totalHP, 16, 'recorded 16 under config A')
 
-  const questsB = [{ id: 'vegan', label: 'Went Vegan', hp: 99, limit: 'daily' }]
+  const questsB = [{ id: 'vegan', label: 'Went Vegan', hp: 99 }]
   const storeB = createProgress({ storage, now: () => atDay(0), quests: questsB })
   assert.equal(derive(storeB.read()).totalHP, 16, 'config change does not rewrite history')
   assert.equal(derive(storeB.read()).level, 1, 'level still derived from 16 HP')
-  storeB.toggleDaily('vegan')
-  assert.equal(derive(storeB.read()).totalHP, 0, 'compensation uses the snapshot (−16), not −99')
+  const again = storeB.submitQuest('vegan')
+  assert2(again.ok && again.noop, 'already recorded under the new config is a no-op')
+  assert.equal(derive(storeB.read()).totalHP, 16, 'still 16, not 99')
 })
 
 test('recentDays includes every day, zeros included', () => {
@@ -286,11 +290,46 @@ test('progress keys are per account — two users never share HP', () => {
   // can never carry one account's HP into the other's score.
   const a = createProgress({ storage, userId: 'u1', now })
   const b = createProgress({ storage, userId: 'u2', now })
-  a.toggleDaily('vegan')
+  a.togglePending('vegan')
+  a.submitQuest('vegan')
   assert.equal(derive(a.read()).totalHP, 16, 'account A keeps its own 16 HP')
   assert.equal(derive(b.read()).totalHP, 0, 'account B does not inherit A')
-  b.toggleDaily('vegan')
+  b.togglePending('vegan')
+  b.submitQuest('vegan')
   assert.equal(derive(a.read()).totalHP, 16, 'B writing does not disturb A')
+})
+
+test('catalog store draws five CSV quests and awards their drawn HP', () => {
+  const catalog = [
+    { n: 1, title: 'E1', description: 'd', tier: 'easy' },
+    { n: 2, title: 'E2', description: 'd', tier: 'easy' },
+    { n: 3, title: 'E3', description: 'd', tier: 'easy' },
+    { n: 4, title: 'M1', description: 'd', tier: 'medium' },
+    { n: 5, title: 'M2', description: 'd', tier: 'medium' },
+    { n: 6, title: 'H1', description: 'd', tier: 'hard' },
+    { n: 7, title: 'H2', description: 'd', tier: 'hard' },
+  ]
+  const store = createProgress({ storage: fakeStorage(), userId: 'u1', now: () => atDay(0), catalog })
+  const list = store.getDailyQuests()
+  assert.equal(list.length, 5, 'five quests')
+  assert2(list.every((q) => q.id.startsWith('csv-')), 'all ids come from the catalog')
+  assert.deepEqual(
+    store.getDailyQuests().map((q) => q.id),
+    list.map((q) => q.id),
+    'same list when read again the same day',
+  )
+
+  const target = list[0]
+  const p = store.togglePending(target.id)
+  assert2(p.ok, 'tick a csv quest')
+  assert.deepEqual(store.getPending(), [target.id], 'it is pending')
+  assert.equal(derive(store.read()).totalHP, 0, 'nothing recorded yet')
+  const r = store.submitQuest(target.id)
+  assert2(r.ok, 'submit the csv quest')
+  const d = derive(store.read(), manilaDate(atDay(0)))
+  assert.equal(d.todayCounts[target.id], 1, 'count = 1')
+  assert.equal(d.todayTotal, target.hp, 'awarded the drawn HP')
+  assert.equal(store.read().at(-1).label, target.title, 'title snapshotted into the event')
 })
 
 test('restoreTo adopts a stored score exactly once and never lowers HP', () => {

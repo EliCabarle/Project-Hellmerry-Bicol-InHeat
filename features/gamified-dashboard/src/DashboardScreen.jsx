@@ -3,7 +3,8 @@ import { rankMunicipalities } from './ranking.js'
 import { provinceList } from './provinceGroups.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
 import { createProgress, derive, manilaDate } from './progressStore.js'
-import { syncScore, readScore } from './scoreStore.js'
+import { parseQuestCsv } from './questTasks.js'
+import { readScore, syncScore } from './scoreStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
 import HeatBar from './components/HeatBar.jsx'
 import QuestsTab from './components/QuestsTab.jsx'
@@ -75,15 +76,41 @@ export default function DashboardScreen({
   const [progressSaveError, setProgressSaveError] = useState(null)
   const [query, setQuery] = useState('')
   const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
+  const [catalog, setCatalog] = useState([])
   const canSave = Boolean(supabase && user)
+
+  // Load the quest CSV once. On failure the store falls back to the static
+  // QUESTS list, so the checklist is never empty.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/data/eco_quests_tasks.csv')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.text()
+      })
+      .then((text) => {
+        if (!cancelled) setCatalog(parseQuestCsv(text))
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // One progress store per account: the key follows `user`, so signing out drops
   // back to the guest log and a second account never sees the first one's HP.
-  const store = useMemo(() => createProgress({ userId: user?.id ?? null }), [user?.id])
+  // It also rebuilds when the CSV lands, so the day's draw comes from real tasks.
+  const store = useMemo(
+    () => createProgress({ userId: user?.id ?? null, catalog }),
+    [user?.id, catalog],
+  )
   const [events, setEvents] = useState(() => store.read())
+  const [pending, setPending] = useState(() => store.getPending())
   const [announcement, setAnnouncement] = useState('')
-  // Leaderboard publish result, separate from progressSaveError so a successful
-  // publish cannot clear a "could not save progress" alert, or the reverse.
+  // Sync result, kept separate from progressSaveError so one alert cannot clear
+  // the other.
   const [scoreNote, setScoreNote] = useState(null)
   const [active, setActive] = useState('dashboard')
   const tabRefs = useRef({})
@@ -91,6 +118,37 @@ export default function DashboardScreen({
 
   const today = manilaDate(new Date())
   const derived = useMemo(() => derive(events, today), [events, today])
+  // Today's five quests. Memoized per store/day so a reload mid-day is identical.
+  // While the CSV is still loading, render nothing rather than the static
+  // fallback: only drawn quests may be ticked, so the client can never emit more
+  // than the server's 5-awards-a-day quota and fail the whole sync batch.
+  const quests = useMemo(
+    () => (catalog.length > 0 ? store.getDailyQuests() : []),
+    [store, today, catalog.length],
+  )
+
+  // Pending checks are visual only. Merged into the derived log so the HeatBar
+  // and Today's HP move when a box is ticked, but never written as events and
+  // never published — the leaderboard only sees submitted quests.
+  const pendingEvents = useMemo(
+    () =>
+      quests
+        .filter((q) => pending.includes(q.id))
+        .map((q) => ({
+          id: `pending-${q.id}`,
+          date: today,
+          kind: 'quest',
+          questId: q.id,
+          hp: q.hp,
+          at: 0,
+          label: q.title,
+        })),
+    [quests, pending, today],
+  )
+  const displayDerived = useMemo(
+    () => derive([...events, ...pendingEvents], today),
+    [events, pendingEvents, today],
+  )
 
   const municipalities = useMemo(() => narratives?.municipalities ?? [], [narratives])
 
@@ -140,6 +198,7 @@ export default function DashboardScreen({
   useEffect(() => {
     const r = store.checkIn()
     setEvents(r.events)
+    setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
   }, [store])
 
@@ -218,6 +277,7 @@ export default function DashboardScreen({
   const act = (fn) => {
     const r = fn()
     setEvents(r.events)
+    setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
     return r
   }
@@ -301,10 +361,10 @@ export default function DashboardScreen({
   return (
     <div className="flex h-full min-h-0 flex-col bg-heat-bg">
       <HeatBar
-        level={derived.level}
-        title={derived.title}
-        inLevel={derived.inLevel}
-        totalHP={derived.totalHP}
+        level={displayDerived.level}
+        title={displayDerived.title}
+        inLevel={displayDerived.inLevel}
+        totalHP={displayDerived.totalHP}
         announcement={announcement}
       />
 
@@ -670,10 +730,12 @@ export default function DashboardScreen({
       >
         <QuestsTab
           derived={derived}
+          displayTodayTotal={displayDerived.todayTotal}
+          pending={pending}
           saveError={progressSaveError ?? scoreNote}
-          onToggleDaily={(id) => act(() => store.toggleDaily(id))}
-          onAdd={(id) => act(() => store.addQuest(id))}
-          onUndo={(id) => act(() => store.undoQuest(id))}
+          quests={quests}
+          onTogglePending={(id) => act(() => store.togglePending(id))}
+          onSubmitQuest={(id) => act(() => store.submitQuest(id))}
         />
       </div>
 

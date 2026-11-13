@@ -37,6 +37,19 @@ Our methodology was checked against the official NASA-aligned resources scraped 
 - **Giovanni** (https://giovanni.gsfc.nasa.gov/giovanni/) — NASA's "Bridge Between Data and Science" (v4.40) for visualising selected geophysical parameters by date range and region (bounding box or shape). Offers precipitation and temperature products relevant to Region V; full access via Earthdata Login. Identified as a source for additional Earth-system variables (precipitation, temperature) to extend the driver model beyond wind + geography.
 - **AppEEARS** (https://appeears.earthdatacloud.nasa.gov/) — Application for Extracting and Exploring Analysis-Ready Samples. Point (coordinates) and area (polygon) subsetting of geospatial datasets across NASA archives, returning data values + quality values with summary statistics. Offers LST (MODIS/Landsat), soil moisture, precipitation, vegetation/land cover. Requires Earthdata Login (server-side only). Identified as the path to cross-reference GEE-derived LST and to add soil moisture / actual precipitation to the driver feature set.
 - **Climate Data Online — CDO** (https://www.ncei.noaa.gov/cdo-web/) — NCEI archive of global historical weather/climate data: quality-controlled daily/monthly/seasonal/yearly temperature, precipitation, wind, degree days, radar, 30-year Climate Normals, discoverable by station/city/ZIP. Programmatic API at ncei.noaa.gov/cdo-web/api/v2/ (requires an access token). Identified as independent ground truth for station temperature to validate the POWER-derived heat index (bias/RMSE).
+- **GPM IMERG precipitation** (NASA) — targeted Earth-system variable for precipitation (water cycle). Attempted via NASA GES DISC; requires Earthdata Login credentials which are not configured, so fell back to NASA POWER PRECTOTCORR (open, no credentials). Added annual 2024 precipitation for 113/114 municipalities; regionally correlates with heat index at r = -0.3790 (drier → hotter).
+
+## 4b. Alignment with Official NASA Space Apps 2026 Resources
+
+The following official NASA Space Apps 2026 challenge resources were scraped (see `output/official_resources_scraped.json`) and cross-referenced against our pipeline:
+
+- **NASA POWER** — air temperature (T2M, T2M_MAX, T2M_MIN), dew point (T2MDEW), humidity (RH2M), wind (U10M, V10M). Primary driver of the Rothfusz-derived heat index, 1981–2025.
+- **Giovanni** — NASA's "Bridge Between Data and Science" web portal for numerous geophysical variables (temperature, precipitation, aerosols, etc.) by date range and region. Source for precipitation discovery; full access via Earthdata Login.
+- **AppEEARS** — Application for Extracting and Exploring Analysis-Ready Samples. Point/area subsetting of geospatial datasets (LST, soil moisture, precipitation, land cover, vegetation). Requires Earthdata Login. Identified path to cross-reference GEE-derived LST and add soil moisture/precipitation.
+- **Climate Data Online (CDO)** — NOAA NCEI archive of station temperature/precipitation. Used for independent ground-truth validation (bias/RMSE) against POWER-derived heat index.
+- **KNMI Climate Explorer** — WMO Regional Climate Centre tool with surface temperature, precipitation, reanalysis, CMIP data; statistical-method reference.
+- **NIST Statistical Significance Guide** — p-values, confidence intervals, multiple-testing corrections. Basis for our FDR correction and block-bootstrap CI rigour.
+- **Nature trend-detection article (s41598-021-97581-7)** — best-practice recommendations for trend detection in climate time series.
 
 ## 5. Data sources cited
 

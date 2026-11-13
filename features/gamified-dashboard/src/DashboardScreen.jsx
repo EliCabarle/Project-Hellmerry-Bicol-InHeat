@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
 import { provinceList } from './provinceGroups.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
-import { createProgress, derive, manilaDate } from './progressStore.js'
+import { createProgress, derive, manilaDate, weekStart } from './progressStore.js'
 import { parseQuestCsv } from './questTasks.js'
-import { readScore, syncScore } from './scoreStore.js'
+import { readScore } from './scoreStore.js'
+import { pushEvents } from './eventStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
 import HeatBar from './components/HeatBar.jsx'
+import WeeklyProgressBar from './components/WeeklyProgressBar.jsx'
 import QuestsTab from './components/QuestsTab.jsx'
 import HistoryTab from './components/HistoryTab.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
@@ -112,11 +114,16 @@ export default function DashboardScreen({
   // Sync result, kept separate from progressSaveError so one alert cannot clear
   // the other.
   const [scoreNote, setScoreNote] = useState(null)
+  // Bumped after a successful event push so the collective bar refetches *after*
+  // the server has the new rows, not in parallel with them.
+  const [syncTick, setSyncTick] = useState(0)
   const [active, setActive] = useState('dashboard')
   const tabRefs = useRef({})
   const levelRef = useRef(null)
 
   const today = manilaDate(new Date())
+  // Monday of the current ISO week; the collective view buckets by the same day.
+  const week = weekStart(today)
   const derived = useMemo(() => derive(events, today), [events, today])
   // Today's five quests. Memoized per store/day so a reload mid-day is identical.
   // While the CSV is still loading, render nothing rather than the static
@@ -213,14 +220,13 @@ export default function DashboardScreen({
     return () => window.removeEventListener('storage', onStorage)
   }, [store])
 
-  // Publish this account's HP total as its leaderboard score. Guests never reach
-  // the network: no account, nothing recorded anywhere. The server caps the value
-  // by account age, so `cappedTo` is a real answer, not an error.
-  // Order is read -> restore -> publish: a browser with no local log must adopt
-  // the stored score first, or it would publish 0 and wipe it. If the read fails
-  // nothing is published at all — a stale board beats a reset one.
-  // The number is read from the store, not from `events`: on an account switch the
-  // state is one commit behind the new key, and publishing that lag would send the
+  // Publish this account's HP as events. Guests never reach the network: no
+  // account, nothing recorded anywhere. Order is read -> restore -> push: a
+  // browser with no local log must adopt the stored score first, or its first
+  // push would omit what was earned elsewhere. Pushing is idempotent — the
+  // server dedupes on its primary key — so re-sending the log is safe.
+  // The log is read from the store, not from `events`: on an account switch the
+  // state is one commit behind the new key, and pushing that lag would send the
   // previous account's HP.
   useEffect(() => {
     if (!user || !supabase) {
@@ -243,18 +249,14 @@ export default function DashboardScreen({
         if (!restored.noop) setEvents(restored.events)
       }
 
-      const totalHP = derive(store.read(), today).totalHP
-      const { cappedTo, error: err } = await syncScore(supabase, totalHP)
+      const { error: err } = await pushEvents(supabase, store.read(), today)
       if (cancelled) return
       if (err) {
         setScoreNote(`Leaderboard score not updated — ${err.message}`)
         return
       }
-      setScoreNote(
-        cappedTo == null
-          ? null
-          : `Leaderboard score capped at ${cappedTo} HP for this account's age — local HP is unchanged.`,
-      )
+      setScoreNote(null)
+      setSyncTick((n) => n + 1)
     }
     run()
     return () => {
@@ -726,6 +728,11 @@ export default function DashboardScreen({
         hidden={active !== 'quests'}
         className="bih-scroll min-h-0 flex-1 overflow-y-auto"
       >
+        {active === 'quests' && (
+          <div className="mx-auto max-w-7xl px-3 pt-4 sm:px-5 lg:px-8">
+            <WeeklyProgressBar supabase={supabase} week={week} reloadKey={syncTick} />
+          </div>
+        )}
         <QuestsTab
           derived={derived}
           displayTodayTotal={displayDerived.todayTotal}

@@ -75,6 +75,15 @@ function addDays(date, n) {
   return new Date(Date.UTC(y, m - 1, d) + n * 86400000).toISOString().slice(0, 10)
 }
 
+// Monday of the ISO week containing `date`, 'YYYY-MM-DD'. Matches the server's
+// date_trunc('week', ...), so the client and the collective bar agree on which
+// week a quest belongs to.
+export function weekStart(date) {
+  const [y, m, d] = date.split('-').map(Number)
+  const dow = (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7 // Monday = 0
+  return addDays(date, -dow)
+}
+
 // Event kinds this log accepts. 'restore' is HP adopted from the leaderboard on
 // sign-in, so a browser can display a score earned elsewhere; it is not HP earned
 // today, which is why derive() keeps it out of the per-day totals.

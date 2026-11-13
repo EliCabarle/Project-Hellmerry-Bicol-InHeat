@@ -8,6 +8,7 @@ import {
   progressKey,
   recentDays,
   streakHp,
+  weekStart,
   STORAGE_KEY,
   HISTORY_DAYS,
 } from './src/progressStore.js'
@@ -366,4 +367,10 @@ test('restoreTo refuses a negative or missing target instead of writing junk', (
   assert.equal(store.restoreTo(-10).noop, true, 'negative target is ignored')
   assert.equal(store.restoreTo(null).noop, true, 'null target is ignored')
   assert.equal(store.read().length, 0, 'no event written')
+})
+
+test('weekStart is the Monday of the ISO week', () => {
+  assert.equal(weekStart('2026-01-08'), '2026-01-05', 'Thursday maps to Monday')
+  assert.equal(weekStart('2026-01-05'), '2026-01-05', 'Monday maps to itself')
+  assert.equal(weekStart('2026-01-11'), '2026-01-05', 'Sunday maps back to Monday')
 })

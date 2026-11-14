@@ -7,7 +7,11 @@ export function createChatService({ adapter } = {}) {
   return {
     send: async (text) => {
       const result = await impl.send(text)
-      return { text: String(result.text ?? ''), done: Boolean(result.done) }
+      return {
+        text: String(result.text ?? ''),
+        done: Boolean(result.done),
+        sources: Array.isArray(result.sources) ? result.sources : [],
+      }
     },
   }
 }

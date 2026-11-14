@@ -729,9 +729,11 @@ wording from the static bank, in English and Filipino, with a template fallback
 when a municipality has no narrative.
 
 WHY
-The prohibition is not stylistic: there is no LLM key in this project and the
-LLM never generates numbers. If the screen can fetch a model, the whole claim
-collapses; if it can compute a number, the numbers stop matching the map.
+The prohibition is not stylistic: the LLM never generates numbers, and this screen
+renders the static bank rather than calling a model. (The QA chatbot's server-side
+`/api/qa` endpoint is the separate, deliberately scoped exception — CONCEPT 6d.) If
+the screen can fetch a model, the whole claim collapses; if it can compute a number,
+the numbers stop matching the map.
 
 FIND FIRST
 - The narrative bank's shape, per municipality and per language

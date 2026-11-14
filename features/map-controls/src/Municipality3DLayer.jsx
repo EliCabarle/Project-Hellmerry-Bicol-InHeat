@@ -43,9 +43,9 @@ import {
 } from "./gis/countryFrame.js";
 
 const IMAGERY_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 const LABELS_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
 
 const SRC = "bih-muni";
 const FILL = "bih-muni-fill";
@@ -62,12 +62,12 @@ const STYLE = {
       tiles: [IMAGERY_URL],
       tileSize: 256,
       maxzoom: 18,
-      attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+      attribution: "Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors",
     },
     labels: { type: "raster", tiles: [LABELS_URL], tileSize: 256, maxzoom: 18 },
   },
   layers: [
-    { id: "bg", type: "background", paint: { "background-color": "#0b1220" } },
+    { id: "bg", type: "background", paint: { "background-color": "#F5F3FF" } },
     { id: "imagery", type: "raster", source: "imagery" },
     {
       id: "labels",

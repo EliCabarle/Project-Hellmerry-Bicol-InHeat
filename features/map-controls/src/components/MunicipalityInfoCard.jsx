@@ -112,7 +112,7 @@ export default function MunicipalityInfoCard({
     >
       {!n ? (
         <div className="flex items-center gap-2">
-          <h2 className="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight text-white" aria-live="polite">
+          <h2 className="min-w-0 flex-1 truncate text-sm font-semibold tracking-tight text-clay-text-heading" aria-live="polite">
             {name}
           </h2>
           <p className="shrink-0 text-[11px] text-slate-400">Trend data pending — arriving soon.</p>
@@ -131,7 +131,7 @@ export default function MunicipalityInfoCard({
               clips) on narrow screens; single line from md up. */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="flex min-w-0 items-baseline gap-1.5">
-              <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-white" aria-live="polite">
+              <h2 className="min-w-0 truncate text-sm font-semibold tracking-tight text-clay-text-heading" aria-live="polite">
                 {name}
               </h2>
               <span className="shrink-0 whitespace-nowrap text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-500">

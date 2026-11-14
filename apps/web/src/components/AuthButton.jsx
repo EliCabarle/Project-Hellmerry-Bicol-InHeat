@@ -5,10 +5,10 @@ import { signInWithGoogle } from '../lib/auth.js'
 // In-flow header control. position: fixed would float over the map overlay's
 // zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
-  'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
+  'flex min-w-0 items-center gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-2 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
 
 const quietButton =
-  'cursor-pointer min-h-11 rounded-md px-2 py-1 font-medium text-slate-300 bih-btn text-slate-300 hover:bg-white/10 hover:text-white'
+  'cursor-pointer min-h-11 rounded-[14px] px-2 py-1 font-clay font-semibold text-clay-text-body clay-btn--white text-clay-text-heading hover:bg-clay-bg-blue-white hover:text-clay-text-heading'
 
 // Session state is owned by useSession() in app.jsx and passed down, so screens
 // and the header agree on who is signed in.
@@ -62,7 +62,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
   if (!configured || !supabase) {
     return (
       <div className={pill} title="VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-500" aria-hidden="true" />
+        <span className="h-1.5 w-1.5 rounded-full bg-clay-text-muted" aria-hidden="true" />
         <span className="hidden sm:inline">Sign-in unavailable</span>
         <span className="sm:hidden">Offline</span>
       </div>
@@ -114,7 +114,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
         </button>
       )}
 
-      {user && loadingProfile && <span className="px-1 text-slate-400">Loading…</span>}
+      {user && loadingProfile && <span className="px-1 text-clay-text-muted">Loading…</span>}
 
       {showPicker && (
         <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
@@ -129,7 +129,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
             autoComplete="off"
             placeholder="Your handle"
             aria-describedby="handle-hint"
-            className="w-28 rounded-md border border-white/10 bg-black/30 px-2 py-1 text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+            className="w-28 rounded-[14px] border border-white/30 bg-white px-2 py-1 text-clay-text-heading placeholder:text-clay-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-blue font-clay"
           />
           <button type="submit" disabled={saving} className={quietButton}>
             {saving ? 'Saving…' : 'Save'}
@@ -142,7 +142,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
 
       {user && !loadingProfile && profile && (
         <>
-          <span className="max-w-[7.5rem] truncate px-1 text-slate-300" title="Your chosen handle">
+          <span className="max-w-[7.5rem] truncate px-1 text-clay-text-body" title="Your chosen handle">
             {profile.handle}
           </span>
           <button type="button" onClick={handleSignOut} className={quietButton}>
@@ -159,7 +159,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
       )}
 
       {error && (
-        <span role="alert" className="max-w-[9rem] truncate text-xs text-rose-300" title={errorDetail ?? undefined}>
+        <span role="alert" className="max-w-[9rem] truncate text-xs text-clay-coral" title={errorDetail ?? undefined}>
           {error}
         </span>
       )}

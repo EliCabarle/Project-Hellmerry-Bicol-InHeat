@@ -20,7 +20,7 @@ Every dry season, Bicol breaks its own heat record — but the **heat index** (w
 - **Frontend:** Vite + React + Tailwind PWA (installable, offline last-view), static hosting.
 - **Core engine:** Theil–Sen slope + Mann–Kendall test (α = 0.05), Rothfusz heat index, Random Forest / SHAP driver ranking (association, not causation).
 - **Backend:** static PWA + Supabase Auth/Postgres (accounts, saved history, leaderboard — user-chosen handle only, never a real name).
-- **LLM:** build-time, open-weights — renders *computed* numbers into the narrative bank as static JSON; never generates numbers; **no LLM key anywhere**.
+- **LLM:** build-time, open-weights — renders *computed* numbers into the narrative bank as static JSON; never generates numbers. The QA chatbot adds one **server-side** runtime call (`POST /api/qa`); its key stays in `apps/api/.env` and never reaches the browser.
 
 ## Repo layout
 

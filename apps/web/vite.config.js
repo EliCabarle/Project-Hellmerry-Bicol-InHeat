@@ -5,6 +5,13 @@ import { fileURLToPath } from 'node:url'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 
+const API_PROXY = {
+  '/api': {
+    target: 'http://localhost:8000',
+    changeOrigin: true,
+  },
+}
+
 export default defineConfig({
   plugins: [react()],
   // Split vendors so the map's first paint doesn't wait on the chart library
@@ -37,5 +44,13 @@ export default defineConfig({
       'maplibre-gl': path.resolve(here, 'node_modules', 'maplibre-gl'),
       recharts: path.resolve(here, 'node_modules', 'recharts'),
     },
+  },
+  // Dev + preview: the frontend calls /api/qa and Vite forwards to FastAPI on
+  // 8000. Preview needs its own copy — `server.proxy` does not apply to it.
+  server: {
+    proxy: API_PROXY,
+  },
+  preview: {
+    proxy: API_PROXY,
   },
 })

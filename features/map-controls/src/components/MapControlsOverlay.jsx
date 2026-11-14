@@ -664,7 +664,7 @@ function ZoomPanel({ map, limits, onReset }) {
     <div
       role="group"
       aria-label="Map zoom"
-      className={`${GLASS} flex flex-col gap-0.5 p-1`}
+      className={`${GLASS} flex flex-col gap-0.5 p-1 pb-1.5`}
     >
       <button
         type="button"

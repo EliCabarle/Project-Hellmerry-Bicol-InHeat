@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useChat } from './chat/useChat.js'
+import { qaAdapter } from './chat/qaAdapter.js'
 import { IconClose, IconRobot, IconSend } from './components/ChatIcons.jsx'
+
+const SUGGESTIONS = [
+  'Why is it so hot in this area?',
+  'Which 5 municipalities are warming fastest?',
+  'Why is LST not the same as heat index?',
+]
 
 /**
  * Collect focusable, visible elements inside the dialog for the hand-rolled
@@ -19,7 +26,7 @@ export default function ChatbotModal({
   open = false,
   onClose,
   returnFocusTo = null,
-  title = 'BECOlanos assistant',
+  title = 'Silli',
 }) {
   const previousFocus = useRef(null)
   const dialogRef = useRef(null)
@@ -32,10 +39,11 @@ export default function ChatbotModal({
     error,
     input,
     setInput,
+    send,
     handleSubmit,
     retry,
     clear,
-  } = useChat()
+  } = useChat({ adapter: qaAdapter })
 
   // Open: capture the launcher, trap focus inside the dialog.
   // Close (this effect's cleanup): return focus to the launcher.
@@ -94,7 +102,7 @@ export default function ChatbotModal({
       />
       <div
         ref={dialogRef}
-        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
+        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-white text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chatbot-title"
@@ -126,10 +134,22 @@ export default function ChatbotModal({
             <div className="flex flex-col items-center justify-center gap-2 text-slate-500">
               <IconRobot className="h-8 w-8 shrink-0 opacity-50" aria-hidden="true" />
               <p className="text-[11px] leading-5 text-center">
-                Say something — I can't answer yet (the chatbot isn't connected).
+                Ask about heat-index trends, drivers, or the method behind them.
               </p>
+              <div className="mt-1 flex flex-wrap justify-center gap-1.5">
+                {SUGGESTIONS.map((text) => (
+                  <button
+                    key={text}
+                    type="button"
+                    onClick={() => send(text)}
+                    className="bih-btn cursor-pointer rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-slate-300 hover:bg-white/10 hover:text-white"
+                  >
+                    {text}
+                  </button>
+                ))}
+              </div>
               <p className="text-[11px] leading-5 text-center text-slate-400">
-                Type a message, then tap send. Press Esc to close.
+                Press Esc to close.
               </p>
             </div>
           ) : (
@@ -153,6 +173,17 @@ export default function ChatbotModal({
                   >
                     {message.text}
                   </div>
+                  {/* Sources are CORE (CONCEPT 6d): the retrieved chunk paths
+                      behind an answer stay visible under it. */}
+                  {message.sources?.length > 0 && (
+                    <ul className="max-w-[82%] list-none self-end text-[11px] leading-4 text-slate-400">
+                      {message.sources.map((source) => (
+                        <li key={source} className="truncate">
+                          Source: {source}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {message.role === 'user' && (
                     <div className="shrink-0">
                       <IconRobot className="h-3 w-3 shrink-0 text-slate-500" aria-hidden="true" />
@@ -219,14 +250,14 @@ export default function ChatbotModal({
             <button
               type="submit"
               disabled={!canSend}
-              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/20"
+              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-200"
             >
               <IconSend className="h-4 w-4" />
               <span className="sr-only">Send</span>
             </button>
           </form>
           <p className="mt-1 text-[11px] leading-4 text-slate-400">
-            Boilerplate only — no backend connected yet. Reply is a placeholder.
+            Powered by Silli RAG + NASA/PAGASA document store.
           </p>
         </footer>
       </div>

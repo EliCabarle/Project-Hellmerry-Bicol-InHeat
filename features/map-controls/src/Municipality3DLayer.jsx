@@ -14,6 +14,9 @@ import {
   LIFT_RATIO,
   clearFlatFactors,
   getFlatFactor,
+  groupOffsets,
+  PARALLAX_MAX,
+  PITCH_FULL,
   stepFlats,
   snapFlats,
   depthFor,
@@ -227,6 +230,15 @@ export default function Municipality3DLayer({
     const rings = new Map();
     const centroids = new Map();
     const records = new Map();
+    // Group = province, taken from the data. Stable order so a group's plane does not
+    // change when the year or the view mode changes.
+    const groups = [
+      ...new Set(
+        (joined?.features ?? []).map((f) => f?.properties?.province ?? ""),
+      ),
+    ].sort();
+    const offsets = new Map(); // key -> static slab offset in metres
+    const factors = new Map(); // key -> parallax factor in [-1, 1]
     for (const [i, f] of (joined?.features ?? []).entries()) {
       // promoteId needs a unique id; a nameless feature would otherwise collapse the source.
       const key = featureKey(f) || `unnamed-${i}`;
@@ -238,6 +250,12 @@ export default function Municipality3DLayer({
       const depth = depthFor(f, viewMode, year);
       const centroid = centroidOf(f);
       const name = f?.properties?.adm3_en ?? f?.properties?.shapeName ?? "";
+      const group = groupOffsets(
+        Math.max(0, groups.indexOf(f?.properties?.province ?? "")),
+        groups.length,
+      );
+      offsets.set(key, group.base);
+      factors.set(key, group.factor);
       depths.set(key, depth);
       byKey.set(key, f);
       rings.set(key, ringsOf(f.geometry));
@@ -258,6 +276,7 @@ export default function Municipality3DLayer({
           _weight: style.weight ?? 1.5,
           _dash: style.dashArray ? 1 : 0,
           _depth: depth,
+          _base: group.base,
           _lift: 0,
           _flatFactor: 0,
         },
@@ -270,11 +289,41 @@ export default function Municipality3DLayer({
       rings,
       centroids,
       records,
+      offsets,
+      factors,
     };
   }, [joined, viewMode, year]);
 
   const dataRef = useRef(data);
   dataRef.current = data;
+
+  // Effective slab offset per area, in metres. Recomputed from the camera: rotation
+  // shifts groups relative to each other, pitch fades the whole effect out so a
+  // top-down view stays flat. Kept in a ref because the trace reads it too.
+  const offsetsRef = useRef(new Map());
+
+  const applyOffsets = useCallback(() => {
+    const map = mapRef.current;
+    const source = map?.getSource(SRC);
+    if (!map || !source) return;
+    const { offsets, factors } = dataRef.current;
+    // Top-down: the separation is invisible and only costs offsets, so switch it off.
+    const fade = Math.min(1, Math.max(0, map.getPitch() / PITCH_FULL));
+    const sway = reducedRef.current
+      ? 0 // static separation stays, the rotation-driven part is dropped
+      : Math.sin((map.getBearing() * Math.PI) / 180) * PARALLAX_MAX;
+    const updates = [];
+    for (const [key, base] of offsets) {
+      const value = (base + (factors.get(key) ?? 0) * sway) * fade;
+      if (offsetsRef.current.get(key) === value) continue;
+      offsetsRef.current.set(key, value);
+      updates.push({
+        id: key,
+        addOrUpdateProperties: [{ key: "_base", value }],
+      });
+    }
+    if (updates.length) source.updateData({ update: updates });
+  }, []);
 
   const setLifts = useCallback((values) => {
     const source = mapRef.current?.getSource(SRC);
@@ -337,7 +386,10 @@ export default function Municipality3DLayer({
       return;
     }
     const lift = liftRef.current.get(trace.key) ?? 0;
-    const z = (dataRef.current.depths.get(trace.key) ?? DEPTH_BASE) + lift + 2;
+    // The ribbon must ride on the group's own plane, or it sinks into the slab.
+    const base = offsetsRef.current.get(trace.key) ?? 0;
+    const z =
+      (dataRef.current.depths.get(trace.key) ?? DEPTH_BASE) + base + lift + 2;
     source.setData({
       type: "Feature",
       properties: { _z: z },
@@ -594,11 +646,30 @@ export default function Municipality3DLayer({
           // When an area is selected, every other area flattens to 0 m; the selected
           // area stays at full depth + lift with its data ramp colour untouched.
           // _entry defaults to 1 (full); _flatFactor defaults to 0 (no flatten).
+          // _base is the group's slab offset: the whole slab (base and top) moves by
+          // it, so groups are separated without changing any area's own depth.
+          "fill-extrusion-base": [
+            "*",
+            ["coalesce", ["get", "_base"], 0],
+            [
+              "*",
+              ["coalesce", ["get", "_entry"], 1],
+              ["-", 1, ["coalesce", ["get", "_flatFactor"], 0]],
+            ],
+          ],
           "fill-extrusion-height": [
             "*",
             [
               "+",
-              ["*", ["get", "_depth"], ["coalesce", ["get", "_entry"], 1]],
+              [
+                "*",
+                [
+                  "+",
+                  ["get", "_depth"],
+                  ["coalesce", ["get", "_base"], 0],
+                ],
+                ["coalesce", ["get", "_entry"], 1],
+              ],
               ["get", "_lift"],
             ],
             ["-", 1, ["coalesce", ["get", "_flatFactor"], 0]],
@@ -736,6 +807,11 @@ export default function Municipality3DLayer({
       lastPointRef.current = null;
     });
 
+    // Group separation follows the camera: rotation slides the groups past each
+    // other, pitch fades the whole effect out when the view goes top-down.
+    map.on("rotate", applyOffsets);
+    map.on("pitch", applyOffsets);
+
     return () => {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
@@ -748,7 +824,7 @@ export default function Municipality3DLayer({
       mapRef.current = null;
     };
     // Mount-only: the entity is created when 3D is selected and destroyed when it is not.
-  }, [hideTip, moveTo, paintTrace, showTip, targetFor]);
+  }, [applyOffsets, hideTip, moveTo, paintTrace, showTip, targetFor]);
 
   // New level: every area starts at ENTRY_FROM height, then rises into place in
   // sequence ordered by centroid north-to-south (top-down). Delays are scaled so
@@ -815,6 +891,10 @@ export default function Municipality3DLayer({
       };
     });
     source.setData({ ...data.collection, features });
+    // Group offsets are camera-derived and cached per key: drop the cache so the
+    // fresh geometry gets its planes back.
+    offsetsRef.current.clear();
+    applyOffsets();
     const keep = new Map();
     for (const key of [hoverRef.current, selectedRef.current]) {
       if (key != null) keep.set(key, targetFor(key));
@@ -831,7 +911,7 @@ export default function Municipality3DLayer({
     } else {
       clearTrace();
     }
-  }, [clearTrace, data, ready, setLifts, startTrace, targetFor]);
+  }, [applyOffsets, clearTrace, data, ready, setLifts, startTrace, targetFor]);
 
   useEffect(() => {
     const map = mapRef.current;

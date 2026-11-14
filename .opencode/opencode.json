@@ -3,19 +3,21 @@
   "instructions": [
     "./AGENTS.md"
   ],
-  "permissions": [
-    { "action": "shell", "resource": "git status *", "effect": "allow" },
-    { "action": "shell", "resource": "git log *", "effect": "allow" },
-    { "action": "shell", "resource": "git diff *", "effect": "allow" },
-    { "action": "shell", "resource": "git add *", "effect": "allow" },
-    { "action": "shell", "resource": "git commit *", "effect": "allow" },
-    { "action": "shell", "resource": "playwright *", "effect": "allow" },
-    { "action": "shell", "resource": "ctx7 *", "effect": "allow" },
-    { "action": "shell", "resource": "npx *", "effect": "allow" },
-    { "action": "shell", "resource": "*", "effect": "ask" },
-    { "action": "edit", "resource": "*", "effect": "allow" },
-    { "action": "webfetch", "resource": "*", "effect": "allow" }
-  ],
+  "permission": {
+    "edit": "allow",
+    "webfetch": "allow",
+    "bash": {
+      "git status *": "allow",
+      "git log *": "allow",
+      "git diff *": "allow",
+      "git add *": "allow",
+      "git commit *": "allow",
+      "playwright *": "allow",
+      "ctx7 *": "allow",
+      "npx *": "allow",
+      "*": "ask"
+    }
+  },
   "formatter": true,
   "snapshots": true,
   "tool_output": {

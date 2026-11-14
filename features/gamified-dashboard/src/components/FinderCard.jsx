@@ -6,6 +6,7 @@
 // The flip control lives ON the active face, so hidden-face buttons never enter
 // the tab order.
 
+import { useEffect, useRef, useState } from 'react'
 import { outlineStroke } from '../finderData.js'
 import { LABELS } from '../labels.js'
 import { fmtInt, fmtP, fmtSlope, SigPill } from './DashboardTable.jsx'
@@ -15,9 +16,23 @@ import { joinKey } from '../../../map-controls/src/gis/engine.js'
 const FACE =
   'absolute inset-0 flex flex-col rounded-xl border border-white/10 bg-heat-surface/80 p-3 shadow-hud [backface-visibility:hidden]'
 
+// Hovering the flip control previews the back-face numbers after this long. Long
+// enough that a passing pointer never pops a panel the reader did not aim at.
+const HOVER_PREVIEW_MS = 1500
+
 export default function FinderCard({ card, flipped = false, interactive = true, onFlip = null, onShowOnMap = null }) {
   const stroke = outlineStroke(card.trend)
   const band = card.latest?.danger_band
+  const hoverTimer = useRef(0)
+  const [preview, setPreview] = useState(false)
+  const clearHover = () => {
+    if (hoverTimer.current) {
+      clearTimeout(hoverTimer.current)
+      hoverTimer.current = 0
+    }
+    setPreview(false)
+  }
+  useEffect(() => clearHover, [])
 
   return (
     <div className="relative h-[19rem] w-full [perspective:1000px]">
@@ -66,10 +81,53 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
             <button
               type="button"
               onClick={() => onFlip?.(true)}
+              onPointerEnter={() => {
+                clearHover()
+                hoverTimer.current = setTimeout(() => setPreview(true), HOVER_PREVIEW_MS)
+              }}
+              onPointerLeave={clearHover}
+              onPointerCancel={clearHover}
+              onPointerDown={clearHover}
+              onBlur={clearHover}
+              aria-describedby={preview ? `${card.key}-preview` : undefined}
               className="mt-1.5 min-h-11 cursor-pointer rounded-md bg-heat-amber px-2 py-1 text-xs font-bold uppercase tracking-[0.1em] text-slate-950 hover:bg-heat-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
             >
               Why it heats →
             </button>
+          )}
+
+          {/* Hover preview: the back-face numbers without leaving the front.
+              Pointer-transparent so it can cover the control it was triggered by. */}
+          {preview && !flipped && (
+            <div
+              id={`${card.key}-preview`}
+              role="status"
+              className="pointer-events-none absolute inset-x-2 bottom-2 z-30 rounded-lg border border-heat-amber/40 bg-heat-surface/95 p-2 text-[10px] leading-4 text-slate-300 shadow-hud backdrop-blur"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <span className="font-semibold text-slate-100">
+                  Mean HI {card.latest?.year ?? '—'}:{' '}
+                  <span className="font-mono">{card.latest?.mean_heat_index_c?.toFixed?.(1) ?? '—'} °C</span>
+                </span>
+                {band ? <span className="font-mono font-semibold text-heat-amber">{band}</span> : null}
+              </div>
+              <div className="flex flex-wrap gap-x-2 font-mono text-slate-400">
+                <span>{fmtSlope(card.trend?.slope_c_per_year)}</span>
+                <span>{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
+                <span>{Number.isFinite(card.totalDangerDays) ? `${fmtInt(card.totalDangerDays)} danger days` : 'danger —'}</span>
+              </div>
+              {card.drivers.length > 0 && (
+                <div className="mt-0.5 truncate">
+                  <span className="text-slate-500">Top driver: </span>
+                  <span className="font-mono text-slate-200">
+                    {card.drivers[0]?.label ?? '—'} {Math.round((card.drivers[0]?.share ?? 0) * 100)}%
+                  </span>
+                </div>
+              )}
+              {card.narrationEn ? (
+                <p className="mt-0.5 line-clamp-2 italic text-slate-400">{card.narrationEn}</p>
+              ) : null}
+            </div>
           )}
         </div>
 

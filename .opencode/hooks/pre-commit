@@ -1,0 +1,16 @@
+#!/bin/sh
+# Guard: OpenCode V1 refuses to start when the shared config uses the V2
+# "permissions" (array) format. Reject any staged change that reintroduces it.
+# Installed via: git config core.hooksPath .opencode/hooks
+
+if git diff --cached --name-only | grep -q '^\.opencode/opencode\.json$'; then
+  if grep -q '"permissions"[[:space:]]*:' .opencode/opencode.json; then
+    echo "" >&2
+    echo "COMMIT REJECTED: .opencode/opencode.json uses V2 \"permissions\" (array)." >&2
+    echo "OpenCode V1 cannot start with that config. Use the V1 object form:" >&2
+    echo '  "permission": { "edit": "allow", "webfetch": "allow", "bash": { "<glob>": "allow" } }' >&2
+    echo "" >&2
+    exit 1
+  fi
+fi
+exit 0

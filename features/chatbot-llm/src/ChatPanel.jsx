@@ -39,12 +39,28 @@ export default function ChatPanel() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: trimmed }),
         })
-        if (!res.ok) throw new Error('qa failed')
+        if (!res.ok) {
+          const text = await res.text()
+          let detail
+          try {
+            detail = JSON.parse(text).detail
+          } catch {
+            detail = text.slice(0, 200)
+          }
+          throw new Error(
+            `${res.status} ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`
+          )
+        }
         const data = await res.json()
         setAnswer(data.answer || '')
         setSources(Array.isArray(data.sources) ? data.sources : [])
-      } catch {
-        setError('Failed to get an answer. Please try again.')
+      } catch (err) {
+        console.error('[qa]', err)
+        setError(
+          import.meta.env.DEV
+            ? `QA failed: ${err.message}`
+            : 'Failed to get an answer. Please try again.'
+        )
       } finally {
         setLoading(false)
       }

@@ -9,10 +9,12 @@ import QuestsPopover from './components/QuestsPopover.jsx'
 import PrivacyDialog from './components/PrivacyDialog.jsx'
 import AccountScreen from './screens/AccountScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
+import LandingScreen from './screens/LandingScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
+import { signInWithGoogle } from './lib/auth'
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
 // selected. The skip link targets #main, so only the #muni= prefix counts as a
@@ -28,7 +30,10 @@ function parseMuniHash() {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState('map')
+  // Guests see the landing screen first (lead ruling 2026-11-14: everyone does,
+  // signed-in included). #muni= deep links still open the map directly so
+  // shared links resolve logged-out (h44).
+  const [screen, setScreen] = useState(() => (parseMuniHash() ? 'map' : 'landing'))
   // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
   // Token rises on every request so re-clicking the same LGU still refires
   // after the user cleared the selection on the map.
@@ -143,13 +148,26 @@ export default function App() {
 
   // Central navigation used by the menu, the quests/LGU/chatbot FABs and the
   // Dashboard's own tabs. Rising token lets re-clicking the same target refire.
-  const navigate = useCallback((target) => {
-    const token = ++navTokenRef.current
-    if (target === 'map') {
-      setScreen('map')
-      setFocusTab(null)
-      return
-    }
+  // Landing ↔ app swaps move focus to #main (the NavBar unmounts or mounts, so
+  // keyboard focus would otherwise fall to <body> mid-navigation — FLAG-3).
+  const focusMain = useCallback(() => {
+    requestAnimationFrame(() => document.getElementById('main')?.focus())
+  }, [])
+  const navigate = useCallback(
+    (target) => {
+      const token = ++navTokenRef.current
+      if (target === 'landing') {
+        setScreen('landing')
+        setFocusTab(null)
+        focusMain()
+        return
+      }
+      if (target === 'map') {
+        setScreen('map')
+        setFocusTab(null)
+        focusMain()
+        return
+      }
     if (target === 'dashboard') {
       setScreen('dashboard')
       setFocusTab({ id: 'dashboard', token })
@@ -175,19 +193,14 @@ export default function App() {
       setFocusTab(null)
       return
     }
-  }, [])
+  }, [focusMain])
 
-  const handleSignIn = useCallback(() => {
-    if (!supabase || !configured) return
-    // select_account forces Google's chooser (same flow as AuthButton): without
-    // it Google silently reuses the last account and switching users is hidden.
-    supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-        queryParams: { prompt: 'select_account' },
-      },
-    })
+  // Shared OAuth helper (lib/auth.js) — awaited so the landing CTA can render
+  // the failure (FLAG-1); the menu's onSignIn ignores the returned error by
+  // design (AuthButton and the landing own the error UIs).
+  const handleSignIn = useCallback(async () => {
+    if (!supabase || !configured) return { error: null }
+    return signInWithGoogle(supabase)
   }, [supabase, configured])
 
   const handleSignOut = useCallback(() => {
@@ -207,17 +220,21 @@ export default function App() {
         Skip to content
       </a>
 
-      {/* Floating translucent navbar on every screen; overlays clear it via
-          safe-area-aware top offsets. */}
-      <NavBar
-        level={progress.level}
-        title={progress.title}
-        inLevel={progress.inLevel}
-        totalHP={progress.totalHP}
-        onOpenMenu={setMenuOpen}
-        menuButtonRef={menuButtonRef}
-        menuOpen={menuOpen}
-      />
+      {/* Floating translucent navbar on every screen except landing — the dark
+          HUD would clash with the cream clay surface and duplicate the hero
+          brand row (UI-SPEC Entry #5). AppMenu is thus unreachable on landing
+          (you are already Home). */}
+      {screen !== 'landing' && (
+        <NavBar
+          level={progress.level}
+          title={progress.title}
+          inLevel={progress.inLevel}
+          totalHP={progress.totalHP}
+          onOpenMenu={setMenuOpen}
+          menuButtonRef={menuButtonRef}
+          menuOpen={menuOpen}
+        />
+      )}
 
       {menuOpen && (
         <AppMenu
@@ -235,8 +252,18 @@ export default function App() {
         />
       )}
 
-      {screen === 'map' ? (
-        <div id="main" className="relative min-h-0 flex-1">
+      {screen === 'landing' ? (
+        // Own scroll container: html/body are overflow:hidden, so the landing
+        // root carries the page's single scrollbar. No NavBar spacer to clear.
+        <LandingScreen
+          user={user}
+          supabase={supabase}
+          configured={configured}
+          navigate={navigate}
+          onSignIn={handleSignIn}
+        />
+      ) : screen === 'map' ? (
+        <div id="main" tabIndex={-1} className="relative min-h-0 flex-1">
           <BicolMap
             {...data}
             initialSelectedKey={focus?.key ?? null}

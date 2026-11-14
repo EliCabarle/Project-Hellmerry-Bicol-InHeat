@@ -1,8 +1,3 @@
-// In-flow account control for the Manage Account screen. position: fixed would
-// float over the map overlay's zoom/layer panels (z-[700]) and the tab nav;
-// normal flow needs no z-index.
-// The handle picker and the privacy notice live in PrivacyDialog, owned by
-// app.jsx so the first-sign-in gate can open on any screen, not only this one.
 import { useState } from 'react'
 
 const pill =

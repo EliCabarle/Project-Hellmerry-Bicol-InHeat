@@ -1,0 +1,47 @@
+Task_Number,Difficulty,Task_Title,Description
+1,Easy,Sort & Rinse Recyclables,"Separate paper, plastics, glass, and metal, and rinse out food residue so they don't contaminate the recycling batch."
+2,Easy,"Recycle Plastic Bottles, Cans & Glass","Recycle plastic bottles, aluminum cans, and glass jars properly."
+3,Easy,Pick Up Litter,"Pick up litter in your neighborhood, park, or street and dispose of it properly."
+4,Medium,Avoid Plastic-Wrapped Products,Avoid using or eating products wrapped in unnecessary single-use plastic.
+5,Easy,Bring Your Own Eco-Bag,Bring your own eco-bag or cloth tote bag when shopping.
+6,Easy,Refuse Single-Use Cutlery & Straws,"Refuse single-use plastic straws, cups, and disposable utensils."
+7,Easy,Use a Refillable Bottle & Tumbler,Use a refillable water bottle and reusable coffee tumbler instead of disposables.
+8,Easy,Separate Biodegradable & Dry Trash,Separate wet/biodegradable kitchen scraps from dry non-biodegradable trash.
+9,Medium,Buy Local & Seasonal Produce,"Choose locally grown, seasonal produce to reduce energy used in long-distance shipping and refrigeration."
+10,Medium,Shop at Local Markets,"Buy directly from local farmers, a neighborhood public market (palengke), or a farmers' market."
+11,Medium,Eat a Plant-Based Dish,"Observe a 'Meatless Monday' or swap a meat meal for vegetables, beans, or legumes."
+12,Easy,Finish All Leftovers,Eat existing leftovers and aging produce to prevent household food waste.
+13,Medium,Buy Pantry Staples in Bulk,Buy pantry staples in bulk or larger packs to minimize small single-use plastic sachets.
+14,Easy,Walk to Nearby Destinations,Walk to nearby destinations instead of driving or taking a motorized ride.
+15,Medium,Bike or Use an E-Scooter,Bike or use an e-scooter for short neighborhood errands.
+16,Medium,Take Public Transportation or Carpool,"Take public transportation (jeepney, bus, train) or carpool instead of driving alone."
+17,Easy,Combine Errands into One Trip,Combine multiple errands into a single route to save fuel and reduce emissions.
+18,Easy,No Vehicle Idling,Turn off the vehicle engine when parked or waiting for more than 30 seconds.
+19,Easy,Unplug Vampire Electronics,Turn off and unplug dormant electronics and chargers when not in use to avoid standby power drain.
+20,Easy,Turn Off Lights During Daytime,Keep lights turned off during daytime and rely on natural sunlight.
+21,Easy,Lights Out Sweep,Do a quick walkthrough and turn off every light and fan in unoccupied rooms.
+22,Easy,Wash Clothes in Cold Water,Wash clothes using cold water instead of the heated wash cycle.
+23,Medium,Air-Dry Laundry,Air-dry laundry on a clothesline or drying rack instead of using an electric dryer.
+24,Easy,Optimize Air Conditioner Temperature,Set the air conditioner to a moderate temperature (24°C–25°C) and use a fan to circulate cool air.
+25,Easy,Turn Off Tap While Brushing,Turn off the faucet while brushing your teeth or lathering soap.
+26,Easy,Keep Lids on Pots While Cooking,Keep lids on pots while boiling or simmering to trap heat and save gas or electricity.
+27,Medium,Plant a Tree,"Plant a tree in your yard, community, or designated reforestation area."
+28,Medium,Start an Indoor or Balcony Garden,Start an indoor herb garden or balcony vegetable planter.
+29,Medium,Set Up a Home Compost Bin,Set up a home compost bin or vermicompost (worm composting) system for kitchen scraps.
+30,Medium,Harvest Rainwater,Harvest rainwater in barrels or large containers for watering plants.
+31,Medium,Grow Pollinator-Friendly Flowers,"Grow native, pollinator-friendly flowers to support local bees and butterflies."
+32,Medium,Buy Solar-Powered Lights,"Use solar-powered outdoor, garden, or emergency lights."
+33,Hard,Switch House Power to Solar,Install residential solar panels to transition household electricity to clean energy.
+34,Hard,Install a Solar-Powered Water Heater,Install a solar-powered water heater to reduce water-heating electricity or gas use.
+35,Easy,Replace Bulbs with LEDs,Replace all old incandescent or CFL bulbs with high-efficiency LED bulbs.
+36,Easy,Use Smart Power Strips,Use smart power strips that automatically cut power to idle electronics.
+37,Easy,Switch to Rechargeable Batteries,Switch to rechargeable batteries instead of disposable alkaline batteries.
+38,Hard,Upgrade to Inverter/Energy-Star Appliances,"Upgrade old, power-hungry appliances to inverter or Energy Star-rated models."
+39,Medium,Participate in a Climate Seminar or Rally,"Attend an educational climate change seminar, workshop, or peaceful climate rally."
+40,Easy,Share Climate Action Knowledge,Share accurate knowledge about climate change and practical solutions on social media or in your community.
+41,Medium,Volunteer in Cleanup & Tree-Planting Drives,Volunteer in local cleanup drives and community tree-planting activities.
+42,Hard,Organize a Neighborhood Cleanup,"Organize a barangay, coastal, or riverbank cleanup drive."
+43,Hard,Start a Community Swap & Repair Event,"Start a community 'Swap & Share' or repair cafe for broken clothes, tools, and electronics."
+44,Hard,Advocate for Local Green Policies,"Lobby your school, workplace, or local council to ban single-use plastics or add bike lanes."
+45,Hard,Host a Waste Segregation or Composting Workshop,Host a workshop teaching neighbors how to segregate waste or compost at home.
+46,Medium,Donate Functioning Items,"Donate functioning old clothes, books, and gadgets instead of throwing them away."

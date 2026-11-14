@@ -8,8 +8,9 @@
 // kept). A stationary tap still flips the card — a claimed drag can't fire a
 // tap action.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { joinCards, countByProvince, provincesOf } from '../finderData.js'
+import { joinCards, countByProvince, provincesOf, matchCards } from '../finderData.js'
 import FinderCard from './FinderCard.jsx'
+import CollapsibleSection from './CollapsibleSection.jsx'
 
 // Offsets are wrapper-relative: neighbours lean away and recede in Z so the
 // spotlight card reads as front-of-stack.
@@ -36,19 +37,84 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
   const [province, setProvince] = useState('All')
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const [search, setSearch] = useState('')
+  const [scanning, setScanning] = useState(false)
 
   const cards = useMemo(() => joinCards(geojson, narratives, province), [geojson, narratives, province])
+  const matches = useMemo(() => matchCards(cards, search), [cards, search])
+
+  // Scan timer: one timeout at a time, cleared on unmount so a scan can never
+  // outlive the component.
+  const scanTimerRef = useRef(0)
+  const stopScan = () => {
+    if (scanTimerRef.current) {
+      clearTimeout(scanTimerRef.current)
+      scanTimerRef.current = 0
+    }
+    setScanning(false)
+  }
+  useEffect(() => () => clearTimeout(scanTimerRef.current), [])
 
   // A new filter is a new browse position — reset the spotlight and any flip.
   useEffect(() => {
+    stopScan()
     setIndex(0)
     setFlipped(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [province])
 
   const current = cards.length > 0 ? cards[clampIndex(index, cards.length)] : null
   const go = (delta) => {
+    stopScan()
     setFlipped(false)
     setIndex((i) => clampIndex(i + delta, cards.length))
+  }
+
+  // Animate to a matched card one step at a time so a search reads as the
+  // carousel scrolling through the municipalities, then landing on the match.
+  const scanTo = (target) => {
+    stopScan()
+    setFlipped(false)
+    const start = clampIndex(index, cards.length)
+    const distance = Math.abs(target - start)
+    if (distance === 0) {
+      setIndex(target)
+      return
+    }
+    const reduced =
+      typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced || distance === 1) {
+      setIndex(target)
+      return
+    }
+    const dir = target > start ? 1 : -1
+    // Step through each municipality when close, or take a stride when far, so a
+    // 110-card search still reads as a scroll (~0.8s) instead of a 4s crawl.
+    const stride = Math.max(1, Math.ceil(distance / 24))
+    const frames = Math.ceil(distance / stride)
+    const stepMs = Math.max(35, Math.min(90, Math.round(800 / frames)))
+    let i = start
+    setScanning(true)
+    const tick = () => {
+      i = dir > 0 ? Math.min(target, i + stride) : Math.max(target, i - stride)
+      setIndex(i)
+      if (i === target) {
+        setScanning(false)
+        scanTimerRef.current = 0
+        return
+      }
+      scanTimerRef.current = setTimeout(tick, stepMs)
+    }
+    scanTimerRef.current = setTimeout(tick, stepMs)
+  }
+
+  const onSubmitSearch = (e) => {
+    e.preventDefault()
+    if (matches.length === 0) return
+    const currentIdx = clampIndex(index, cards.length)
+    // Enter again advances to the next match, wrapping back to the first.
+    const next = matches.find((m) => m.index > currentIdx) ?? matches[0]
+    scanTo(next.index)
   }
 
   const onKeyDown = (e) => {
@@ -138,14 +204,12 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
   }
 
   return (
-    <section aria-label="Municipality finder" className="mt-4 rounded-xl border border-white/10 bg-heat-surface/50 p-3 shadow-hud">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Municipality finder</h2>
-          <p className="text-xs text-slate-500">
-            Browse every LGU&rsquo;s outline — flip a card for its trend, sample and why it heats.
-          </p>
-        </div>
+    <CollapsibleSection title="Municipality finder" ariaLabel="Municipality finder" className="mt-4">
+      <p className="text-xs text-slate-500">
+        Browse every LGU&rsquo;s outline — flip a card for its trend, sample and why it heats.
+      </p>
+
+      <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="flex items-center gap-2">
           <label htmlFor="finder-province" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
             Province
@@ -164,7 +228,36 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
             ))}
           </select>
         </div>
-      </header>
+
+        <form role="search" onSubmit={onSubmitSearch} className="flex min-w-0 flex-1 items-center gap-2">
+          <label htmlFor="finder-search" className="sr-only">
+            Search municipality or province
+          </label>
+          <input
+            id="finder-search"
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search municipality or province — press Enter"
+            className="min-h-11 min-w-0 flex-1 rounded-lg border border-white/10 bg-heat-deep/90 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+          />
+          <button
+            type="submit"
+            disabled={matches.length === 0}
+            className="cursor-pointer min-h-11 shrink-0 rounded-md border border-heat-amber/50 bg-heat-amber/20 px-3 py-1.5 text-xs font-semibold text-heat-amber hover:bg-heat-amber/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Find
+          </button>
+        </form>
+      </div>
+
+      <p aria-live="polite" className="mt-1 text-xs text-slate-500">
+        {search.trim()
+          ? matches.length === 0
+            ? 'No match'
+            : `${matches.length} match${matches.length === 1 ? '' : 'es'} — Enter to jump`
+          : ''}
+      </p>
 
       {cards.length === 0 ? (
         <p className="py-10 text-center text-xs text-slate-500">No municipalities for this filter.</p>
@@ -193,14 +286,16 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
                 <div
                   key={card.key}
                   aria-hidden={!isCenter || undefined}
-                  className={`absolute left-1/2 top-0 h-[19rem] w-[clamp(13rem,72vw,17rem)] -translate-x-1/2 transition-opacity duration-500 ${
-                    isCenter ? 'z-20' : 'z-10 pointer-events-none'
-                  } ${OPACITIES[offset]}`}
+                  className={`absolute left-1/2 top-0 h-[19rem] w-[clamp(13rem,72vw,17rem)] -translate-x-1/2 transition-opacity ${
+                    scanning ? 'duration-75' : 'duration-500'
+                  } ${isCenter ? 'z-20' : 'z-10 pointer-events-none'} ${OPACITIES[offset]}`}
                 >
                   {/* Coverflow transform lives on an inner div so it cannot clash
                       with the Tailwind centering translate on the wrapper. */}
                   <div
-                    className="h-full transition-transform duration-500 [transform-style:preserve-3d]"
+                    className={`h-full transition-transform [transform-style:preserve-3d] ${
+                      scanning ? 'duration-75' : 'duration-500'
+                    }`}
                     style={{ transform: OFFSET_STYLES[offset] }}
                   >
                     <FinderCard
@@ -227,7 +322,7 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
               ← Prev
             </button>
             <p
-              aria-live="polite"
+              aria-live={scanning ? 'off' : 'polite'}
               className="order-last w-full min-w-0 truncate text-center font-mono text-xs text-slate-400 sm:order-none sm:w-auto sm:min-w-40"
             >
               {current ? `${current.name} — ${clampIndex(index, cards.length) + 1} of ${cards.length}` : '—'}
@@ -244,6 +339,6 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
           </div>
         </>
       )}
-    </section>
+    </CollapsibleSection>
   )
 }

@@ -5,12 +5,56 @@
 :root {
   color-scheme: dark;
   --bih-bg: #070a0f;
-  --bih-surface: rgba(13, 20, 30, 0.88);
+  --bih-surface: rgba(13, 20, 30, var(--alpha-card));
   --bih-line: rgba(148, 163, 184, 0.18);
   --bih-ink: #e6edf5;
   --bih-muted: #94a3b8;
   --bih-amber: #fbbf24;
   --bih-cool: #67e8f9;
+
+  /* 4A — Component background opacity hierarchy (recommended_opacity_levels_core_tokens.md) */
+  --alpha-header: 0.92;
+  --alpha-card: 0.94;
+  --alpha-index: 0.90;
+  --alpha-hud-idle: 0.78;
+  --alpha-hud-active: 0.95;
+  --alpha-legend-idle: 0.76;
+  --alpha-tooltip: 0.95;
+  --alpha-disabled: 0.48;
+
+  /* 4B — Motion timings */
+  --btn-anim-ms: 140ms;
+  --btn-press-scale: 0.97;
+  --hud-blur-px: 12px;
+}
+
+/* Shared tactile button utility: GPU-composited transform/background/border/shadow,
+   hover lift, press scale, 2px heat-amber focus ring. Opacity lives on the
+   background channel only so text/borders keep full WCAG contrast. */
+.bih-btn {
+  position: relative;
+  transition:
+    transform var(--btn-anim-ms, 140ms) ease-out,
+    background-color var(--btn-anim-ms, 140ms) ease-out,
+    border-color var(--btn-anim-ms, 140ms) ease-out,
+    box-shadow var(--btn-anim-ms, 140ms) ease-out;
+}
+.bih-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+.bih-btn:not(:disabled):active {
+  transform: scale(var(--btn-press-scale, 0.97));
+}
+.bih-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--heat-amber, #fbbf24);
+}
+.bih-btn:disabled {
+  cursor: not-allowed;
+}
+.bih-btn:disabled:hover,
+.bih-btn:disabled:active {
+  transform: none;
 }
 
 html,
@@ -70,7 +114,7 @@ body {
 }
 
 .leaflet-control-attribution {
-  background: rgba(7, 10, 15, 0.78) !important;
+  background: rgba(7, 10, 15, var(--alpha-hud-idle)) !important;
   border: 1px solid var(--bih-line);
   border-radius: 6px 0 0 0;
   color: var(--bih-muted) !important;
@@ -92,7 +136,7 @@ body {
 }
 
 .bih-tip {
-  background: rgba(8, 13, 21, 0.94);
+  background: rgba(8, 13, 21, var(--alpha-tooltip));
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
   color: #e2e8f0;
@@ -184,5 +228,11 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .bih-btn,
+  .bih-btn:not(:disabled):hover,
+  .bih-btn:not(:disabled):active {
+    transition-duration: 0ms !important;
+    transform: none !important;
   }
 }

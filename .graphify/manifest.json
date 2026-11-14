@@ -1,0 +1,1506 @@
+{
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/index.ts": {
+    "mtime": 1794406561067.714,
+    "hash": "8c11b6e9fc3e8e52ca2718fbaa72c4f0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/plugin/guardrails.js": {
+    "mtime": 1794406561071.7322,
+    "hash": "2ba7322a6293c6a02073911aec30169b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/plugins/graphify.js": {
+    "mtime": 1794406561073.2412,
+    "hash": "40e278eefa32b017b5c642ce1defaba9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/plugins/spaceapps-harness.js": {
+    "mtime": 1794406561073.2412,
+    "hash": "6d4282e9a7d5fd0249a717656b7b505e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/scripts/copy-boilerplate.ps1": {
+    "mtime": 1794406561081.1064,
+    "hash": "9c4fe3d87d57cc11c7e3e7bb68ecc50a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/scripts/fetch-background.py": {
+    "mtime": 1794406561107.2036,
+    "hash": "845de6824aaabb9f04bb0826d859bf6b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/scripts/generate-slide.py": {
+    "mtime": 1794406561109.2256,
+    "hash": "60458a8bbff2a61b7d029380d897f529"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/scripts/search-slides.py": {
+    "mtime": 1794406561109.2256,
+    "hash": "bf072244fc927f737e0b96b8507aca4f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/scripts/slide_search_core.py": {
+    "mtime": 1794406561111.242,
+    "hash": "2613032ccc664e4a036f07e7851e796b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/cip/core.py": {
+    "mtime": 1794406561127.153,
+    "hash": "97922bcc747a77d5564f2f67d8b4c7b9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/cip/generate.py": {
+    "mtime": 1794406561127.153,
+    "hash": "4e21922d1169f73729fe4f7d9d0d6b62"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/cip/render-html.py": {
+    "mtime": 1794406561129.1738,
+    "hash": "e0f4ec7de6cbfe51386e2b64ccd19c21"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/cip/search.py": {
+    "mtime": 1794406561129.1738,
+    "hash": "3c6a773330a5c317f6214da55b4077ff"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/icon/generate.py": {
+    "mtime": 1794406561129.1738,
+    "hash": "00856566d7283782e7a02c9c0c238cca"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/logo/core.py": {
+    "mtime": 1794406561129.1738,
+    "hash": "6f79fef275acb58f37a9c9746de9f157"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/logo/generate.py": {
+    "mtime": 1794406561131.196,
+    "hash": "c055fcd5fc7d01874b6fc90dc797e5e9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/scripts/logo/search.py": {
+    "mtime": 1794406561131.196,
+    "hash": "751a89ded37904135601234dd4f5ad21"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-slides/scripts/extract-pptx.py": {
+    "mtime": 1794406561136.987,
+    "hash": "43c3876ca79639b0e02722975c85e106"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/shadcn_add.py": {
+    "mtime": 1794406561178.598,
+    "hash": "653cdb50b7acefe3631ce2ca7dbafa3b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/tailwind_config_gen.py": {
+    "mtime": 1794406561178.598,
+    "hash": "3c9cd70281daf1578c9ed537e3520519"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/tests/test_shadcn_add.py": {
+    "mtime": 1794406561181.4658,
+    "hash": "e1c19ceeb7aa7478d232cd5e4eec1713"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/tests/test_tailwind_config_gen.py": {
+    "mtime": 1794406561181.4658,
+    "hash": "ce92542524f0ae9cadee179d60824e97"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/core.py": {
+    "mtime": 1794406561236.4932,
+    "hash": "a1ec0e82db8146ba46a6941f6017c8a1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/design_system.py": {
+    "mtime": 1794406561237.787,
+    "hash": "70692061482010156ab94bb1cb24ed61"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/reasoning_contract.py": {
+    "mtime": 1794406561239.0576,
+    "hash": "653e45c1072a3662322d66a81c89d548"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/search.py": {
+    "mtime": 1794406561239.0576,
+    "hash": "2c9384e5027d0932a2bbde8029af0df0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_catalog_refresh.py": {
+    "mtime": 1794406561250.9956,
+    "hash": "fbf0e330d0f949e1a6ab72b5e6ef9083"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_core.py": {
+    "mtime": 1794406561250.9956,
+    "hash": "1ff514f53f20f2fb0239e15ce9a1d7c5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_core_data_quality.py": {
+    "mtime": 1794406561253.1357,
+    "hash": "ba36618da592989e75420cbb0d7ac13c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_data_contracts.py": {
+    "mtime": 1794406561254.9717,
+    "hash": "03e87e8ffa0c20f42fb342c5038a8f6f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_design_system_mode.py": {
+    "mtime": 1794406561254.9717,
+    "hash": "7c4e908b250f8ff3a5675644b2d98095"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_native_desktop_stack_freshness.py": {
+    "mtime": 1794406561254.9717,
+    "hash": "6a6d508927e50e80b8b84151be43f1c9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_relevance_evaluator.py": {
+    "mtime": 1794406561256.9841,
+    "hash": "f976384d686802fd2ea0ae806965c38d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_style_taxonomy.py": {
+    "mtime": 1794406561256.9841,
+    "hash": "00df6840db7177e5e1c17745db356bf6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_text_layout_resilience.py": {
+    "mtime": 1794406561258.1792,
+    "hash": "3db737530578556a377d542c6fc910c1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/tests/test_web_stack_freshness.py": {
+    "mtime": 1794406561258.1792,
+    "hash": "58922d6447b94b0ad9869408fd9c6562"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/scripts/validate_data.py": {
+    "mtime": 1794406561260.1936,
+    "hash": "cf77291035fa0491fe8c84ffe188370a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/backtest_model.py": {
+    "mtime": 1794589258266.438,
+    "hash": "84b445d7934bf0920c56c4655d846e41"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/bootstrap_ci.py": {
+    "mtime": 1794589258266.438,
+    "hash": "af8c8bf84545fa957d87f5e8eb011429"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/calculate_drivers.py": {
+    "mtime": 1794589258268.4634,
+    "hash": "a25fdaf5dbdacb5c25e1546dfb702a29"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/calculate_spatial_drivers.py": {
+    "mtime": 1794589258269.6643,
+    "hash": "6650da71468054da099c29b4f6e37127"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/calculate_trends.py": {
+    "mtime": 1794562715730.19,
+    "hash": "d1edeb02231cfc32e931eb0d9747fadc"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/cmip6_projection.py": {
+    "mtime": 1794589258269.6643,
+    "hash": "7860b971de5ab5cb728eca6a14321869"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/dedupe_csv.py": {
+    "mtime": 1794406561359.9456,
+    "hash": "cd7e560332fef3912f2a4ce3d8a19ad4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fdr_correction.py": {
+    "mtime": 1794589258271.8677,
+    "hash": "7f2f960cc7b3c17603cad60964eee809"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_boundaries.py": {
+    "mtime": 1794406561362.0222,
+    "hash": "1e0d1507f0fff923825b20afef542e90"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_cdo_validation.py": {
+    "mtime": 1794589258273.719,
+    "hash": "3b1b3bdc4743ed8d6d717bce2de48abb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_geo_features.py": {
+    "mtime": 1794589258275.0625,
+    "hash": "3ef9c2374956166f369d8e16016ab46c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_lst_data.py": {
+    "mtime": 1794406561362.0222,
+    "hash": "36a74414bb20350117bad929bdc6c856"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_new_variable.py": {
+    "mtime": 1794589258275.0625,
+    "hash": "a3469923c02b0ccd8e4bd6286f08181b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_population.py": {
+    "mtime": 1794589258275.0625,
+    "hash": "bee9ad9cc6da74c6f635512aaa901c60"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_power_data.py": {
+    "mtime": 1794406561362.0222,
+    "hash": "84fa3e458a2d477adf6adf9c95962663"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/forecast_2050.py": {
+    "mtime": 1794589258275.0625,
+    "hash": "d71c81279b43dd92278a55c308498fec"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/gather_stats.py": {
+    "mtime": 1794589258278.2483,
+    "hash": "247ffc7c76653ff36834d7c83d8350c2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/generate_static_json.py": {
+    "mtime": 1794562715733.2202,
+    "hash": "c4715087f131b803c4cb41d8563c3127"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/main.py": {
+    "mtime": 1794589258280.047,
+    "hash": "b8ef1fd242575ca3a7860735672fbcd1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0002_top_drivers.sql": {
+    "mtime": 1794406561365.6287,
+    "hash": "53fac88e5ce57dec6d6c82b15ee0a737"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0003_nighttime_heat_index.sql": {
+    "mtime": 1794406561365.6287,
+    "hash": "f6a6d847a80c8614a6b1a45d98d30112"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0004_lst_mean.sql": {
+    "mtime": 1794406561365.6287,
+    "hash": "3789104afb5f1ce565456f79e343fa97"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0005_change_point_ci.sql": {
+    "mtime": 1794562715733.2202,
+    "hash": "84f005c22272fb22e737ff3fcc5a5be4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0006_spatial_drivers.sql": {
+    "mtime": 1794589258282.557,
+    "hash": "7d47f9626fc89f6ee105a5b7253ba688"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0007_backtest_forecast.sql": {
+    "mtime": 1794589258282.557,
+    "hash": "7534472e42cf70fca18bcfae2c72f300"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0008_peer_review_fixes.sql": {
+    "mtime": 1794589258282.557,
+    "hash": "65857ac1600b2e621ee21df8d77117a8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0010_precipitation.sql": {
+    "mtime": 1794589258286.2637,
+    "hash": "ca57d3a72586dbd3bf1411b53fa5784c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0011_final_stats.sql": {
+    "mtime": 1794589258286.2637,
+    "hash": "a536267e00166fdddc8535bd30d6f618"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/morans_i.py": {
+    "mtime": 1794589258287.5056,
+    "hash": "f6ccad15a3fab41515e439b96c5713a8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/opposite_trends.py": {
+    "mtime": 1794589258289.639,
+    "hash": "b3cfb4c0618d3841cdfcfa328562249f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/push_to_supabase.py": {
+    "mtime": 1794594365716.6055,
+    "hash": "3e31189ffce1b15a0b89bc4157b63488"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/residual_diagnostics.py": {
+    "mtime": 1794589258303.7378,
+    "hash": "d141ff99652cc095deae42aacd635c73"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/scrape_nasa_resources.py": {
+    "mtime": 1794589258307.2917,
+    "hash": "baa6e135fb9e5cbc238bbcc8fdc4f81e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/scrape_official_resources.py": {
+    "mtime": 1794589258307.2917,
+    "hash": "91cb37a812eb745adf36eeca71f85573"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/seed_locations.py": {
+    "mtime": 1794406561368.361,
+    "hash": "2b6e2f4660c03480e5a9a047f5bdcc73"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/test_pipeline.py": {
+    "mtime": 1794562715735.1528,
+    "hash": "2dc5100150212d82edeeba60722f8678"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/validate_pagasa.py": {
+    "mtime": 1794406561370.3733,
+    "hash": "68184146213ab093bf7e0673c58801d5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/postcss.config.js": {
+    "mtime": 1794406561378.212,
+    "hash": "5b84f4567208c7c747079c0477373231"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/public/sw.js": {
+    "mtime": 1794562715752.6892,
+    "hash": "042914ccbad7a0de255536a1b946b6ef"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/app.jsx": {
+    "mtime": 1794589258312.5217,
+    "hash": "d193e54fb8509886137bc1cc3ad14193"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/components/AuthButton.jsx": {
+    "mtime": 1794589258313.7654,
+    "hash": "85f533344d637ac212b95b529e2d4755"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/lib/profile.js": {
+    "mtime": 1794406561389.987,
+    "hash": "891f0b9d0c1ad09d53e515304206c3ba"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/lib/supabase.js": {
+    "mtime": 1794406561389.987,
+    "hash": "ca6b9a67daa6d0074bbbe6250183fc97"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/main.jsx": {
+    "mtime": 1794562715755.8696,
+    "hash": "9500a07bfa6c8944f92e9f6a16e9526d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/useBicolData.js": {
+    "mtime": 1794406561392.7744,
+    "hash": "06b19c198fac3047298963b6513f97b6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/src/useSession.js": {
+    "mtime": 1794406561392.7744,
+    "hash": "48267922194b4dbb9a9c9cd9ce49f1b0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/tailwind.config.js": {
+    "mtime": 1794563895491.8667,
+    "hash": "cc7c34296f8acdb074dc3c9a0a3312dc"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/test_profile.mjs": {
+    "mtime": 1794406561394.8706,
+    "hash": "d8d2016b03227fe44d996a1968623e7c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/vite.config.js": {
+    "mtime": 1794562715757.8923,
+    "hash": "911f94e5f7102d519ab837b7a2f56ef2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/index.js": {
+    "mtime": 1794406561404.6143,
+    "hash": "e3e704511525672947c723f3ed8ebf1e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/DashboardScreen.jsx": {
+    "mtime": 1794589258318.8193,
+    "hash": "c829501e362c7b23048c4dea32c12c2a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/chartColors.js": {
+    "mtime": 1794406561406.807,
+    "hash": "47b1cb07b0523e6ce9675cf6d582d04c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/chartData.js": {
+    "mtime": 1794406561406.807,
+    "hash": "efd0ce87714c6955347d076c3ecf6747"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/ChartDataTable.jsx": {
+    "mtime": 1794589258318.8193,
+    "hash": "9bd7089973e56ca0e726576b2df3828c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/DashboardCharts.jsx": {
+    "mtime": 1794589258318.8193,
+    "hash": "3a6d1b312feac9c97e0f7e3d4573fc28"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/DashboardTable.jsx": {
+    "mtime": 1794589258320.8284,
+    "hash": "f1ae1dea8cbc2736e2418e8295c6998c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/DualLabel.jsx": {
+    "mtime": 1794589258320.8284,
+    "hash": "4a934a0749ee7e5dffb3ceffd47623a8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/FinderCard.jsx": {
+    "mtime": 1794589258324.0251,
+    "hash": "53944693fa30428e793b02f734635baf"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/HeatBar.jsx": {
+    "mtime": 1794589258324.0251,
+    "hash": "576a9f5800498009a900404af672704d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/HistoryTab.jsx": {
+    "mtime": 1794589258326.3284,
+    "hash": "217872fef9969c46802f7e5ab81a2bdf"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/Leaderboard.jsx": {
+    "mtime": 1794589258326.3284,
+    "hash": "4d818b94655f0f39b7ad6e77c609ebf8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/MunicipalityFinder.jsx": {
+    "mtime": 1794589258326.3284,
+    "hash": "69f31a25880c750d485da251dd9c57b4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/QuestsTab.jsx": {
+    "mtime": 1794589258329.2666,
+    "hash": "538318835ef5b2bae0d53d3955fa4912"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/components/TopHotspots.jsx": {
+    "mtime": 1794589258330.7783,
+    "hash": "f5bcf014817e9b7f24b150bcd2e3810c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/finderData.js": {
+    "mtime": 1794406561419.493,
+    "hash": "222ecf32a228a32db4a2fef13f6d90bb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/labels.js": {
+    "mtime": 1794589258330.7783,
+    "hash": "d6dd4b8499caa1d85f7ec22f05f9420f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/leaderboardStore.js": {
+    "mtime": 1794406561421.5085,
+    "hash": "68f1d8aacb63827beb7ce0f086b6d6bb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/outlinePath.js": {
+    "mtime": 1794406561421.5085,
+    "hash": "d9cc859699533de34d7b400fa173ff8b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/progressStore.js": {
+    "mtime": 1794562715782.507,
+    "hash": "9b58d675e5dc340e6a34845c25dd31e3"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/provinceGroups.js": {
+    "mtime": 1794589258330.7783,
+    "hash": "3f818f99dbf206b3825092ff6331e77a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/ranking.js": {
+    "mtime": 1794406561423.5278,
+    "hash": "801730fa1df16fe2bb0df65cc4b21a36"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/savedStore.js": {
+    "mtime": 1794406561423.5278,
+    "hash": "3b1c7abe5bfa4160f6a688044ba15265"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/src/scoreStore.js": {
+    "mtime": 1794562715784.52,
+    "hash": "a9f0ba900eb116c14a3a5b85e81ad3a4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_chartData.mjs": {
+    "mtime": 1794406561423.5278,
+    "hash": "a2f966af3d45e141277b09106b0589b0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_finderData.mjs": {
+    "mtime": 1794406561425.5466,
+    "hash": "fcf842f88b1e1c3f67c9976049176c88"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_labels.mjs": {
+    "mtime": 1794589258332.043,
+    "hash": "41868c6bafe2146d8ebba7aae9efd503"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_outlinePath.mjs": {
+    "mtime": 1794406561425.5466,
+    "hash": "22d300715380fbed96fc073a52b0feee"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_progress.mjs": {
+    "mtime": 1794562715786.313,
+    "hash": "dbefce130a52db78b38f178d60ce7282"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_provinceGroups.mjs": {
+    "mtime": 1794589258332.043,
+    "hash": "22e206fce2f4a482e884101eec3bb254"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_ranking.mjs": {
+    "mtime": 1794406561427.567,
+    "hash": "eaad9f4990b03c139813c60ed59677e9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_saved.mjs": {
+    "mtime": 1794406561427.567,
+    "hash": "1dfc8bffe6da8d50548e95f9e3f07fc7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/test_score.mjs": {
+    "mtime": 1794562715788.0566,
+    "hash": "29d9258bb6bcfb5f43983e28662074a7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/index.js": {
+    "mtime": 1794406561431.8252,
+    "hash": "37584a5eb1dd5a7fe3cf278047265d78"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/BicolMap.jsx": {
+    "mtime": 1794600821422.6729,
+    "hash": "8d123907511a1c206ffe19226e9b6e96"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/Municipality3DLayer.jsx": {
+    "mtime": 1794601137712.3623,
+    "hash": "04ccca0c29bd8013f92923a0595ab1eb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/Icons.jsx": {
+    "mtime": 1794406561438.8584,
+    "hash": "2d107456b3541a7adb1436c3b3a048ba"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/MapControlsOverlay.jsx": {
+    "mtime": 1794589258337.6672,
+    "hash": "f91cb074bf5a05c84bd8a43c26a1fd1e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/MunicipalityIndex.jsx": {
+    "mtime": 1794574977637.5632,
+    "hash": "7fcaae85118d65fa62173159fd69de17"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/MunicipalityInfoCard.jsx": {
+    "mtime": 1794589258337.6672,
+    "hash": "8eb8100eb3e9a39f7c50b71b8156d029"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/MunicipalityLegend.jsx": {
+    "mtime": 1794574977639.5764,
+    "hash": "a07261cc5f1c90e9480e0a7aa72b35fa"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/components/municipalityTooltip.js": {
+    "mtime": 1794425418611.8542,
+    "hash": "f9b68e61824627b4f028438313a922c7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/data/dailyStore.js": {
+    "mtime": 1794426589907.6091,
+    "hash": "e2cd099a12b3f6000f251a83379c59de"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/countryFrame.js": {
+    "mtime": 1794589258342.8875,
+    "hash": "f3fc4247f1e36b4e09bafb3400ba454a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/engine.js": {
+    "mtime": 1794574977640.8406,
+    "hash": "de76599f15a36f0576ead21522164c06"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/lift.js": {
+    "mtime": 1794574977641.884,
+    "hash": "fbee9f61a9a451aad20cf953c25e7591"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/trace.js": {
+    "mtime": 1794562715798.7268,
+    "hash": "ed1a5d0da3cc0b51e876cd9c4a926e30"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/yearRamp.js": {
+    "mtime": 1794425258654.199,
+    "hash": "584014613f3c254d010a3d803f205c49"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/state/dateModel.js": {
+    "mtime": 1794424279067.3728,
+    "hash": "b29f24d7ee1accd0ac52a6a6f9913a2b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/state/timelineStore.js": {
+    "mtime": 1794424433198.4148,
+    "hash": "60ec3c00ff0aa19910b20b39fcd1a54c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_daily.mjs": {
+    "mtime": 1794426833035.7354,
+    "hash": "846eff0cf22ed4faaed6eb064a2ea2df"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_date.mjs": {
+    "mtime": 1794426540475.2566,
+    "hash": "40ffdac1d2d7b2476c4163364ef25e9b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_engine.mjs": {
+    "mtime": 1794406561460.473,
+    "hash": "81beec7c1e06c8f301a52ddd3da6447f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_lift.mjs": {
+    "mtime": 1794562715798.7268,
+    "hash": "6244c881ceb165a28eaf5d85a4174d88"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_trace.mjs": {
+    "mtime": 1794562715799.927,
+    "hash": "0c1e1c5a657a66f16c35ec9ffa844f2e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_year.mjs": {
+    "mtime": 1794406561460.473,
+    "hash": "9d67aed8dc33f40d86f84bd2ff72f1a9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/supabase/migrations/0001_profiles.sql": {
+    "mtime": 1794406561510.863,
+    "hash": "d33ce4d716492154119cbb173b249475"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/supabase/migrations/0002_saved_municipalities.sql": {
+    "mtime": 1794406561510.863,
+    "hash": "7d0ae3f938f97e6338154b1a50a62ea9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/supabase/migrations/0003_user_profiles.sql": {
+    "mtime": 1794406561510.863,
+    "hash": "bb295ad3ef5ea1eb74ea549c95f819c7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/supabase/migrations/0004_set_my_score.sql": {
+    "mtime": 1794562715799.927,
+    "hash": "981be11f1be5466196b47b1354cf6bc0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/supabase/migrations/001_bicol_schema.sql": {
+    "mtime": 1794406561513.8938,
+    "hash": "7a9f4083fa0836d15acd8a0635c04d84"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/MIGRATION.md": {
+    "mtime": 1794406561025.9534,
+    "hash": "93139b163d0935387e9f294126099b52"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/README.md": {
+    "mtime": 1794406561025.9534,
+    "hash": "23131bf310b6de7bf6fd01a9234fc023"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/a11y-architect.md": {
+    "mtime": 1794406561025.9534,
+    "hash": "5bc01ad2b5cec8596831f4b0eabddd62"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/architect.md": {
+    "mtime": 1794406561028.418,
+    "hash": "11876ceb6786ea393e9badcd9cab3142"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/build-error-resolver.md": {
+    "mtime": 1794406561028.418,
+    "hash": "c10f2923be4e258d4df738ad88c86ebb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/code-architect.md": {
+    "mtime": 1794406561028.418,
+    "hash": "bb7d59f3c49546c6699e5dc3a5a837f1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/code-explorer.md": {
+    "mtime": 1794406561029.569,
+    "hash": "022a8511abc9d94c736f2708bcdabde7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/code-reviewer.md": {
+    "mtime": 1794406561029.569,
+    "hash": "a82350890f889c9febe9ad357217425e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/code-simplifier.md": {
+    "mtime": 1794406561030.783,
+    "hash": "c49706454e3690a4d196bc92f4c30fe3"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/comment-analyzer.md": {
+    "mtime": 1794406561030.783,
+    "hash": "b9715896b70352c25c3cfc5b7406be32"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/database-reviewer.md": {
+    "mtime": 1794406561031.8723,
+    "hash": "5cd14c2da2db8a6314589037ffd516a1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/planner.md": {
+    "mtime": 1794406561031.8723,
+    "hash": "8a9ba7ef30f1bd7ff62e4f8ba92c303f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/pr-test-analyzer.md": {
+    "mtime": 1794406561031.8723,
+    "hash": "b0de8888d21220cffebe9f41f2907541"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/react-architect.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "c92b9c4282afc857ee18699ef663157e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/react-build-resolver.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "9ca676066f7605e3af2561321589db28"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/react-reviewer.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "b36fb3f7952f7edd594fdcb59d3f2b10"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/refactor-cleaner.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "9363247c37d7542cdacb037bd7857106"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/security-reviewer.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "1e8467499dae68993c8b4d8dd1f74809"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/silent-failure-hunter.md": {
+    "mtime": 1794406561033.0298,
+    "hash": "2e721670eb54fffda3a7a82c7ed45263"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-build-engineer.md": {
+    "mtime": 1794406561035.7893,
+    "hash": "5caf48da0c3d3eed4d3e41451d390581"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-challenge-scout.md": {
+    "mtime": 1794406561035.7893,
+    "hash": "dc3718b367bfe305fd0c20d75fafe1f5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-data-scout.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "5dc91b6d96025f2072609e029c4569d9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-pitch-director.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "5729ad1ece0644808b9336e6d5c28c82"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-prior-art-analyst.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "4a4d719a8b6b5bbd0a6b16dc74c397dd"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-science-validator.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "adb34cba1f1ab1d4fe6edb6e7b03fd8e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-scope-planner.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "40a282bb36b96e43b5a1cf0076e46b14"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-submission-auditor.md": {
+    "mtime": 1794406561037.4443,
+    "hash": "034c911a77bb3155a3d0f26e2ff63522"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/spaceapps-team-architect.md": {
+    "mtime": 1794406561040.2717,
+    "hash": "e6ddd5972a9c3b9e57b59710c883acdf"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/tdd-guide.md": {
+    "mtime": 1794406561040.2717,
+    "hash": "25d715bcf038dc28e641b2eb4573c0ff"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/type-design-analyzer.md": {
+    "mtime": 1794406561041.294,
+    "hash": "85cd39373b603c847da5374e62405e40"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/agent/typescript-reviewer.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "a0719d0e0e6d6b9347fa0c7383989cda"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/aside.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "e7fc562822bfa71d7e6d31fbc157001c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/build-analytics.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "c271bc00ddefe2988ff3a2ee3a15dc49"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/build-fix.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "f2e920c88c4ab1acbf0d49c60db17fed"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/code-review.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "cab38ca9dfb94d7d520d165828843ccf"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/feature-dev.md": {
+    "mtime": 1794406561041.8066,
+    "hash": "16d1fcd98964e556cff3ef49ff30c5e4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/plan.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "a211bd318a75ab0d30c43cc23e6e2f16"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/react-build.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "1ce100b8bac1452976ed81355f9370c9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/react-review.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "863095569e5b0b156b24cff523fc0f8e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/react-test.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "3a3fbd8e0cb43b964890e4fb44319e5a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/refactor-clean.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "1733567cfb5db922e56444e323f20933"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/command/review-pr.md": {
+    "mtime": 1794406561045.8137,
+    "hash": "771c734287713c2eaf4fea7b52124618"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/build-fix.md": {
+    "mtime": 1794406561048.9817,
+    "hash": "472704e9ae15ad1ae1f493783f7c2a05"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/checkpoint.md": {
+    "mtime": 1794406561048.9817,
+    "hash": "82419ea64588415565cc3658d2d799e0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/code-review.md": {
+    "mtime": 1794406561048.9817,
+    "hash": "e515e803595f754fa79c167b3f8caceb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/e2e.md": {
+    "mtime": 1794406561050.0586,
+    "hash": "c71156efcae34f07ec169b874677cc04"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/eval.md": {
+    "mtime": 1794406561050.0586,
+    "hash": "bf8b6f52c12ad1a0f205cb2a2a44ab59"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/evolve.md": {
+    "mtime": 1794406561050.0586,
+    "hash": "dd6931a200ba7c8374c1b10d9e464836"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/go-build.md": {
+    "mtime": 1794406561051.7534,
+    "hash": "58571f452eadf520f8c7042dbc321c3e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/go-review.md": {
+    "mtime": 1794406561051.7534,
+    "hash": "72ed9aca3a455f50793d2952a3549895"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/go-test.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "34b973bec3b69833a738a53cf62ba1a4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/harness-audit.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "8462892b1995ad35aced26d3b6b21691"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/instinct-export.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "855cd371ab2d274e83b439461bb12a91"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/instinct-import.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "9d49c7dc4bfbdeca79e959f282f19359"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/instinct-status.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "6c076f171b6c96cc7647d24acda11a2e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/learn.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "e9c7e10309af4697c7bc5f3f98901ef6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/loop-start.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "16d7ce7c702a99477eaf22642d557c9c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/loop-status.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "4e857442a3237d5ff650bb5aba3c9480"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/model-route.md": {
+    "mtime": 1794406561052.9607,
+    "hash": "c0222ad0da6481e6bf6187b88bfa4088"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/orchestrate.md": {
+    "mtime": 1794406561057.1755,
+    "hash": "0e0a02d6abd1de9d61000af36ee404b9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/plan.md": {
+    "mtime": 1794406561057.1755,
+    "hash": "0c6456eae42b276c9a1b816fd08ea85b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/projects.md": {
+    "mtime": 1794406561057.1755,
+    "hash": "e72b67a1dcec5b0e99367dc6d9032db0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/promote.md": {
+    "mtime": 1794406561057.1755,
+    "hash": "21e8bbde646da6e425547ca52100fe95"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/quality-gate.md": {
+    "mtime": 1794406561059.1853,
+    "hash": "56977432807c7df37b702b6649e1801b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/refactor-clean.md": {
+    "mtime": 1794406561059.1853,
+    "hash": "0fb2ee4ddcd5786da7475da78b627bbd"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/rust-build.md": {
+    "mtime": 1794406561059.1853,
+    "hash": "74cc905291bef1709d3890f6dbb8a768"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/rust-review.md": {
+    "mtime": 1794406561059.1853,
+    "hash": "2ee3307b1dad37d20c135137ef9b70f8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/rust-test.md": {
+    "mtime": 1794406561061.304,
+    "hash": "174a7198dcf30a463a3718f007167321"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/security-scan.md": {
+    "mtime": 1794406561061.304,
+    "hash": "7cc414bc92802a1a16dd3279b9f3c5f1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/security.md": {
+    "mtime": 1794406561061.304,
+    "hash": "4d788310bee5bf2ec1029b2bff104fd8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/setup-pm.md": {
+    "mtime": 1794406561061.304,
+    "hash": "d81320a18b19f784579830a37d4dead1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/skill-create.md": {
+    "mtime": 1794406561064.1426,
+    "hash": "bf04e595f8774eeb06df95ffe85121d4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/tdd.md": {
+    "mtime": 1794406561064.1426,
+    "hash": "1852d4a2efee015d0481c572b2517524"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/test-coverage.md": {
+    "mtime": 1794406561065.223,
+    "hash": "5a757ce0c8e79d8ff8f985fe53669b45"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/update-codemaps.md": {
+    "mtime": 1794406561065.223,
+    "hash": "e3f9ab87c33c19e64adc96f5bb47a16a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/update-docs.md": {
+    "mtime": 1794406561066.563,
+    "hash": "f9032f3d56e475e6a508dc574d97a318"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/commands/verify.md": {
+    "mtime": 1794406561066.563,
+    "hash": "0f14e32059a8d728772c89784a29f3af"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/instructions/INSTRUCTIONS.md": {
+    "mtime": 1794406561069.724,
+    "hash": "29b63a6cb99e0848fe6ba8ba8c27778c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/DATA-CATALOGUE.md": {
+    "mtime": 1794406561073.2412,
+    "hash": "82c2cc6781560adc6b5f421a67fa470a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/ONBOARDING.md": {
+    "mtime": 1794406561076.677,
+    "hash": "9993dc2ae839118609f2132fb1561865"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/TEAM-RUNBOOK.md": {
+    "mtime": 1794406561076.677,
+    "hash": "01b0ceb7fbde4fdd933fee02c633bcee"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/judging-rubric.md": {
+    "mtime": 1794406561076.677,
+    "hash": "91ed1a96acd4d3f011e23ec1ded8b515"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/rules-and-timeline.md": {
+    "mtime": 1794406561076.677,
+    "hash": "654b3bbf36bf9415b70f0da3796b9c28"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/winners-2021-2025.md": {
+    "mtime": 1794406561076.677,
+    "hash": "bf14454ef05328436d8b0fad12795692"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/references/spaceapps-harness/winning-patterns.md": {
+    "mtime": 1794406561081.1064,
+    "hash": "9de2c7476d7eac7105adcdba5d891986"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/accessibility/SKILL.md": {
+    "mtime": 1794406561083.1172,
+    "hash": "69ceca0c394eb58468a938f8f66719e7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/banner-design/SKILL.md": {
+    "mtime": 1794406561083.1172,
+    "hash": "dcc8c6695dcb41e08d019d902a482404"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/banner-design/references/banner-sizes-and-styles.md": {
+    "mtime": 1794406561083.1172,
+    "hash": "d77cc03e8ce1a2621dd8d6e565d2a835"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/SKILL.md": {
+    "mtime": 1794406561086.119,
+    "hash": "5954a996f66c2d37d8c7d14a097c2170"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/approval-checklist.md": {
+    "mtime": 1794406561086.119,
+    "hash": "32c1cbadbd8fb01558c89e47a3eea2c9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/asset-organization.md": {
+    "mtime": 1794406561086.119,
+    "hash": "3fd34bbdbcb6f7d6bc3e3b54291c1f81"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/brand-guideline-template.md": {
+    "mtime": 1794406561086.119,
+    "hash": "a105e4b545d7ee596951e5a942941f52"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/color-palette-management.md": {
+    "mtime": 1794406561086.119,
+    "hash": "ff5b9d16adfa70735bfaaf86c092cff2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/consistency-checklist.md": {
+    "mtime": 1794406561089.3503,
+    "hash": "1508efecb7217da592bacbe5dd8453c3"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/logo-usage-rules.md": {
+    "mtime": 1794406561090.5964,
+    "hash": "880c7a7461a816256d1eb29a4c9a45a1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/messaging-framework.md": {
+    "mtime": 1794406561090.5964,
+    "hash": "57f14bdc36a88948ac5da2927dd478ba"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/typography-specifications.md": {
+    "mtime": 1794406561090.5964,
+    "hash": "e977a8b6c3f3cce2c300db34b5c478d4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/update.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "5c10082d89427a1038f572ba8c7e4d4b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/visual-identity.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "222cd317fcd2fd46c1c9771da9dd28f8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/references/voice-framework.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "e3ec9108522055fa2a7a3b6e390a1b48"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/brand/templates/brand-guidelines-starter.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "9dcc6005ce27b600247070138aa815c6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/dashboard-builder/SKILL.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "42e2875cd4d3f9ddac34a272de4d4e2c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/database-migrations/SKILL.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "03a106e54aa2e0db297e45867d7152f1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/SKILL.md": {
+    "mtime": 1794406561092.5327,
+    "hash": "4f097b257752a50220cf0ae9986bd2ec"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/references/component-specs.md": {
+    "mtime": 1794406561103.2449,
+    "hash": "800d64833545996f7c61af874ea0c66e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/references/states-and-variants.md": {
+    "mtime": 1794406561105.1462,
+    "hash": "7c9ea66af1b4b2df9b1cb585d9d67d84"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design-system/references/tailwind-integration.md": {
+    "mtime": 1794406561105.1462,
+    "hash": "d8cbd2666cd878b35bee5ea2dc25e4e0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/SKILL.md": {
+    "mtime": 1794406561113.2622,
+    "hash": "1d81c285c694bb9551cd24ba6054c88a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/banner-sizes-and-styles.md": {
+    "mtime": 1794406561119.327,
+    "hash": "d77cc03e8ce1a2621dd8d6e565d2a835"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/cip-deliverable-guide.md": {
+    "mtime": 1794406561119.327,
+    "hash": "f553a691a1feeda942a1ad7a8e7fa14f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/cip-design.md": {
+    "mtime": 1794406561119.327,
+    "hash": "e401b8a6364d782d896b7562e0e78c8b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/cip-prompt-engineering.md": {
+    "mtime": 1794406561119.327,
+    "hash": "c37289aaaa114caa03642c3e582b8363"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/cip-style-guide.md": {
+    "mtime": 1794406561121.0916,
+    "hash": "af22ac3b3af8c0845e9e20216adc0ca5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/design-routing.md": {
+    "mtime": 1794406561121.0916,
+    "hash": "33ca1737a2fa08c2651cb2970b17988b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/icon-design.md": {
+    "mtime": 1794406561121.0916,
+    "hash": "878c3c03161170f19c5c27eddc7bea61"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/logo-color-psychology.md": {
+    "mtime": 1794406561121.0916,
+    "hash": "ea8820f66e2ea82d52acc70ec8fa2211"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/logo-design.md": {
+    "mtime": 1794406561123.1155,
+    "hash": "1f0ac87c092a11964f00846ec80c0c97"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/logo-prompt-engineering.md": {
+    "mtime": 1794406561123.1155,
+    "hash": "42ac71a96a568ba6d151ab2b512c59c4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/logo-style-guide.md": {
+    "mtime": 1794406561123.1155,
+    "hash": "71429dc380a3c5a731c8654addb467c6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides-copywriting-formulas.md": {
+    "mtime": 1794406561123.1155,
+    "hash": "25ee8ea822b1c8186db79aa794fa246c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides-create.md": {
+    "mtime": 1794406561125.1338,
+    "hash": "477752a5cc080a9ce932b02ba961a0d8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides-html-template.md": {
+    "mtime": 1794406561125.1338,
+    "hash": "f72faaf4f650dfc05550619a42fae258"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides-layout-patterns.md": {
+    "mtime": 1794406561125.1338,
+    "hash": "0cbb0495b234ea4b7182e661570a1879"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides-strategies.md": {
+    "mtime": 1794406561125.1338,
+    "hash": "3356abc0533fe316df905a39c4a3afa0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/slides.md": {
+    "mtime": 1794406561125.1338,
+    "hash": "90e3b6463ed33d5bb87556cf69873705"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/design/references/social-photos-design.md": {
+    "mtime": 1794406561127.153,
+    "hash": "b8617d37634488aee25a5d8298e26e8d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-a11y/SKILL.md": {
+    "mtime": 1794406561131.196,
+    "hash": "d762923faca8cdc43d6086552e15480b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-design-direction/SKILL.md": {
+    "mtime": 1794406561133.2136,
+    "hash": "f5189513268d86f67079bf861d090857"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-patterns/SKILL.md": {
+    "mtime": 1794406561133.2136,
+    "hash": "a01a5efa1539151af2cee5f15079fbc2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-slides/SKILL.md": {
+    "mtime": 1794406561135.2317,
+    "hash": "777cb73e2d3d400931aa38504ffbb17f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-slides/STYLE_PRESETS.md": {
+    "mtime": 1794406561135.2317,
+    "hash": "61b68daa37bc04823896908c9dece6e5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-slides/animation-patterns.md": {
+    "mtime": 1794406561135.2317,
+    "hash": "87e82b89b9ae6e44439e54767adda3e7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/frontend-slides/html-template.md": {
+    "mtime": 1794406561136.987,
+    "hash": "ea186464e2952d12dc83463aa71f3cdb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/SKILL.md": {
+    "mtime": 1794406561141.019,
+    "hash": "ac5de299f173a130c7af50e929fe2c2a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/add-watch.md": {
+    "mtime": 1794406561141.019,
+    "hash": "58c888b5ec0689a886543dd765c1acc9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/exports.md": {
+    "mtime": 1794406561141.019,
+    "hash": "ecc0c36852fee4ba6280cdf2b9149039"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1794406561143.0996,
+    "hash": "024c6f2a3c146b03c72cc871dc56ed3c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1794406561143.0996,
+    "hash": "aa0e7ef186392cad062e60483ca7dbbf"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/hooks.md": {
+    "mtime": 1794406561143.0996,
+    "hash": "0045c2f12c69bff3a641a8908a1ac057"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/query.md": {
+    "mtime": 1794406561144.87,
+    "hash": "852ef14334d60a75ae666ea103d4c4f0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/transcribe.md": {
+    "mtime": 1794406561145.922,
+    "hash": "5c6a9af05d12b5797b2fa8b9493dcc37"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/graphify/references/update.md": {
+    "mtime": 1794406561145.922,
+    "hash": "07bf4293ea21b4e00a9655dd4e7f0af5"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/pragmatic-coding/SKILL.md": {
+    "mtime": 1794406561147.182,
+    "hash": "786547b30ddf50aed74652ab0d472fa8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/react-native-patterns/SKILL.md": {
+    "mtime": 1794406561148.4922,
+    "hash": "19e5abce594eedabc5b863239066814a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/react-patterns/SKILL.md": {
+    "mtime": 1794406561148.4922,
+    "hash": "bdb4325bb8fbf66f24124752ba53bb7b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/react-performance/SKILL.md": {
+    "mtime": 1794406561148.4922,
+    "hash": "91912a5e505ca5ee9435f712afdbe465"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/react-testing/SKILL.md": {
+    "mtime": 1794406561151.6826,
+    "hash": "0b5ecfbbd467b314a7bf6d74f9167d57"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/recharts-olap/SKILL.md": {
+    "mtime": 1794406561152.6912,
+    "hash": "fe286c8114eb20de5d1b750bda2c3bf2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/SKILL.md": {
+    "mtime": 1794406561152.6912,
+    "hash": "3d319ea8d232cdb9c4d67748852e49fb"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/references/copywriting-formulas.md": {
+    "mtime": 1794406561153.896,
+    "hash": "25ee8ea822b1c8186db79aa794fa246c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/references/create.md": {
+    "mtime": 1794406561153.896,
+    "hash": "477752a5cc080a9ce932b02ba961a0d8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/references/html-template.md": {
+    "mtime": 1794406561155.9204,
+    "hash": "f72faaf4f650dfc05550619a42fae258"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/references/layout-patterns.md": {
+    "mtime": 1794406561155.9204,
+    "hash": "0cbb0495b234ea4b7182e661570a1879"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/slides/references/slide-strategies.md": {
+    "mtime": 1794406561155.9204,
+    "hash": "3356abc0533fe316df905a39c4a3afa0"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-award-targeting/SKILL.md": {
+    "mtime": 1794406561157.9397,
+    "hash": "b824ec1516528136ca58e3d9210fdf28"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-brief/SKILL.md": {
+    "mtime": 1794406561157.9397,
+    "hash": "e574e5261a2ac3b8fcd5eb7adeafd245"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-challenge-selection/SKILL.md": {
+    "mtime": 1794406561159.9568,
+    "hash": "6a2103cdbf8a9b877baf50a8d035f4e7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-demo-video/SKILL.md": {
+    "mtime": 1794406561159.9568,
+    "hash": "f8e26425ff6fa6b5ab40e412f80aa42a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-hackathon-war-room/SKILL.md": {
+    "mtime": 1794406561159.9568,
+    "hash": "2fcf7c85fb2bfb943603807b49adf9d2"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-judge-simulation/SKILL.md": {
+    "mtime": 1794406561161.9656,
+    "hash": "17c7c608419c2ad4a85e205668421713"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-nasa-data-access/SKILL.md": {
+    "mtime": 1794406561162.9934,
+    "hash": "2e6e8c2fdb565ffd1154cf1eb39713a8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-project-page-builder/SKILL.md": {
+    "mtime": 1794406561164.3196,
+    "hash": "a65a4c0cd215d055a3c1b810cf0f6288"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-sandcastle-orchestration/SKILL.md": {
+    "mtime": 1794406561164.3196,
+    "hash": "5aa2ca55bc262b6f8f5dddb761f8ff96"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-session-handoff/SKILL.md": {
+    "mtime": 1794406561166.3435,
+    "hash": "3c20d3f7aca2d254cbab224d4ae9bf46"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/spaceapps-team-building/SKILL.md": {
+    "mtime": 1794406561166.3435,
+    "hash": "f4c661fbf8240b5824a99a6135d7ad00"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/supabase-crud/SKILL.md": {
+    "mtime": 1794406561167.5933,
+    "hash": "416cbfde9b4f12ad0381da7a87350557"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/tdd-workflow/SKILL.md": {
+    "mtime": 1794406561168.6123,
+    "hash": "79b533bf46dc101d71dcb171ec19c715"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/LICENSE.txt": {
+    "mtime": 1794406561168.6123,
+    "hash": "0ba5044c64ef53cb0189c9546081e228"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/SKILL.md": {
+    "mtime": 1794406561171.51,
+    "hash": "581d6ca7b413f3059abb50c8c2281002"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/canvas-design-system.md": {
+    "mtime": 1794406561171.51,
+    "hash": "31a5d5a6e020a02a32415ad17067da24"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/shadcn-accessibility.md": {
+    "mtime": 1794406561171.51,
+    "hash": "5158549b94aaae3326b7e7854d51dc06"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/shadcn-components.md": {
+    "mtime": 1794406561171.51,
+    "hash": "7dfd7e872df6c607a571dbeeb59e1789"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/shadcn-theming.md": {
+    "mtime": 1794406561171.51,
+    "hash": "80597d1759014fe29c7cbee37bc5caf9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/tailwind-customization.md": {
+    "mtime": 1794406561175.2583,
+    "hash": "c2366766ac4d6183eae1fddcc45f3c29"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/tailwind-responsive.md": {
+    "mtime": 1794406561175.2583,
+    "hash": "4bd3c15e0828b65f646e248a4e6c67a8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/references/tailwind-utilities.md": {
+    "mtime": 1794406561175.2583,
+    "hash": "b0a93822074b869ebe3c6647acffa733"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/requirements.txt": {
+    "mtime": 1794406561177.464,
+    "hash": "d2f397f72424decd5aca67cc7c28dc4c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-styling/scripts/tests/requirements.txt": {
+    "mtime": 1794406561180.9539,
+    "hash": "d60e024efe9d4a8d1d065ec333260210"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/ui-ux-pro-max/SKILL.md": {
+    "mtime": 1794406561181.4658,
+    "hash": "42af6e14b446c9bbfb77a24d258e617f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.opencode/skills/vite-patterns/SKILL.md": {
+    "mtime": 1794406561262.2046,
+    "hash": "7f7b5ea808c4eb19b08ca7d0b8c1cfca"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.planning/graphs/GRAPH_REPORT.md": {
+    "mtime": 1794596372374.0776,
+    "hash": "7c94c0709e196fdec30da089437387f6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.planning/graphs/graph.html": {
+    "mtime": 1794406561492.9385,
+    "hash": "ce542285eaebb685e8a5950c160dbc43"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T13-52-26-950Z.yml": {
+    "mtime": 1794406561337.8098,
+    "hash": "259cd5a54314f5aa43fb6aaf10eb7273"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-10-46-250Z.yml": {
+    "mtime": 1794406561340.104,
+    "hash": "a9f112c3688431c1351c714ad78c8ab4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-11-34-189Z.yml": {
+    "mtime": 1794406561340.104,
+    "hash": "6fd260b9978994189ebaeff0a4a0deb6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-12-19-828Z.yml": {
+    "mtime": 1794406561347.7505,
+    "hash": "a4c82fcf5cf9ad3b181cc0363f9e0327"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/AGENTS.md": {
+    "mtime": 1794589258260.7812,
+    "hash": "800bef1c6fef130dd2562b8891077bd8"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/CHANGELOG.md": {
+    "mtime": 1794562715727.6604,
+    "hash": "d009dd4da18b35ef800d6eda925bff1d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/CONCEPT.md": {
+    "mtime": 1794406561352.7292,
+    "hash": "d4e67ee0173097b219b17ae1656e3436"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/HANDOFF.md": {
+    "mtime": 1794562715728.171,
+    "hash": "6cedac61e4c8ea3a6837e4a5aabb361a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/PITCH_STATS.md": {
+    "mtime": 1794594365705.4912,
+    "hash": "77f34f32a242e0dae9b72bc8d00b76c1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/README.md": {
+    "mtime": 1794406561354.7456,
+    "hash": "085e3a6980b748c15441f70341436dd1"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/AGENTS.md": {
+    "mtime": 1794406561357.146,
+    "hash": "24641024f035a700791ecd65783db187"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/VALIDATION.md": {
+    "mtime": 1794589258265.2874,
+    "hash": "d162f0449b6e3d3ad273d6d8c5b9932d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/requirements.txt": {
+    "mtime": 1794589258303.7378,
+    "hash": "05b5d8808c09d44a3457cc4bfbbb3673"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/AGENTS.md": {
+    "mtime": 1794562715739.2483,
+    "hash": "edec263df04b577c5538c38f18f98199"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/index.html": {
+    "mtime": 1794562715739.2483,
+    "hash": "ff7dbc10580ab9137d9d8015a2c12f0a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/core/AGENTS.md": {
+    "mtime": 1794406561395.3892,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docker-compose.yml": {
+    "mtime": 1794406561395.3892,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/ARCHITECTURE.md": {
+    "mtime": 1794562715757.8923,
+    "hash": "40bbb8e7b454fff2913e5b99264738b9"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/CONFIGURATION.md": {
+    "mtime": 1794406561397.4038,
+    "hash": "84384b2e3d52b3b97484bdbfe83c029b"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/DEPLOYMENT.md": {
+    "mtime": 1794406561397.4038,
+    "hash": "c3a1a3d6b044cd4dd506cf5580f1762a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/DEVELOPMENT.md": {
+    "mtime": 1794406561398.5105,
+    "hash": "b7e64c9542d4bc5018e13d0dc381a2aa"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/FEATURE-SLICES.md": {
+    "mtime": 1794406561399.7197,
+    "hash": "05f59cace4c1ddfd9423d722d6db4050"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/GETTING-STARTED.md": {
+    "mtime": 1794406561400.24,
+    "hash": "37942545f44e45583817aa7e13016d0f"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/docs/TESTING.md": {
+    "mtime": 1794406561400.24,
+    "hash": "93d89d67f594df758defff0afa489257"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/FEATURE-PROMPTS.md": {
+    "mtime": 1794406561402.2769,
+    "hash": "5442984fa19ca570496386e72cf5b66d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/chatbot-llm/AGENTS.md": {
+    "mtime": 1794406561402.2769,
+    "hash": "ad85d9b8c7cd421d7e97f876e2bac078"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/AGENTS.md": {
+    "mtime": 1794562715760.3025,
+    "hash": "e27cd51a684832e03c13a65bbfe20708"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/gamified-dashboard/ATTRIBUTION.md": {
+    "mtime": 1794406561404.6143,
+    "hash": "efba0935581f61815a4c7777441223a4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/layer-uhi-terrain/AGENTS.md": {
+    "mtime": 1794406561431.8252,
+    "hash": "d1bf8ee1c20eac6f6b6598ebd655f676"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/AGENTS.md": {
+    "mtime": 1794589258336.653,
+    "hash": "80cf7486d0dba8b63285fcc3b4baffd7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/render.yaml": {
+    "mtime": 1794406561510.863,
+    "hash": "3bcd2b86cdf53b7280fcb29f54c932b7"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-11-35-301Z.png": {
+    "mtime": 1794406561343.1365,
+    "hash": "d5e22c2118589f1d98703820013eb162"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-11-50-748Z.png": {
+    "mtime": 1794406561346.031,
+    "hash": "d5e22c2118589f1d98703820013eb162"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.playwright-cli/page-2026-11-07T14-12-20-769Z.png": {
+    "mtime": 1794406561347.7505,
+    "hash": "7bfda620de3668d43a60f0387e5d2a83"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/public/favicon.svg": {
+    "mtime": 1794406561385.953,
+    "hash": "a40248277e3e5946c81c8d7473e0ef0c"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/public/icons/icon-192.png": {
+    "mtime": 1794562715743.8787,
+    "hash": "98cdb2e248eec06db12a4a29ce15525a"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/web/public/icons/icon-512.png": {
+    "mtime": 1794562715749.6287,
+    "hash": "1e0dbdb3553132c9050a173160db7826"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/advanced_ml_benchmark.py": {
+    "mtime": 1794593960998.0757,
+    "hash": "45f7d08981833d7318ef190641321bb4"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/enso_correlation.py": {
+    "mtime": 1794594365709.4004,
+    "hash": "5120a94d8a879d080b7024b0ee527461"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/fetch_enso_data.py": {
+    "mtime": 1794594365713.556,
+    "hash": "4c4699635fe91e9dd6013cde337bab77"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0012_volatility.sql": {
+    "mtime": 1794593960999.6067,
+    "hash": "2296d35052c571cc241b2dbf79dec706"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/migrations/0013_enso.sql": {
+    "mtime": 1794594365713.556,
+    "hash": "0cf52ed4cb17fed15faf98a68d8c4a09"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/volatility_analysis.py": {
+    "mtime": 1794593961010.9048,
+    "hash": "514334f978850bdbaa4d5cc3de2fa7fc"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/apps/api/volatility_attribution.py": {
+    "mtime": 1794593961014.3315,
+    "hash": "049e09ebd5f54e177d61d2b70072836d"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/.graphify/GRAPH_REPORT.md": {
+    "mtime": 1794596372374.0776,
+    "hash": "7c94c0709e196fdec30da089437387f6"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/src/gis/entry.js": {
+    "mtime": 1794601671650.8313,
+    "hash": "219e48da3d749666dbcd4820eaca6122"
+  },
+  "D:/in-heat/NASA-ProjectHellMerry/features/map-controls/test_entry.mjs": {
+    "mtime": 1794601715138.8477,
+    "hash": "cf23b8a1971b9a593c2c2b99d2d021ef"
+  }
+}

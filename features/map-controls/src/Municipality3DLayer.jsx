@@ -214,6 +214,9 @@ export default function Municipality3DLayer({
   const viewRef = useRef(initialView);
   const reducedMotion = usePrefersReducedMotion();
   const reducedRef = useRef(reducedMotion);
+  // Last camera frame requested by an effect, so a reduced-motion switch can
+  // land on the destination instead of freezing somewhere mid-move.
+  const cameraRef = useRef(null);
   const [ready, setReady] = useState(false);
 
   yearRef.current = year;
@@ -323,6 +326,24 @@ export default function Municipality3DLayer({
       });
     }
     if (updates.length) source.updateData({ update: updates });
+  }, []);
+
+  // One place that issues a camera move. The frame is remembered, and reduced
+  // motion turns the move into an immediate placement at the same destination.
+  const placeCamera = useCallback((bounds, options) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const frame = { bounds, options };
+    cameraRef.current = frame;
+    // Forget the frame once it lands, so a later preference flip does not yank
+    // the camera back to an old destination.
+    map.once("moveend", () => {
+      if (cameraRef.current === frame) cameraRef.current = null;
+    });
+    map.fitBounds(bounds, {
+      ...options,
+      duration: reducedRef.current ? 0 : options.duration,
+    });
   }, []);
 
   const setLifts = useCallback((values) => {
@@ -945,6 +966,13 @@ export default function Municipality3DLayer({
   // Reduced motion turning on mid-flight finishes every offset and trace immediately.
   useEffect(() => {
     if (!reducedMotion) return;
+    // End a camera move already running on the frame that was requested.
+    const camera = cameraRef.current;
+    const map = mapRef.current;
+    if (camera && map) {
+      map.stop();
+      map.fitBounds(camera.bounds, { ...camera.options, duration: 0 });
+    }
     const values = new Map();
     for (const [key, anim] of animRef.current) {
       liftRef.current.set(key, anim.to);
@@ -974,27 +1002,18 @@ export default function Municipality3DLayer({
   }, [cancelPulse, paintTrace, reducedMotion, setLifts, setEntries, setFlatFactors]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || !selectedFeature) return;
+    if (!ready || !selectedFeature) return;
     const bounds = boundsOf(selectedFeature);
     if (!bounds) return;
-    map.fitBounds(bounds, {
-      padding: 48,
-      maxZoom: 13.5,
-      duration: reducedRef.current ? 0 : 550,
-    });
-  }, [ready, selectedFeature]);
+    placeCamera(bounds, { padding: 48, maxZoom: 13.5, duration: 550 });
+  }, [placeCamera, ready, selectedFeature]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || resetToken === 0) return;
+    if (!ready || resetToken === 0) return;
     const bounds = boundsOf(joined);
     if (!bounds) return;
-    map.fitBounds(bounds, {
-      padding: 28,
-      duration: reducedRef.current ? 0 : 550,
-    });
-  }, [joined, ready, resetToken]);
+    placeCamera(bounds, { padding: 28, duration: 550 });
+  }, [joined, placeCamera, ready, resetToken]);
 
   // sheen: soft radial highlight that trails the pointer over the map.
   // Revert = delete this whole effect, `sheenRef`, and the <div ref={sheenRef}> in the JSX.

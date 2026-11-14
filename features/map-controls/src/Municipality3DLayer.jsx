@@ -189,6 +189,8 @@ export default function Municipality3DLayer({
 }) {
   const hostRef = useRef(null);
   const tipRef = useRef(null);
+  // sheen: revert = delete this ref, the effect below, and the <div ref={sheenRef}>.
+  const sheenRef = useRef(null);
   const mapRef = useRef(null);
   const hoverRef = useRef(null);
   const selectedRef = useRef(selectedKey);
@@ -894,9 +896,69 @@ export default function Municipality3DLayer({
     });
   }, [joined, ready, resetToken]);
 
+  // sheen: soft radial highlight that trails the pointer over the map.
+  // Revert = delete this whole effect, `sheenRef`, and the <div ref={sheenRef}> in the JSX.
+  useEffect(() => {
+    const host = hostRef.current;
+    const sheen = sheenRef.current;
+    if (!host || !sheen) return;
+    // Off for reduced motion (skill: Reduced Motion, High) and coarse pointers.
+    if (reducedMotion) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    let primed = false;
+    const move = (e) => {
+      const r = host.getBoundingClientRect();
+      const at = `translate3d(${e.clientX - r.left}px, ${e.clientY - r.top}px, 0)`;
+      // First placement jumps (no sweep in from the corner); later moves trail.
+      if (primed) {
+        sheen.style.transform = at;
+      } else {
+        primed = true;
+        sheen.style.transition = "opacity 200ms ease-out";
+        sheen.style.transform = at;
+        requestAnimationFrame(() => {
+          sheen.style.transition = "transform 150ms ease-out, opacity 200ms ease-out";
+        });
+      }
+      sheen.style.opacity = "1";
+    };
+    // Fade out completely when the pointer leaves the map.
+    const leave = () => {
+      sheen.style.opacity = "0";
+      primed = false;
+    };
+    host.addEventListener("pointermove", move);
+    host.addEventListener("pointerleave", leave);
+    return () => {
+      host.removeEventListener("pointermove", move);
+      host.removeEventListener("pointerleave", leave);
+      sheen.style.opacity = "0";
+    };
+  }, [reducedMotion]);
+
   return (
     <div className="absolute inset-0 z-[450]">
       <div ref={hostRef} className="h-full w-full" />
+      {/* sheen: delete this block to revert. Sits above the canvas, below the tooltip. */}
+      <div
+        ref={sheenRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 opacity-0"
+        style={{
+          width: "50vmin",
+          height: "50vmin",
+          marginLeft: "-25vmin",
+          marginTop: "-25vmin",
+          borderRadius: "50%",
+          // SHEEN_STRENGTH 0.12, minimal glow (dark-mode-oled style); blend=screen adds light only.
+          background:
+            "radial-gradient(circle closest-side, rgba(255,255,255,0.12), rgba(255,255,255,0) 70%)",
+          mixBlendMode: "screen",
+          // SHEEN_LAG: the 150 ms transition is what makes it trail instead of snap.
+          transition: "transform 150ms ease-out, opacity 200ms ease-out",
+          willChange: "transform, opacity",
+        }}
+      />
       <div
         ref={tipRef}
         className="bih-tip pointer-events-none absolute left-0 top-0 hidden"

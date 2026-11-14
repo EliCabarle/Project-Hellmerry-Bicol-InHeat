@@ -120,7 +120,7 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="bih-btn pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-heat-surface/90 px-3 py-1.5 text-[11px] font-semibold text-slate-200 shadow-hud backdrop-blur-md hover:bg-white/10"
+        className="pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-heat-surface/90 px-3 py-1.5 text-[11px] font-semibold text-slate-200 shadow-hud backdrop-blur-md transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
       >
         <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-heat-amber/20 text-heat-amber">
           <IconCheck className="h-3 w-3" />

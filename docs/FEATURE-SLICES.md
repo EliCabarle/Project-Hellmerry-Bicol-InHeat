@@ -44,7 +44,7 @@ Each slice directory carries its own `AGENTS.md`, a sub-contract under the root 
   - `map-controls`: municipality is the smallest unit; significance is a flag, not a filter; no smoothing of neighbouring opposite trends; scrubber notifies layers through the state contract, not by poking internals.
   - `layer-uhi-terrain`: LST ≠ heat index (skin vs. air, never one ramp); Landsat 7 SLC-off gaps never shown as clean; sample counts surfaced.
   - `gamified-dashboard`: handle-only leaderboard, never a real name; h30 cut line — leaderboard not done → local-only progress, no auth, no renegotiation; no daily tasks.
-  - `chatbot-llm`: no runtime LLM, no LLM key anywhere; the LLM never generates numbers; EN + Filipino narration, Bicolano = STRETCH; association-not-causation wording.
+  - `chatbot-llm`: the narration bank has no runtime LLM; the QA chatbot is the one exception and calls only the server-side `POST /api/qa` endpoint (key stays in `apps/api/.env`). The LLM never generates numbers — it retrieves and cites; EN + Filipino narration, Bicolano = STRETCH; association-not-causation wording.
 - **Workboard** — owner-editable CORE/STRETCH status table (verify against the root code map).
 - **Status** — what has been verified on disk and when.
 

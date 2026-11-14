@@ -21,7 +21,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from fastapi import APIRouter, HTTPException
 from google.api_core.exceptions import ResourceExhausted
-from openai import APIStatusError, OpenAI
+from openai import APIConnectionError, APIStatusError, OpenAI
 from pydantic import BaseModel, Field
 from supabase import create_client
 
@@ -31,8 +31,10 @@ router = APIRouter(prefix="/api", tags=["qa"])
 
 # The free Llama 3.3 slug was retired by OpenRouter; this is the $0 tool-capable
 # replacement verified on 2026-11-14. Free slugs rotate - re-verify before demo day.
-CHAT_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
-CHAT_MODEL_FALLBACK = "baidu/ernie-5.5-flash-preview:free"
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
+CHAT_MODEL_FALLBACK = os.environ.get(
+    "CHAT_MODEL_FALLBACK", "baidu/ernie-5.5-flash-preview:free"
+)
 BASE_URL = "https://openrouter.ai/api/v1"
 EMBED_MODEL = "models/gemini-embedding-001"
 EMBED_DIMS = 1536
@@ -40,6 +42,9 @@ MATCH_THRESHOLD = 0.55
 MATCH_COUNT = 5
 MAX_TOOL_ROUNDS = 4
 RETRIES = 4
+# Free slugs get throttled into 70s+ stalls; cap each call so a slow model fails
+# over to the fallback instead of hanging the request past the browser's patience.
+LLM_TIMEOUT = 45.0
 RETRY_STATUS = {429, 502, 503, 504}
 
 SYSTEM_PROMPT = (
@@ -417,12 +422,16 @@ def _chat(messages: list[dict], tools: list[dict] | None):
                     tools=tools or None,
                     temperature=0.2,
                     max_tokens=1600,
+                    timeout=LLM_TIMEOUT,
                 )
                 if not response.choices:
                     raise HTTPException(
                         status_code=502, detail="chat provider returned no choices"
                     )
                 return response
+            except APIConnectionError as exc:  # includes APITimeoutError
+                last = exc
+                break  # stalled or dropped: next model, not the same one again
             except APIStatusError as exc:
                 last = exc
                 if attempt == RETRIES or exc.status_code not in RETRY_STATUS:

@@ -6,11 +6,14 @@ import ChatbotModal from '@features/chatbot-llm'
 import NavBar from './components/NavBar.jsx'
 import AppMenu from './components/AppMenu.jsx'
 import QuestsPopover from './components/QuestsPopover.jsx'
+import PrivacyDialog from './components/PrivacyDialog.jsx'
 import AccountScreen from './screens/AccountScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
 import LandingScreen from './screens/LandingScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
+import { loadMyProfile } from './lib/profile.js'
+import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
@@ -64,6 +67,63 @@ export default function App() {
   // Auth lives here so screens can scope their own rows (saved places,
   // leaderboard) to the signed-in user.
   const { user, supabase, configured } = useSession()
+
+  // The handle row answers "has this account finished onboarding", and the app
+  // owns that answer: the consent gate must open on whichever screen the OAuth
+  // redirect lands on, not only on Manage Account.
+  const [profile, setProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [profileLoadFailed, setProfileLoadFailed] = useState(false)
+  // True once the profile read for this user settled (row or none). `user` arrives
+  // a render before the read starts, so without this an unsettled read looks
+  // exactly like "no handle" and opens the gate for users who already have one.
+  const [profileChecked, setProfileChecked] = useState(false)
+  // null | 'consent' | 'handle' | 'read'
+  const [privacyMode, setPrivacyMode] = useState(null)
+
+  useEffect(() => {
+    if (!supabase || !user) {
+      setProfile(null)
+      setProfileLoading(false)
+      setProfileLoadFailed(false)
+      setProfileChecked(false)
+      setPrivacyMode(null)
+      return
+    }
+    let cancelled = false
+    setProfileLoading(true)
+    setProfileLoadFailed(false)
+    setProfileChecked(false)
+    loadMyProfile(supabase, user.id).then(({ data, error }) => {
+      if (cancelled) return
+      setProfileLoading(false)
+      setProfileChecked(true)
+      // A failed read leaves "onboarded?" unknown, so no gate is forced.
+      if (error) {
+        setProfileLoadFailed(true)
+        return
+      }
+      setProfile(data ?? null)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [supabase, user])
+
+  // First sign-in with no handle row opens the gate: the notice first, then the
+  // handle. `current ?? step` keeps a dialog the user closed shut until something
+  // changes, instead of springing back on the next render.
+  const needsOnboarding = user && profileChecked && !profile && !profileLoadFailed
+  useEffect(() => {
+    if (!needsOnboarding) return
+    const step = hasConsent(user.user_metadata) ? 'handle' : 'consent'
+    setPrivacyMode((current) => current ?? step)
+  }, [needsOnboarding, user])
+
+  const openProfileDialog = useCallback(() => {
+    setPrivacyMode(hasConsent(user?.user_metadata) ? 'handle' : 'consent')
+  }, [user])
+  const openPrivacyNotice = useCallback(() => setPrivacyMode('read'), [])
 
   // Progress powering the navbar on every screen. One store per account — the
   // key follows `user`, so it reads the SAME log the dashboard's HeatBar and
@@ -223,6 +283,7 @@ export default function App() {
           navigate={navigate}
           onSignIn={handleSignIn}
           onSignOut={handleSignOut}
+          onOpenPrivacy={openPrivacyNotice}
           returnFocusTo={menuButtonRef}
           buttonRef={menuButtonRef}
         />
@@ -271,9 +332,14 @@ export default function App() {
           {screen === 'account' && (
             <AccountScreen
               user={user}
+              profile={profile}
+              loadingProfile={profileLoading}
+              profileLoadFailed={profileLoadFailed}
               supabase={supabase}
               configured={configured}
               navigate={navigate}
+              onOpenPrivacy={openPrivacyNotice}
+              onOpenProfile={openProfileDialog}
             />
           )}
           {screen === 'settings' && <SettingsScreen navigate={navigate} />}
@@ -283,6 +349,22 @@ export default function App() {
       {chatOpen && (
         <ChatbotModal open={chatOpen} onClose={() => setChatOpen(false)} />
       )}
+
+      {/* One dialog for the whole app: the first-sign-in gate and the permanent
+          Privacy link both land here, so there is only ever one notice open. */}
+      <PrivacyDialog
+        open={privacyMode !== null}
+        mode={privacyMode ?? 'read'}
+        user={user}
+        supabase={supabase}
+        onConsent={() => setPrivacyMode('handle')}
+        onHandleSaved={(saved) => {
+          setProfile(saved)
+          setPrivacyMode(null)
+        }}
+        onClose={() => setPrivacyMode(null)}
+        onSignOut={handleSignOut}
+      />
     </div>
   )
 }

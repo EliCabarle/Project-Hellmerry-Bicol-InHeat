@@ -22,6 +22,7 @@ import {
 } from "./gis/engine.js";
 import { tooltipHtml } from "./components/municipalityTooltip.js";
 import "./components/municipalityTooltip.css";
+import "./components/satelliteTheme.css";
 import MunicipalityLegend from "./components/MunicipalityLegend.jsx";
 import MapControlsOverlay, {
   usePrefersReducedMotion,
@@ -58,6 +59,15 @@ const IMAGERY_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 const LABELS_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
+
+// Satellite basemap: Esri World Imagery + its place/boundary reference overlay.
+// Same keyless provider family as the clay basemap, so the two modes swap
+// without changing attribution rules. Satellite mode also flips the map chrome
+// to dark glassmorphism (see satelliteTheme.css).
+const SATELLITE_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const SATELLITE_LABELS_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
 // Country framing centre, derived from the single country-bounds source.
 const COUNTRY_CENTER = [
@@ -443,6 +453,10 @@ export default function BicolMap({
       )
     : latestYear;
   const [selectedKey, setSelectedKey] = useState(null);
+  // A selection restored from a URL/history on first load is not a user action,
+  // so the pulse stays silent for it. Subsequent user selections pulse normally.
+  const initialFocusKey =
+    focusToken && initialSelectedKey ? initialSelectedKey : null;
   const [hoveredProvince, setHoveredProvince] = useState(null);
   const [indexOpen, setIndexOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
@@ -450,6 +464,10 @@ export default function BicolMap({
   const [renderMode, setRenderMode] = useState("2d");
   const [map3d, setMap3d] = useState(null);
   const [view3d, setView3d] = useState(null);
+  // Basemap is a display choice, independent of the 2D/3D renderer: satellite is
+  // the default on open (dark imagery + dark glass chrome), vector is the light
+  // clay world. The UI theme (light/dark) is separate and owned by the shell.
+  const [basemap, setBasemap] = useState("satellite");
 
   // Remembers the opening flight happened so it never replays this session.
   const opened = useRef(false);
@@ -628,7 +646,7 @@ export default function BicolMap({
   };
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full" data-basemap={basemap}>
       <MapContainer
         ref={setMap}
         center={COUNTRY_CENTER}
@@ -645,14 +663,34 @@ export default function BicolMap({
         maxBoundsViscosity={BOUNDS_VISCOSITY}
         className="bih-map-frame h-full w-full"
       >
-        <TileLayer
-          url={IMAGERY_URL}
-          attribution="Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors"
-          maxZoom={18}
-          maxNativeZoom={18}
-          noWrap={true}
-        />
-        <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} noWrap={true} />
+        {basemap === "satellite" ? (
+          <>
+            <TileLayer
+              url={SATELLITE_URL}
+              attribution="Tiles © Esri — Esri, Maxar, Earthstar Geographics"
+              maxZoom={18}
+              maxNativeZoom={18}
+              noWrap={true}
+            />
+            <TileLayer
+              url={SATELLITE_LABELS_URL}
+              maxZoom={18}
+              opacity={0.9}
+              noWrap={true}
+            />
+          </>
+        ) : (
+          <>
+            <TileLayer
+              url={IMAGERY_URL}
+              attribution="Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors"
+              maxZoom={18}
+              maxNativeZoom={18}
+              noWrap={true}
+            />
+            <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} noWrap={true} />
+          </>
+        )}
 
         {renderMode === "2d" && (
           <MapViewport
@@ -696,6 +734,7 @@ export default function BicolMap({
             year={displayYear}
             initialView={view3d}
             resetToken={resetToken}
+            initialFocusKey={initialFocusKey}
             onSelect={setSelectedKey}
             onReady={setMap3d}
             onUnavailable={() => setRenderMode("2d")}
@@ -708,6 +747,7 @@ export default function BicolMap({
         viewMode={viewMode}
         year={viewMode === "year" ? selectedYear : latestYear}
         date={date}
+        basemap={basemap}
       />
 
       {ready && (
@@ -780,6 +820,8 @@ export default function BicolMap({
         onViewModeChange={changeViewMode}
         renderMode={renderMode}
         onRenderModeChange={changeRenderMode}
+        basemap={basemap}
+        onBasemapChange={setBasemap}
         zoomLimits={zoomLimits}
         dailyReady={dailyReady}
         dailyReason={dailyReason}

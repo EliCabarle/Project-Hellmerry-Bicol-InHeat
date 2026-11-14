@@ -26,6 +26,7 @@ export default function MunicipalityLegend({
   viewMode = 'trend',
   year = null,
   date = null,
+  basemap = 'vector',
 }) {
   // Always start collapsed on every viewport; opening overlaps the map
   // (absolute positioning) rather than pushing content aside. Top offset
@@ -110,7 +111,7 @@ export default function MunicipalityLegend({
             </div>
 
             <div className="mt-2 text-[9px] leading-[0.875rem] text-slate-600">
-              Basemap © Esri (Light Gray Canvas) · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER
+              Basemap © Esri ({basemap === 'satellite' ? 'World Imagery' : 'Light Gray Canvas'}) · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER
             </div>
           </div>
         )}

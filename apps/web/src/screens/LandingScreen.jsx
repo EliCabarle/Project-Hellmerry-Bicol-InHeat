@@ -173,14 +173,6 @@ export default function LandingScreen({ user = null, supabase = null, configured
         <div className="relative mx-auto flex max-w-[1120px] flex-col items-center">
           <div data-hero className="flex flex-wrap items-center justify-center gap-4">
             <img
-              src="/mascot_icon.png"
-              alt=""
-              aria-hidden="true"
-              width={72}
-              height={72}
-              className="h-[72px] w-[72px] lg:h-24 lg:w-24"
-            />
-            <img
               src="/BICOL_IN_HEAT.png"
               alt="Bicol In-Heat"
               width={201}
@@ -207,10 +199,7 @@ export default function LandingScreen({ user = null, supabase = null, configured
             are heating, how fast, and what&rsquo;s driving them.
           </p>
 
-          <div data-hero className="mt-8 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
-            <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary w-full px-7 sm:w-auto">
-              Explore as guest
-            </button>
+          <div data-hero className="mt-8 flex w-full flex-col items-center justify-center gap-3">
             <span className="contents">
               <GoogleHint />
               <button
@@ -226,6 +215,9 @@ export default function LandingScreen({ user = null, supabase = null, configured
                 Continue with Google
               </button>
             </span>
+            <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary px-5 py-2 text-sm">
+              Explore as guest
+            </button>
           </div>
           {signInError && (
             <span role="alert" className="mt-3 text-sm font-semibold text-clay-ink">
@@ -443,13 +435,6 @@ export default function LandingScreen({ user = null, supabase = null, configured
       <footer className="px-4 pb-12 pt-2 md:pb-16">
         <div className="clay-card clay-card--emphasis mx-auto max-w-[1120px] rounded-3xl p-6 md:p-10">
           <div className="flex flex-wrap items-center gap-3">
-            <img
-              src="/mascot_icon.png"
-              alt="Bicol In-Heat mascot"
-              width={24}
-              height={24}
-              className="h-6 w-6"
-            />
             <img src="/BICOL_IN_HEAT.png" alt="" aria-hidden="true" width={100} height={20} className="h-5 w-auto" />
           </div>
 

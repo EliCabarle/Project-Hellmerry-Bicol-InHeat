@@ -35,12 +35,14 @@ import { DAILY_MISSING_REASON } from "../data/dailyStore.js";
 import {
   IconChevronLeft,
   IconChevronRight,
+  IconCheck,
   IconLayers,
   IconMinus,
   IconPause,
   IconPlay,
   IconPlus,
   IconReset,
+  IconRobot,
   IconSearch,
   IconThermometer,
   IconTrend,
@@ -664,23 +666,8 @@ function ZoomPanel({ map, limits, onReset }) {
     <div
       role="group"
       aria-label="Map zoom"
-      className={`${GLASS} flex items-center gap-0.5 p-1`}
+      className={`${GLASS} flex flex-col gap-0.5 p-1`}
     >
-      <button
-        type="button"
-        aria-label="Zoom out"
-        disabled={zoom <= Math.min(min, max)}
-        onClick={() => step(-1)}
-        className={ICON_BTN}
-      >
-        <IconMinus className="h-4 w-4" />
-      </button>
-      <span
-        className="min-w-9 text-center font-mono text-[10px] text-slate-400"
-        aria-live="polite"
-      >
-        z{Number(zoom).toFixed(1)}
-      </span>
       <button
         type="button"
         aria-label="Zoom in"
@@ -690,7 +677,15 @@ function ZoomPanel({ map, limits, onReset }) {
       >
         <IconPlus className="h-4 w-4" />
       </button>
-      <span className="mx-0.5 h-5 w-px bg-white/10" aria-hidden="true" />
+      <button
+        type="button"
+        aria-label="Zoom out"
+        disabled={zoom <= Math.min(min, max)}
+        onClick={() => step(-1)}
+        className={ICON_BTN}
+      >
+        <IconMinus className="h-4 w-4" />
+      </button>
       <button
         type="button"
         aria-label="Reset view to Bicol"
@@ -699,6 +694,45 @@ function ZoomPanel({ map, limits, onReset }) {
       >
         <IconReset className="h-4 w-4" />
       </button>
+      <span
+        aria-live="polite"
+        className="text-center font-mono text-[11px] leading-3 text-slate-400"
+      >
+        {Number(zoom).toFixed(1)}
+      </span>
+    </div>
+  );
+}
+
+const FAB_BTN =
+  `${BTN} pointer-events-auto h-11 w-11 shrink-0`; // 44 px touch target on coarse pointers
+
+function FabButton({ icon: Icon, label, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={FAB_BTN}
+    >
+      <Icon className="h-5 w-5" />
+    </button>
+  );
+}
+
+function FabColumn({ onToggleIndex, onOpenChatbot }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <FabButton
+        icon={IconSearch}
+        label="Find a municipality"
+        onClick={onToggleIndex}
+      />
+      <FabButton
+        icon={IconRobot}
+        label="Open chatbot"
+        onClick={onOpenChatbot}
+      />
     </div>
   );
 }
@@ -778,6 +812,8 @@ export default function MapControlsOverlay({
   dailyReady = false,
   dailyReason = null,
   onHeightChange,
+  onToggleIndex = null,
+  onOpenChatbot = null,
 }) {
   const actions = useTimelineActions(store);
   const selected = useTimelineState(selectTimestamps, store);
@@ -814,11 +850,18 @@ export default function MapControlsOverlay({
   }, [actions, playing, reducedMotion, selected.length, viewMode]);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col justify-between p-3">
-      <div className="flex items-start justify-end">
+    <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col p-3">
+      {/* top-right: LGU/chatbot FAB column + layer panel + day-mode header,
+          all stacked under the shell's fixed floating navbar. Mobile: the row
+          padding clears the navbar (root's own p-3 already gives 12 px, so
+          4 rem + 12 px = 76 px = navbar bottom + 12 px gap). lg+ the row
+          padding is 0 so the FABs sit at the root's 12 px edge — the same top
+          line as the search panel (MunicipalityIndex, top 0.75 rem) and the
+          legend. */}
+      <div className="flex items-start justify-end w-full pt-[calc(4rem+env(safe-area-inset-top))] lg:pt-0">
         <div className="flex flex-col items-end gap-2">
+          <FabColumn onToggleIndex={onToggleIndex} onOpenChatbot={onOpenChatbot} />
           <LayerPanel registry={layerRegistry} onLayerChange={onLayerChange} />
-          <ZoomPanel map={map} limits={zoomLimits} onReset={onReset} />
           {viewMode === "day" ? (
             <DayModeHeader
               viewMode={viewMode}
@@ -829,6 +872,12 @@ export default function MapControlsOverlay({
           ) : null}
         </div>
       </div>
+      {/* middle band: vertical zoom stack (left), bottom-aligned just above
+          the timeline panel */}
+      <div className="flex-1 w-full flex items-end">
+        <ZoomPanel map={map} limits={zoomLimits} onReset={onReset} />
+      </div>
+      {/* bottom center: timeline scrubber */}
       <div className="w-full max-w-2xl self-center">
         <TimeScrubber
           store={store}

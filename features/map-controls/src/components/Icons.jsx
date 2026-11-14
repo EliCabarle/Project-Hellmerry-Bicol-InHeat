@@ -77,3 +77,16 @@ export function IconThermometer(props) {
     </svg>
   )
 }
+
+export function IconCheck(props) {
+  return <svg {...base} {...props}><path d="M20 6 9 17l-5-5" /></svg>
+}
+
+export function IconRobot(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 2h-4v2h4ZM8 9h8v11H8Z" />
+      <path d="M10 10h1v1h-1ZM13 10h1v1h-1ZM10 14h1v1h-1ZM13 14h1v1h-1Z" />
+    </svg>
+  )
+}

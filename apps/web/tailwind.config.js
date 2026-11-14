@@ -16,6 +16,7 @@ export default {
           hotline: '#fca5a5',
           sig: '#b91c1c',
           amber: '#fbbf24',
+          eco: '#22c55e',
           orange: '#fb923c',
           cool: '#67e8f9',
           ink: '#e6edf5',

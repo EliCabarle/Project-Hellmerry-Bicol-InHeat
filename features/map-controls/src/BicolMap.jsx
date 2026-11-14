@@ -290,7 +290,12 @@ export default function BicolMap({
   // LGU refires after a manual clear.
   initialSelectedKey = null,
   focusToken = 0,
+  // Optional cross-boundary hooks supplied by the shell. All optional —
+  // BicolMap renders identically without them.
+  onOpenChatbot = null,
+  onToggleIndex = null,
 }) {
+  const handleToggleIndex = onToggleIndex ?? (() => setIndexOpen((open) => !open))
   const regions = useMemo(() => loadRegions(geojson), []);
   const bicolFeature = useMemo(() => findBicol(geojson), []);
   const ready = status === "ready" && munGeojson?.features?.length > 0;
@@ -554,7 +559,6 @@ export default function BicolMap({
         viewMode={viewMode}
         year={viewMode === "year" ? selectedYear : latestYear}
         date={date}
-        onBrowse={() => setIndexOpen(true)}
       />
 
       {ready && (
@@ -564,7 +568,7 @@ export default function BicolMap({
           viewMode={viewMode}
           date={date}
           dayValues={dayValues}
-          bottomOffset={overlayHeight > 0 ? overlayHeight + 20 : 168}
+          bottomOffset={overlayHeight > 0 ? overlayHeight + 24 : 172}
           onClose={() => setSelectedKey(null)}
         />
       )}
@@ -585,7 +589,7 @@ export default function BicolMap({
         <div
           role="status"
           aria-busy="true"
-          className="pointer-events-none absolute left-1/2 top-3 z-[600] flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-xs text-slate-300 shadow-hud backdrop-blur"
+          className="pointer-events-none absolute left-1/2 top-[calc(4.75rem+env(safe-area-inset-top))] z-[600] flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-xs text-slate-300 shadow-hud backdrop-blur"
         >
           <span className="bih-spinner" aria-hidden="true" />
           Loading satellite view and municipality data…
@@ -595,7 +599,7 @@ export default function BicolMap({
       {status === "error" && (
         <div
           role="alert"
-          className="absolute left-1/2 top-16 z-[620] w-[min(22rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-xl border border-heat-hot/60 bg-heat-surface/95 px-3 py-2.5 text-sm text-slate-200 shadow-hud backdrop-blur"
+          className="absolute left-1/2 top-[calc(5.5rem+env(safe-area-inset-top))] z-[620] w-[min(22rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-xl border border-heat-hot/60 bg-heat-surface/95 px-3 py-2.5 text-sm text-slate-200 shadow-hud backdrop-blur"
         >
           <div className="font-semibold">Could not load municipality data</div>
           <div className="mb-2 text-xs text-slate-400">{error}</div>
@@ -610,7 +614,7 @@ export default function BicolMap({
       )}
 
       {status === "ready" && !ready && (
-        <div className="pointer-events-none absolute left-1/2 top-16 z-[600] -translate-x-1/2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-sm text-slate-300 shadow-hud backdrop-blur">
+        <div className="pointer-events-none absolute left-1/2 top-[calc(5.5rem+env(safe-area-inset-top))] z-[600] -translate-x-1/2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-sm text-slate-300 shadow-hud backdrop-blur">
           No municipality boundaries found
         </div>
       )}
@@ -631,6 +635,8 @@ export default function BicolMap({
         dailyReady={dailyReady}
         dailyReason={dailyReason}
         onHeightChange={onOverlayHeightChange}
+        onToggleIndex={handleToggleIndex}
+        onOpenChatbot={onOpenChatbot}
       />
     </div>
   );

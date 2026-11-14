@@ -151,6 +151,22 @@ client.
 - STRETCH: source-cited narration (RAG over NASA/PAGASA docs) - "why this, with a link".
 - FALLBACK: templates with an LLM used only offline to polish wording.
 
+**CORE (promoted 2026-11-13): QA chatbot - hybrid RAG + function calling.**
+One runtime LLM exception exists, scoped to a single server-side endpoint:
+
+- **`POST /api/qa` on FastAPI** (`apps/api/routers/qa.py`). Hybrid retrieval over
+  `pgvector` document chunks (unstructured corpus) + function calling against
+  Supabase `municipality_trends` (structured corpus), answered by Azure OpenAI.
+- The **runtime LLM restriction is lifted for this endpoint only**. Everything else
+  in this document still treats "runtime LLM" as OUT.
+- **The client never holds an LLM key.** All model calls terminate at FastAPI; the
+  browser only ever calls `/api/qa`. This is a security boundary, not a scope choice.
+- The chatbot **retrieves and cites**; it does not invent numbers. Any figure it
+  states must come from a tool result (Supabase) or a retrieved chunk, and carry its
+  source. Where it cannot cite, it says so.
+- Offline behaviour is unchanged: the map, dashboard and static narration bank still
+  work with no network. `/api/qa` is the one feature that requires a connection.
+
 ## 7. Objective mapping (Relevance)
 
 Official objective *(captured 2026-11-02 from the published challenge statement;
@@ -182,7 +198,9 @@ LST (Landsat C2 L2) / tree cover (MOD44B) / land cover (MCD12Q1) / population ex
 offline last-view + progress / Supabase accounts + leaderboard / ranked mitigation
 list / validated hold-out / variable glossary (EN) / 2 seeded demo examples ("Try
 this": one warming municipality, one opposite/flat trend - demonstrates the
-challenge's same-process-opposite-direction quote) / static host.
+challenge's same-process-opposite-direction quote) / **QA chatbot - hybrid RAG +
+function calling via the server-side `/api/qa` endpoint (promoted 2026-11-13)** /
+static host.
 
 **STRETCH** (viable, costed; each has a lock hour in Sect. 13): Bicolano narration /
 canopy mitigation simulator (dCanopy -> dHeat-risk, held-out R2) / FIRMS fire layer /
@@ -191,9 +209,11 @@ award / LDRRMO infographic export / leave-one-station-out CV / whole-province of
 cache / seeded before-after toggle.
 
 **OUT** (named so nobody argues about it at hour 40): Training or fine-tuning an LLM
-at runtime / runtime LLM API in the client / LSTM decade forecasting / SMAP soil
-moisture / full-offline province / 100 m downscaled heat index / daily tasks /
-carbon-footprint actions / global megacity comparison / more variables than Sect. 6a.
+at runtime / **an LLM key or direct model call in the client** - all runtime model
+traffic goes through the server-side `/api/qa` endpoint (Sect. 6d) / LSTM decade
+forecasting / SMAP soil moisture / full-offline province / 100 m downscaled heat
+index / daily tasks / carbon-footprint actions / global megacity comparison / more
+variables than Sect. 6a.
 
 ## 9. Compliance checklist
 
@@ -266,6 +286,7 @@ Judges assign categories; we shape the throughline, not the claim.
 |---|---|---|---|
 | Overall scope | TENTATIVE | Bicol only (Region V municipalities) | h0 |
 | LLM role | TENTATIVE | Build-time narrator, static JSON | h0 |
+| QA chatbot (hybrid RAG + function calling) | **CHANGED 2026-11-13** | **CORE.** Runtime LLM restriction lifted **only** for the server-side `POST /api/qa` endpoint (pgvector RAG + Azure OpenAI function calling over `municipality_trends`). Client holds no LLM key; every model call terminates at FastAPI. Promoted from OUT/STRETCH by lead decision - see Sect. 6d | h30 |
 | Variables | TENTATIVE | CORE tier in 6a; STRETCH added only as time allows | h0 |
 | Time depth | TENTATIVE | POWER 1981-2025 for trend; satellites 2000-2025 for drivers | h6 |
 | Geography | TENTATIVE | Municipality + province roll-up | h6 |
@@ -286,4 +307,7 @@ Judges assign categories; we shape the throughline, not the claim.
 
 *Created 2026-10-27 as a pre-event planning document. Updated 2026-11-02: this
 repository is the home of the working prototype - the no-code-before-Nov-14 rule
-was rescinded by the lead (see Sect. 13 decision log).*
+was rescinded by the lead (see Sect. 13 decision log). Updated 2026-11-13: the QA
+chatbot (hybrid RAG + function calling) was promoted from OUT/STRETCH to CORE, and
+the runtime-LLM restriction was lifted for the server-side `/api/qa` endpoint only
+(Sect. 6d, Sect. 13).*

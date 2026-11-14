@@ -70,6 +70,7 @@ export default function DashboardScreen({
   supabase = null,
   user = null,
   onShowOnMap = null,
+  focusTab = null,
 }) {
   const [sort, setSort] = useState('slope-desc')
   const [province, setProvince] = useState('All')
@@ -192,6 +193,14 @@ export default function DashboardScreen({
   const selectedYear =
     yearChoice != null && years.includes(yearChoice) ? yearChoice : latestYear
 
+  // External tab control (used by the map page's menu): switching `focusTab.id`
+  // applies that dashboard tab; the token rises on every request so re-clicking
+  // an already-open tab still refires. Mirrors the shell's focusToken pattern.
+  useEffect(() => {
+    if (!focusTab?.id || focusTab.id === active) return
+    setActive(focusTab.id)
+  }, [focusTab?.id, focusTab?.token])
+
   // A hidden filter that can no longer be switched off would strand the list
   // after sign-out, so clear "saved only" whenever saving is unavailable.
   useEffect(() => {
@@ -225,6 +234,7 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    if (!r.noop) window.dispatchEvent(new Event('bih-progress'))
   }, [store])
 
   // Another tab wrote progress: re-read this slice's one key. `store.key` moves
@@ -274,7 +284,10 @@ export default function DashboardScreen({
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
-        if (!restored.noop) setEvents(restored.events)
+        if (!restored.noop) {
+          setEvents(restored.events)
+          window.dispatchEvent(new Event('bih-progress'))
+        }
       }
       setScoreNote(null)
       setSyncTick((n) => n + 1)
@@ -302,6 +315,8 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    // The shell's fixed navbar derives from the same store — tell it to re-read.
+    window.dispatchEvent(new Event('bih-progress'))
     return r
   }
 
@@ -382,7 +397,7 @@ export default function DashboardScreen({
   const yearLabel = selectedYear != null ? String(selectedYear) : '—'
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-heat-bg">
+    <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
       <HeatBar
         level={displayDerived.level}
         title={displayDerived.title}

@@ -37,6 +37,8 @@
 | Top hotspots + "Show on map" (shell-mediated + `#muni=` deep link) | CORE | built | gamified-dashboard |
 | Municipality Finder: province dropdown (derived) + coverflow 3D cards — outline+name front, data/why back (lead decision: B + P1 + D-full, 2026-11-11) | CORE | built | gamified-dashboard |
 | Single-scroll dashboard (S1): one page scrollbar, sticky header via `overflow-clip` | CORE | built | gamified-dashboard |
+| Dashboard accordion — every block gets its own minimize toggle: Yearly trend, each distribution chart, Top hotspots, Municipality Finder, ranking table (all open by default; KPI row stays pinned) | CORE | built 2026-11-14 — `components/CollapsibleSection.jsx` wraps a native `<details>`; `ChartCard` uses it, the ranking controls/table move inside its body. Independent toggles — closing one never closes another | gamified-dashboard |
+| Municipality Finder search — name/province substring, Enter scans the carousel through the municipalities to the match (~0.8 s, strided), Enter again cycles matches, `prefers-reduced-motion` jumps | CORE | built 2026-11-14 — `finderData.matchCards` (pure) + `test_finderSearch.mjs`; scan aborts on Prev/Next/swipe/province change | gamified-dashboard |
 | Tab shell: HeatBar + ARIA tablist (Dashboard / Quests / History / Leaderboard), roving tabindex | CORE | built | gamified-dashboard |
 | Danger-band exceedance ordering | CORE | built | gamified-dashboard |
 | Progress/tracking state | CORE (tier unconfirmed) | built — daily login streak + self-reported quests, append-only HP log (`src/progressStore.js`), one storage key per account via `progressKey(userId)` | gamified-dashboard |
@@ -56,6 +58,8 @@
 | Item | Verified? | Notes |
 |---|---|---|
 | `test_questTasks.mjs` (6) + `test_score.mjs` (13) + `test_progress.mjs` (17) | Verified 2026-11-14 | `node test_*.mjs` from this directory, all 10 files exit 0 |
+| `test_finderSearch.mjs` (5) | Verified 2026-11-14 | `node test_*.mjs` now 13 files, all exit 0 |
+| Dashboard accordion + finder scan in-browser | Verified 2026-11-14 | Headless Chrome 1440×1000 and 390×844: 8 sections toggle independently (closing one leaves its grid neighbour open), a collapse survives a sibling chart re-render, Space toggles a focused summary, finder search lands in ~1.0 s over 16 scroll frames, 0 console errors, no horizontal overflow |
 | `npm run build` in apps/web | Verified 2026-11-14 | green; known >500 kB chunk warning only. `dist/data/eco_quests_tasks.csv` present |
 | `0009_hp_events.sql` | **Pending** | Run in the Supabase SQL editor. Self-contained and supersedes 0005/0007/0008: drops `quest_events`/`monthly_hp`/`set_my_score`, creates `hp_events`, `record_events` (5/day cap), the score trigger and `collective_weekly_hp` |
 | Quests tab in-browser | Verified 2026-11-14 (score path needs 0009) | 5 CSV quests, title+description+HP, stable across reload. Headless Chrome: tick → "Submit" + HeatBar +5 (no event written, pending `csv-17`); Submit → `✓ Recorded`, checkbox disabled, one `csv-17:5` event. Score sync is `pushEvents` -> `readScore` -> `restoreTo`; needs 0009 applied |

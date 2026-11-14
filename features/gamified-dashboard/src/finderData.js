@@ -66,3 +66,14 @@ export function joinCards(geojson, narratives, province = null) {
   cards.sort((a, b) => String(a.name).localeCompare(String(b.name)) || String(a.province).localeCompare(String(b.province)))
   return cards
 }
+
+// Case-insensitive substring search over name + province. Returns
+// `{ card, index }` so the finder can animate to the card's position in the
+// browse order; the order itself never changes. Pure — safe to unit-test.
+export function matchCards(cards = [], query = '') {
+  const q = String(query ?? '').trim().toLowerCase()
+  if (!q) return []
+  return cards
+    .map((card, index) => ({ card, index }))
+    .filter(({ card }) => `${card?.name ?? ''} ${card?.province ?? ''}`.toLowerCase().includes(q))
+}

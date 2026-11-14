@@ -4,7 +4,17 @@
 // non-map screen, so screens must not render it again (avoids doubled nav bar).
 import AuthButton from '../components/AuthButton.jsx'
 
-export default function AccountScreen({ user, supabase, configured, navigate }) {
+export default function AccountScreen({
+  user,
+  profile,
+  loadingProfile,
+  profileLoadFailed,
+  supabase,
+  configured,
+  navigate,
+  onOpenPrivacy,
+  onOpenProfile,
+}) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-heat-bg">
       <main id="main" className="min-h-0 flex-1 overflow-y-auto bih-scroll">
@@ -15,7 +25,16 @@ export default function AccountScreen({ user, supabase, configured, navigate }) 
             Your chosen handle is the only identity any screen shows — never your Google name or email.
           </p>
           <div className="mt-6">
-            <AuthButton user={user} supabase={supabase} configured={configured} />
+            <AuthButton
+              user={user}
+              profile={profile}
+              loadingProfile={loadingProfile}
+              profileLoadFailed={profileLoadFailed}
+              supabase={supabase}
+              configured={configured}
+              onOpenPrivacy={onOpenPrivacy}
+              onOpenProfile={onOpenProfile}
+            />
           </div>
           <p className="mt-4 text-xs text-slate-500">
             Sign out clears the session and returns you to the guest view; your local progress stays on this device.

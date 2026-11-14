@@ -49,6 +49,15 @@ export function IconGear(props) {
   )
 }
 
+export function IconShield(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
+}
+
 export function IconSignOut(props) {
   return <svg {...base} {...props}><path d="M21 12h-9M17 6l5 5-5 5M21 12V3" /></svg>
 }

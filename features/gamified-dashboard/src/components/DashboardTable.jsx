@@ -61,15 +61,16 @@ export default function DashboardTable({
   savedKeys = new Set(),
   onToggleSave = null,
   canSave = false,
+  onShowInFinder = null,
 }) {
-  const dangerLabel = mode === 'danger' ? 'font-semibold text-heat-amber' : 'text-slate-200'
+  const dangerLabel = String(mode).startsWith('danger') ? 'font-semibold text-heat-amber' : 'text-slate-200'
 
   return (
     <>
       {/* Desktop table — clipped by the province <section>, never its own scroller. */}
       <div className="hidden overflow-clip md:block">
         <table className="w-full lg:min-w-[44rem] border-collapse text-sm tabular-nums table-fixed">
-          <caption className="sr-only">Municipality heat dashboard, sorted by the selected measure</caption>
+          <caption className="sr-only">Municipality list, sorted by the selected order</caption>
           <thead className="sticky top-0 z-10 bg-heat-deep/95 text-left text-slate-500 backdrop-blur">
             <tr className="border-b border-white/10">
               <th scope="col" className="px-3 py-3 w-[64px]">Save</th>
@@ -147,7 +148,14 @@ export default function DashboardTable({
                     {m?.rank ?? '—'}
                   </td>
                   <td className="px-3 py-2 w-[140px]">
-                    <div className="font-medium text-slate-100 truncate">{m?.name ?? 'Unknown'}</div>
+                    <button
+                      type="button"
+                      onClick={() => onShowInFinder?.(m?.name, m?.province)}
+                      aria-label={`Show ${m?.name ?? 'municipality'} in the municipality finder`}
+                      className="block max-w-full cursor-pointer truncate text-left font-medium text-slate-100 hover:text-heat-amber hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                    >
+                      {m?.name ?? 'Unknown'}
+                    </button>
                   </td>
                   <td className="px-3 py-2 w-[120px] text-slate-400 truncate">{m?.province ?? ''}</td>
                   <td className="px-3 py-2 w-[96px]"><TrendValue trend={t} /></td>
@@ -185,7 +193,16 @@ export default function DashboardTable({
                   {m?.rank ?? '—'}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-slate-100">{m?.name ?? 'Unknown'}</h3>
+                  <h3 className="truncate text-sm font-semibold text-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => onShowInFinder?.(m?.name, m?.province)}
+                      aria-label={`Show ${m?.name ?? 'municipality'} in the municipality finder`}
+                      className="block max-w-full cursor-pointer truncate text-left hover:text-heat-amber hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                    >
+                      {m?.name ?? 'Unknown'}
+                    </button>
+                  </h3>
                 </div>
                 <SaveButton row={m} isSaved={isSaved} canSave={canSave} onToggleSave={onToggleSave} />
               </div>

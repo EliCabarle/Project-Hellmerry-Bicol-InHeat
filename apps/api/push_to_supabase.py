@@ -201,6 +201,33 @@ def enso_index() -> dict:
     }
 
 
+def geo_index() -> dict[tuple[str, str], dict]:
+    """(name, province) -> {lst_mean_c, ndvi_mean, elevation_m, distance_to_coast_km}.
+
+    Reads data/geo_features.csv (NDVI, elevation, distance to coast) and
+    data/lst_means.csv (LST mean). Missing files result in empty dict.
+    """
+    geo_csv = BASE_DIR / "data" / "geo_features.csv"
+    if not geo_csv.exists():
+        return {}
+    import csv
+
+    index: dict[tuple[str, str], dict] = {}
+    with open(geo_csv, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            key = (row["name"], row["province"])
+            index[key] = {
+                "ndvi_mean": float(row["ndvi_mean"]) if row.get("ndvi_mean") else None,
+                "elevation_m": float(row["elevation_m"]) if row.get("elevation_m") else None,
+                "distance_to_coast_km": (
+                    float(row["distance_to_coast_km"])
+                    if row.get("distance_to_coast_km")
+                    else None
+                ),
+            }
+    return index
+
+
 def build_record(
     city_data: dict,
     drivers: dict,
@@ -213,6 +240,7 @@ def build_record(
     morans_i: dict,
     volatility: dict,
     enso: dict,
+    geo: dict,
 ) -> dict:
     trend = city_data.get("trend") or {}
     peak = city_data.get("peak_danger_days") or {}
@@ -239,6 +267,10 @@ def build_record(
         "top_drivers": drivers.get(key),
         "spatial_drivers": spatial.get(key),
         "lst_mean_c": LST_BY_KEY.get(key),
+        # Geographic driver features (top-level columns)
+        "ndvi_mean": geo.get(key, {}).get("ndvi_mean"),
+        "elevation_m": geo.get(key, {}).get("elevation_m"),
+        "distance_to_coast_km": geo.get(key, {}).get("distance_to_coast_km"),
         # latest-year annual means of the daily peak and nighttime heat index
         "heat_index_max_c": latest.get("mean_heat_index_c"),
         "nighttime_heat_index_c": latest.get("nighttime_heat_index_c"),
@@ -305,6 +337,7 @@ def main(dry_run: bool) -> None:
     morans_i = morans_i_index()
     volatility = volatility_index()
     enso = enso_index()
+    geo = geo_index()
     if not drivers:
         print("warning: output/drivers.json missing - top_drivers will be null")
     if not spatial:
@@ -342,12 +375,13 @@ def main(dry_run: bool) -> None:
         "vol_trend_slope", "vol_trend_p_value", "vol_trend_significant", "vol_trend_direction",
         "enso_heat_correlation",
         "person_days_danger", "person_days_density",
+        "lst_mean_c", "ndvi_mean", "elevation_m", "distance_to_coast_km",
     )
     drop_cols = None  # None = unknown, True = schema lacks mi/vol columns
     for city_data in municipalities:
         record = build_record(
             city_data, drivers, spatial, trends, backtest, forecast,
-            population, spatial_meta, morans_i, volatility, enso,
+            population, spatial_meta, morans_i, volatility, enso, geo,
         )
         # Convert NaN floats (Python and numpy) to None for JSON compliance.
         record = {

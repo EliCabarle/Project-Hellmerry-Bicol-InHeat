@@ -46,6 +46,31 @@ test('missing fields degrade to 0, never throw', () => {
   assert(out.length === 3, 'null/missing entries tolerated')
 })
 
+test('signed slope modes: desc = fastest warming first, asc = cooling first', () => {
+  const input = [mk('a', 0.01, 0.5, false), mk('b', 0.05, 0.0001, true), mk('c', -0.03, 0.01, true)]
+  assert(rankMunicipalities(input, 'slope-desc').map((r) => r.name).join(',') === 'b,a,c', 'slope-desc = b,a,c')
+  assert(rankMunicipalities(input, 'slope-asc').map((r) => r.name).join(',') === 'c,a,b', 'slope-asc = c,a,b')
+})
+
+test('danger ascending mirrors descending', () => {
+  const input = [mk('a', 0.01, 0.5, false, 1, 0), mk('b', 0.05, 0.0001, true, 3, 2), mk('c', 0.02, 0.2, true, 5, 2)]
+  assert(rankMunicipalities(input, 'danger-desc').map((r) => r.name).join(',') === 'c,b,a', 'danger-desc = c,b,a')
+  assert(rankMunicipalities(input, 'danger-asc').map((r) => r.name).join(',') === 'a,b,c', 'danger-asc = a,b,c')
+})
+
+test('name modes sort A→Z and Z→A, province breaks ties', () => {
+  const input = [
+    { name: 'bato', province: 'camarines sur', trend: {} },
+    { name: 'Aroroy', province: 'masbate', trend: {} },
+    { name: 'bato', province: 'catanduanes', trend: {} },
+  ]
+  const asc = rankMunicipalities(input, 'name-asc').map((r) => `${r.name}|${r.province}`)
+  assert(asc[0] === 'Aroroy|masbate', 'A→Z: case-insensitive first')
+  assert(asc[1] === 'bato|camarines sur' && asc[2] === 'bato|catanduanes', 'A→Z: province breaks ties')
+  const desc = rankMunicipalities(input, 'name-desc').map((r) => `${r.name}|${r.province}`)
+  assert(desc[0] === 'bato|catanduanes', 'Z→A mirrors A→Z')
+})
+
 // real data: first row must be the max |slope| computed independently
 const nar = JSON.parse(readFileSync(new URL('../../apps/web/public/data/narratives.json', import.meta.url), 'utf8'))
 const real = nar.municipalities

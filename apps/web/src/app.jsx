@@ -1,14 +1,15 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BicolMap from '@features/map-controls'
 import DashboardScreen from '@features/gamified-dashboard'
-import AuthButton from './components/AuthButton'
+import { createProgress, derive, manilaDate } from '@features/gamified-dashboard'
+import ChatbotModal from '@features/chatbot-llm'
+import NavBar from './components/NavBar.jsx'
+import AppMenu from './components/AppMenu.jsx'
+import QuestsPopover from './components/QuestsPopover.jsx'
+import AccountScreen from './screens/AccountScreen.jsx'
+import SettingsScreen from './screens/SettingsScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
-
-const SCREENS = [
-  { id: 'map', label: 'Map' },
-  { id: 'dashboard', label: 'Dashboard' },
-]
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
 // selected. The skip link targets #main, so only the #muni= prefix counts as a
@@ -32,10 +33,39 @@ export default function App() {
     const key = parseMuniHash()
     return key ? { key, token: 1 } : null
   })
+  // External tab control for the Dashboard screen: { id, token }. The menu and
+  // the quests/chatbot/LGU FABs drive the Dashboard through this contract.
+  const [focusTab, setFocusTab] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
+  const menuButtonRef = useRef(null)
+  const navTokenRef = useRef(0)
   const data = useBicolData()
   // Auth lives here so screens can scope their own rows (saved places,
   // leaderboard) to the signed-in user.
   const { user, supabase, configured } = useSession()
+
+  // Progress powering the navbar on every screen. One store per account — the
+  // key follows `user`, so it reads the SAME log the dashboard's HeatBar and
+  // quests checklist write: the navbar and the dashboard can never disagree.
+  // Guest progress is the same model under the guest key.
+  const progressStore = useMemo(
+    () => createProgress({ userId: user?.id ?? null }),
+    [user?.id],
+  )
+  // Bumped by the quests popover's onChanged and by the dashboard's
+  // 'bih-progress' broadcasts (streak check-in, quest submit, score reconcile):
+  // every store write makes the navbar re-derive.
+  const [progressTick, setProgressTick] = useState(0)
+  const progress = useMemo(
+    () => derive(progressStore.read(), manilaDate(new Date())),
+    [progressStore, progressTick],
+  )
+  useEffect(() => {
+    const bump = () => setProgressTick((t) => t + 1)
+    window.addEventListener('bih-progress', bump)
+    return () => window.removeEventListener('bih-progress', bump)
+  }, [])
 
   // Dashboard "Show on map" / shared deep link → select on the map and switch.
   const showOnMap = useCallback((key) => {
@@ -51,6 +81,60 @@ export default function App() {
     }
   }, [])
 
+  // Central navigation used by the menu, the quests/LGU/chatbot FABs and the
+  // Dashboard's own tabs. Rising token lets re-clicking the same target refire.
+  const navigate = useCallback((target) => {
+    const token = ++navTokenRef.current
+    if (target === 'map') {
+      setScreen('map')
+      setFocusTab(null)
+      return
+    }
+    if (target === 'dashboard') {
+      setScreen('dashboard')
+      setFocusTab({ id: 'dashboard', token })
+      return
+    }
+    if (target === 'quests') {
+      setScreen('dashboard')
+      setFocusTab({ id: 'quests', token })
+      return
+    }
+    if (target === 'leaderboard') {
+      setScreen('dashboard')
+      setFocusTab({ id: 'leaderboard', token })
+      return
+    }
+    if (target === 'account') {
+      setScreen('account')
+      setFocusTab(null)
+      return
+    }
+    if (target === 'settings') {
+      setScreen('settings')
+      setFocusTab(null)
+      return
+    }
+  }, [])
+
+  const handleSignIn = useCallback(() => {
+    if (!supabase || !configured) return
+    // select_account forces Google's chooser (same flow as AuthButton): without
+    // it Google silently reuses the last account and switching users is hidden.
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    })
+  }, [supabase, configured])
+
+  const handleSignOut = useCallback(() => {
+    if (!supabase) return
+    supabase.auth.signOut()
+  }, [supabase])
+
   // Height chain: html/body/#root = 100% (index.css) -> this h-full column ->
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
   // wrapper between #root and the leaflet container (collapses the map to 0px).
@@ -63,60 +147,78 @@ export default function App() {
         Skip to content
       </a>
 
-      <header className="relative z-[800] flex h-14 shrink-0 items-center gap-2 border-b border-white/10 px-3 backdrop-blur-md sm:h-16 sm:gap-4 sm:px-5" style={{ backgroundColor: `rgba(10, 16, 24, var(--alpha-header))` }}>
-        <div className="flex min-w-0 items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-amber-300 via-orange-500 to-red-700 text-[10px] font-black tracking-tighter text-slate-950 shadow-lg shadow-orange-950/40"
-          >
-            BIH
-          </span>
-          <div className="min-w-0 leading-tight">
-            <div className="truncate text-sm font-semibold tracking-tight sm:text-[15px]">
-              <span className="text-heat-amber">Bicol</span> In-Heat
-            </div>
-            <div className="hidden text-xs uppercase tracking-wider text-slate-500 sm:block">
-              Earth System Trend Detective
-            </div>
-          </div>
-        </div>
+      {/* Floating translucent navbar on every screen; overlays clear it via
+          safe-area-aware top offsets. */}
+      <NavBar
+        level={progress.level}
+        title={progress.title}
+        inLevel={progress.inLevel}
+        totalHP={progress.totalHP}
+        onOpenMenu={setMenuOpen}
+        menuButtonRef={menuButtonRef}
+        menuOpen={menuOpen}
+      />
 
-        <nav
-          aria-label="Screens"
-          className="flex shrink-0 items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
-        >
-          {SCREENS.map((s) => {
-            const active = screen === s.id
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => setScreen(s.id)}
-                aria-current={active ? 'page' : undefined}
-                className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm ${active ? 'bg-heat-amber text-slate-950 shadow-sm' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'}`}
-              >
-                {s.label}
-              </button>
-            )
-          })}
-        </nav>
+      {menuOpen && (
+        <AppMenu
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          user={user}
+          supabase={supabase}
+          configured={configured}
+          navigate={navigate}
+          onSignIn={handleSignIn}
+          onSignOut={handleSignOut}
+          returnFocusTo={menuButtonRef}
+          buttonRef={menuButtonRef}
+        />
+      )}
 
-        <div className="ml-auto flex min-w-0 items-center justify-end">
-          <AuthButton user={user} supabase={supabase} configured={configured} />
-        </div>
-      </header>
-
-      <main id="main" className="relative min-h-0 flex-1">
-        {screen === 'map' ? (
+      {screen === 'map' ? (
+        <div id="main" className="relative min-h-0 flex-1">
           <BicolMap
             {...data}
             initialSelectedKey={focus?.key ?? null}
             focusToken={focus?.token ?? 0}
+            onOpenChatbot={() => setChatOpen(true)}
           />
-        ) : (
-          <DashboardScreen {...data} supabase={supabase} user={user} onShowOnMap={showOnMap} />
-        )}
-      </main>
+          <QuestsPopover
+            userId={user?.id ?? null}
+            onChanged={() => setProgressTick((t) => t + 1)}
+          />
+        </div>
+      ) : (
+        <>
+          {/* Spacer clearing the fixed navbar; content scrolls under it. The
+              var is published by NavBar (bottom + 12px), fallback in index.css. */}
+          <div
+            aria-hidden="true"
+            className="h-[var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))] shrink-0"
+          />
+          {screen === 'dashboard' && (
+            <DashboardScreen
+              {...data}
+              supabase={supabase}
+              user={user}
+              onShowOnMap={showOnMap}
+              focusTab={focusTab}
+            />
+          )}
+          {screen === 'account' && (
+            <AccountScreen
+              user={user}
+              supabase={supabase}
+              configured={configured}
+              navigate={navigate}
+            />
+          )}
+          {screen === 'settings' && <SettingsScreen navigate={navigate} />}
+        </>
+      )}
+
+      {chatOpen && (
+        <ChatbotModal open={chatOpen} onClose={() => setChatOpen(false)} />
+      )}
     </div>
   )
 }

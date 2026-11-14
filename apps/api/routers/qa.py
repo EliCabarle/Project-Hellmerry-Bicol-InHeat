@@ -5,7 +5,7 @@ Two retrieval paths, one answer:
   - prose   -> Gemini query embedding -> `match_documents` (pgvector, 0.55 threshold)
   - numbers -> four tools over `municipality_trends`, executed here and fed back
 
-The chat model is OpenRouter's free tier. No key reaches the browser: the frontend
+The chat model runs on Groq's free tier. No key reaches the browser: the frontend
 calls this endpoint and nothing else.
 """
 
@@ -30,13 +30,12 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 router = APIRouter(prefix="/api", tags=["qa"])
 
-# The free Llama 3.3 slug was retired by OpenRouter; this is the $0 tool-capable
-# replacement verified on 2026-11-14. Free slugs rotate - re-verify before demo day.
-CHAT_MODEL = os.environ.get("CHAT_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free")
-CHAT_MODEL_FALLBACK = os.environ.get(
-    "CHAT_MODEL_FALLBACK", "baidu/ernie-5.5-flash-preview:free"
-)
-BASE_URL = "https://openrouter.ai/api/v1"
+# Groq's free tier (1k req/day, OpenAI-compatible). Verified 2026-11-14 against
+# the account's live model list: Llama slugs are not offered there, the GPT-OSS
+# pair is. Groq retires slugs — re-check `models.list()` before demo day.
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "openai/gpt-oss-120b")
+CHAT_MODEL_FALLBACK = os.environ.get("CHAT_MODEL_FALLBACK", "openai/gpt-oss-20b")
+BASE_URL = os.environ.get("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
 EMBED_MODEL = "models/gemini-embedding-001"
 EMBED_DIMS = 1536
 MATCH_THRESHOLD = 0.55
@@ -125,7 +124,7 @@ def _llm() -> OpenAI:
     global _llm_client
     if _llm_client is None:
         _llm_client = OpenAI(
-            base_url=BASE_URL, api_key=os.environ["OPENROUTER_API_KEY"]
+            base_url=BASE_URL, api_key=os.environ["GROQ_API_KEY"]
         )
     return _llm_client
 

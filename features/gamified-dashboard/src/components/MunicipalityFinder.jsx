@@ -8,7 +8,7 @@
 // kept). A stationary tap still flips the card — a claimed drag can't fire a
 // tap action.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { joinCards, countByProvince, provincesOf, matchCards } from '../finderData.js'
+import { joinCards, countByProvince, provincesOf, matchCards, filterSavedCards } from '../finderData.js'
 import FinderCard from './FinderCard.jsx'
 import CollapsibleSection from './CollapsibleSection.jsx'
 
@@ -29,19 +29,40 @@ const SWIPE_LOCK_DX_PX = 10
 const CLICK_SUPPRESS_MS = 300
 const SWIPE_VELOCITY_PX_PER_MS = 0.5
 
-export default function MunicipalityFinder({ geojson = null, narratives = null, onShowOnMap = null }) {
+export default function MunicipalityFinder({
+  geojson = null,
+  narratives = null,
+  onShowOnMap = null,
+  province = 'All',
+  onProvinceChange = null,
+  savedOnly = false,
+  savedKeys = new Set(),
+  canSave = false,
+  onSavedOnlyChange = null,
+  focus = null,
+}) {
   const municipalities = narratives?.municipalities ?? []
   const provinces = useMemo(() => provincesOf(municipalities), [municipalities])
   const counts = useMemo(() => countByProvince(municipalities), [municipalities])
 
-  const [province, setProvince] = useState('All')
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [search, setSearch] = useState('')
   const [scanning, setScanning] = useState(false)
 
-  const cards = useMemo(() => joinCards(geojson, narratives, province), [geojson, narratives, province])
+  // Province is owned by DashboardScreen so the list shares it. Saved-only is a
+  // second filter on the same cards, applied before search and scan.
+  const cards = useMemo(() => {
+    const joined = joinCards(geojson, narratives, province)
+    return savedOnly ? filterSavedCards(joined, savedKeys) : joined
+  }, [geojson, narratives, province, savedOnly, savedKeys])
   const matches = useMemo(() => matchCards(cards, search), [cards, search])
+
+  // "All (n)" must count what is actually browsable, not the whole province set.
+  const allCount = useMemo(() => {
+    if (!savedOnly) return municipalities.length
+    return filterSavedCards(joinCards(geojson, narratives, 'All'), savedKeys).length
+  }, [geojson, narratives, savedOnly, savedKeys, municipalities.length])
 
   // Scan timer: one timeout at a time, cleared on unmount so a scan can never
   // outlive the component.
@@ -61,7 +82,7 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
     setIndex(0)
     setFlipped(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [province])
+  }, [province, savedOnly])
 
   const current = cards.length > 0 ? cards[clampIndex(index, cards.length)] : null
   const go = (delta) => {
@@ -116,6 +137,35 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
     const next = matches.find((m) => m.index > currentIdx) ?? matches[0]
     scanTo(next.index)
   }
+
+  // A name click in the list or Top hotspots lands here: drop whichever filter
+  // hides that municipality, then scan to its card once the filter settles.
+  const pendingFocusRef = useRef(null)
+  useEffect(() => {
+    if (!focus?.nonce) return
+    pendingFocusRef.current = { name: focus.name, province: focus.province }
+  }, [focus?.nonce])
+
+  useEffect(() => {
+    const p = pendingFocusRef.current
+    if (!p) return
+    const target = cards.findIndex((c) => c.name === p.name && c.province === p.province)
+    if (target >= 0) {
+      pendingFocusRef.current = null
+      scanTo(target)
+      return
+    }
+    if (savedOnly) {
+      onSavedOnlyChange?.(false)
+      return
+    }
+    if (province !== 'All') {
+      onProvinceChange?.('All')
+      return
+    }
+    pendingFocusRef.current = null
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus?.nonce, cards, savedOnly, province])
 
   const onKeyDown = (e) => {
     if (e.key === 'ArrowLeft') {
@@ -204,7 +254,12 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
   }
 
   return (
-    <CollapsibleSection title="Municipality finder" ariaLabel="Municipality finder" className="mt-4">
+    <CollapsibleSection
+      title="Municipality finder"
+      ariaLabel="Municipality finder"
+      className="mt-4"
+      openSignal={focus?.nonce ?? 0}
+    >
       <p className="text-xs text-slate-500">
         Browse every LGU&rsquo;s outline — flip a card for its trend, sample and why it heats.
       </p>
@@ -217,10 +272,10 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
           <select
             id="finder-province"
             value={province}
-            onChange={(e) => setProvince(e.target.value)}
+            onChange={(e) => onProvinceChange?.(e.target.value)}
             className="cursor-pointer min-h-11 rounded-lg border border-white/10 bg-heat-deep/90 px-2 py-1.5 font-mono text-xs text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
           >
-            <option value="All">All ({municipalities.length})</option>
+            <option value="All">All ({allCount})</option>
             {provinces.map((p) => (
               <option key={p} value={p}>
                 {p} ({counts.get(p) ?? 0})
@@ -228,6 +283,21 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
             ))}
           </select>
         </div>
+
+        {canSave && (
+          <button
+            type="button"
+            aria-pressed={savedOnly}
+            onClick={() => onSavedOnlyChange?.(!savedOnly)}
+            className={`cursor-pointer min-h-11 shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              savedOnly
+                ? 'bg-heat-amber text-slate-950'
+                : 'border border-white/10 text-slate-300 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            Saved only ({savedKeys.size})
+          </button>
+        )}
 
         <form role="search" onSubmit={onSubmitSearch} className="flex min-w-0 flex-1 items-center gap-2">
           <label htmlFor="finder-search" className="sr-only">
@@ -260,7 +330,9 @@ export default function MunicipalityFinder({ geojson = null, narratives = null, 
       </p>
 
       {cards.length === 0 ? (
-        <p className="py-10 text-center text-xs text-slate-500">No municipalities for this filter.</p>
+        <p className="py-10 text-center text-xs text-slate-500">
+          {savedOnly ? 'No saved places match this filter.' : 'No municipalities for this filter.'}
+        </p>
       ) : (
         <>
           {/* Stage: fixed height, no scroll. `overflow-clip` keeps neighbour spill

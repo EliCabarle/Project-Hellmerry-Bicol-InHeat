@@ -5,7 +5,7 @@ import test from 'node:test'
 import { strict as strictAssert } from 'node:assert/strict'
 import { DAILY_MISSING_REASON, createDailyStore, valuesForDay } from './src/data/dailyStore.js'
 import { DAY_BANDS, DAY_NO_DATA, dayBand, dayColor, dayLegend } from './src/gis/yearRamp.js'
-import { getMunicipalityStyle, joinNarratives } from './src/gis/engine.js'
+import { getMunicipalityStyle, joinNarratives, IDLE_MUNI_FILL_ALPHA } from './src/gis/engine.js'
 import { tooltipHtml } from './src/components/municipalityTooltip.js'
 
 // --- synthetic fixture builders --------------------------------------------
@@ -225,7 +225,7 @@ test('day mode styles by daily value; missing day gets the no-data veil', () => 
   strictAssert.ok(narId, 'fixture municipality has a narrative id')
   const hot = getMunicipalityStyle(feature, { viewMode: 'day', dayValues: new Map([[narId, 42.0]]) })
   strictAssert.equal(hot.fillColor, dayColor(42.0), 'Danger fill at the 42.0 floor')
-  strictAssert.equal(hot.fillOpacity, 0.62)
+  strictAssert.equal(hot.fillOpacity, IDLE_MUNI_FILL_ALPHA)
 
   const noId = getMunicipalityStyle(feature, { viewMode: 'day', dayValues: new Map() })
   strictAssert.equal(noId.fillColor, DAY_NO_DATA, 'unlisted municipality is no-data, not a band')

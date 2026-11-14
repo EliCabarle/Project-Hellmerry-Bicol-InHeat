@@ -10,17 +10,18 @@ export {
   trendColor,
 } from '../../map-controls/src/gis/yearRamp.js'
 
-// UI chrome (axis ticks, grid, tooltip) — same hexes as the heat-* tokens.
-export const AXIS_TICK = '#94a3b8' // heat-muted
-export const GRID_LINE = '#223044' // heat-line
-export const TOOLTIP_BG = '#0d141e' // heat-surface
+// UI chrome (axis ticks, grid, tooltip) — clay-world equivalents of the
+// heat-* tokens. Data accents below keep their map-ramp identity.
+export const AXIS_TICK = '#64748B'
+export const GRID_LINE = '#E6E3F7'
+export const TOOLTIP_BG = '#FFFFFF'
 
 export const HEAT_AMBER = '#fbbf24'
 export const HEAT_COOL = '#67e8f9'
 export const HEAT_ORANGE = '#fb923c'
 export const HEAT_HOT = '#ef4444'
 export const HEAT_MUTED = '#475569'
-export const HEAT_SIG = '#b91c1c'
+export const HEAT_SIG = '#BE123C'
 
 // Danger-day bands: neutral when an LGU logged none, deepening toward extreme.
 export const DANGER_BAND_COLORS = [HEAT_MUTED, HEAT_AMBER, HEAT_ORANGE, HEAT_HOT]

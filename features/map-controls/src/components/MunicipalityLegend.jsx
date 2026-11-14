@@ -110,7 +110,7 @@ export default function MunicipalityLegend({
             </div>
 
             <div className="mt-2 text-[9px] leading-[0.875rem] text-slate-600">
-              Imagery © Esri, Maxar, Earthstar Geographics · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER
+              Basemap © Esri (Light Gray Canvas) · Boundaries: geoBoundaries (CC BY 4.0) · Data: NASA POWER
             </div>
           </div>
         )}

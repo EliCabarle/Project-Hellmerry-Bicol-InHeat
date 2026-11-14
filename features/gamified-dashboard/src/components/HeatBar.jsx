@@ -27,7 +27,7 @@ export default function HeatBar({ level, title, inLevel, totalHP, announcement =
         <div className={`mx-auto flex ${className} flex-col gap-1 sm:flex-row sm:items-center sm:justify-between`}>
           <div className="min-w-0">
             <p className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-heat-amber">Heat Points</p>
-            <p className="mt-0.5 truncate text-sm font-semibold tracking-tight text-white sm:text-base">
+            <p className="mt-0.5 truncate text-sm font-semibold tracking-tight text-clay-text-heading sm:text-base">
               Level {level} · <span className="text-slate-300">{title}</span>
             </p>
           </div>
@@ -48,7 +48,7 @@ export default function HeatBar({ level, title, inLevel, totalHP, announcement =
       <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
-          <p className="mt-0.5 truncate text-lg font-semibold tracking-tight text-white sm:text-xl">
+          <p className="mt-0.5 truncate text-lg font-semibold tracking-tight text-clay-text-heading sm:text-xl">
             Level {level} · <span className="text-slate-300">{title}</span>
           </p>
         </div>

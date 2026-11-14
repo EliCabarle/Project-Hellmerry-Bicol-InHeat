@@ -43,7 +43,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
         {/* front — outline + identity */}
         <div aria-hidden={flipped || undefined} className={FACE}>
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="truncate text-sm font-semibold text-white">{card.name}</h3>
+            <h3 className="truncate text-sm font-semibold text-clay-text-heading">{card.name}</h3>
             <span className="shrink-0 font-mono text-xs text-slate-500">
               {card.isCity ? 'City' : 'Mun'} · {card.province}
             </span>
@@ -134,7 +134,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
         {/* back — the data and the why */}
         <div aria-hidden={!flipped || undefined} className={`${FACE} [transform:rotateY(180deg)] overflow-y-auto`}>
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="truncate text-sm font-semibold text-white">{card.name}</h3>
+            <h3 className="truncate text-sm font-semibold text-clay-text-heading">{card.name}</h3>
             <span className="shrink-0 font-mono text-xs text-slate-500">
               {card.province}
             </span>

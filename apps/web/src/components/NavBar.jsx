@@ -7,6 +7,8 @@ import { useEffect, useRef } from 'react'
 import { HP_PER_LEVEL } from '@features/gamified-dashboard'
 import { IconMenu } from './Icons.jsx'
 
+// Clay shell bar: opaque white surface, clay contact shadow, Nunito type.
+
 export default function NavBar({
   level,
   title,
@@ -46,22 +48,21 @@ export default function NavBar({
   return (
     <header
       ref={barRef}
-      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[800] rounded-2xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-header))] p-2 shadow-hud backdrop-blur-md sm:inset-x-auto sm:right-auto sm:left-1/2 sm:w-[min(50vw,45rem)] sm:-translate-x-1/2"
+      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[800] rounded-[24px] border border-white/20 bg-white shadow-card p-3 sm:inset-x-auto sm:right-auto sm:left-1/2 sm:w-[min(50vw,44rem)] sm:-translate-x-1/2"
     >
       <div className="flex items-center gap-3">
         <span
           aria-hidden="true"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-amber-300 via-orange-500 to-red-700 text-[10px] font-black tracking-tighter text-slate-950 shadow-lg shadow-orange-950/40"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-[16px] bg-gradient-to-br from-clay-blue via-clay-green to-clay-coral text-[11px] font-extrabold tracking-tighter text-white shadow-lg shadow-blue-shadow/40 font-clay"
         >
           BIH
         </span>
         <div className="shrink-0 leading-tight">
-          <p className="font-mono text-[11px] font-semibold text-slate-200">
-            {inLevel} / {HP_PER_LEVEL} <span className="text-slate-400">HP</span>
+          <p className="font-mono text-[11px] font-semibold text-clay-text-heading">
+            {inLevel} / {HP_PER_LEVEL} <span className="text-clay-text-muted">HP</span>
           </p>
-          <p className="text-[11px] text-slate-400">{totalHP} total</p>
+          <p className="text-[11px] text-clay-text-muted">{totalHP} total</p>
         </div>
-        {/* Wide level bar: stretches between the HP text and the menu button. */}
         <div className="min-w-0 flex-1">
           <div
             role="progressbar"
@@ -70,15 +71,15 @@ export default function NavBar({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuetext={`${inLevel} of ${HP_PER_LEVEL} heat points`}
-            className="h-3 overflow-hidden rounded-full bg-black/50 ring-1 ring-white/10"
+            className="h-3 overflow-hidden rounded-full bg-black/5 border border-white/30"
           >
             <div
-              className="h-full rounded-full bg-gradient-to-r from-heat-orange to-heat-amber transition-[width] duration-500 ease-out"
+              className="h-full rounded-full bg-gradient-to-r from-clay-green to-clay-blue transition-[width] duration-500 ease-out"
               style={{ width: `${pct}%` }}
             />
           </div>
-          <p className="mt-1 truncate text-[11px] font-semibold tracking-tight text-slate-300">
-            Level {level} · <span className="text-slate-400">{title}</span>
+          <p className="mt-1 truncate text-[11px] font-semibold tracking-tight text-clay-text-heading">
+            Level {level} · <span className="text-clay-text-muted">{title}</span>
           </p>
         </div>
         <button
@@ -88,9 +89,9 @@ export default function NavBar({
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           aria-label="Main menu"
-          className="bih-btn inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10"
+          className="bih-btn inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-[14px] border border-white/20 bg-white text-clay-text-heading font-clay font-bold hover:bg-clay-bg-blue-white hover:text-clay-text-heading"
         >
-          <IconMenu className="h-5 w-5" />
+          <IconMenu className="h-5 w-5 text-clay-text-heading" />
         </button>
       </div>
     </header>

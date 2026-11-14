@@ -65,7 +65,7 @@ export default function App() {
         Skip to content
       </a>
 
-      <header className="relative z-[800] flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-heat-deep/90 px-3 backdrop-blur-md sm:h-16 sm:gap-4 sm:px-5">
+      <header className="relative z-[800] flex h-14 shrink-0 items-center gap-2 border-b border-white/10 px-3 backdrop-blur-md sm:h-16 sm:gap-4 sm:px-5" style={{ backgroundColor: `rgba(10, 16, 24, var(--alpha-header))` }}>
         <div className="flex min-w-0 items-center gap-2.5">
           <span
             aria-hidden="true"
@@ -95,11 +95,7 @@ export default function App() {
                 type="button"
                 onClick={() => setScreen(s.id)}
                 aria-current={active ? 'page' : undefined}
-                className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
-                  active
-                    ? 'bg-heat-amber text-slate-950 shadow-sm'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-                }`}
+                className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm ${active ? 'bg-heat-amber text-slate-950 shadow-sm' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'}`}
               >
                 {s.label}
               </button>

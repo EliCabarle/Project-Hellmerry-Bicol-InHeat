@@ -1,0 +1,43 @@
+{
+  "project": "Bicol In-Heat",
+  "model": {
+    "features": [
+      "u10m_ms",
+      "v10m_ms",
+      "lat",
+      "lon",
+      "elevation_m",
+      "distance_to_coast_km",
+      "ndvi_mean"
+    ],
+    "target": "heat_index_max_c",
+    "n_train": 1498399,
+    "n_test": 374600,
+    "r2_train": 0.9881,
+    "r2_test": 0.711
+  },
+  "residuals": {
+    "n": 374600,
+    "mean": 0.081351,
+    "std": 1.450789
+  },
+  "diagnostics": {
+    "durbin_watson": {
+      "statistic": 0.8754,
+      "interpretation": "positive autocorrelation"
+    },
+    "breusch_pagan": {
+      "lm_statistic": 39466.0362,
+      "p_value": 0.0,
+      "f_statistic": 6301.8132,
+      "f_p_value": 0.0,
+      "interpretation": "heteroscedastic (reject null)"
+    },
+    "shapiro_wilk": {
+      "statistic": 0.810611,
+      "p_value": 0.0,
+      "n_tested": 5000,
+      "interpretation": "not normally distributed (reject null)"
+    }
+  }
+}

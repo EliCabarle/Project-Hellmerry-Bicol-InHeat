@@ -22,6 +22,11 @@ import {
 import { tooltipHtml } from "./components/municipalityTooltip.js";
 import { usePrefersReducedMotion } from "./components/MapControlsOverlay.jsx";
 import {
+  ENTRY_DURATION_MS,
+  ENTRY_FROM,
+  entryDelays,
+} from "./gis/entry.js";
+import {
   COUNTRY_BOUNDS,
   MIN_ZOOM,
   MAX_ZOOM,
@@ -118,6 +123,8 @@ export default function Municipality3DLayer({
   const animRef = useRef(new Map());
   const rafRef = useRef(0);
   const traceRef = useRef(null);
+  const entryRef = useRef(new Map()); // key -> { start, delay } for the entry wave
+  const entryStartedRef = useRef(false); // true once a level's entry has been initialized
   const yearRef = useRef(year);
   const selectRef = useRef(onSelect);
   const readyCb = useRef(onReady);
@@ -200,6 +207,17 @@ export default function Municipality3DLayer({
     });
   }, []);
 
+  const setEntries = useCallback((values) => {
+    const source = mapRef.current?.getSource(SRC);
+    if (!source || values.size === 0) return;
+    source.updateData({
+      update: [...values].map(([id, value]) => ({
+        id,
+        addOrUpdateProperties: [{ key: "_entry", value }],
+      })),
+    });
+  }, []);
+
   const targetFor = useCallback((key) => {
     if (key == null) return 0;
     const depth = dataRef.current.depths.get(key) ?? DEPTH_BASE;
@@ -237,6 +255,7 @@ export default function Municipality3DLayer({
   }, []);
 
   // Ease-out cubic, one rAF loop that stops as soon as nothing is animating.
+  // Drives both hover/selection lift and the per-area entry wave.
   const step = useCallback(() => {
     const now = performance.now();
     const values = new Map();
@@ -251,6 +270,26 @@ export default function Municipality3DLayer({
       else active = true;
     }
     if (values.size) setLifts(values);
+
+    // Entry wave: advance each area's progress toward one after its own delay.
+    const entryValues = new Map();
+    let entryActive = false;
+    for (const [key, ent] of entryRef.current) {
+      // clamp t to [0,1]: before an area's delay it must not go negative
+      // (which would drive the extrusion height below zero).
+      const t = Math.min(1, Math.max(0, (now - ent.start - ent.delay) / ENTRY_DURATION_MS));
+      const eased = easeOutCubic(t);
+      if (t >= 1) {
+        entryRef.current.delete(key);
+        entryValues.set(key, 1);
+      } else {
+        entryValues.set(key, eased);
+        entryActive = true;
+      }
+    }
+    if (entryValues.size) setEntries(entryValues);
+    active = active || entryActive;
+
     const trace = traceRef.current;
     if (trace) {
       const p = Math.min(1, (now - trace.start) / TRACE_MS);
@@ -259,7 +298,7 @@ export default function Municipality3DLayer({
       if (p < 1) active = true;
     }
     rafRef.current = active ? requestAnimationFrame(step) : 0;
-  }, [paintTrace, setLifts]);
+  }, [paintTrace, setLifts, setEntries]);
 
   const moveTo = useCallback(
     (key, to, { finishFirst = false } = {}) => {
@@ -364,7 +403,14 @@ export default function Municipality3DLayer({
         source: SRC,
         paint: {
           "fill-extrusion-color": ["get", "_fill"],
-          "fill-extrusion-height": ["+", ["get", "_depth"], ["get", "_lift"]],
+          // height = depth × entry progress (+ hover/selection lift on top).
+          // _entry defaults to 1 (full) so anything not mid-entry stands at full height.
+          // coalesce: get has no numeric-default overload, so fall back to 1 when absent.
+          "fill-extrusion-height": [
+            "+",
+            ["*", ["get", "_depth"], ["coalesce", ["get", "_entry"], 1]],
+            ["get", "_lift"],
+          ],
         },
       });
       map.addLayer({
@@ -477,15 +523,68 @@ export default function Municipality3DLayer({
     // Mount-only: the entity is created when 3D is selected and destroyed when it is not.
   }, [hideTip, moveTo, paintTrace, showTip, targetFor]);
 
+  // New level: every area starts at ENTRY_FROM height, then rises into place in
+  // sequence ordered by centroid north-to-south (top-down). Delays are scaled so
+  // the whole wave finishes within STAGGER_CAP regardless of area count.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const source = map.getSource(SRC);
+    if (!source) return;
+    const cur = dataRef.current;
+    const keys = cur.collection.features.map((f) => f.properties?._key);
+    const centroids = cur.centroids;
+    const ordered = [...keys].sort((a, b) => {
+      const ca = centroids.get(a);
+      const cb = centroids.get(b);
+      return (cb?.[1] ?? 0) - (ca?.[1] ?? 0);
+    });
+    const n = ordered.length;
+    entryRef.current = new Map();
+    entryStartedRef.current = true;
+    const now = performance.now();
+    const delays = entryDelays(n, { reduced: reducedRef.current });
+    const startValues = new Map();
+    ordered.forEach((key, i) => {
+      entryRef.current.set(key, { start: now, delay: delays[i] });
+      startValues.set(key, ENTRY_FROM);
+    });
+    if (startValues.size) setEntries(startValues);
+    if (reducedRef.current) {
+      // prefers-reduced-motion: full height immediately, no entry animation.
+      const full = new Map();
+      for (const key of keys) full.set(key, 1);
+      setEntries(full);
+      entryRef.current = new Map();
+    }
+    if (!rafRef.current) rafRef.current = requestAnimationFrame(step);
+  }, [joined, ready, setEntries, step]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
     const source = map.getSource(SRC);
     if (!source) return;
     animRef.current.clear();
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = 0;
-    source.setData(data.collection);
+    // Keep the entry wave's rAF alive; cancel only when nothing is entering.
+    if (entryRef.current.size === 0) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
+    // Overlay current entry progress so a view/year change does not reset it.
+    const features = data.collection.features.map((f) => {
+      const key = f.properties?._key;
+      const ent = entryRef.current.get(key);
+      let entry = ENTRY_FROM;
+      if (ent) {
+        const t = Math.min(1, Math.max(0, (performance.now() - ent.start - ent.delay) / ENTRY_DURATION_MS));
+        entry = easeOutCubic(t);
+      } else if (entryStartedRef.current) {
+        entry = 1;
+      }
+      return { ...f, properties: { ...f.properties, _entry: entry } };
+    });
+    source.setData({ ...data.collection, features });
     const keep = new Map();
     for (const key of [hoverRef.current, selectedRef.current]) {
       if (key != null) keep.set(key, targetFor(key));
@@ -536,6 +635,11 @@ export default function Municipality3DLayer({
     cancelAnimationFrame(rafRef.current);
     rafRef.current = 0;
     if (values.size) setLifts(values);
+    // prefers-reduced-motion: place every area at full height immediately.
+    const entryValues = new Map();
+    for (const key of entryRef.current.keys()) entryValues.set(key, 1);
+    if (entryValues.size) setEntries(entryValues);
+    entryRef.current = new Map();
     if (traceRef.current) {
       traceRef.current.progress = 1;
       paintTrace(traceRef.current, 1);

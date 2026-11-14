@@ -137,6 +137,8 @@ function MunicipalityLayer({
 }) {
   const map = useMap();
   const layerRef = useRef(null);
+  const movingRef = useRef(false); // camera in motion → no tooltips
+  const pointerRef = useRef(null); // last real cursor position, client coords
   const stateRef = useRef({
     selectedKey,
     viewMode,
@@ -271,10 +273,11 @@ function MunicipalityLayer({
     });
   }, [joined, year, viewMode, date, dayValues, provinceCounts]);
 
-  // Tooltips were only closed by the pointer leaving a path, which never fires
-  // when the camera moves under a stationary pointer — so a wheel-zoom left one
-  // card per hover stacked on screen. A camera move invalidates whatever is
-  // under the cursor, so clear the tooltips there.
+  // Leaflet closes a tooltip only on mouseout, which never fires when the camera
+  // moves under a stationary pointer: zooming left one card per hover stacked on
+  // screen, and a legitimate hover lost its card with nothing to reopen it. So
+  // suppress while the camera moves and re-derive the hover from the cursor once
+  // it settles — one card, always for the area actually under the pointer.
   useEffect(() => {
     const closeAll = () => {
       layerRef.current?.eachLayer((child) => child.closeTooltip());
@@ -284,11 +287,48 @@ function MunicipalityLayer({
         ?.querySelectorAll(".leaflet-tooltip")
         .forEach((el) => el.remove());
     };
-    map.on("zoomstart", closeAll);
-    map.on("movestart", closeAll);
+    const resync = () => {
+      closeAll();
+      const p = pointerRef.current;
+      if (!p) return;
+      // Leaflet has no public hit test; a DOM path maps to its layer via _targets.
+      const el = document.elementFromPoint(p.x, p.y);
+      const owner = map._targets?.[el?._leaflet_id];
+      if (owner?.feature) owner.openTooltip();
+    };
+    const track = (e) => {
+      pointerRef.current = {
+        x: e.originalEvent.clientX,
+        y: e.originalEvent.clientY,
+      };
+    };
+    const leave = () => {
+      pointerRef.current = null;
+    };
+    const start = () => {
+      movingRef.current = true;
+      closeAll();
+    };
+    // One frame after settle, so a late re-dispatched mouseover still falls in
+    // the suppressed window and resync has the final say.
+    const settle = () =>
+      requestAnimationFrame(() => {
+        movingRef.current = false;
+        resync();
+      });
+    map.on("mousemove", track);
+    map.on("mouseout", leave);
+    map.on("zoomstart", start);
+    map.on("movestart", start);
+    map.on("zoomend", settle);
+    map.on("moveend", settle);
     return () => {
-      map.off("zoomstart", closeAll);
-      map.off("movestart", closeAll);
+      map.off("mousemove", track);
+      map.off("mouseout", leave);
+      map.off("zoomstart", start);
+      map.off("movestart", start);
+      map.off("zoomend", settle);
+      map.off("moveend", settle);
     };
   }, [map]);
 
@@ -312,6 +352,12 @@ function MunicipalityLayer({
             opacity: 1,
           },
         );
+
+        // A tooltip can open from a re-dispatched mouseover mid-gesture; the
+        // camera has not settled, so drop it and let resync decide.
+        layer.on("tooltipopen", (event) => {
+          if (movingRef.current) event.target.closeTooltip();
+        });
 
         const select = () => {
           const key = featureKey(feature);

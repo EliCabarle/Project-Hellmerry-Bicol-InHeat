@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -48,9 +49,10 @@ LLM_TIMEOUT = 45.0
 RETRY_STATUS = {429, 502, 503, 504}
 
 SYSTEM_PROMPT = (
-    "You are the Bicol In-Heat QA assistant. You have access to structured data "
-    "tools and document retrieval context. If you don't know the answer from the "
-    "provided tools or context, say so. Do not hallucinate.\n\n"
+    "You are Silli, the friendly heat-trend assistant for Bicol In-Heat. You have "
+    "access to structured data tools and document retrieval context. If you don't "
+    "know the answer from the provided tools or context, say so. Do not "
+    "hallucinate.\n\n"
     "Rules:\n"
     "- Any number you state must come from a tool result or the document context. "
     "Never estimate or compute a trend yourself.\n"
@@ -64,7 +66,26 @@ SYSTEM_PROMPT = (
     "page, not the whole population.\n"
     "- Keep answers short: at most 6 sentences, or a table of at most 10 rows plus "
     "two sentences. Never restate a whole tool payload.\n"
-    "- Answer in the language the question was asked in."
+    "- Answer in the language the question was asked in.\n"
+    "- If the user sends a general greeting or asks who you are (Hi, Hello, "
+    "Kamusta, 'what is your name'), introduce yourself as Silli and say you "
+    "answer questions about Bicol's heat trends, municipalities, and project "
+    "methodology. Do not call any tools for a greeting or identity question."
+)
+
+# Greetings and identity questions skip retrieval and tools: no embedding call,
+# no irrelevant "Sources" chips (HANDOFF.md once got cited for "what is ur name"),
+# one cheap completion.
+CHITCHAT = re.compile(
+    r"^(hi|hello|hey|kamusta|kumusta|magandang\s+(?:umaga|hapon|gabi)"
+    r"|good\s+(?:morning|afternoon|evening)|who are you"
+    r"|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b",
+    re.IGNORECASE,
+)
+# Identity questions skip the pipeline at any length; a greeting only when the
+# whole message is short ("Hello, which municipalities are hottest...?" is data).
+IDENTITY = re.compile(
+    r"^(who are you|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b", re.IGNORECASE
 )
 
 # Columns for ranking (no series, no narration) and for a single lookup (both).
@@ -444,7 +465,10 @@ def _chat(messages: list[dict], tools: list[dict] | None):
 @router.post("/qa", response_model=QAResponse)
 def answer(payload: QARequest) -> QAResponse:
     question = payload.question.strip()
-    chunks = _retrieve(question)
+    chitchat = bool(IDENTITY.match(question)) or (
+        bool(CHITCHAT.match(question)) and len(question) <= 40
+    )
+    chunks = [] if chitchat else _retrieve(question)
     sources = sorted({chunk["source_path"] for chunk in chunks})
 
     messages: list[dict] = [
@@ -458,7 +482,7 @@ def answer(payload: QARequest) -> QAResponse:
     answer_text: str | None = None
     finish: str | None = None
     for _ in range(MAX_TOOL_ROUNDS):
-        choice = _chat(messages, TOOLS).choices[0]
+        choice = _chat(messages, None if chitchat else TOOLS).choices[0]
         message = choice.message
         if not message.tool_calls:
             answer_text = message.content or ""

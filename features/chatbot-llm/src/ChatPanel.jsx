@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 
 const QA_URL = '/api/qa'
+const SUGGESTIONS = [
+  'Why is it so hot in this area?',
+  'Which 5 municipalities are warming fastest?',
+  'Why is LST not the same as heat index?',
+]
 
 export default function ChatPanel() {
   const [question, setQuestion] = useState('')
@@ -24,10 +29,9 @@ export default function ChatPanel() {
     }
   }, [])
 
-  const ask = useCallback(
-    async (e) => {
-      e?.preventDefault()
-      const trimmed = question.trim()
+  const submit = useCallback(
+    async (raw) => {
+      const trimmed = raw.trim()
       if (!trimmed || loading || !online) return
       setLoading(true)
       setError('')
@@ -65,8 +69,13 @@ export default function ChatPanel() {
         setLoading(false)
       }
     },
-    [question, loading, online]
+    [loading, online]
   )
+
+  const ask = (e) => {
+    e.preventDefault()
+    submit(question)
+  }
 
   return (
     <section className="flex flex-col gap-4 p-4 sm:p-6">
@@ -75,10 +84,10 @@ export default function ChatPanel() {
           className="inline-flex h-6 w-6 shrink-0 rounded-lg bg-heat-amber text-[10px] font-black text-slate-950 place-items-center"
           aria-hidden="true"
         >
-          QA
+          S
         </span>
         <h2 className="text-sm font-semibold text-heat-ink sm:text-base">
-          QA Chatbot
+          Ask Silli
         </h2>
       </header>
 
@@ -91,7 +100,7 @@ export default function ChatPanel() {
       <form onSubmit={ask} className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
-          aria-label="Ask a question about Bicol In-Heat"
+          aria-label="Ask Silli a question about Bicol In-Heat"
           className="flex-1 min-w-0 rounded-lg border border-white/10 bg-heat-surface px-3 py-2 text-sm text-heat-ink placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-heat-amber disabled:opacity-50 disabled:cursor-not-allowed"
           placeholder="Ask about heat trends, drivers, or the methodology..."
           value={question}
@@ -110,6 +119,23 @@ export default function ChatPanel() {
           {loading ? 'Thinking...' : 'Ask'}
         </button>
       </form>
+
+      <div className="flex flex-wrap gap-2">
+        {SUGGESTIONS.map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={loading || !online}
+            onClick={() => {
+              setQuestion(s)
+              submit(s)
+            }}
+            className="cursor-pointer rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {s}
+          </button>
+        ))}
+      </div>
 
       {loading && (
         <div role="status" aria-live="polite" className="flex flex-col items-center gap-2 py-4">

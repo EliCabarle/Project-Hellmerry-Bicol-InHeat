@@ -54,6 +54,7 @@ export function useChat({ adapter } = {}) {
     handleSubmit,
     retry,
     clear,
+    clearMessages: clear, // 'reset' already empties messages + status + error
   }
 }
 

@@ -133,6 +133,7 @@ function MunicipalityLayer({
   selectedProvince,
   provinceCounts,
   onProvinceHover,
+  playing,
 }) {
   const map = useMap();
   const layerRef = useRef(null);
@@ -144,6 +145,7 @@ function MunicipalityLayer({
     dayValues,
     hoveredProvince,
     selectedProvince,
+    playing,
   });
   const selectRef = useRef(onSelect);
   const prevHoveredRef = useRef(null);
@@ -160,6 +162,7 @@ function MunicipalityLayer({
     dayValues,
     hoveredProvince,
     selectedProvince,
+    playing,
   };
   selectRef.current = onSelect;
 
@@ -172,6 +175,7 @@ function MunicipalityLayer({
         dayValues: stateRef.current.dayValues,
         hoveredProvince: stateRef.current.hoveredProvince,
         selectedProvince: stateRef.current.selectedProvince,
+        playing: stateRef.current.playing,
       }),
     [],
   );
@@ -459,6 +463,11 @@ export default function BicolMap({
     () => activeStore.getState().date,
     () => activeStore.getState().date,
   );
+  const playing = useSyncExternalStore(
+    activeStore.subscribe,
+    () => activeStore.getState().playing,
+    () => activeStore.getState().playing,
+  );
   const derivedTimestamps = useMemo(() => {
     if (timestamps.length > 0) return timestamps;
     const series = narratives?.municipalities?.[0]?.series;
@@ -742,6 +751,7 @@ export default function BicolMap({
             selectedProvince={selectedProvince}
             provinceCounts={provinceCounts}
             onProvinceHover={onProvinceHover}
+            playing={playing}
           />
         )}
       </MapContainer>

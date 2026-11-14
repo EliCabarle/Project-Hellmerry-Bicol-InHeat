@@ -1,63 +1,29 @@
-import { useEffect, useState } from 'react'
-import { loadMyProfile, saveHandle, validateHandle } from '../lib/profile.js'
-import { signInWithGoogle } from '../lib/auth.js'
+import { useState } from 'react'
 
-// In-flow header control. position: fixed would float over the map overlay's
-// zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
-  'flex min-w-0 items-center gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-2 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
+  'flex w-full min-w-0 items-center justify-between gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-3 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
 
 const quietButton =
   'cursor-pointer min-h-11 rounded-[14px] px-2 py-1 font-clay font-semibold text-clay-text-body clay-btn--white text-clay-text-heading hover:bg-clay-bg-blue-white hover:text-clay-text-heading'
 
-// Session state is owned by useSession() in app.jsx and passed down, so screens
-// and the header agree on who is signed in.
-export default function AuthButton({ user = null, supabase = null, configured = false }) {
+// Profile state is owned by app.jsx (it also drives the consent gate), so this
+// control only renders what it is told and opens the dialog it is given.
+export default function AuthButton({
+  user = null,
+  profile = null,
+  loadingProfile = false,
+  profileLoadFailed = false,
+  supabase = null,
+  configured = false,
+  onOpenProfile,
+}) {
   const [error, setError] = useState(null) // message string
   const [errorDetail, setErrorDetail] = useState(null) // raw error, shown in the tooltip
-  // null + loadingProfile = "still asking", null + !loading = "no handle yet".
-  const [profile, setProfile] = useState(null)
-  const [loadingProfile, setLoadingProfile] = useState(false)
-  // Set when the profile read itself failed: we cannot tell onboarded from not,
-  // so the picker must not be offered — it would just fail on submit too.
-  const [profileLoadFailed, setProfileLoadFailed] = useState(false)
-  const [handleInput, setHandleInput] = useState('')
-  const [saving, setSaving] = useState(false)
 
   const setFailure = (message, detail = null) => {
     setError(message)
     setErrorDetail(detail)
   }
-  const clearFailure = () => {
-    setError(null)
-    setErrorDetail(null)
-  }
-
-  // Load the chosen handle whenever the signed-in user changes. A missing row is
-  // the onboarding gate, not an error (see the 0003 migration comments).
-  useEffect(() => {
-    if (!supabase || !user) {
-      setProfile(null)
-      setLoadingProfile(false)
-      setProfileLoadFailed(false)
-      return
-    }
-    let cancelled = false
-    setLoadingProfile(true)
-    loadMyProfile(supabase, user.id).then(({ data, error: err }) => {
-      if (cancelled) return
-      setLoadingProfile(false)
-      if (err) {
-        setProfileLoadFailed(true)
-        setFailure('Could not load your profile', err.message)
-        return
-      }
-      setProfile(data ?? null)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [supabase, user])
 
   if (!configured || !supabase) {
     return (
@@ -70,40 +36,26 @@ export default function AuthButton({ user = null, supabase = null, configured = 
   }
 
   const handleSignIn = async () => {
-    clearFailure()
-    const { error: err } = await signInWithGoogle(supabase)
+    setFailure(null)
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      // select_account forces Google's chooser: signOut() only clears the local
+      // Supabase session, so without this a shared device would silently reuse
+      // the previous Google account.
+      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
+    })
     // On success the browser redirects to Google, so only failures reach here.
     if (err) setFailure('Sign-in failed — try again', err.message)
   }
 
   const handleSignOut = async () => {
-    clearFailure()
-    setProfileLoadFailed(false)
+    setFailure(null)
     const { error: err } = await supabase.auth.signOut()
     if (err) setFailure('Sign-out failed — try again', err.message)
   }
 
-  // Onboarding: the first insert into user_profiles. CONCEPT §9 — the chosen
-  // handle is the only identity any screen may show, never the Google name/email.
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    const invalid = validateHandle(handleInput)
-    if (invalid) {
-      setFailure(invalid)
-      return
-    }
-    setSaving(true)
-    clearFailure()
-    const { data, error: err } = await saveHandle(supabase, user.id, handleInput)
-    setSaving(false)
-    if (err) {
-      setFailure(err.message)
-      return
-    }
-    setProfile(data)
-    setHandleInput('')
-  }
-
+  // A failed profile read means we cannot tell onboarded from not, so the picker
+  // is not offered — signing out is the only safe move.
   const showPicker = user && !loadingProfile && !profile && !profileLoadFailed
 
   return (
@@ -117,32 +69,14 @@ export default function AuthButton({ user = null, supabase = null, configured = 
       {user && loadingProfile && <span className="px-1 text-clay-text-muted">Loading…</span>}
 
       {showPicker && (
-        <form onSubmit={handleSubmit} className="flex items-center gap-1.5">
-          <label htmlFor="handle-input" className="sr-only">
-            Explorer handle
-          </label>
-          <input
-            id="handle-input"
-            value={handleInput}
-            onChange={(e) => setHandleInput(e.target.value)}
-            maxLength={20}
-            autoComplete="off"
-            placeholder="Your handle"
-            aria-describedby="handle-hint"
-            className="w-28 rounded-[14px] border border-white/30 bg-white px-2 py-1 text-clay-text-heading placeholder:text-clay-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-blue font-clay"
-          />
-          <button type="submit" disabled={saving} className={quietButton}>
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-          <span id="handle-hint" className="sr-only">
-            3 to 20 letters, numbers or underscores. This is the only name shown on the leaderboard.
-          </span>
-        </form>
+        <button type="button" onClick={onOpenProfile} className={quietButton}>
+          Set up profile
+        </button>
       )}
 
       {user && !loadingProfile && profile && (
         <>
-          <span className="max-w-[7.5rem] truncate px-1 text-clay-text-body" title="Your chosen handle">
+          <span className="max-w-[12rem] truncate px-1 text-lg font-bold text-clay-text-heading" title="Your chosen handle">
             {profile.handle}
           </span>
           <button type="button" onClick={handleSignOut} className={quietButton}>

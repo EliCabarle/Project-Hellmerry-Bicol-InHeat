@@ -2,15 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
 import { provinceList } from './provinceGroups.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
-import { createProgress, derive, manilaDate } from './progressStore.js'
-import { syncScore, readScore } from './scoreStore.js'
+import { createProgress, derive, manilaDate, weekStart } from './progressStore.js'
+import { parseQuestCsv } from './questTasks.js'
+import { readScore } from './scoreStore.js'
+import { pushEvents } from './eventStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
 import HeatBar from './components/HeatBar.jsx'
+import WeeklyProgressBar from './components/WeeklyProgressBar.jsx'
 import QuestsTab from './components/QuestsTab.jsx'
 import HistoryTab from './components/HistoryTab.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
 import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
+import CollapsibleSection from './components/CollapsibleSection.jsx'
 import DualLabel from './components/DualLabel.jsx'
 import { LABELS } from './labels.js'
 import {
@@ -75,22 +79,84 @@ export default function DashboardScreen({
   const [progressSaveError, setProgressSaveError] = useState(null)
   const [query, setQuery] = useState('')
   const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
+  const [catalog, setCatalog] = useState([])
   const canSave = Boolean(supabase && user)
+
+  // Load the quest CSV once. On failure the store falls back to the static
+  // QUESTS list, so the checklist is never empty.
+  useEffect(() => {
+    let cancelled = false
+    fetch('/data/eco_quests_tasks.csv')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.text()
+      })
+      .then((text) => {
+        if (!cancelled) setCatalog(parseQuestCsv(text))
+      })
+      .catch(() => {
+        if (!cancelled) setCatalog([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // One progress store per account: the key follows `user`, so signing out drops
   // back to the guest log and a second account never sees the first one's HP.
-  const store = useMemo(() => createProgress({ userId: user?.id ?? null }), [user?.id])
+  // It also rebuilds when the CSV lands, so the day's draw comes from real tasks.
+  const store = useMemo(
+    () => createProgress({ userId: user?.id ?? null, catalog }),
+    [user?.id, catalog],
+  )
   const [events, setEvents] = useState(() => store.read())
+  const [pending, setPending] = useState(() => store.getPending())
   const [announcement, setAnnouncement] = useState('')
-  // Leaderboard publish result, separate from progressSaveError so a successful
-  // publish cannot clear a "could not save progress" alert, or the reverse.
+  // Sync result, kept separate from progressSaveError so one alert cannot clear
+  // the other.
   const [scoreNote, setScoreNote] = useState(null)
+  // Bumped after a successful event push so the collective bar refetches *after*
+  // the server has the new rows, not in parallel with them.
+  const [syncTick, setSyncTick] = useState(0)
   const [active, setActive] = useState('dashboard')
   const tabRefs = useRef({})
   const levelRef = useRef(null)
 
   const today = manilaDate(new Date())
+  // Monday of the current ISO week; the collective view buckets by the same day.
+  const week = weekStart(today)
   const derived = useMemo(() => derive(events, today), [events, today])
+  // Today's five quests. Memoized per store/day so a reload mid-day is identical.
+  // While the CSV is still loading, render nothing rather than the static
+  // fallback: only drawn quests may be ticked, so the client can never emit more
+  // than the server's 5-awards-a-day quota and fail the whole sync batch.
+  const quests = useMemo(
+    () => (catalog.length > 0 ? store.getDailyQuests() : []),
+    [store, today, catalog.length],
+  )
+
+  // Pending checks are visual only. Merged into the derived log so the HeatBar
+  // and Today's HP move when a box is ticked, but never written as events and
+  // never published — the leaderboard only sees submitted quests.
+  const pendingEvents = useMemo(
+    () =>
+      quests
+        .filter((q) => pending.includes(q.id))
+        .map((q) => ({
+          id: `pending-${q.id}`,
+          date: today,
+          kind: 'quest',
+          questId: q.id,
+          hp: q.hp,
+          at: 0,
+          label: q.title,
+        })),
+    [quests, pending, today],
+  )
+  const displayDerived = useMemo(
+    () => derive([...events, ...pendingEvents], today),
+    [events, pendingEvents, today],
+  )
 
   const municipalities = useMemo(() => narratives?.municipalities ?? [], [narratives])
 
@@ -140,6 +206,7 @@ export default function DashboardScreen({
   useEffect(() => {
     const r = store.checkIn()
     setEvents(r.events)
+    setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
   }, [store])
 
@@ -154,15 +221,17 @@ export default function DashboardScreen({
     return () => window.removeEventListener('storage', onStorage)
   }, [store])
 
-  // Publish this account's HP total as its leaderboard score. Guests never reach
-  // the network: no account, nothing recorded anywhere. The server caps the value
-  // by account age, so `cappedTo` is a real answer, not an error.
-  // Order is read -> restore -> publish: a browser with no local log must adopt
-  // the stored score first, or it would publish 0 and wipe it. If the read fails
-  // nothing is published at all — a stale board beats a reset one.
-  // The number is read from the store, not from `events`: on an account switch the
-  // state is one commit behind the new key, and publishing that lag would send the
-  // previous account's HP.
+  // Publish this account's HP as events, then make the local total match what the
+  // server actually stored. Order is push -> read -> reconcile:
+  //   - pushing first means the server sees everything it will accept;
+  //   - a failed push (offline) returns early, so a legitimate local log is never
+  //     lowered to a stale score;
+  //   - only a *successful* push can reveal drift, and reconciling after it lowers
+  //     exactly the HP the server refused (pre-0009 history, duplicate awards).
+  // Pushing is idempotent — the server dedupes on its primary key — so re-sending
+  // the log is safe. The log is read from the store, not from `events`: on an
+  // account switch the state is one commit behind the new key, and pushing that
+  // lag would send the previous account's HP.
   useEffect(() => {
     if (!user || !supabase) {
       setScoreNote(null)
@@ -170,6 +239,13 @@ export default function DashboardScreen({
     }
     let cancelled = false
     const run = async () => {
+      const { error: pushErr } = await pushEvents(supabase, store.read(), today)
+      if (cancelled) return
+      if (pushErr) {
+        setScoreNote(`Leaderboard score not updated — ${pushErr.message}`)
+        return
+      }
+
       const { score, error: readErr } = await readScore(supabase, user.id)
       if (cancelled) return
       if (readErr) {
@@ -177,25 +253,14 @@ export default function DashboardScreen({
         return
       }
 
-      // Adopt an existing score so the HeatBar shows what the account already has.
+      // Adopt — or shed — HP so the HeatBar shows the account's real score.
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
         if (!restored.noop) setEvents(restored.events)
       }
-
-      const totalHP = derive(store.read(), today).totalHP
-      const { cappedTo, error: err } = await syncScore(supabase, totalHP)
-      if (cancelled) return
-      if (err) {
-        setScoreNote(`Leaderboard score not updated — ${err.message}`)
-        return
-      }
-      setScoreNote(
-        cappedTo == null
-          ? null
-          : `Leaderboard score capped at ${cappedTo} HP for this account's age — local HP is unchanged.`,
-      )
+      setScoreNote(null)
+      setSyncTick((n) => n + 1)
     }
     run()
     return () => {
@@ -218,6 +283,7 @@ export default function DashboardScreen({
   const act = (fn) => {
     const r = fn()
     setEvents(r.events)
+    setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
     return r
   }
@@ -301,10 +367,10 @@ export default function DashboardScreen({
   return (
     <div className="flex h-full min-h-0 flex-col bg-heat-bg">
       <HeatBar
-        level={derived.level}
-        title={derived.title}
-        inLevel={derived.inLevel}
-        totalHP={derived.totalHP}
+        level={displayDerived.level}
+        title={displayDerived.title}
+        inLevel={displayDerived.inLevel}
+        totalHP={displayDerived.totalHP}
         announcement={announcement}
       />
 
@@ -330,9 +396,7 @@ export default function DashboardScreen({
                   tabRefs.current[t.id] = el
                 }}
                 onClick={() => setActive(t.id)}
-                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep sm:text-sm ${
-                  selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-                }`}
+                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm ${selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'}`}
               >
                 {t.label}
               </button>
@@ -447,7 +511,14 @@ export default function DashboardScreen({
               </ChartCard>
             </div>
 
+            <CollapsibleSection
+              ariaLabel="Toggle heat index distribution and warming rate charts"
+              collapsedLabel="Heat and warming charts"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartHeatDist.plain}
               tech={LABELS.chartHeatDist.tech}
               yearNote={yearLabel}
@@ -468,6 +539,7 @@ export default function DashboardScreen({
             </ChartCard>
 
             <ChartCard
+              collapsible={false}
               title={LABELS.chartWarming.plain}
               tech={LABELS.chartWarming.tech}
               yearNote={`${start ?? '—'}–${end ?? '—'}`}
@@ -486,8 +558,16 @@ export default function DashboardScreen({
             >
               <BinBarChart bins={trendDist} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
             </ChartCard>
+            </CollapsibleSection>
 
+            <CollapsibleSection
+              ariaLabel="Toggle danger days and driver charts"
+              collapsedLabel="Danger days and drivers"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartDangerDays.plain}
               tech={LABELS.chartDangerDays.tech}
               yearNote="45-year total"
@@ -512,6 +592,7 @@ export default function DashboardScreen({
 
             {drivers.length > 0 && (
               <ChartCard
+                collapsible={false}
                 title={LABELS.chartDrivers.plain}
                 tech={LABELS.chartDrivers.tech}
                 ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
@@ -531,6 +612,7 @@ export default function DashboardScreen({
                 <DriverBarChart drivers={drivers} />
               </ChartCard>
             )}
+            </CollapsibleSection>
           </div>
         )}
 
@@ -555,13 +637,14 @@ export default function DashboardScreen({
           <MunicipalityFinder geojson={geojson} narratives={narratives} onShowOnMap={onShowOnMap} />
         )}
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <CollapsibleSection title="Municipality ranking" ariaLabel="Municipality ranking">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div role="group" aria-label="Order dashboard by" className="flex shrink-0 rounded-lg border border-white/10 bg-black/20 p-0.5">
             <button
               type="button"
               aria-pressed={mode === 'slope'}
               onClick={() => setMode('slope')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
                 mode === 'slope' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -571,7 +654,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={mode === 'danger'}
               onClick={() => setMode('danger')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
                 mode === 'danger' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
               }`}
             >
@@ -603,7 +686,7 @@ export default function DashboardScreen({
               type="button"
               aria-pressed={savedOnly}
               onClick={() => setSavedOnly((v) => !v)}
-              className={`shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+              className={`shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold bih-btn ${
                 savedOnly
                   ? 'border-heat-amber/50 bg-heat-amber/20 text-heat-amber'
                   : 'border-white/10 bg-heat-surface/70 text-slate-300 hover:bg-white/5 hover:text-white'
@@ -634,7 +717,7 @@ export default function DashboardScreen({
             <button
               type="button"
               onClick={() => reload?.()}
-              className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+              className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 bih-btn"
             >
               Try again
             </button>
@@ -657,6 +740,7 @@ export default function DashboardScreen({
             mode={mode}
           />
         )}
+        </CollapsibleSection>
           </div>
         </div>
       </div>
@@ -668,12 +752,19 @@ export default function DashboardScreen({
         hidden={active !== 'quests'}
         className="bih-scroll min-h-0 flex-1 overflow-y-auto"
       >
+        {active === 'quests' && (
+          <div className="mx-auto max-w-7xl px-3 pt-4 sm:px-5 lg:px-8">
+            <WeeklyProgressBar supabase={supabase} week={week} reloadKey={syncTick} />
+          </div>
+        )}
         <QuestsTab
           derived={derived}
+          displayTodayTotal={displayDerived.todayTotal}
+          pending={pending}
           saveError={progressSaveError ?? scoreNote}
-          onToggleDaily={(id) => act(() => store.toggleDaily(id))}
-          onAdd={(id) => act(() => store.addQuest(id))}
-          onUndo={(id) => act(() => store.undoQuest(id))}
+          quests={quests}
+          onTogglePending={(id) => act(() => store.togglePending(id))}
+          onSubmitQuest={(id) => act(() => store.submitQuest(id))}
         />
       </div>
 
@@ -709,7 +800,7 @@ function ProvinceSelector({ provinces = [], value, onChange }) {
         role="tab"
         aria-pressed={value === 'All'}
         onClick={() => onChange('All')}
-        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
           value === 'All' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
         }`}
       >
@@ -722,7 +813,7 @@ function ProvinceSelector({ provinces = [], value, onChange }) {
           role="tab"
           aria-pressed={value === p}
           onClick={() => onChange(p)}
-          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
             value === p ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
           }`}
         >
@@ -745,7 +836,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledPrev}
         onClick={() => onChangePage((p) => Math.max(1, p - 1))}
         aria-label="Previous page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
           disabledPrev
             ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
             : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
@@ -761,7 +852,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledNext}
         onClick={() => onChangePage((p) => Math.min(totalPages, p + 1))}
         aria-label="Next page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
           disabledNext
             ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
             : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'

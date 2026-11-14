@@ -19,8 +19,9 @@ Validation approach for the Bicol In-Heat heat-index trend pipeline (NASA Space 
 
 ## 2b. Ground-truth validation (NOAA CDO)
 
+Validated against 2 primary NOAA CDO stations: Legazpi (GHCND:RP000098444) and Virac (GHCND:RPM00098446).
 Validated against NOAA CDO station GHCND:RP000098444 (LEGASPI, RP, Albay). RMSE = 4.0127°C, Bias = -3.3184°C (2024, n=197).
-Validated against NOAA CDO station GHCND:RP000098444 (LEGASPI, RP, Camarines Sur). RMSE = 3.8676°C, Bias = -3.0351°C (2024, n=197).
+Naga (Camarines Sur) was cross-referenced using the nearest available station (Legazpi, 0.69° away) as no direct Naga station exists in the GHCND dataset. RMSE = 3.8676°C, Bias = -3.0351°C (2024, n=197).
 Validated against NOAA CDO station GHCND:RPM00098446 (VIRAC, RP, Catanduanes). RMSE = 3.7383°C, Bias = -3.2445°C (2024, n=260).
 
 ## 3. Hold-out validation (PAGASA)

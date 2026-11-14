@@ -4,10 +4,10 @@ import { loadMyProfile, saveHandle, validateHandle } from '../lib/profile.js'
 // In-flow header control. position: fixed would float over the map overlay's
 // zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
 const pill =
-  'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-heat-surface/90 px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
+  'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
 
 const quietButton =
-  'cursor-pointer min-h-11 rounded-md px-2 py-1 font-medium text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep disabled:cursor-not-allowed disabled:opacity-50'
+  'cursor-pointer min-h-11 rounded-md px-2 py-1 font-medium text-slate-300 bih-btn text-slate-300 hover:bg-white/10 hover:text-white'
 
 // Session state is owned by useSession() in app.jsx and passed down, so screens
 // and the header agree on who is signed in.
@@ -72,7 +72,10 @@ export default function AuthButton({ user = null, supabase = null, configured = 
     clearFailure()
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      // select_account forces Google's chooser: signOut() only clears the local
+      // Supabase session, so without this a shared device would silently reuse
+      // the previous Google account.
+      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
     })
     // On success the browser redirects to Google, so only failures reach here.
     if (err) setFailure('Sign-in failed — try again', err.message)

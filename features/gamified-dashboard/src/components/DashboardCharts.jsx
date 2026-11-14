@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import DualLabel from './DualLabel.jsx'
+import CollapsibleSection from './CollapsibleSection.jsx'
 import {
   Area,
   Bar,
@@ -63,28 +64,56 @@ function DarkTooltip({ active, payload, label, unitByDataKey = {}, coarse = fals
   )
 }
 
-export function ChartCard({ title, tech, yearNote, ariaLabel, children, table = null, footnote = null }) {
+export function ChartCard({
+  title,
+  tech,
+  yearNote,
+  ariaLabel,
+  children,
+  table = null,
+  footnote = null,
+  collapsible = true,
+}) {
   const [readout, setReadout] = useState(null)
+  const body = (
+    <>
+      <p aria-live="polite" className="min-h-5 text-xs text-slate-300">
+        {readout ?? ''}
+      </p>
+      {/* `overflow-hidden` clips the Recharts tooltip to the plot bounds — the
+          footnote and expanded data table are siblings below this div, so they
+          are never clipped. `isolate` keeps tooltip paint inside this card. */}
+      <div className="relative isolate h-52 grow sm:h-60 overflow-hidden">{children}</div>
+      {table}
+      {footnote ? <p className="mt-2 text-xs leading-5 text-slate-500">{footnote}</p> : null}
+    </>
+  )
   return (
     <ReadoutContext.Provider value={{ readout, setReadout }}>
-      <section
-        aria-label={ariaLabel ?? title}
-        className="flex flex-col rounded-xl border border-white/10 bg-heat-surface/70 p-3 shadow-hud"
-      >
-        <header className="mb-1 flex items-baseline justify-between gap-2">
-          <DualLabel label={title} tech={tech} className="" />
-          {yearNote ? <span className="font-mono text-xs text-slate-500">{yearNote}</span> : null}
-        </header>
-        <p aria-live="polite" className="min-h-5 text-xs text-slate-300">
-          {readout ?? ''}
-        </p>
-        {/* `overflow-hidden` clips the Recharts tooltip to the plot bounds — the
-            footnote and expanded data table are siblings below this div, so they
-            are never clipped. `isolate` keeps tooltip paint inside this card. */}
-        <div className="relative isolate h-52 grow sm:h-60 overflow-hidden">{children}</div>
-        {table}
-        {footnote ? <p className="mt-2 text-xs leading-5 text-slate-500">{footnote}</p> : null}
-      </section>
+      {collapsible ? (
+        <CollapsibleSection
+          title={title}
+          tech={tech}
+          ariaLabel={ariaLabel}
+          className=""
+          aside={yearNote ? <span className="font-mono text-xs text-slate-500">{yearNote}</span> : null}
+        >
+          {body}
+        </CollapsibleSection>
+      ) : (
+        // Grouped card: the shared chevron lives on the parent section, so this
+        // renders as a plain card with its own title and no second toggle.
+        <section
+          aria-label={ariaLabel ?? title}
+          className="flex flex-col rounded-xl border border-white/10 bg-heat-surface/70 p-3 shadow-hud"
+        >
+          <header className="mb-1 flex items-baseline justify-between gap-2">
+            <DualLabel label={title} tech={tech} className="" />
+            {yearNote ? <span className="font-mono text-xs text-slate-500">{yearNote}</span> : null}
+          </header>
+          {body}
+        </section>
+      )}
     </ReadoutContext.Provider>
   )
 }

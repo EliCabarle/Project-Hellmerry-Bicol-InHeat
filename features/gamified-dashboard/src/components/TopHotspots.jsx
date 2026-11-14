@@ -3,6 +3,7 @@
 // Mobile: vertical card list — never a horizontal swipe. Desktop (≥md): table.
 import { fmtInt, fmtP, fmtSlope, SigPill } from './DashboardTable.jsx'
 import DualLabel from './DualLabel.jsx'
+import CollapsibleSection from './CollapsibleSection.jsx'
 import { LABELS } from '../labels.js'
 
 export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = null, note = null }) {
@@ -10,12 +11,12 @@ export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = n
   const defaultNote = mode === 'danger' ? LABELS.hotspotsNoteDanger.plain : LABELS.hotspotsNoteSlope.plain
 
   return (
-    <section aria-label="Top hotspots — most extreme municipalities" className="rounded-xl border border-white/10 bg-heat-surface/70 shadow-hud">
-      <header className="flex items-baseline justify-between gap-2 px-3 py-2.5">
-        <DualLabel label={LABELS.hotspotsTitle.plain} tech={LABELS.hotspotsTitle.tech} className="text-slate-400" />
-        <span className="text-xs text-slate-500">{note ?? defaultNote}</span>
-      </header>
-
+    <CollapsibleSection
+      title={LABELS.hotspotsTitle.plain}
+      tech={LABELS.hotspotsTitle.tech}
+      ariaLabel="Top hotspots — most extreme municipalities"
+      aside={<span className="text-xs text-slate-500">{note ?? defaultNote}</span>}
+    >
       {/* Mobile: vertical card list — no horizontal scroll at any width. */}
       <ul role="list" aria-label="Top ten hotspots" className="md:hidden divide-y divide-white/10 p-2">
         {rows.map((m) => {
@@ -156,6 +157,6 @@ export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = n
           </tbody>
         </table>
       </div>
-    </section>
+    </CollapsibleSection>
   )
 }

@@ -14,6 +14,7 @@ import HistoryTab from './components/HistoryTab.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
 import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
+import CollapsibleSection from './components/CollapsibleSection.jsx'
 import DualLabel from './components/DualLabel.jsx'
 import { LABELS } from './labels.js'
 import {
@@ -510,7 +511,14 @@ export default function DashboardScreen({
               </ChartCard>
             </div>
 
+            <CollapsibleSection
+              ariaLabel="Toggle heat index distribution and warming rate charts"
+              collapsedLabel="Heat and warming charts"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartHeatDist.plain}
               tech={LABELS.chartHeatDist.tech}
               yearNote={yearLabel}
@@ -531,6 +539,7 @@ export default function DashboardScreen({
             </ChartCard>
 
             <ChartCard
+              collapsible={false}
               title={LABELS.chartWarming.plain}
               tech={LABELS.chartWarming.tech}
               yearNote={`${start ?? '—'}–${end ?? '—'}`}
@@ -549,8 +558,16 @@ export default function DashboardScreen({
             >
               <BinBarChart bins={trendDist} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
             </ChartCard>
+            </CollapsibleSection>
 
+            <CollapsibleSection
+              ariaLabel="Toggle danger days and driver charts"
+              collapsedLabel="Danger days and drivers"
+              className="lg:col-span-2"
+              bodyClassName="grid gap-3 lg:grid-cols-2"
+            >
             <ChartCard
+              collapsible={false}
               title={LABELS.chartDangerDays.plain}
               tech={LABELS.chartDangerDays.tech}
               yearNote="45-year total"
@@ -575,6 +592,7 @@ export default function DashboardScreen({
 
             {drivers.length > 0 && (
               <ChartCard
+                collapsible={false}
                 title={LABELS.chartDrivers.plain}
                 tech={LABELS.chartDrivers.tech}
                 ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
@@ -594,6 +612,7 @@ export default function DashboardScreen({
                 <DriverBarChart drivers={drivers} />
               </ChartCard>
             )}
+            </CollapsibleSection>
           </div>
         )}
 
@@ -618,7 +637,8 @@ export default function DashboardScreen({
           <MunicipalityFinder geojson={geojson} narratives={narratives} onShowOnMap={onShowOnMap} />
         )}
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <CollapsibleSection title="Municipality ranking" ariaLabel="Municipality ranking">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div role="group" aria-label="Order dashboard by" className="flex shrink-0 rounded-lg border border-white/10 bg-black/20 p-0.5">
             <button
               type="button"
@@ -720,6 +740,7 @@ export default function DashboardScreen({
             mode={mode}
           />
         )}
+        </CollapsibleSection>
           </div>
         </div>
       </div>

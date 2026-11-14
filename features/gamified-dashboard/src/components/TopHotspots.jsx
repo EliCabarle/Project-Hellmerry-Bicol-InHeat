@@ -6,7 +6,7 @@ import DualLabel from './DualLabel.jsx'
 import CollapsibleSection from './CollapsibleSection.jsx'
 import { LABELS } from '../labels.js'
 
-export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = null, note = null }) {
+export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = null, onShowInFinder = null, note = null }) {
   if (rows.length === 0) return null
   const defaultNote = mode === 'danger' ? LABELS.hotspotsNoteDanger.plain : LABELS.hotspotsNoteSlope.plain
 
@@ -31,7 +31,16 @@ export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = n
                   {m?.rank ?? '—'}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-slate-100">{m?.name ?? 'Unknown'}</h3>
+                  <h3 className="truncate text-sm font-semibold text-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => onShowInFinder?.(m?.name, m?.province)}
+                      aria-label={`Show ${m?.name ?? 'municipality'} in the municipality finder`}
+                      className="block max-w-full cursor-pointer truncate text-left hover:text-heat-amber hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                    >
+                      {m?.name ?? 'Unknown'}
+                    </button>
+                  </h3>
                   <p className="truncate text-xs text-slate-500">{m?.province ?? ''}</p>
                 </div>
               </div>
@@ -129,7 +138,16 @@ export default function TopHotspots({ rows = [], mode = 'slope', onShowOnMap = n
               return (
                 <tr key={`${m?.id ?? m?.name}|${m?.province ?? ''}`} className="border-b border-white/5 last:border-0 hover:bg-white/[0.035]">
                   <td className="px-3 py-2 font-mono text-xs text-slate-500">{m?.rank ?? '—'}</td>
-                  <td className="px-3 py-2 font-medium text-slate-100 truncate">{m?.name ?? 'Unknown'}</td>
+                  <td className="px-3 py-2 font-medium text-slate-100 truncate">
+                    <button
+                      type="button"
+                      onClick={() => onShowInFinder?.(m?.name, m?.province)}
+                      aria-label={`Show ${m?.name ?? 'municipality'} in the municipality finder`}
+                      className="block max-w-full cursor-pointer truncate text-left hover:text-heat-amber hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                    >
+                      {m?.name ?? 'Unknown'}
+                    </button>
+                  </td>
                   <td className="px-3 py-2 text-xs text-slate-400 truncate">{m?.province ?? ''}</td>
                   <td className="px-3 py-2 font-mono text-xs text-slate-200">{fmtSlope(t?.slope_c_per_year)}</td>
                   <td className="px-3 py-2">

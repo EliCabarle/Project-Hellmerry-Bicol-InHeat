@@ -5,6 +5,7 @@
 
 import { featureKey, isCity, joinKey } from '../../map-controls/src/gis/engine.js'
 import { buildOutlineIndex } from './outlinePath.js'
+import { savedKey } from './savedStore.js'
 import { HEAT_COOL, HEAT_AMBER, HEAT_MUTED, trendColor } from './chartColors.js'
 
 export function provincesOf(municipalities = []) {
@@ -76,4 +77,11 @@ export function matchCards(cards = [], query = '') {
   return cards
     .map((card, index) => ({ card, index }))
     .filter(({ card }) => `${card?.name ?? ''} ${card?.province ?? ''}`.toLowerCase().includes(q))
+}
+
+// "Saved only" filter for the finder. Card names come from the boundary file and
+// saved rows from narratives.json; both are byte-identical today (114/114), so
+// the exact-match savedKey lines them up without normalising.
+export function filterSavedCards(cards = [], savedKeys = new Set()) {
+  return cards.filter((card) => savedKeys.has(savedKey(card?.name, card?.province)))
 }

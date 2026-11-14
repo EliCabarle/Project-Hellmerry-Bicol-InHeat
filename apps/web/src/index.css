@@ -26,6 +26,11 @@
   --btn-anim-ms: 140ms;
   --btn-press-scale: 0.97;
   --hud-blur-px: 12px;
+
+  /* Floating NavBar clearance: viewport-top → 12px below the fixed navbar's
+     bottom edge. NavBar publishes the measured value on :root; this fallback
+     (72px bar bottom + 12px gap, safe-area aware) covers the first paint. */
+  --bih-nav-clear: calc(5.25rem + env(safe-area-inset-top));
 }
 
 /* Shared tactile button utility: GPU-composited transform/background/border/shadow,

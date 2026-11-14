@@ -1,6 +1,8 @@
-// Collapsible app menu (Image 3), anchored under the top-right menu button on
-// the map page. No scrim: the map stays pannable behind it.
-import { useCallback, useEffect, useRef, useState } from "react";
+// Collapsible app menu, anchored under the top-right menu button. No scrim:
+// the map stays pannable behind it. Rows are a menu pattern (active highlight
+// + roving focus), not tactile buttons, so they deliberately do not use
+// .bih-btn; the panel itself uses the shared --alpha-card surface token.
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   IconGear,
   IconGrid,
@@ -9,9 +11,6 @@ import {
   IconTrophy,
   IconUser,
 } from "./Icons.jsx";
-
-const MENU_BTN =
-  "flex w-full cursor-pointer items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-inset";
 
 const DIVIDER = "mx-3 border-t border-white/10 my-1.5";
 
@@ -32,6 +31,55 @@ export default function AppMenu({
   const previousFocus = useRef(null);
   const menuRef = useRef(null);
 
+  // Rows are defined before moveFocus: the callback's dependency array reads
+  // `rows` during render, so a later declaration would hit the temporal dead
+  // zone and crash the whole tree on open.
+  const rows = useMemo(
+    () => [
+      {
+        label: "Map",
+        icon: IconMap,
+        major: true,
+        onClick: () => navigate("map"),
+      },
+      {
+        label: user ? "Manage Account" : "Sign in",
+        icon: IconUser,
+        onClick: user ? () => navigate("account") : onSignIn,
+        disabled: !user && !configured,
+        tone: user ? null : "neutral",
+      },
+      {
+        label: "Top BECOlanos",
+        icon: IconTrophy,
+        onClick: () => navigate("leaderboard"),
+      },
+      {
+        label: "Dashboard",
+        icon: IconGrid,
+        major: true,
+        onClick: () => navigate("dashboard"),
+      },
+      ...(user
+        ? [
+            {
+              label: "Settings",
+              icon: IconGear,
+              onClick: () => navigate("settings"),
+            },
+            { divider: true },
+            {
+              label: "Sign Out",
+              icon: IconSignOut,
+              onClick: onSignOut,
+              tone: "danger",
+            },
+          ]
+        : []),
+    ],
+    [user, navigate, onSignIn, onSignOut, configured],
+  );
+
   // Arrow keys move real DOM focus (roving tabindex), not just the visual
   // highlight — screen readers announce the row that actually holds focus.
   const moveFocus = useCallback(
@@ -49,49 +97,6 @@ export default function AppMenu({
     },
     [rows, activeIndex],
   );
-
-  const rows = [
-    {
-      label: "Map",
-      icon: IconMap,
-      major: true,
-      onClick: () => navigate("map"),
-    },
-    {
-      label: user ? "Manage Account" : "Sign in",
-      icon: IconUser,
-      onClick: user ? () => navigate("account") : onSignIn,
-      disabled: !user && !configured,
-      tone: user ? null : "neutral",
-    },
-    {
-      label: "Top BECOlanos",
-      icon: IconTrophy,
-      onClick: () => navigate("leaderboard"),
-    },
-    {
-      label: "Dashboard",
-      icon: IconGrid,
-      major: true,
-      onClick: () => navigate("dashboard"),
-    },
-    ...(user
-      ? [
-          {
-            label: "Settings",
-            icon: IconGear,
-            onClick: () => navigate("settings"),
-          },
-          { divider: true },
-          {
-            label: "Sign Out",
-            icon: IconSignOut,
-            onClick: onSignOut,
-            tone: "danger",
-          },
-        ]
-      : []),
-  ];
 
   useEffect(() => {
     if (!open) return;
@@ -163,7 +168,7 @@ export default function AppMenu({
       ref={menuRef}
       role="menu"
       aria-label="Main menu"
-      className="fixed z-[800] mt-0 w-[18rem] flex flex-col rounded-xl border border-white/10 bg-heat-surface/95 text-slate-100 shadow-hud backdrop-blur-md"
+      className="fixed z-[800] mt-0 w-[18rem] flex flex-col rounded-xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] text-slate-100 shadow-hud backdrop-blur-md"
       style={{ top: `${menuPos.top}px`, right: `${menuPos.right}px` }}
     >
       {rows.map((row, i) => {

@@ -45,7 +45,7 @@ export default function MunicipalityLegend({
         : 'Warming rate · °C/yr'
 
   return (
-    <div className="pointer-events-auto absolute left-3 top-[calc(4.75rem+env(safe-area-inset-top))] lg:top-[calc(0.75rem+env(safe-area-inset-top))] z-[600] w-[15rem] max-w-[calc(100vw-1.5rem)]">
+    <div className="pointer-events-auto absolute left-3 top-[var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))] lg:top-[calc(0.75rem+env(safe-area-inset-top))] z-[600] w-[15rem] max-w-[calc(100vw-1.5rem)]">
       <div className="overflow-hidden rounded-xl border border-white/10 bg-heat-surface/90 text-[11px] text-slate-300 shadow-hud backdrop-blur-md">
         <button
           type="button"

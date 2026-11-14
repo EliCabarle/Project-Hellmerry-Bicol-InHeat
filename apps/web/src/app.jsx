@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import BicolMap from '@features/map-controls'
 import DashboardScreen from '@features/gamified-dashboard'
 import { createProgress, derive, manilaDate } from '@features/gamified-dashboard'
@@ -10,13 +10,6 @@ import AccountScreen from './screens/AccountScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
-
-const SCREENS = [
-  { id: 'map', label: 'Map' },
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'account', label: 'Manage Account' },
-  { id: 'settings', label: 'Settings' },
-]
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
 // selected. The skip link targets #main, so only the #muni= prefix counts as a
@@ -52,16 +45,27 @@ export default function App() {
   // leaderboard) to the signed-in user.
   const { user, supabase, configured } = useSession()
 
-  // Guest progress powers the navbar on every screen; the quests popover bumps
-  // this tick so the bar updates live after toggling a quest.
-  const progressStoreRef = useRef(null)
-  if (!progressStoreRef.current)
-    progressStoreRef.current = createProgress({ userId: null })
+  // Progress powering the navbar on every screen. One store per account — the
+  // key follows `user`, so it reads the SAME log the dashboard's HeatBar and
+  // quests checklist write: the navbar and the dashboard can never disagree.
+  // Guest progress is the same model under the guest key.
+  const progressStore = useMemo(
+    () => createProgress({ userId: user?.id ?? null }),
+    [user?.id],
+  )
+  // Bumped by the quests popover's onChanged and by the dashboard's
+  // 'bih-progress' broadcasts (streak check-in, quest submit, score reconcile):
+  // every store write makes the navbar re-derive.
   const [progressTick, setProgressTick] = useState(0)
   const progress = useMemo(
-    () => derive(progressStoreRef.current.read(), manilaDate(new Date())),
-    [progressTick],
+    () => derive(progressStore.read(), manilaDate(new Date())),
+    [progressStore, progressTick],
   )
+  useEffect(() => {
+    const bump = () => setProgressTick((t) => t + 1)
+    window.addEventListener('bih-progress', bump)
+    return () => window.removeEventListener('bih-progress', bump)
+  }, [])
 
   // Dashboard "Show on map" / shared deep link → select on the map and switch.
   const showOnMap = useCallback((key) => {
@@ -115,7 +119,15 @@ export default function App() {
 
   const handleSignIn = useCallback(() => {
     if (!supabase || !configured) return
-    supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+    // select_account forces Google's chooser (same flow as AuthButton): without
+    // it Google silently reuses the last account and switching users is hidden.
+    supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    })
   }, [supabase, configured])
 
   const handleSignOut = useCallback(() => {
@@ -170,14 +182,18 @@ export default function App() {
             focusToken={focus?.token ?? 0}
             onOpenChatbot={() => setChatOpen(true)}
           />
-          <QuestsPopover onChanged={() => setProgressTick((t) => t + 1)} />
+          <QuestsPopover
+            userId={user?.id ?? null}
+            onChanged={() => setProgressTick((t) => t + 1)}
+          />
         </div>
       ) : (
         <>
-          {/* Spacer clearing the fixed navbar; content scrolls under it. */}
+          {/* Spacer clearing the fixed navbar; content scrolls under it. The
+              var is published by NavBar (bottom + 12px), fallback in index.css. */}
           <div
             aria-hidden="true"
-            className="h-[calc(4rem+env(safe-area-inset-top))] shrink-0"
+            className="h-[var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))] shrink-0"
           />
           {screen === 'dashboard' && (
             <DashboardScreen

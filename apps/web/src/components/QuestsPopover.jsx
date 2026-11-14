@@ -1,55 +1,83 @@
-// Map-screen quests: a separate button below the legend (the expanded legend
-// panel covers it) plus a floating popover listing today's quests. Nothing
-// navigates — this is a snapshot + quick toggle of the same progressStore the
-// dashboard uses; the navbar progress updates live via onChanged.
-import { useEffect, useRef, useState } from 'react'
+// Map-screen quests: a compact snapshot of the SAME quest model the dashboard
+// uses — one store per account (guest key when signed out), the day's 5 quests
+// drawn from eco_quests_tasks.csv, pending checks and an explicit Submit before
+// anything is recorded. Toggling bumps the navbar HP live via onChanged.
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   HP_PER_LEVEL,
-  QUESTS,
   createProgress,
-  derive,
-  manilaDate,
+  parseQuestCsv,
 } from '@features/gamified-dashboard'
-import { IconCheck, IconMinus, IconPlus } from './Icons.jsx'
+import { IconCheck } from './Icons.jsx'
 
 const ROW =
-  'flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
-const SMALL =
-  'inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-300 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
+  'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
+const SUBMIT_BTN =
+  'bih-btn shrink-0 cursor-pointer rounded-md bg-heat-amber px-2.5 py-1.5 text-[11px] font-semibold text-slate-950 hover:bg-amber-300'
+const RECORDED =
+  'shrink-0 rounded border border-heat-cool/40 bg-heat-cool/10 px-1.5 py-0.5 text-[11px] font-semibold text-heat-cool'
 
-export default function QuestsPopover({ onChanged = null }) {
+// Module-level cache: the dashboard and this popover both need the CSV, so
+// fetch it once per session and share the parsed catalog.
+let catalogPromise = null
+function loadCatalog() {
+  if (!catalogPromise) {
+    catalogPromise = fetch('/data/eco_quests_tasks.csv')
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.text()
+      })
+      .then((text) => parseQuestCsv(text))
+      .catch(() => [])
+  }
+  return catalogPromise
+}
+
+export default function QuestsPopover({ userId = null, onChanged = null }) {
   const [open, setOpen] = useState(false)
+  const [catalog, setCatalog] = useState([])
   // Re-read on every change: the store reads localStorage, so a tick is all
   // the reactivity this needs (same storage key the navbar derives from).
   const [, setTick] = useState(0)
-  const storeRef = useRef(null)
-  if (!storeRef.current) storeRef.current = createProgress({ userId: null })
-  const store = storeRef.current
   const buttonRef = useRef(null)
   const panelRef = useRef(null)
 
-  const today = manilaDate(new Date())
-  const derived = derive(store.read(), today)
-  const dailies = QUESTS.filter((q) => q.limit === 'daily')
-  const doneDailies = dailies.filter(
-    (q) => (derived.todayCounts[q.id] ?? 0) > 0,
-  ).length
+  useEffect(() => {
+    let cancelled = false
+    loadCatalog().then((tasks) => {
+      if (!cancelled) setCatalog(tasks)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Same construction as the dashboard's store: keyed by account, fed by the
+  // same CSV — both share the storage key and the day's drawn quest blob, so
+  // the popover always shows the dashboard's exact checklist.
+  const store = useMemo(
+    () => createProgress({ userId, catalog }),
+    [userId, catalog],
+  )
+
+  const derived = store.derive()
+  const pending = store.getPending()
+  // Only drawn CSV quests are tickable (the dashboard's rule): while the CSV
+  // loads, render nothing rather than the static fallback, so a pending check
+  // can never reference a quest the dashboard does not know about.
+  const quests = catalog.length > 0 ? store.getDailyQuests() : []
 
   const bump = () => {
     setTick((t) => t + 1)
     onChanged?.()
   }
-  const toggleDaily = (id) => {
-    const result = store.toggleDaily(id)
-    if (result.ok) bump()
+  const togglePending = (id) => {
+    const r = store.togglePending(id)
+    if (r.ok) bump()
   }
-  const addOne = (id) => {
-    const result = store.addQuest(id)
-    if (result.ok) bump()
-  }
-  const undoOne = (id) => {
-    const result = store.undoQuest(id)
-    if (result.ok) bump()
+  const submitQuest = (id) => {
+    const r = store.submitQuest(id)
+    if (r.ok) bump()
   }
 
   useEffect(() => {
@@ -80,6 +108,10 @@ export default function QuestsPopover({ onChanged = null }) {
     }
   }, [open])
 
+  const doneCount = quests.filter(
+    (q) => (derived.todayCounts[q.id] ?? 0) > 0,
+  ).length
+
   return (
     <>
       <button
@@ -88,14 +120,14 @@ export default function QuestsPopover({ onChanged = null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-heat-surface/90 px-3 py-1.5 text-[11px] font-semibold text-slate-200 shadow-hud backdrop-blur-md transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+        className="bih-btn pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-heat-surface/90 px-3 py-1.5 text-[11px] font-semibold text-slate-200 shadow-hud backdrop-blur-md hover:bg-white/10"
       >
         <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-heat-amber/20 text-heat-amber">
           <IconCheck className="h-3 w-3" />
         </span>
         Quests
-        <span className="font-mono text-[10px] text-slate-400">
-          {doneDailies}/{dailies.length}
+        <span className="font-mono text-[11px] text-slate-400">
+          {doneCount}/{quests.length}
         </span>
       </button>
 
@@ -107,97 +139,74 @@ export default function QuestsPopover({ onChanged = null }) {
           className="absolute left-3 top-[calc(11.5rem+env(safe-area-inset-top))] lg:top-[calc(7.5rem+env(safe-area-inset-top))] z-[590] w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-xl border border-white/10 bg-heat-surface/95 p-2.5 text-slate-100 shadow-hud backdrop-blur-md"
         >
           <div className="flex items-baseline justify-between gap-2 px-1">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
               Today&apos;s quests
             </p>
-            <p className="font-mono text-[10px] text-slate-500">{today}</p>
+            <p className="font-mono text-[11px] text-slate-400">
+              {derived.todayTotal} HP today
+            </p>
           </div>
 
           <div className="mt-1.5 space-y-0.5">
-            {QUESTS.map((quest) => {
-              const count = derived.todayCounts[quest.id] ?? 0
-              if (quest.limit === 'daily') {
-                const done = count > 0
+            {quests.length === 0 ? (
+              <p className="px-2 py-1.5 text-[11px] text-slate-400">
+                Quests are loading — check back in a moment.
+              </p>
+            ) : (
+              quests.map((quest) => {
+                const recorded = (derived.todayCounts[quest.id] ?? 0) > 0
+                const isPending = pending.includes(quest.id)
                 return (
-                  <button
+                  <div
                     key={quest.id}
-                    type="button"
-                    onClick={() => toggleDaily(quest.id)}
-                    aria-pressed={done}
-                    className={ROW}
+                    className="flex min-h-11 items-center gap-2 rounded-lg px-2 py-1.5"
                   >
-                    <span
-                      aria-hidden="true"
-                      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${
-                        done
-                          ? 'border-heat-eco bg-heat-eco text-slate-950'
-                          : 'border-white/20 text-transparent'
-                      }`}
+                    <button
+                      type="button"
+                      onClick={() => togglePending(quest.id)}
+                      disabled={recorded}
+                      aria-pressed={recorded || isPending}
+                      aria-label={
+                        recorded
+                          ? `${quest.title} — recorded today`
+                          : `Mark "${quest.title}" as done`
+                      }
+                      className={`grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+                        recorded
+                          ? 'border-heat-cool bg-heat-cool/20 text-heat-cool'
+                          : isPending
+                            ? 'border-heat-amber bg-heat-amber/20 text-heat-amber'
+                            : 'border-white/20 text-transparent hover:border-white/40'
+                      } ${recorded ? 'cursor-default' : ''}`}
                     >
                       <IconCheck className="h-3 w-3" />
-                    </span>
+                    </button>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-xs text-slate-200">
-                        {quest.label}
+                        {quest.title}
                       </span>
-                      <span className="block text-[9px] text-slate-500">
-                        {quest.hp} HP · once a day
+                      <span className="block text-[11px] text-slate-400">
+                        {quest.hp} HP
                       </span>
                     </span>
-                    <span
-                      className={`shrink-0 font-mono text-[10px] ${
-                        done ? 'text-heat-eco' : 'text-slate-500'
-                      }`}
-                    >
-                      {done ? 'done' : 'todo'}
-                    </span>
-                  </button>
+                    {recorded ? (
+                      <span className={RECORDED}>✓ Done</span>
+                    ) : isPending ? (
+                      <button
+                        type="button"
+                        onClick={() => submitQuest(quest.id)}
+                        className={SUBMIT_BTN}
+                      >
+                        Submit
+                      </button>
+                    ) : null}
+                  </div>
                 )
-              }
-              return (
-                <div
-                  key={quest.id}
-                  className="flex items-center gap-2 rounded-lg px-2 py-1.5"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/[0.06] font-mono text-[9px] text-slate-300"
-                  >
-                    {count}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs text-slate-200">
-                      {quest.label}
-                    </span>
-                    <span className="block text-[9px] text-slate-500">
-                      {quest.hp} HP · unlimited
-                    </span>
-                  </span>
-                  <button
-                    type="button"
-                    aria-label={`Undo one "${quest.label}" from today`}
-                    disabled={count === 0}
-                    onClick={() => undoOne(quest.id)}
-                    className={SMALL}
-                  >
-                    <IconMinus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Undo</span>
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={`Add one "${quest.label}" for today`}
-                    onClick={() => addOne(quest.id)}
-                    className={SMALL}
-                  >
-                    <IconPlus className="h-3.5 w-3.5" />
-                    <span className="sr-only">Add</span>
-                  </button>
-                </div>
-              )
-            })}
+              })
+            )}
           </div>
 
-          <p className="mt-1.5 border-t border-white/10 px-1 pt-1.5 text-[10px] text-slate-500">
+          <p className="mt-1.5 border-t border-white/10 px-1 pt-1.5 text-[11px] text-slate-400">
             Level {derived.level} · {derived.inLevel}/{HP_PER_LEVEL} HP ·{' '}
             {derived.totalHP} total
           </p>

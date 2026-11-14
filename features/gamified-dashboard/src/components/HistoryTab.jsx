@@ -1,12 +1,14 @@
 import { QUESTS, HISTORY_DAYS, manilaClock, recentDays } from '../progressStore.js'
 
-function questLabel(questId) {
-  return QUESTS.find((q) => q.id === questId)?.label ?? `Quest: ${questId}`
+function questLabel(e) {
+  // Events snapshot their title at award time, so a past quest still has a name
+  // after the daily catalog changes. Old entries fall back to the static list.
+  return e.label ?? QUESTS.find((q) => q.id === e.questId)?.label ?? 'Quest'
 }
 
 function eventLabel(e) {
   if (e.kind === 'login') return 'Daily login'
-  return questLabel(e.questId)
+  return questLabel(e)
 }
 
 function signedHp(e) {

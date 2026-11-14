@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { rankMunicipalities } from './ranking.js'
-import { provinceList } from './provinceGroups.js'
 import { addSaved, filterSaved, listSaved, removeSaved, savedKey, withRank } from './savedStore.js'
 import { createProgress, derive, manilaDate, weekStart } from './progressStore.js'
 import { parseQuestCsv } from './questTasks.js'
@@ -71,8 +70,10 @@ export default function DashboardScreen({
   supabase = null,
   user = null,
   onShowOnMap = null,
+  focusTab = null,
 }) {
-  const [mode, setMode] = useState('slope')
+  const [sort, setSort] = useState('slope-desc')
+  const [province, setProvince] = useState('All')
   const [savedOnly, setSavedOnly] = useState(false)
   const [savedKeys, setSavedKeys] = useState(() => new Set())
   const [saveError, setSaveError] = useState(null)
@@ -80,7 +81,17 @@ export default function DashboardScreen({
   const [query, setQuery] = useState('')
   const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
   const [catalog, setCatalog] = useState([])
+  const [finderFocus, setFinderFocus] = useState(null) // { name, province, nonce }
+  const finderRef = useRef(null)
   const canSave = Boolean(supabase && user)
+
+  // A name clicked in the list or Top hotspots: reveal, expand and scroll to the
+  // finder, which scans to that card (and drops any filter hiding it).
+  const showInFinder = (name, provinceName) => {
+    if (!name) return
+    setFinderFocus((prev) => ({ name, province: provinceName ?? '', nonce: (prev?.nonce ?? 0) + 1 }))
+    finderRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
 
   // Load the quest CSV once. On failure the store falls back to the static
   // QUESTS list, so the checklist is never empty.
@@ -160,11 +171,18 @@ export default function DashboardScreen({
 
   const municipalities = useMemo(() => narratives?.municipalities ?? [], [narratives])
 
-  // Rank first, filter second: DashboardTable prints `rank`, so filtering a ranked
-  // list must not renumber the survivor (37th stays 37th in the saved view).
+  // Rank reflects the visible order: `withRank` runs after the sort, so the
+  // number matches the row's position under the selected mode.
   const ranked = useMemo(
-    () => withRank(rankMunicipalities(municipalities, mode)),
-    [municipalities, mode],
+    () => withRank(rankMunicipalities(municipalities, sort)),
+    [municipalities, sort],
+  )
+
+  // Top hotspots keep their own extreme-first order (|slope| desc) and never
+  // follow the list's sort — the panel is "what is hottest", not "the list".
+  const extreme = useMemo(
+    () => withRank(rankMunicipalities(municipalities, 'slope')),
+    [municipalities],
   )
 
   const years = useMemo(() => yearsOf(municipalities), [municipalities])
@@ -174,6 +192,14 @@ export default function DashboardScreen({
   }, [years])
   const selectedYear =
     yearChoice != null && years.includes(yearChoice) ? yearChoice : latestYear
+
+  // External tab control (used by the map page's menu): switching `focusTab.id`
+  // applies that dashboard tab; the token rises on every request so re-clicking
+  // an already-open tab still refires. Mirrors the shell's focusToken pattern.
+  useEffect(() => {
+    if (!focusTab?.id || focusTab.id === active) return
+    setActive(focusTab.id)
+  }, [focusTab?.id, focusTab?.token])
 
   // A hidden filter that can no longer be switched off would strand the list
   // after sign-out, so clear "saved only" whenever saving is unavailable.
@@ -208,6 +234,7 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    if (!r.noop) window.dispatchEvent(new Event('bih-progress'))
   }, [store])
 
   // Another tab wrote progress: re-read this slice's one key. `store.key` moves
@@ -257,7 +284,10 @@ export default function DashboardScreen({
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
-        if (!restored.noop) setEvents(restored.events)
+        if (!restored.noop) {
+          setEvents(restored.events)
+          window.dispatchEvent(new Event('bih-progress'))
+        }
       }
       setScoreNote(null)
       setSyncTick((n) => n + 1)
@@ -285,6 +315,8 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    // The shell's fixed navbar derives from the same store — tell it to re-read.
+    window.dispatchEvent(new Event('bih-progress'))
     return r
   }
 
@@ -365,7 +397,7 @@ export default function DashboardScreen({
   const yearLabel = selectedYear != null ? String(selectedYear) : '—'
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-heat-bg">
+    <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
       <HeatBar
         level={displayDerived.level}
         title={displayDerived.title}
@@ -513,9 +545,9 @@ export default function DashboardScreen({
 
             <CollapsibleSection
               ariaLabel="Toggle heat index distribution and warming rate charts"
-              collapsedLabel="Heat and warming charts"
+              bareLabel="Heat and warming charts"
               className="lg:col-span-2"
-              bodyClassName="grid gap-3 lg:grid-cols-2"
+              bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
             >
             <ChartCard
               collapsible={false}
@@ -562,9 +594,9 @@ export default function DashboardScreen({
 
             <CollapsibleSection
               ariaLabel="Toggle danger days and driver charts"
-              collapsedLabel="Danger days and drivers"
+              bareLabel="Danger days and drivers"
               className="lg:col-span-2"
-              bodyClassName="grid gap-3 lg:grid-cols-2"
+              bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
             >
             <ChartCard
               collapsible={false}
@@ -619,47 +651,52 @@ export default function DashboardScreen({
         {readyData && (
           <div className="mt-4">
             <TopHotspots
-              rows={ranked.slice(0, 10)}
-              mode={mode}
-              note={
-                mode === 'danger'
-                  ? 'Highest 45-year danger days · jump to the map'
-                  : 'Fastest warming rate · jump to the map'
-              }
+              rows={extreme.slice(0, 10)}
               onShowOnMap={(m) => onShowOnMap?.(joinKey(m?.name, m?.province))}
+              onShowInFinder={showInFinder}
             />
           </div>
         )}
 
         {/* Finder card carousel: shell already passes geojson ({...data}), so no
-            cross-boundary edit is involved. Bounded stage adds no scroll. */}
+            cross-boundary edit is involved. Bounded stage adds no scroll.
+            Province is shared with the list below — the dropdown filters both. */}
         {readyData && geojson && (
-          <MunicipalityFinder geojson={geojson} narratives={narratives} onShowOnMap={onShowOnMap} />
+          <div ref={finderRef}>
+            <MunicipalityFinder
+              geojson={geojson}
+              narratives={narratives}
+              onShowOnMap={onShowOnMap}
+              province={province}
+              onProvinceChange={setProvince}
+              savedOnly={savedOnly}
+              savedKeys={savedKeys}
+              canSave={canSave}
+              onSavedOnlyChange={setSavedOnly}
+              focus={finderFocus}
+            />
+          </div>
         )}
 
-        <CollapsibleSection title="Municipality ranking" ariaLabel="Municipality ranking">
+        <CollapsibleSection title="Municipality list" ariaLabel="Municipality list">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div role="group" aria-label="Order dashboard by" className="flex shrink-0 rounded-lg border border-white/10 bg-black/20 p-0.5">
-            <button
-              type="button"
-              aria-pressed={mode === 'slope'}
-              onClick={() => setMode('slope')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
-                mode === 'slope' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-              }`}
+          <div className="min-w-0 shrink-0">
+            <label htmlFor="dashboard-sort" className="sr-only">
+              Sort municipalities
+            </label>
+            <select
+              id="dashboard-sort"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+              className="min-h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs font-semibold text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber sm:w-auto"
             >
-              Warming rate
-            </button>
-            <button
-              type="button"
-              aria-pressed={mode === 'danger'}
-              onClick={() => setMode('danger')}
-              className={`cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn ${
-                mode === 'danger' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-              }`}
-            >
-              Danger days
-            </button>
+              <option value="slope-desc">Warming rate · highest → lowest</option>
+              <option value="slope-asc">Warming rate · lowest → highest</option>
+              <option value="danger-desc">Danger days · highest → lowest</option>
+              <option value="danger-asc">Danger days · lowest → highest</option>
+              <option value="name-asc">Name · A → Z</option>
+              <option value="name-desc">Name · Z → A</option>
+            </select>
           </div>
 
           <div className="min-w-0 flex-1">
@@ -680,21 +717,6 @@ export default function DashboardScreen({
             <span className="font-mono font-semibold text-slate-200">{coverage.total}</span>
           </p>
 
-          {/* Only shown when signed in: a filter that can only ever be empty is a dead control. */}
-          {canSave && (
-            <button
-              type="button"
-              aria-pressed={savedOnly}
-              onClick={() => setSavedOnly((v) => !v)}
-              className={`shrink-0 cursor-pointer rounded-lg border px-3 py-2 text-xs font-semibold bih-btn ${
-                savedOnly
-                  ? 'border-heat-amber/50 bg-heat-amber/20 text-heat-amber'
-                  : 'border-white/10 bg-heat-surface/70 text-slate-300 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              Saved only ({savedKeys.size})
-            </button>
-          )}
         </div>
 
         {saveError && (
@@ -733,11 +755,13 @@ export default function DashboardScreen({
           <DashboardTableRows
             ranked={ranked}
             query={query}
+            province={province}
             savedOnly={savedOnly}
             savedKeys={savedKeys}
             canSave={canSave}
             onToggleSave={toggleSaved}
-            mode={mode}
+            mode={sort}
+            onShowInFinder={showInFinder}
           />
         )}
         </CollapsibleSection>
@@ -791,39 +815,6 @@ export default function DashboardScreen({
   )
 }
 
-function ProvinceSelector({ provinces = [], value, onChange }) {
-  return (
-    <div className="mt-4 flex flex-wrap gap-1.5 items-center">
-      <span className="text-xs text-slate-500 shrink-0">Province</span>
-      <button
-        type="button"
-        role="tab"
-        aria-pressed={value === 'All'}
-        onClick={() => onChange('All')}
-        className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
-          value === 'All' ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-        }`}
-      >
-        All
-      </button>
-      {provinces.map((p) => (
-        <button
-          key={p}
-          type="button"
-          role="tab"
-          aria-pressed={value === p}
-          onClick={() => onChange(p)}
-          className={`shrink-0 cursor-pointer min-h-10 rounded-md px-3 py-1 text-xs font-semibold bih-btn ${
-            value === p ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 const RANKING_PAGE_SIZE = 10
 
 function RankingPaginator({ page, totalPages, onChangePage }) {
@@ -864,11 +855,8 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
   )
 }
 
-function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onToggleSave, mode }) {
-  const [selectedProvince, setSelectedProvince] = useState('All')
+function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedKeys, canSave, onToggleSave, mode, onShowInFinder = null }) {
   const [page, setPage] = useState(1)
-
-  const provinces = useMemo(() => provinceList(ranked), [ranked])
 
   const searched = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -878,16 +866,16 @@ function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onTo
 
   const savedFiltered = savedOnly ? filterSaved(searched, savedKeys) : searched
   const shown =
-    selectedProvince === 'All'
+    province === 'All'
       ? savedFiltered
-      : savedFiltered.filter((m) => String(m?.province ?? '').trim() === selectedProvince)
+      : savedFiltered.filter((m) => String(m?.province ?? '').trim() === province)
 
   // Reset to page 1 whenever the filtered list actually changes
-  // (province, search, saved-only, or sort mode). Depends on the root inputs,
-  // not the derived `shown` array, which is a new reference every render.
+  // (shared province, search, saved-only, or sort mode). Depends on the root
+  // inputs, not the derived `shown` array, which is a new reference every render.
   useEffect(() => {
     setPage(1)
-  }, [selectedProvince, query, savedOnly, savedKeys, ranked])
+  }, [province, query, savedOnly, savedKeys, ranked])
 
   const totalPages = Math.max(1, Math.ceil(shown.length / RANKING_PAGE_SIZE))
   const paginated = shown.slice((page - 1) * RANKING_PAGE_SIZE, page * RANKING_PAGE_SIZE)
@@ -897,8 +885,8 @@ function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onTo
       <div className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-slate-300">
         {query.trim()
           ? 'No municipality matches that search.'
-          : selectedProvince !== 'All'
-            ? `No municipalities in ${selectedProvince}.`
+          : province !== 'All'
+            ? `No municipalities in ${province}${savedOnly ? ' saved' : ''}.`
             : 'No saved places yet — turn off “Saved only” and save a municipality.'}
       </div>
     )
@@ -909,11 +897,10 @@ function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onTo
 
   return (
     <div className="mt-4">
-      <ProvinceSelector provinces={provinces} value={selectedProvince} onChange={setSelectedProvince} />
-      <p className="mt-1 text-xs text-slate-500">
-        {selectedProvince === 'All'
+      <p className="text-xs text-slate-500">
+        {province === 'All'
           ? `Showing ${rangeStart}–${rangeEnd} of ${shown.length} LGUs (page ${page} of ${totalPages})`
-          : `${shown.length} LGUs in ${selectedProvince} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
+          : `${shown.length} LGUs in ${province} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
       </p>
       <span className="block mt-1 text-xs text-slate-500">Significance is a flag, never a filter</span>
       <DashboardTable
@@ -922,6 +909,7 @@ function DashboardTableRows({ ranked, query, savedOnly, savedKeys, canSave, onTo
         savedKeys={savedKeys}
         onToggleSave={onToggleSave}
         canSave={canSave}
+        onShowInFinder={onShowInFinder}
       />
       <RankingPaginator page={page} totalPages={totalPages} onChangePage={setPage} />
     </div>

@@ -4,7 +4,8 @@ import test from 'node:test'
 import { strict as strictAssert } from 'node:assert/strict'
 import { loadRegions, findBicol, getRegionStyle, isBicol,
   normalizeName, joinKey, joinNarratives, buildNarrativeIndex,
-  getMunicipalityStyle, getRegionOutlineStyle, isCity } from './src/gis/engine.js'
+  getMunicipalityStyle, getRegionOutlineStyle, isCity,
+  IDLE_MUNI_FILL_ALPHA } from './src/gis/engine.js'
 import {
   PLAYBACK_MS,
   canToggleLayer,
@@ -221,7 +222,11 @@ test('getMunicipalityStyle distinguishes states', () => {
   const ns = getMunicipalityStyle(nonsig)
   strictAssert.equal(ns.dashArray, '4 3', 'not significant = dashed border')
   strictAssert.ok(ns.fill, 'non-significant still filled — flag, not filter')
-  strictAssert.ok(ns.fillOpacity >= 0.5, 'non-significant gets a real fill, not the pending fade')
+  strictAssert.equal(
+    ns.fillOpacity,
+    IDLE_MUNI_FILL_ALPHA,
+    'idle fill is subtle; subdivisions stay hidden until a province is hovered',
+  );
 
   const dec = {
     properties: { adm3_en: 'Y',

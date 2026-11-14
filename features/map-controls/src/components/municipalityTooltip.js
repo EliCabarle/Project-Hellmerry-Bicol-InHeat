@@ -10,15 +10,22 @@ const fmtP = (p) => (p == null ? '' : p < 0.001 ? 'p < 0.001' : `p = ${p.toFixed
 const fmtC = (n) => (Number.isFinite(n) ? `${n.toFixed(1)} °C` : '—')
 const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
 
-export function tooltipHtml(feature, { year = null, viewMode = 'trend', date = null, dayValues = null } = {}) {
+export function tooltipHtml(
+  feature,
+  { year = null, viewMode = 'trend', date = null, dayValues = null, provinceCount = null } = {},
+) {
   const p = feature?.properties ?? {}
   const name = esc(p.adm3_en ?? 'Unknown')
   const province = esc(p.province ?? '')
+  const provinceLine =
+    provinceCount != null
+      ? `${province} · ${fmtInt(provinceCount)} LGUs — Hover municipality for metrics`
+      : province
   const n = p.narrative
   if (!n) {
     return (
       `<div class="bih-tip__name">${name}</div>` +
-      `<div class="bih-tip__sub">${province}</div>` +
+      `<div class="bih-tip__sub">${provinceLine}</div>` +
       `<div class="bih-tip__row">Trend data pending — arriving soon</div>`
     )
   }
@@ -37,7 +44,7 @@ export function tooltipHtml(feature, { year = null, viewMode = 'trend', date = n
     const slopeLine = slope === null ? '' : `${arrow(t.direction)} ${esc(t.direction)} <b>${slope >= 0 ? '+' : ''}${slope.toFixed(3)} °C/yr</b>`
     return (
       `<div class="bih-tip__name">${name}</div>` +
-      `<div class="bih-tip__sub">${province}</div>` +
+      `<div class="bih-tip__sub">${provinceLine}</div>` +
       `<div class="bih-tip__row">${valueLine}</div>` +
       (slopeLine ? `<div class="bih-tip__row">${slopeLine}</div>` : '') +
       `<div class="bih-tip__row">${sig}</div>` +
@@ -62,7 +69,7 @@ export function tooltipHtml(feature, { year = null, viewMode = 'trend', date = n
       : ''
   return (
     `<div class="bih-tip__name">${name}</div>` +
-    `<div class="bih-tip__sub">${province}</div>` +
+    `<div class="bih-tip__sub">${provinceLine}</div>` +
     (slopeLine ? `<div class="bih-tip__row">${slopeLine}</div>` : '') +
     `<div class="bih-tip__row">${sig}</div>` +
     (heat ? `<div class="bih-tip__row">${esc(heat)}</div>` : '') +

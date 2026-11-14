@@ -400,6 +400,7 @@ function TimeScrubber({
   const playing = useTimelineState(selectPlaying, store);
   const actions = useTimelineActions(store);
   const rootRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -410,7 +411,7 @@ function TimeScrubber({
     const ro = new ResizeObserver(publish);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [onHeightChange]);
+  }, [onHeightChange, expanded]);
 
   const count = timestamps.length;
   const canStep = count > 1;
@@ -436,6 +437,40 @@ function TimeScrubber({
     );
   }
 
+  if (!expanded) {
+    return (
+      <div
+        ref={rootRef}
+        role="group"
+        aria-label="Historical time controls"
+        className={`${GLASS} w-full px-3 py-2.5 sm:px-4`}
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-label="Show historical time controls"
+          onClick={() => setExpanded(true)}
+          className="flex w-full items-center justify-between gap-2 text-left"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+            <span
+              className="font-mono text-sm font-semibold text-slate-100"
+              aria-live="polite"
+            >
+              {current || "No data"}
+            </span>
+          </div>
+          <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
+            Show controls
+          </span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={rootRef}
@@ -445,9 +480,17 @@ function TimeScrubber({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Historical time
-          </span>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-label="Collapse historical time controls"
+            onClick={() => setExpanded(false)}
+            className="text-left"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+          </button>
           <span
             className="font-mono text-sm font-semibold text-slate-100"
             aria-live="polite"
@@ -456,6 +499,14 @@ function TimeScrubber({
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Hide historical time controls"
+            onClick={() => setExpanded(false)}
+            className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-white/5 hover:text-slate-100"
+          >
+            Hide controls
+          </button>
           <div
             role="group"
             aria-label="Map data mode"

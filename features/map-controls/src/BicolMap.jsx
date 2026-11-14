@@ -628,7 +628,7 @@ export default function BicolMap({
         <div
           role="status"
           aria-busy="true"
-          className="pointer-events-none absolute left-1/2 top-[calc(4.75rem+env(safe-area-inset-top))] z-[600] flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-xs text-slate-300 shadow-hud backdrop-blur"
+          className="pointer-events-none absolute left-1/2 top-[var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))] z-[600] flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-heat-surface/90 px-3 py-2 text-xs text-slate-300 shadow-hud backdrop-blur"
         >
           <span className="bih-spinner" aria-hidden="true" />
           Loading satellite view and municipality data…

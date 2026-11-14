@@ -1,7 +1,9 @@
 // Floating translucent navigation bar, present on every screen: logo + HP text,
 // wide level progress bar (level shown under it), menu button on the right.
 // Replaces the old in-flow TopBar (map) / MainHeader (other screens).
-// Map overlays clear this bar via safe-area-aware top offsets.
+// Publishes its measured bottom edge to :root as --bih-nav-clear so overlays
+// and screen spacers clear the real bar instead of a hard-coded guess.
+import { useEffect, useRef } from 'react'
 import { HP_PER_LEVEL } from '@features/gamified-dashboard'
 import { IconMenu } from './Icons.jsx'
 
@@ -14,9 +16,38 @@ export default function NavBar({
   menuButtonRef,
   menuOpen = false,
 }) {
+  const barRef = useRef(null)
   const pct = Math.round((inLevel / HP_PER_LEVEL) * 100)
+
+  // One clearance var for every consumer (screen spacers, map overlays). The
+  // gap matches the CSS fallback in index.css (--bih-nav-clear): bottom + 12px.
+  useEffect(() => {
+    const el = barRef.current
+    if (!el || typeof document === 'undefined') return undefined
+    const publish = () => {
+      document.documentElement.style.setProperty(
+        '--bih-nav-clear',
+        `${el.getBoundingClientRect().bottom + 12}px`,
+      )
+    }
+    publish()
+    let ro
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(publish)
+      ro.observe(el)
+    }
+    window.addEventListener('resize', publish)
+    return () => {
+      if (ro) ro.disconnect()
+      window.removeEventListener('resize', publish)
+    }
+  }, [])
+
   return (
-    <header className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[800] rounded-2xl border border-white/10 bg-heat-surface/80 p-2 shadow-hud backdrop-blur-md sm:inset-x-auto sm:right-auto sm:left-1/2 sm:w-[min(50vw,45rem)] sm:-translate-x-1/2">
+    <header
+      ref={barRef}
+      className="fixed inset-x-3 top-[calc(0.75rem+env(safe-area-inset-top))] z-[800] rounded-2xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-header))] p-2 shadow-hud backdrop-blur-md sm:inset-x-auto sm:right-auto sm:left-1/2 sm:w-[min(50vw,45rem)] sm:-translate-x-1/2"
+    >
       <div className="flex items-center gap-3">
         <span
           aria-hidden="true"
@@ -57,7 +88,7 @@ export default function NavBar({
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           aria-label="Main menu"
-          className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+          className="bih-btn inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10"
         >
           <IconMenu className="h-5 w-5" />
         </button>

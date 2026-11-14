@@ -217,6 +217,7 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    if (!r.noop) window.dispatchEvent(new Event('bih-progress'))
   }, [store])
 
   // Another tab wrote progress: re-read this slice's one key. `store.key` moves
@@ -266,7 +267,10 @@ export default function DashboardScreen({
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
-        if (!restored.noop) setEvents(restored.events)
+        if (!restored.noop) {
+          setEvents(restored.events)
+          window.dispatchEvent(new Event('bih-progress'))
+        }
       }
       setScoreNote(null)
       setSyncTick((n) => n + 1)
@@ -294,6 +298,8 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
+    // The shell's fixed navbar derives from the same store — tell it to re-read.
+    window.dispatchEvent(new Event('bih-progress'))
     return r
   }
 

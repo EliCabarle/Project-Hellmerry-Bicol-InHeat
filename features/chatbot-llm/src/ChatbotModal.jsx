@@ -94,7 +94,7 @@ export default function ChatbotModal({
       />
       <div
         ref={dialogRef}
-        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-heat-surface/95 text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
+        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chatbot-title"
@@ -105,7 +105,7 @@ export default function ChatbotModal({
             <IconRobot className="h-4 w-4 shrink-0 text-heat-eco" aria-hidden="true" />
             <h2
               id="chatbot-title"
-              className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-200 sm:text-xs"
+              className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200 sm:text-xs"
             >
               {title}
             </h2>
@@ -115,7 +115,7 @@ export default function ChatbotModal({
             type="button"
             onClick={onClose}
             aria-label="Close chatbot"
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+            className="bih-btn inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/10 hover:text-white"
           >
             <IconClose className="h-4 w-4" />
           </button>
@@ -128,7 +128,7 @@ export default function ChatbotModal({
               <p className="text-[11px] leading-5 text-center">
                 Say something — I can't answer yet (the chatbot isn't connected).
               </p>
-              <p className="text-[10px] leading-4 text-center text-slate-500">
+              <p className="text-[11px] leading-5 text-center text-slate-400">
                 Type a message, then tap send. Press Esc to close.
               </p>
             </div>
@@ -182,14 +182,14 @@ export default function ChatbotModal({
                         type="button"
                         onClick={retry}
                         disabled={status === 'sending'}
-                        className="mt-1 cursor-pointer rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-heat-amber hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                        className="bih-btn mt-1 cursor-pointer rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-semibold text-heat-amber hover:bg-white/10"
                       >
                         Try again
                       </button>
                       <button
                         type="button"
                         onClick={clear}
-                        className="mt-1 ml-2 cursor-pointer rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10px] font-semibold text-slate-500 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                        className="bih-btn mt-1 ml-2 cursor-pointer rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[11px] font-semibold text-slate-400 hover:bg-white/10"
                       >
                         Dismiss
                       </button>
@@ -219,13 +219,13 @@ export default function ChatbotModal({
             <button
               type="submit"
               disabled={!canSend}
-              className="shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber focus-visible:ring-offset-2 focus-visible:ring-offset-heat-deep"
+              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/20"
             >
               <IconSend className="h-4 w-4" />
               <span className="sr-only">Send</span>
             </button>
           </form>
-          <p className="mt-1 text-[9px] leading-[0.875rem] text-slate-500">
+          <p className="mt-1 text-[11px] leading-4 text-slate-400">
             Boilerplate only — no backend connected yet. Reply is a placeholder.
           </p>
         </footer>

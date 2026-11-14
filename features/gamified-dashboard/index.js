@@ -7,4 +7,5 @@ export {
   manilaDate,
   QUESTS,
 } from './src/progressStore.js'
+export { parseQuestCsv } from './src/questTasks.js'
 export { rankMunicipalities } from './src/ranking.js'

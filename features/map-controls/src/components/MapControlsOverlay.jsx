@@ -851,12 +851,11 @@ export default function MapControlsOverlay({
     <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col p-3">
       {/* top-right: LGU/chatbot FAB column + layer panel + day-mode header,
           all stacked under the shell's fixed floating navbar. Mobile: the row
-          padding clears the navbar (root's own p-3 already gives 12 px, so
-          4 rem + 12 px = 76 px = navbar bottom + 12 px gap). lg+ the row
-          padding is 0 so the FABs sit at the root's 12 px edge — the same top
-          line as the search panel (MunicipalityIndex, top 0.75 rem) and the
-          legend. */}
-      <div className="flex items-start justify-end w-full pt-[calc(4rem+env(safe-area-inset-top))] lg:pt-0">
+          padding clears the measured --bih-nav-clear (NavBar bottom + 12px)
+          minus the root's own p-3, so the FABs sit 12px under the bar.
+          lg+ the row padding is 0 so the FABs sit at the root's 12 px edge —
+          the navbar is centred there and never reaches the right edge. */}
+      <div className="flex items-start justify-end w-full pt-[calc(var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))-12px)] lg:pt-0">
         <div className="flex flex-col items-end gap-2">
           <FabColumn onToggleIndex={onToggleIndex} onOpenChatbot={onOpenChatbot} />
           <LayerPanel registry={layerRegistry} onLayerChange={onLayerChange} />

@@ -117,7 +117,7 @@ export default function MunicipalityIndex({
       <section
         role="dialog"
         aria-label="Municipality search"
-        className="absolute right-16 top-[calc(4rem+env(safe-area-inset-top))] lg:top-[calc(0.75rem+env(safe-area-inset-top))] z-[760] flex w-[15rem] max-w-[calc(100vw-4.75rem)] flex-col overflow-hidden rounded-xl border border-white/10 bg-heat-surface/95 text-slate-100 shadow-hud backdrop-blur-md"
+        className="absolute right-16 top-[var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))] z-[760] flex w-[15rem] max-w-[calc(100vw-4.75rem)] flex-col overflow-hidden rounded-xl border border-white/10 bg-heat-surface/95 text-slate-100 shadow-hud backdrop-blur-md"
       >
         {province === null ? (
           <>

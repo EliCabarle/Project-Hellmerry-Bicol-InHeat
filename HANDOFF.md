@@ -295,7 +295,7 @@ Built from the **project content only** (47 files; `.opencode/` tooling docs and
 - **Write boundaries are hard** (§8 table). Cross-boundary needs go through the lead, never a direct write.
 - **No commit / merge / push without explicit user approval.**
 - Cut lines **h30 / h42 / h44** are hard and non-negotiable: leaderboard not done by h30 → drop to local-only progress, no auth.
-- Exactly **one challenge** named; only **CORE** items (CONCEPT §8) may be claimed on the project page/video; an unshipped STRETCH item is never presented as a feature; the OUT list is final (no runtime LLM, no LSTM forecasting, no SMAP, no barangay-level HI, no variables beyond §6a).
+- Exactly **one challenge** named; only **CORE** items (CONCEPT §8) may be claimed on the project page/video; an unshipped STRETCH item is never presented as a feature; the OUT list is final (no LSTM forecasting, no SMAP, no barangay-level HI, no variables beyond §6a) — **one exception: the server-side `POST /api/qa` QA chatbot may call an LLM at runtime** (promoted to CORE 2026-11-13, CONCEPT §6d).
 
 **Secrets:** the client bundle contains **zero** keys and zero passwords — no exceptions. `EARTHDATA_USERNAME/PASSWORD`, the Supabase service-role key (env-var name still inconsistent, B8), and optional `FIRMS_MAP_KEY` live only in `apps/api/.env` (never committed; root `.gitignore` covers `.env`/`*.env`). Supabase URL + anon key are public-by-design and RLS-guarded. ⚠️ `apps/web/.env` currently also holds the service-role key (B5) — it is gitignored, but **never reference it via `import.meta.env`** and move it to `apps/api/.env` when convenient.
 

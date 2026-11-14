@@ -64,22 +64,30 @@ export default {
           'text-muted': '#64748B',
           'text-white': '#FFFFFF',
         },
+        /* Landing clay palette (UI-SPEC Token Block). Consumed only inside the
+           landing screen; the dark heat.* palette above stays the app theme. */
+        clay: {
+          bg: '#FFF7ED',
+          card: '#FFFFFF',
+          border: '#FED7AA',
+          ink: '#9A3412',
+          primary: '#F97316',
+          onprimary: '#0F172A',
+          accent: '#2563EB',
+        },
       },
       fontFamily: {
         clay: ['Nunito', 'system-ui', 'sans-serif'],
         sans: ['"Segoe UI Variable"', '"Segoe UI"', 'system-ui', 'sans-serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
+        display: ['Fredoka', '"Segoe UI Rounded"', 'system-ui', 'sans-serif'],
+        body: ['Nunito', '"Segoe UI"', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        // Was a dark drop shadow; now the clay card depth every feature card
-        // already applies via `shadow-hud`.
-        hud: 'inset 0 1px 0 rgba(255,255,255,0.9), 0 6px 0 0 #CBD5E1, 0 12px 24px rgba(30,27,75,0.10)',
-      },
-      borderRadius: {
-        md: '12px',
-        lg: '14px',
-        xl: '20px',
-        '2xl': '24px',
+        hud: '0 18px 50px -24px rgba(0, 0, 0, 0.9)',
+        'clay-outer': '4px 4px 8px rgba(154, 52, 18, 0.14)',
+        'clay-outer-hover': '6px 6px 14px rgba(154, 52, 18, 0.18)',
+        'clay-primary': '4px 4px 8px rgba(15, 23, 42, 0.20)',
       },
     },
   },

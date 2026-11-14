@@ -18,8 +18,8 @@ export function useChat({ adapter } = {}) {
       if (!trimmed) return
       dispatch({ type: 'send', text: trimmed })
       try {
-        const { text: reply, done } = await serviceRef.current.send(trimmed)
-        if (done) dispatch({ type: 'reply', text: reply })
+        const { text: reply, done, sources } = await serviceRef.current.send(trimmed)
+        if (done) dispatch({ type: 'reply', text: reply, sources })
       } catch (err) {
         dispatch({ type: 'fail', message: err.message ?? 'The chatbot could not reply.' })
       }

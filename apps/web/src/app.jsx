@@ -24,6 +24,20 @@ function parseMuniHash() {
   }
 }
 
+// UI theme lives on <html data-theme>, so every surface (shell, dashboard, map
+// chrome) flips together. index.html sets it before first paint; this mirrors
+// the same read so React and the pre-paint script never disagree.
+const THEME_KEY = 'bih:theme'
+function readTheme() {
+  try {
+    const v = localStorage.getItem(THEME_KEY)
+    if (v === 'light' || v === 'dark') return v
+  } catch {
+    // private mode: fall through to the default
+  }
+  return 'dark'
+}
+
 export default function App() {
   const [screen, setScreen] = useState('map')
   // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
@@ -38,6 +52,7 @@ export default function App() {
   const [focusTab, setFocusTab] = useState(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [theme, setTheme] = useState(readTheme)
   const menuButtonRef = useRef(null)
   const navTokenRef = useRef(0)
   const data = useBicolData()
@@ -66,6 +81,26 @@ export default function App() {
     window.addEventListener('bih-progress', bump)
     return () => window.removeEventListener('bih-progress', bump)
   }, [])
+
+  // Apply + persist the theme. index.html already set data-theme pre-paint;
+  // this keeps it correct after a toggle and syncs the mobile browser chrome.
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = theme
+    root.style.colorScheme = theme
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#F5F3FF')
+    try {
+      localStorage.setItem(THEME_KEY, theme)
+    } catch {
+      // private mode: the choice just doesn't persist
+    }
+  }, [theme])
+
+  const toggleTheme = useCallback(
+    () => setTheme((t) => (t === 'dark' ? 'light' : 'dark')),
+    [],
+  )
 
   // Dashboard "Show on map" / shared deep link → select on the map and switch.
   const showOnMap = useCallback((key) => {
@@ -157,6 +192,8 @@ export default function App() {
         onOpenMenu={setMenuOpen}
         menuButtonRef={menuButtonRef}
         menuOpen={menuOpen}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
       {menuOpen && (

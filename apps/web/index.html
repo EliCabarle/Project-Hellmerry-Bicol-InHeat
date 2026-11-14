@@ -6,7 +6,17 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <meta name="theme-color" content="#F5F3FF" />
+    <meta name="theme-color" content="#0b1220" />
+    <!-- Set the theme before first paint so a dark-default visit never flashes
+         the light clay page. Mirrors readTheme() in app.jsx. -->
+    <script>
+      try {
+        var t = localStorage.getItem('bih:theme')
+        document.documentElement.dataset.theme = t === 'light' || t === 'dark' ? t : 'dark'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
     <!-- Nunito — warm, rounded clay typeface (impeccable clay system, choice 1) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

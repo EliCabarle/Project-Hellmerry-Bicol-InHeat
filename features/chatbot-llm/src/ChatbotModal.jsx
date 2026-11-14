@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { createElement, useCallback, useEffect, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { useChat } from './chat/useChat.js'
 import { qaAdapter } from './chat/qaAdapter.js'
 import { IconClose, IconRobot, IconSend } from './components/ChatIcons.jsx'
@@ -8,6 +10,37 @@ const SUGGESTIONS = [
   'Which 5 municipalities are warming fastest?',
   'Why is LST not the same as heat index?',
 ]
+
+const LOADING_STEPS = [
+  'Searching NASA/PAGASA documents…',
+  'Querying municipal database…',
+  'Analyzing Theil-Sen trends…',
+  'Formulating answer…',
+]
+
+const LOADING_MS = 1500
+const COPIED_MS = 2000
+
+/**
+ * Markdown element styles for Silli's answers. No @tailwindcss/typography in
+ * this project, so the table is styled explicitly (borders, header cells,
+ * horizontal scroll instead of blowing out the bubble width).
+ */
+const md = (tag, className) => ({ node, ...props }) =>
+  createElement(tag, { className, ...props })
+
+const MARKDOWN_COMPONENTS = {
+  p: md('p', 'my-1.5 first:mt-0 last:mb-0'),
+  ul: md('ul', 'my-1.5 list-disc space-y-0.5 pl-4'),
+  ol: md('ol', 'my-1.5 list-decimal space-y-0.5 pl-4'),
+  table: md(
+    'table',
+    'my-2 block w-full overflow-x-auto border-collapse text-left text-[13px]',
+  ),
+  th: md('th', 'border border-heat-line bg-heat-deep px-2 py-1 font-semibold'),
+  td: md('td', 'border border-heat-line px-2 py-1 align-top'),
+  a: md('a', 'underline'),
+}
 
 /**
  * Collect focusable, visible elements inside the dialog for the hand-rolled
@@ -43,7 +76,35 @@ export default function ChatbotModal({
     handleSubmit,
     retry,
     clear,
+    clearMessages,
   } = useChat({ adapter: qaAdapter })
+
+  const loading = status === 'sending'
+  const [loadingStep, setLoadingStep] = useState(0)
+  const [copiedId, setCopiedId] = useState(null)
+  const copyTimer = useRef(null)
+
+  // Cycle the "working on it" line only while a reply is in flight.
+  useEffect(() => {
+    if (!loading) return
+    setLoadingStep(0)
+    const timer = setInterval(
+      () => setLoadingStep((step) => (step + 1) % LOADING_STEPS.length),
+      LOADING_MS,
+    )
+    return () => clearInterval(timer)
+  }, [loading])
+
+  useEffect(() => () => clearTimeout(copyTimer.current), [])
+
+  const copyMessage = useCallback((message) => {
+    if (!navigator.clipboard) return
+    navigator.clipboard.writeText(message.text).then(() => {
+      setCopiedId(message.id)
+      clearTimeout(copyTimer.current)
+      copyTimer.current = setTimeout(() => setCopiedId(null), COPIED_MS)
+    })
+  }, [])
 
   // Open: capture the launcher, trap focus inside the dialog.
   // Close (this effect's cleanup): return focus to the launcher.
@@ -118,15 +179,25 @@ export default function ChatbotModal({
               {title}
             </h2>
           </div>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            aria-label="Close chatbot"
-            className="bih-btn inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/10 hover:text-white"
-          >
-            <IconClose className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={clearMessages}
+              disabled={messages.length === 0 && !error}
+              className="bih-btn cursor-pointer rounded-md px-2 py-1 text-[11px] font-semibold text-slate-400 hover:bg-white/10 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              New Chat
+            </button>
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close chatbot"
+              className="bih-btn inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/10 hover:text-white"
+            >
+              <IconClose className="h-4 w-4" />
+            </button>
+          </div>
         </header>
 
         <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3" aria-live="polite">
@@ -171,7 +242,21 @@ export default function ChatbotModal({
                         : 'bg-white/10 border border-white/5 text-slate-200'
                     }`}
                   >
-                    {message.text}
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={MARKDOWN_COMPONENTS}
+                    >
+                      {message.text}
+                    </ReactMarkdown>
+                    {message.role === 'assistant' && (
+                      <button
+                        type="button"
+                        onClick={() => copyMessage(message)}
+                        className="bih-btn mt-1 cursor-pointer rounded px-1 py-0.5 text-[11px] text-slate-400 hover:bg-white/10 hover:text-white"
+                      >
+                        {copiedId === message.id ? 'Copied!' : 'Copy'}
+                      </button>
+                    )}
                   </div>
                   {/* Sources are CORE (CONCEPT 6d): the retrieved chunk paths
                       behind an answer stay visible under it. */}
@@ -191,14 +276,15 @@ export default function ChatbotModal({
                   )}
                 </div>
               ))}
-              {status === 'sending' && (
+              {loading && (
                 <div className="flex gap-2 justify-start">
                   <div className="shrink-0">
                     <IconRobot className="h-3 w-3 shrink-0 text-slate-500" aria-hidden="true" />
                   </div>
                   <div className="bg-white/10 border border-white/5 rounded-xl px-3 py-2 text-sm leading-5 text-slate-200">
-                    <span className="flex items-center gap-0.5 text-slate-400">
-                      assistant is typing<span className="animate-pulse" aria-hidden="true">…</span>
+                    <span className="sr-only">Silli is working…</span>
+                    <span aria-hidden="true" className="animate-pulse text-slate-400">
+                      {LOADING_STEPS[loadingStep]}
                     </span>
                   </div>
                 </div>

@@ -43,6 +43,8 @@ export default defineConfig({
       leaflet: path.resolve(here, 'node_modules', 'leaflet'),
       'maplibre-gl': path.resolve(here, 'node_modules', 'maplibre-gl'),
       recharts: path.resolve(here, 'node_modules', 'recharts'),
+      'react-markdown': path.resolve(here, 'node_modules', 'react-markdown'),
+      'remark-gfm': path.resolve(here, 'node_modules', 'remark-gfm'),
     },
   },
   // Dev + preview: the frontend calls /api/qa and Vite forwards to FastAPI on

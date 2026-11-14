@@ -7,6 +7,7 @@
  * @property {string} text
  * @property {'pending' | 'sent' | 'failed'} status
  * @property {number} createdAt
+ * @property {string[]} [sources] retrieved document paths cited by this answer
  */
 
 let msgSeq = 0
@@ -14,16 +15,17 @@ let msgSeq = 0
 /**
  * @param {'user' | 'assistant' | 'system'} role
  * @param {string} text
- * @param {{ status?: 'pending' | 'sent' | 'failed' }} opts
+ * @param {{ status?: 'pending' | 'sent' | 'failed', sources?: string[] }} opts
  * @returns {Message}
  */
-export function makeMessage(role, text, { status = 'sent' } = {}) {
+export function makeMessage(role, text, { status = 'sent', sources } = {}) {
   return {
     id: `msg-${Date.now()}-${msgSeq += 1}`,
     role,
     text,
     status,
     createdAt: Date.now(),
+    sources: sources ?? [],
   }
 }
 

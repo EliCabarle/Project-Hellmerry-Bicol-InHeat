@@ -39,7 +39,7 @@ Read this table before opening any source file. It is the cheapest way to find t
 | `features/layer-uhi-terrain` | `AGENTS.md` only | **not started** — layer registry, LST, canopy, land cover |
 | `features/chatbot-llm` | `AGENTS.md` only | **not started** — narrative renderer, glossary, template fallback |
 | `apps/web` | `src/app.jsx` (mounts `map` + `ranking` only — **no narration screen yet**), `useBicolData.js`, `useSession.js`, `lib/{supabase,profile}.js`, `components/AuthButton.jsx` | **built shell** |
-| `apps/api` | `main.py` (FastAPI), `fetch_power_data.py`, `fetch_boundaries.py`, `calculate_trends.py`, `calculate_drivers.py`, `generate_static_json.py`, `push_to_supabase.py`, `validate_pagasa.py`, `seed_locations.py`, `test_pipeline.py` | **built pipeline** |
+| `apps/api` | `main.py` (FastAPI), `fetch_power_data.py`, `fetch_boundaries.py`, `calculate_trends.py`, `calculate_drivers.py`, `generate_static_json.py`, `push_to_supabase.py`, `sync_json_to_db.py`, `validate_pagasa.py`, `seed_locations.py`, `test_pipeline.py` | **built pipeline** — `sync_json_to_db.py` regenerates `apps/web/public/data/narratives.json` from `municipality_trends` (DB is the source of truth; the static file had drifted) |
 | `core/` | empty | trend math currently lives in `apps/api/calculate_*.py` |
 
 Facts already established — **do not re-derive these:**
@@ -92,12 +92,14 @@ Commands below are **verified to exist on disk 2026-11-10**. Root `package.json`
 
 ## Environment
 
-**Hard rule: no secrets ship in the client.** The web bundle contains zero API keys and zero passwords; LLM narration is build-time into static JSON, so no LLM key exists anywhere (CONCEPT 6d).
+**Hard rule: no secrets ship in the client.** The web bundle contains zero API keys and zero passwords; LLM narration is build-time into static JSON. The model keys in the project live in `apps/api/.env` and are read solely by the server-side `POST /api/qa` endpoint and its embedding pipeline (CONCEPT 6d): `GEMINI_API_KEY` (embeddings) and the OpenRouter key (chat).
 
 Server-side only — `apps/api/.env`, never committed:
 
 - `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` — Earthdata Login (Landsat C2 L2 LANDSAT_OT_C2_L2, MOD44B.061, MCD12Q1.061, ECOSTRESS STRETCH)
 - `SUPABASE_SERVICE_ROLE_KEY`
+- `GEMINI_API_KEY` — Google Gemini embeddings (`gemini-embedding-001`, 1536 dims) for the QA chatbot's RAG corpus
+- `OPENROUTER_API_KEY` — chat completion for `POST /api/qa`
 - `FIRMS_MAP_KEY` *(optional, STRETCH only)*
 
 Config, not secrets (web, public-by-design, guarded by RLS):
@@ -135,7 +137,7 @@ Scope discipline:
 
 - **Exactly ONE challenge** named: Be An Earth System Trend Detective!
 - **Only CORE items (CONCEPT Sect 8) may be claimed** on the project page or video. An unshipped STRETCH item is never presented as a feature.
-- The OUT list is final: no runtime LLM, no LSTM forecasting, no SMAP, no barangay-level heat index, more variables than Sect 6a, etc.
+- The OUT list is final: no LSTM forecasting, no SMAP, no barangay-level heat index, more variables than Sect 6a, etc. **One exception: runtime LLM is permitted for the server-side `POST /api/qa` endpoint only** (QA chatbot, promoted to CORE 2026-11-13 — CONCEPT 6d + decision log). The client never holds an LLM key.
 
 Science gotchas:
 

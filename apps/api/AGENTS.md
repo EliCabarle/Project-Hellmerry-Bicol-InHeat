@@ -22,7 +22,7 @@
 
 ## Guardrails — this slice
 
-- Secrets (`EARTHDATA_USERNAME/PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY`, optional `FIRMS_MAP_KEY`) live only in `apps/api/.env` — never committed, never echoed into logs or the client.
+- Secrets (`EARTHDATA_USERNAME/PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, optional `FIRMS_MAP_KEY`) live only in `apps/api/.env` - never committed, never echoed into logs or the client.
 - Build-time LLM **renders computed numbers** into plain language — it **never generates numbers** (CONCEPT 6d).
 - Validation: hold out one PAGASA station + last 3 years; report bias + RMSE. Non-significant trends still reported.
 - Report per-municipality sample counts (cloud contamination).

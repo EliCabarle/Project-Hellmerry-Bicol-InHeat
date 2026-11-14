@@ -7,6 +7,7 @@ import {
   IconGrid,
   IconHome,
   IconMap,
+  IconShield,
   IconSignOut,
   IconTrophy,
   IconUser,
@@ -23,6 +24,7 @@ export default function AppMenu({
   navigate = () => {},
   onSignIn = () => {},
   onSignOut = () => {},
+  onOpenPrivacy = () => {},
   returnFocusTo = null,
   buttonRef = null,
 }) {
@@ -85,8 +87,14 @@ export default function AppMenu({
             },
           ]
         : []),
+      { divider: true },
+      {
+        label: "Privacy",
+        icon: IconShield,
+        onClick: onOpenPrivacy,
+      },
     ],
-    [user, navigate, onSignIn, onSignOut, configured],
+    [user, navigate, onSignIn, onSignOut, configured, onOpenPrivacy],
   );
 
   // Arrow keys move real DOM focus (roving tabindex), not just the visual

@@ -712,6 +712,9 @@ export default function Municipality3DLayer({
     // A finished trace is kept at its last length; repaint on camera moves so the
     // ribbon stays TRACE_PX wide at every zoom instead of drifting in metres.
     map.on("move", () => {
+      // A camera move invalidates what is under the cursor and no mousemove
+      // fires to close the tooltip, so clear it here.
+      hideTip();
       const trace = traceRef.current;
       if (trace?.progress >= 1) paintTrace(trace, 1);
     });

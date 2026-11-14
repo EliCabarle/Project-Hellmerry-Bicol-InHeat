@@ -134,6 +134,7 @@ function MunicipalityLayer({
   provinceCounts,
   onProvinceHover,
 }) {
+  const map = useMap();
   const layerRef = useRef(null);
   const stateRef = useRef({
     selectedKey,
@@ -265,6 +266,27 @@ function MunicipalityLayer({
       );
     });
   }, [joined, year, viewMode, date, dayValues, provinceCounts]);
+
+  // Tooltips were only closed by the pointer leaving a path, which never fires
+  // when the camera moves under a stationary pointer — so a wheel-zoom left one
+  // card per hover stacked on screen. A camera move invalidates whatever is
+  // under the cursor, so clear the tooltips there.
+  useEffect(() => {
+    const closeAll = () => {
+      layerRef.current?.eachLayer((child) => child.closeTooltip());
+      // Reclaim tooltips orphaned when the layer group was rebuilt.
+      map
+        .getPane("tooltipPane")
+        ?.querySelectorAll(".leaflet-tooltip")
+        .forEach((el) => el.remove());
+    };
+    map.on("zoomstart", closeAll);
+    map.on("movestart", closeAll);
+    return () => {
+      map.off("zoomstart", closeAll);
+      map.off("movestart", closeAll);
+    };
+  }, [map]);
 
   return (
     <GeoJSON

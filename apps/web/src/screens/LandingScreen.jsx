@@ -199,10 +199,7 @@ export default function LandingScreen({ user = null, supabase = null, configured
             are heating, how fast, and what&rsquo;s driving them.
           </p>
 
-          <div data-hero className="mt-8 flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
-            <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary w-full px-7 sm:w-auto">
-              Explore as guest
-            </button>
+          <div data-hero className="mt-8 flex w-full flex-col items-center justify-center gap-3">
             <span className="contents">
               <GoogleHint />
               <button
@@ -218,6 +215,9 @@ export default function LandingScreen({ user = null, supabase = null, configured
                 Continue with Google
               </button>
             </span>
+            <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary px-5 py-2 text-sm">
+              Explore as guest
+            </button>
           </div>
           {signInError && (
             <span role="alert" className="mt-3 text-sm font-semibold text-clay-ink">

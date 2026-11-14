@@ -64,6 +64,9 @@ const PULSE = "bih-muni-pulse-ring";
 // Single expanding ring at the selected area's centroid, on its top face.
 // Colours come from the project's single accent token (SELECT_COLOUR).
 const PULSE_MS = 1400
+// Land the ring after the 700 ms fitBounds camera settle (GOAL: "after the camera
+// settles"). Without this the pulse fires during the move and reads as noise.
+const PULSE_DELAY = 700
 const PULSE_START = 0.4
 const PULSE_SCALE = 2.5
 const PULSE_RING_INNER = 0.65
@@ -457,7 +460,10 @@ export default function Municipality3DLayer({
 
   const cancelPulse = useCallback(() => {
     const p = pulseRef.current;
-    if (p) cancelAnimationFrame(p.raf);
+    if (p) {
+      if (p.timer) clearTimeout(p.timer);
+      if (p.raf) cancelAnimationFrame(p.raf);
+    }
     pulseRef.current = null;
     mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
   }, []);
@@ -468,8 +474,9 @@ export default function Municipality3DLayer({
     mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
   }, []);
 
-  // One pulse per selection: an expanding ring at the centroid that fades out,
-  // then removes itself. Restarting replaces any in-flight pulse (never stacks).
+  // One pulse per selection: after the camera settles, an expanding ring at the
+  // centroid fades out and removes itself. Restarting cancels any pending or
+  // in-flight pulse (never stacks).
   const startPulse = useCallback(
     (key) => {
       if (reducedRef.current) return;
@@ -480,10 +487,16 @@ export default function Municipality3DLayer({
       if (!centre || !rings?.length) return;
       const size = sizeOf(rings);
       const gen = ++pulseGen.current;
-      const start = performance.now();
-      pulseRef.current = { key, start, centre, size, depth, gen };
-      const raf = requestAnimationFrame(() => animatePulse(gen));
-      pulseRef.current.raf = raf;
+      // Wait for the camera to settle before acknowledging the selection; the
+      // clock starts when the ring actually begins, not at selection time.
+      const timer = setTimeout(() => {
+        const p = pulseRef.current;
+        if (!p || p.gen !== gen) return;
+        p.timer = 0;
+        p.start = performance.now();
+        p.raf = requestAnimationFrame(() => animatePulse(gen));
+      }, PULSE_DELAY);
+      pulseRef.current = { key, start: 0, centre, size, depth, gen, timer };
     },
     [cancelPulse]
   );

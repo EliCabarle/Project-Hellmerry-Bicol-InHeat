@@ -6,7 +6,6 @@ import { parseQuestCsv } from './questTasks.js'
 import { readScore } from './scoreStore.js'
 import { pushEvents } from './eventStore.js'
 import DashboardTable from './components/DashboardTable.jsx'
-import HeatBar from './components/HeatBar.jsx'
 import WeeklyProgressBar from './components/WeeklyProgressBar.jsx'
 import QuestsTab from './components/QuestsTab.jsx'
 import HistoryTab from './components/HistoryTab.jsx'
@@ -398,14 +397,6 @@ export default function DashboardScreen({
 
   return (
     <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
-      <HeatBar
-        level={displayDerived.level}
-        title={displayDerived.title}
-        inLevel={displayDerived.inLevel}
-        totalHP={displayDerived.totalHP}
-        announcement={announcement}
-      />
-
       <div
         role="tablist"
         aria-label="Dashboard sections"

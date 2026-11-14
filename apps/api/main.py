@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+
+# Force-load .env before any module reads os.environ.
+load_dotenv(override=True)
+
 from datetime import date, datetime
 
 from fastapi import FastAPI, HTTPException
@@ -74,6 +79,10 @@ def read_root():
         "challenge": "Be An Earth System Trend Detective!",
     }
 
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.get("/locations", response_model=List[MunicipalityLocation])
 def get_locations():

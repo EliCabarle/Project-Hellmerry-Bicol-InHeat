@@ -20,7 +20,10 @@ export function chatReducer(state, action) {
       }
     }
     case 'reply': {
-      const assistantMsg = makeMessage('assistant', action.text, { status: 'sent' })
+      const assistantMsg = makeMessage('assistant', action.text, {
+        status: 'sent',
+        sources: action.sources,
+      })
       return { ...state, messages: appendMessage(state.messages, assistantMsg), status: 'idle' }
     }
     case 'stream': {

@@ -9,6 +9,13 @@ import { DAY_NO_DATA, dayColor, recordForYear, trendColor, yearColor } from './y
 // The one selection/outline token: 2D styles, 3D paint and the trace all read this.
 export const SELECT_COLOUR = '#67e8f9'
 
+// Province-scoped municipal disclosure. Idle = subtle tint, borders hidden.
+// Revealed = full data fill with crisp internal boundaries.
+// Values are safe within the documented ranges; keep them here so no component
+// invents a local hue or alpha.
+export const IDLE_MUNI_FILL_ALPHA = 0.04
+export const REVEALED_FILL_ALPHA = 0.76
+
 const HIGHLIGHT = {
   // Region V / Bicol — heat palette used only during the loading state
   fill: true,
@@ -161,10 +168,18 @@ function dayBase(feature, dayValues) {
 // Significance renders as border pattern (solid vs dashed), never by fill hue alone.
 export function getMunicipalityStyle(
   feature,
-  { selected = false, viewMode = 'trend', year = null, dayValues = null } = {},
+  {
+    selected = false,
+    viewMode = 'trend',
+    year = null,
+    dayValues = null,
+    hoveredProvince = null,
+    selectedProvince = null,
+  } = {},
 ) {
   const n = feature?.properties?.narrative
   if (!n) return MUN_PENDING
+  const p = feature?.properties ?? {}
   const base =
     viewMode === 'year'
       ? yearBase(feature, year)
@@ -172,10 +187,20 @@ export function getMunicipalityStyle(
         ? dayBase(feature, dayValues)
         : trendBase(feature)
   const sig = n.trend?.is_significant
+  // A municipality is revealed when its province is under pointer hover or is
+  // the parent province of an active selection. Otherwise its fill is a subtle
+  // tint and its internal boundary stroke is fully transparent.
+  const revealed =
+    (hoveredProvince &&
+      normalizeName(p.province) === normalizeName(hoveredProvince)) ||
+    (selectedProvince &&
+      normalizeName(p.province) === normalizeName(selectedProvince))
   const style = {
     ...base,
+    fillOpacity: revealed ? REVEALED_FILL_ALPHA : IDLE_MUNI_FILL_ALPHA,
     color: sig ? '#fca5a5' : '#cbd5e1',
     weight: sig ? (isCity(feature) ? 2.5 : 2) : (isCity(feature) ? 2 : 1.5),
+    opacity: revealed ? 1 : 0,
     ...(sig ? {} : { dashArray: '4 3' }),
   }
   if (selected) {

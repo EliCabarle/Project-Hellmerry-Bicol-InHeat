@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import { strict as strictAssert } from 'node:assert/strict'
-import { getMunicipalityStyle, joinNarratives } from './src/gis/engine.js'
+import { getMunicipalityStyle, joinNarratives, IDLE_MUNI_FILL_ALPHA } from './src/gis/engine.js'
 import {
   recordForYear,
   trendColor,
@@ -52,5 +52,9 @@ test('year mode changes fill by selected year while keeping the significance bor
   const last = getMunicipalityStyle(feature, { viewMode: 'year', year: 2025 })
   strictAssert.notEqual(first.fillColor, last.fillColor, 'different years produce different fills')
   strictAssert.equal(first.dashArray, undefined, 'significant trend keeps a solid border')
-  strictAssert.equal(first.fillOpacity, 0.62)
+  strictAssert.equal(
+    first.fillOpacity,
+    IDLE_MUNI_FILL_ALPHA,
+    'year mode is idle-hidden until a province is hovered',
+  );
 })

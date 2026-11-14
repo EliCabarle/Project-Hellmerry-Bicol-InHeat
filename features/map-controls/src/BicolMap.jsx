@@ -117,15 +117,37 @@ function MunicipalityLayer({
   dayValues,
   onSelect,
   triggerStagger,
+  hoveredProvince,
+  selectedProvince,
+  provinceCounts,
+  onProvinceHover,
 }) {
   const layerRef = useRef(null);
-  const stateRef = useRef({ selectedKey, viewMode, year, date, dayValues });
+  const stateRef = useRef({
+    selectedKey,
+    viewMode,
+    year,
+    date,
+    dayValues,
+    hoveredProvince,
+    selectedProvince,
+  });
   const selectRef = useRef(onSelect);
+  const prevHoveredRef = useRef(null);
+  const prevSelectedRef = useRef(null);
   const entryKey = joined?.features?.[0]
     ? featureKey(joined.features[0])
     : null;
   const reducedMotion = usePrefersReducedMotion();
-  stateRef.current = { selectedKey, viewMode, year, date, dayValues };
+  stateRef.current = {
+    selectedKey,
+    viewMode,
+    year,
+    date,
+    dayValues,
+    hoveredProvince,
+    selectedProvince,
+  };
   selectRef.current = onSelect;
 
   const styleFor = useCallback(
@@ -135,6 +157,8 @@ function MunicipalityLayer({
         viewMode: stateRef.current.viewMode,
         year: stateRef.current.year,
         dayValues: stateRef.current.dayValues,
+        hoveredProvince: stateRef.current.hoveredProvince,
+        selectedProvince: stateRef.current.selectedProvince,
       }),
     [],
   );
@@ -145,8 +169,25 @@ function MunicipalityLayer({
     // Roving tabindex: one municipality is reachable with Tab, then arrow keys
     // move through the map without adding 114 stops to the page.
     const tabbable = selectedKey ?? entryKey;
+    // Only re-style features whose province entered or exited hover/selection.
+    const changedProvinces = new Set();
+    const prevHovered = prevHoveredRef.current;
+    const prevSelected = prevSelectedRef.current;
+    if (prevHovered !== hoveredProvince) {
+      if (prevHovered) changedProvinces.add(prevHovered);
+      if (hoveredProvince) changedProvinces.add(hoveredProvince);
+    }
+    if (prevSelected !== selectedProvince) {
+      if (prevSelected) changedProvinces.add(prevSelected);
+      if (selectedProvince) changedProvinces.add(selectedProvince);
+    }
+    prevHoveredRef.current = hoveredProvince;
+    prevSelectedRef.current = selectedProvince;
     layer.eachLayer((child) => {
-      child.setStyle(styleFor(child.feature));
+      const prov = child.feature?.properties?.province;
+      if (!changedProvinces.size || changedProvinces.has(prov)) {
+        child.setStyle(styleFor(child.feature));
+      }
       const el = child.getElement?.();
       if (el)
         el.setAttribute(
@@ -155,7 +196,17 @@ function MunicipalityLayer({
         );
       if (featureKey(child.feature) === selectedKey) child.bringToFront();
     });
-  }, [entryKey, joined, selectedKey, styleFor, viewMode, year, dayValues]);
+  }, [
+    entryKey,
+    joined,
+    selectedKey,
+    styleFor,
+    hoveredProvince,
+    selectedProvince,
+    viewMode,
+    year,
+    dayValues,
+  ]);
 
   // Staggered opacity reveal strictly on 3D→2D switch: areas fade in top-down
   // in one capped wave, then hold at full opacity. Never on initial mount,
@@ -192,10 +243,16 @@ function MunicipalityLayer({
     if (!layer) return;
     layer.eachLayer((child) => {
       child.setTooltipContent(
-        tooltipHtml(child.feature, { year, viewMode, date, dayValues }),
+        tooltipHtml(child.feature, {
+          year,
+          viewMode,
+          date,
+          dayValues,
+          provinceCount: provinceCounts.get(child.feature?.properties?.province),
+        }),
       );
     });
-  }, [joined, year, viewMode, date, dayValues]);
+  }, [joined, year, viewMode, date, dayValues, provinceCounts]);
 
   return (
     <GeoJSON
@@ -208,6 +265,7 @@ function MunicipalityLayer({
           tooltipHtml(feature, {
             ...stateRef.current,
             year: stateRef.current.year,
+            provinceCount: provinceCounts.get(feature?.properties?.province),
           }),
           {
             sticky: true,
@@ -281,6 +339,7 @@ function MunicipalityLayer({
               ...style,
               weight: style.weight + 1.5,
               color: "#f8fafc",
+              opacity: 1,
             });
             layer.openTooltip();
           });
@@ -291,6 +350,7 @@ function MunicipalityLayer({
         });
 
         layer.on("mouseover", () => {
+          onProvinceHover(feature?.properties?.province ?? null);
           const style = styleFor(feature);
           layer.setStyle({
             ...style,
@@ -298,6 +358,10 @@ function MunicipalityLayer({
             color: "#f8fafc",
           });
         });
+        // Don't clear hoveredProvince on feature mouseout: moving between
+        // municipalities in the same province would otherwise flash the map
+        // blank (mouseout → null → mouseover → province). Cleared on map
+        // mouseleave instead, so the province stays revealed while sweeping.
         layer.on("mouseout", () => layer.setStyle(styleFor(feature)));
         layer.on("click", select);
       }}
@@ -331,6 +395,15 @@ export default function BicolMap({
     () => (ready ? joinNarratives(munGeojson, narratives) : null),
     [ready, munGeojson, narratives],
   );
+  // Province -> LGU count, for the hover tooltip badge.
+  const provinceCounts = useMemo(() => {
+    const counts = new Map();
+    for (const f of joined?.features ?? []) {
+      const p = f.properties?.province;
+      if (p) counts.set(p, (counts.get(p) ?? 0) + 1);
+    }
+    return counts;
+  }, [joined]);
   const activeStore = store ?? timelineStore;
   const selectedIndex = useSyncExternalStore(
     activeStore.subscribe,
@@ -363,6 +436,7 @@ export default function BicolMap({
       )
     : latestYear;
   const [selectedKey, setSelectedKey] = useState(null);
+  const [hoveredProvince, setHoveredProvince] = useState(null);
   const [indexOpen, setIndexOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
   const [map, setMap] = useState(null);
@@ -501,6 +575,36 @@ export default function BicolMap({
     [joined, selectedKey],
   );
 
+  // Province of the currently selected municipality, kept visible after hover.
+  const selectedProvince = useMemo(() => {
+    if (!selectedKey || !joined) return null;
+    const f = joined.features.find((f) => featureKey(f) === selectedKey);
+    return f ? (f.properties?.province ?? null) : null;
+  }, [joined, selectedKey]);
+
+  // Reports the province under the pointer from either renderer (2D feature
+  // mouseover or 3D MapLibre mousemove) so hoveredProvince stays in sync.
+  const onProvinceHover = useCallback(
+    (province) => setHoveredProvince(province),
+    [],
+  );
+
+  // Clear hoveredProvince when the pointer leaves the map container entirely,
+  // not merely when stepping between municipalities. This keeps the province
+  // revealed while sweeping across its municipalities and avoids the blank
+  // flash caused by feature mouseout → null → feature mouseover → province.
+  useEffect(() => {
+    if (!map) return;
+    const onMapMouseOut = (event) => {
+      const relatedTarget = event.relatedTarget;
+      const container = map.getContainer();
+      if (relatedTarget && container?.contains(relatedTarget)) return;
+      setHoveredProvince(null);
+    };
+    map.on("mouseout", onMapMouseOut);
+    return () => map.off("mouseout", onMapMouseOut);
+  }, [map]);
+
   useEffect(() => {
     const onEscape = (event) => {
       if (event.key !== "Escape") return;
@@ -567,6 +671,10 @@ export default function BicolMap({
             dayValues={dayValues}
             onSelect={setSelectedKey}
             triggerStagger={switchTo2dFrom3d.current}
+            hoveredProvince={hoveredProvince}
+            selectedProvince={selectedProvince}
+            provinceCounts={provinceCounts}
+            onProvinceHover={onProvinceHover}
           />
         )}
       </MapContainer>

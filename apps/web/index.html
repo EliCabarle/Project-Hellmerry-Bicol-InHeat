@@ -6,11 +6,23 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <!-- Lead ruling 2026-11-14: cream chrome (guest landing is the default screen).
-         Manifest theme_color/background_color intentionally stay dark (#070a0f). -->
-    <meta name="theme-color" content="#FFF7ED" />
+    <meta name="theme-color" content="#0b1220" />
+    <!-- Set the theme before first paint so a dark-default visit never flashes
+         the light clay page. Mirrors readTheme() in app.jsx. -->
+    <script>
+      try {
+        var t = localStorage.getItem('bih:theme')
+        document.documentElement.dataset.theme = t === 'light' || t === 'dark' ? t : 'dark'
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark'
+      }
+    </script>
     <link rel="preload" href="/fonts/fredoka-latin-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/nunito-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Nunito — warm, rounded clay typeface (impeccable clay system, choice 1) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <title>Bicol In-Heat — Be A Trend Detective!</title>
   </head>
   <body class="bg-heat-bg">

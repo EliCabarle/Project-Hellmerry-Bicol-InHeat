@@ -53,6 +53,20 @@ const LINE = "bih-muni-line";
 const DASH = "bih-muni-line-dash";
 const TRACE_SRC = "bih-muni-trace";
 const TRACE = "bih-muni-trace-outline";
+const PULSE_SRC = "bih-muni-pulse";
+const PULSE = "bih-muni-pulse-ring";
+
+// Single expanding ring at the selected area's centroid, on its top face.
+// Colours come from the project's single accent token (SELECT_COLOUR).
+const PULSE_MS = 1400
+const PULSE_START = 0.4
+const PULSE_SCALE = 2.5
+const PULSE_RING_INNER = 0.65
+const PULSE_HEIGHT_M = 2
+const PULSE_SEGMENTS = 64
+
+const M_PER_DEG_LAT = 110540
+const M_PER_DEG_LNG = 111320
 
 const STYLE = {
   version: 8,
@@ -111,6 +125,45 @@ function centroidOf(feature) {
   return [(minX + maxX) / 2, (minY + maxY) / 2];
 }
 
+// Diagonal of the area's bounds, in metres at its centroid latitude — the
+// characteristic "size" the pulse scales from.
+function sizeOf(rings) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const ring of rings) {
+    for (const [x, y] of ring) {
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+  }
+  const lat = (minY + maxY) / 2;
+  const mLng = M_PER_DEG_LNG * Math.cos((lat * Math.PI) / 180);
+  return Math.hypot((maxX - minX) * mLng, (maxY - minY) * M_PER_DEG_LAT) || 1;
+}
+
+// Annulus (outer ring + inner hole) centred on `centre` with the given outer
+// radius in metres, expressed in degrees at the centre latitude.
+function ringGeometry(centre, outerRadius) {
+  const innerRadius = outerRadius * PULSE_RING_INNER
+  const clng = centre[0]
+  const clat = centre[1]
+  const mLat = M_PER_DEG_LAT
+  const mLng = M_PER_DEG_LNG * Math.cos((clat * Math.PI) / 180)
+  const outer = []
+  const inner = []
+  for (let i = 0; i <= PULSE_SEGMENTS; i++) {
+    const a = (i / PULSE_SEGMENTS) * Math.PI * 2
+    outer.push([clng + (outerRadius * Math.cos(a)) / mLng, clat + (outerRadius * Math.sin(a)) / mLat])
+    // Hole ring runs clockwise (reverse angle) so the polygon is a valid ring.
+    inner.push([clng + (innerRadius * Math.cos(-a)) / mLng, clat + (innerRadius * Math.sin(-a)) / mLat])
+  }
+  return { type: "Polygon", coordinates: [outer, inner] }
+}
+
 export default function Municipality3DLayer({
   joined,
   selectedKey,
@@ -119,6 +172,7 @@ export default function Municipality3DLayer({
   year = null,
   initialView = null,
   resetToken = 0,
+  initialFocusKey = null,
   onSelect,
   onReady,
   onUnavailable,
@@ -132,6 +186,9 @@ export default function Municipality3DLayer({
   const animRef = useRef(new Map());
   const rafRef = useRef(0);
   const traceRef = useRef(null);
+  const pulseRef = useRef(null); // { key, start, centre, size, depth, gen, raf }
+  const pulseGen = useRef(0);
+  const initialPulseSuppressedRef = useRef(false);
   const entryRef = useRef(new Map()); // key -> { start, delay } for the entry wave
   const entryStartedRef = useRef(false); // true once a level's entry has been initialized
   const yearRef = useRef(year);
@@ -391,6 +448,78 @@ export default function Municipality3DLayer({
     mapRef.current?.getSource(TRACE_SRC)?.setData(EMPTY);
   }, []);
 
+  const cancelPulse = useCallback(() => {
+    const p = pulseRef.current;
+    if (p) cancelAnimationFrame(p.raf);
+    pulseRef.current = null;
+    mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
+  }, []);
+
+  const finishPulse = useCallback(() => {
+    const p = pulseRef.current;
+    pulseRef.current = null;
+    mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
+  }, []);
+
+  // One pulse per selection: an expanding ring at the centroid that fades out,
+  // then removes itself. Restarting replaces any in-flight pulse (never stacks).
+  const startPulse = useCallback(
+    (key) => {
+      if (reducedRef.current) return;
+      cancelPulse();
+      const centre = dataRef.current.centroids.get(key);
+      const rings = dataRef.current.rings.get(key);
+      const depth = dataRef.current.depths.get(key) ?? DEPTH_BASE;
+      if (!centre || !rings?.length) return;
+      const size = sizeOf(rings);
+      const gen = ++pulseGen.current;
+      const start = performance.now();
+      pulseRef.current = { key, start, centre, size, depth, gen };
+      const raf = requestAnimationFrame(() => animatePulse(gen));
+      pulseRef.current.raf = raf;
+    },
+    [cancelPulse]
+  );
+
+  const animatePulse = useCallback(
+    (gen) => {
+      const p = pulseRef.current;
+      if (!p || p.gen !== gen) return;
+      const t = Math.min(1, (performance.now() - p.start) / PULSE_MS);
+      const eased = 1 - (1 - t) ** 3;
+      const radius = (PULSE_START + (PULSE_SCALE - PULSE_START) * eased) * p.size;
+      const source = mapRef.current?.getSource(PULSE_SRC);
+      if (source) {
+        const n = PULSE_SEGMENTS;
+        const clng = p.centre[0];
+        const clat = p.centre[1];
+        const mLat = M_PER_DEG_LAT;
+        const mLng = M_PER_DEG_LNG * Math.cos((clat * Math.PI) / 180);
+        const outer = [];
+        const inner = [];
+        for (let i = 0; i <= n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          outer.push([
+            clng + (radius * Math.cos(a)) / mLng,
+            clat + (radius * Math.sin(a)) / mLat,
+          ]);
+          inner.push([
+            clng + (radius * PULSE_RING_INNER * Math.cos(-a)) / mLng,
+            clat + (radius * PULSE_RING_INNER * Math.sin(-a)) / mLat,
+          ]);
+        }
+        source.setData({
+          type: "Feature",
+          properties: { _opacity: 1 - eased, _base: p.depth, _height: PULSE_HEIGHT_M },
+          geometry: { type: "Polygon", coordinates: [outer, inner] },
+        });
+      }
+      if (t >= 1) finishPulse();
+      else p.raf = requestAnimationFrame(() => animatePulse(gen));
+    },
+    [finishPulse]
+  );
+
   const showTip = useCallback((event) => {
     const id = event.features?.[0]?.id;
     const feature = dataRef.current.byKey.get(id);
@@ -502,6 +631,20 @@ export default function Municipality3DLayer({
           "fill-extrusion-height": ["+", ["get", "_z"], 2],
         },
       });
+      // Pulse ring: drawn once, repainted each frame while active, then cleared.
+      // Not pickable — no click/mousemove listener is attached to this layer.
+      map.addSource(PULSE_SRC, { type: "geojson", data: EMPTY });
+      map.addLayer({
+        id: PULSE,
+        type: "fill-extrusion",
+        source: PULSE_SRC,
+        paint: {
+          "fill-extrusion-color": SELECT_COLOUR,
+          "fill-extrusion-opacity": ["get", "_opacity"],
+          "fill-extrusion-base": ["get", "_base"],
+          "fill-extrusion-height": ["get", "_height"],
+        },
+      });
       setReady(true);
       readyCb.current?.(map);
     });
@@ -554,6 +697,7 @@ export default function Municipality3DLayer({
     return () => {
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
+      cancelPulse();
       animRef.current.clear();
       clearFlatFactors();
       traceRef.current = null;
@@ -662,10 +806,19 @@ export default function Municipality3DLayer({
       // Read before the camera move below: this effect runs first, so this is the
       // centre the user was looking at when they selected.
       startTrace(selectedKey, map.getCenter());
+      // A pulse acknowledges a user selection. The first-load restore from a URL
+      // or history is not a user action, so it is silenced exactly once.
+      const isInitialRestore =
+        initialFocusKey != null &&
+        selectedKey === initialFocusKey &&
+        !initialPulseSuppressedRef.current;
+      if (isInitialRestore) initialPulseSuppressedRef.current = true;
+      if (!isInitialRestore && !reducedRef.current) startPulse(selectedKey);
     } else {
       clearTrace();
+      cancelPulse();
     }
-  }, [clearTrace, moveTo, ready, selectedKey, startTrace, targetFor]);
+  }, [cancelPulse, clearTrace, initialFocusKey, moveTo, ready, selectedKey, startPulse, startTrace, targetFor]);
 
   // Reduced motion turning on mid-flight finishes every offset and trace immediately.
   useEffect(() => {
@@ -692,9 +845,11 @@ export default function Municipality3DLayer({
     const flatKeys = dataRef.current.collection.features
       .map((f) => f.properties?._key)
       .filter(Boolean);
+    // prefers-reduced-motion: never show a pulse.
+    cancelPulse();
     const snapped = snapFlats(flatKeys, selectedRef.current);
     if (snapped.size) setFlatFactors(snapped);
-  }, [paintTrace, reducedMotion, setLifts, setEntries, setFlatFactors]);
+  }, [cancelPulse, paintTrace, reducedMotion, setLifts, setEntries, setFlatFactors]);
 
   useEffect(() => {
     const map = mapRef.current;

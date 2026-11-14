@@ -6,6 +6,7 @@
 import { useEffect, useRef } from 'react'
 import { HP_PER_LEVEL } from '@features/gamified-dashboard'
 import { IconMenu } from './Icons.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 // Clay shell bar: opaque white surface, clay contact shadow, Nunito type.
 
@@ -17,6 +18,8 @@ export default function NavBar({
   onOpenMenu,
   menuButtonRef,
   menuOpen = false,
+  theme = 'dark',
+  onToggleTheme,
 }) {
   const barRef = useRef(null)
   const pct = Math.round((inLevel / HP_PER_LEVEL) * 100)
@@ -82,6 +85,7 @@ export default function NavBar({
             Level {level} · <span className="text-clay-text-muted">{title}</span>
           </p>
         </div>
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         <button
           ref={menuButtonRef}
           type="button"

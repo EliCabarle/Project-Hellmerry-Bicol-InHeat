@@ -193,6 +193,7 @@ export default function Municipality3DLayer({
   const sheenRef = useRef(null);
   const mapRef = useRef(null);
   const hoverRef = useRef(null);
+  const lastPointRef = useRef(null); // last cursor point, for re-picking after a move
   const selectedRef = useRef(selectedKey);
   const liftRef = useRef(new Map());
   const animRef = useRef(new Map());
@@ -672,6 +673,7 @@ export default function Municipality3DLayer({
     });
 
     map.on("mousemove", FILL, (event) => {
+      lastPointRef.current = event.point;
       const id = event.features?.[0]?.id ?? null;
       if (id === hoverRef.current) {
         showTip(event);
@@ -717,6 +719,21 @@ export default function Municipality3DLayer({
       hideTip();
       const trace = traceRef.current;
       if (trace?.progress >= 1) paintTrace(trace, 1);
+    });
+
+    // Once the camera settles, re-pick at the last cursor point: the geometry
+    // moved, so the card must follow what is actually under the pointer.
+    map.on("moveend", () => {
+      const point = lastPointRef.current;
+      if (!point) return;
+      const features = map.queryRenderedFeatures(point, { layers: [FILL] });
+      if (features.length) showTip({ features, point });
+      else hideTip();
+    });
+
+    // Cursor off the canvas: no point to re-pick from.
+    map.on("mouseout", () => {
+      lastPointRef.current = null;
     });
 
     return () => {

@@ -54,6 +54,10 @@ export default function App() {
   const [profile, setProfile] = useState(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileLoadFailed, setProfileLoadFailed] = useState(false)
+  // True once the profile read for this user settled (row or none). `user` arrives
+  // a render before the read starts, so without this an unsettled read looks
+  // exactly like "no handle" and opens the gate for users who already have one.
+  const [profileChecked, setProfileChecked] = useState(false)
   // null | 'consent' | 'handle' | 'read'
   const [privacyMode, setPrivacyMode] = useState(null)
 
@@ -62,14 +66,18 @@ export default function App() {
       setProfile(null)
       setProfileLoading(false)
       setProfileLoadFailed(false)
+      setProfileChecked(false)
       setPrivacyMode(null)
       return
     }
     let cancelled = false
     setProfileLoading(true)
+    setProfileLoadFailed(false)
+    setProfileChecked(false)
     loadMyProfile(supabase, user.id).then(({ data, error }) => {
       if (cancelled) return
       setProfileLoading(false)
+      setProfileChecked(true)
       // A failed read leaves "onboarded?" unknown, so no gate is forced.
       if (error) {
         setProfileLoadFailed(true)
@@ -85,7 +93,7 @@ export default function App() {
   // First sign-in with no handle row opens the gate: the notice first, then the
   // handle. `current ?? step` keeps a dialog the user closed shut until something
   // changes, instead of springing back on the next render.
-  const needsOnboarding = user && !profileLoading && !profile && !profileLoadFailed
+  const needsOnboarding = user && profileChecked && !profile && !profileLoadFailed
   useEffect(() => {
     if (!needsOnboarding) return
     const step = hasConsent(user.user_metadata) ? 'handle' : 'consent'

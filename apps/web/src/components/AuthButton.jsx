@@ -6,7 +6,7 @@
 import { useState } from 'react'
 
 const pill =
-  'flex min-w-0 items-center gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-2 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
+  'flex w-full min-w-0 items-center justify-between gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-3 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
 
 const quietButton =
   'cursor-pointer min-h-11 rounded-[14px] px-2 py-1 font-clay font-semibold text-clay-text-body clay-btn--white text-clay-text-heading hover:bg-clay-bg-blue-white hover:text-clay-text-heading'
@@ -20,7 +20,6 @@ export default function AuthButton({
   profileLoadFailed = false,
   supabase = null,
   configured = false,
-  onOpenPrivacy,
   onOpenProfile,
 }) {
   const [error, setError] = useState(null) // message string
@@ -67,14 +66,9 @@ export default function AuthButton({
   return (
     <div className={pill}>
       {!user && (
-        <>
-          <button type="button" onClick={onOpenPrivacy} className={quietButton}>
-            Privacy
-          </button>
-          <button type="button" onClick={handleSignIn} className={quietButton} aria-label="Sign in with Google">
-            Sign in
-          </button>
-        </>
+        <button type="button" onClick={handleSignIn} className={quietButton} aria-label="Sign in with Google">
+          Sign in
+        </button>
       )}
 
       {user && loadingProfile && <span className="px-1 text-clay-text-muted">Loading…</span>}
@@ -87,12 +81,9 @@ export default function AuthButton({
 
       {user && !loadingProfile && profile && (
         <>
-          <span className="max-w-[7.5rem] truncate px-1 text-clay-text-body" title="Your chosen handle">
+          <span className="max-w-[12rem] truncate px-1 text-lg font-bold text-clay-text-heading" title="Your chosen handle">
             {profile.handle}
           </span>
-          <button type="button" onClick={onOpenPrivacy} className={quietButton}>
-            Privacy
-          </button>
           <button type="button" onClick={handleSignOut} className={quietButton}>
             Sign out
           </button>
@@ -101,14 +92,9 @@ export default function AuthButton({
 
       {/* Escape hatch: a failed profile read must not trap the user signed in. */}
       {user && !loadingProfile && !profile && profileLoadFailed && (
-        <>
-          <button type="button" onClick={onOpenPrivacy} className={quietButton}>
-            Privacy
-          </button>
-          <button type="button" onClick={handleSignOut} className={quietButton}>
-            Sign out
-          </button>
-        </>
+        <button type="button" onClick={handleSignOut} className={quietButton}>
+          Sign out
+        </button>
       )}
 
       {error && (

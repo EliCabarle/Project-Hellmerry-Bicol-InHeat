@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   IconGear,
   IconGrid,
+  IconHome,
   IconMap,
   IconSignOut,
   IconTrophy,
@@ -36,6 +37,15 @@ export default function AppMenu({
   // zone and crash the whole tree on open.
   const rows = useMemo(
     () => [
+      // Home → landing (lead ruling 2026-11-14: every user, guests included).
+      // First row; the landing screen renders no NavBar, so this is the only
+      // in-app way back to it.
+      {
+        label: "Home",
+        icon: IconHome,
+        major: true,
+        onClick: () => navigate("landing"),
+      },
       {
         label: "Map",
         icon: IconMap,

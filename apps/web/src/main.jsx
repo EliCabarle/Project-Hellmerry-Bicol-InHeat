@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import 'leaflet/dist/leaflet.css'
 import './index.css'
 import './clay-bridge.css'
+import './dark-theme.css'
 import App from './app.jsx'
 
 createRoot(document.getElementById('root')).render(

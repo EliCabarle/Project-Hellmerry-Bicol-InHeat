@@ -6,11 +6,11 @@
 export const PRIVACY_VERSION = '2026-11-14'
 
 // shortcut: placeholder contact, replace before submission
-export const PRIVACY_CONTACT = 'privacy@example.com'
+export const PRIVACY_CONTACT = 'geraldezleonelsymon@gmail.com'
 // shortcut: placeholder accountable person, replace before submission
-export const PRIVACY_ACCOUNTABLE = '<name>'
+export const PRIVACY_ACCOUNTABLE = 'Leonel Geraldez'
 // shortcut: placeholder Supabase region, replace before submission
-export const PRIVACY_REGION = '<region>'
+export const PRIVACY_REGION = 'South Asia(Mumbai)'
 
 // A version match is the evidence; privacy_accepted_at is written for audit only.
 export const hasConsent = (meta, version = PRIVACY_VERSION) => meta?.privacy_version === version

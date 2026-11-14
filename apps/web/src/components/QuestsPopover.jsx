@@ -11,11 +11,11 @@ import {
 import { IconCheck } from './Icons.jsx'
 
 const ROW =
-  'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
+  'flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-[14px] px-2 py-1.5 text-left transition-colors hover:bg-clay-bg-blue-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-blue font-clay'
 const SUBMIT_BTN =
-  'bih-btn shrink-0 cursor-pointer rounded-md bg-heat-amber px-2.5 py-1.5 text-[11px] font-semibold text-slate-950 hover:bg-amber-300'
+  'clay-btn shrink-0 rounded-[14px] px-2.5 py-1.5 text-[11px] font-extrabold text-white'
 const RECORDED =
-  'shrink-0 rounded border border-heat-cool/40 bg-heat-cool/10 px-1.5 py-0.5 text-[11px] font-semibold text-heat-cool'
+  'shrink-0 rounded border border-clay-teal/40 bg-clay-teal/10 px-1.5 py-0.5 text-[11px] font-clay font-semibold text-clay-teal-shadow'
 
 // Module-level cache: the dashboard and this popover both need the CSV, so
 // fetch it once per session and share the parsed catalog.
@@ -120,13 +120,13 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-heat-surface/90 px-3 py-1.5 text-[11px] font-semibold text-slate-200 shadow-hud backdrop-blur-md transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+        className="clay-btn--white pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-[14px] border border-white/30 bg-white px-3 py-1.5 text-[11px] font-clay font-semibold text-clay-text-heading shadow-card hover:bg-clay-bg-blue-white hover:text-clay-text-heading"
       >
-        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-heat-amber/20 text-heat-amber">
+        <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-clay-amber/20 text-clay-amber">
           <IconCheck className="h-3 w-3" />
         </span>
         Quests
-        <span className="font-mono text-[11px] text-slate-400">
+        <span className="font-mono text-[11px] text-clay-text-muted">
           {doneCount}/{quests.length}
         </span>
       </button>
@@ -136,13 +136,13 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
           ref={panelRef}
           role="dialog"
           aria-label="Today's quests"
-          className="absolute left-3 top-[calc(11.5rem+env(safe-area-inset-top))] lg:top-[calc(7.5rem+env(safe-area-inset-top))] z-[590] w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-xl border border-white/10 bg-heat-surface/95 p-2.5 text-slate-100 shadow-hud backdrop-blur-md"
+          className="absolute left-3 top-[calc(11.5rem+env(safe-area-inset-top))] lg:top-[calc(7.5rem+env(safe-area-inset-top))] z-[590] w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-[24px] border border-white/30 bg-white shadow-card p-2.5 text-clay-text-body font-clay backdrop-blur-md"
         >
           <div className="flex items-baseline justify-between gap-2 px-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
+            <p className="text-[11px] font-clay font-semibold uppercase tracking-[0.16em] text-clay-text-muted">
               Today&apos;s quests
             </p>
-            <p className="font-mono text-[11px] text-slate-400">
+            <p className="font-mono text-[11px] text-clay-text-muted">
               {derived.todayTotal} HP today
             </p>
           </div>
@@ -159,7 +159,7 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
                 return (
                   <div
                     key={quest.id}
-                    className="flex min-h-11 items-center gap-2 rounded-lg px-2 py-1.5"
+                    className="flex min-h-11 items-center gap-2 rounded-[14px] px-2 py-1.5"
                   >
                     <button
                       type="button"
@@ -171,21 +171,21 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
                           ? `${quest.title} — recorded today`
                           : `Mark "${quest.title}" as done`
                       }
-                      className={`grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
+                      className={`grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-clay-blue ${
                         recorded
-                          ? 'border-heat-cool bg-heat-cool/20 text-heat-cool'
+                          ? 'border-clay-teal bg-clay-teal/20 text-clay-teal-shadow'
                           : isPending
-                            ? 'border-heat-amber bg-heat-amber/20 text-heat-amber'
+                            ? 'border-clay-amber bg-clay-amber/20 text-clay-amber-shadow'
                             : 'border-white/20 text-transparent hover:border-white/40'
                       } ${recorded ? 'cursor-default' : ''}`}
                     >
                       <IconCheck className="h-3 w-3" />
                     </button>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-xs text-slate-200">
+                      <span className="block truncate text-xs text-clay-text-body">
                         {quest.title}
                       </span>
-                      <span className="block text-[11px] text-slate-400">
+                      <span className="block text-[11px] text-clay-text-muted">
                         {quest.hp} HP
                       </span>
                     </span>
@@ -206,7 +206,7 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
             )}
           </div>
 
-          <p className="mt-1.5 border-t border-white/10 px-1 pt-1.5 text-[11px] text-slate-400">
+          <p className="mt-1.5 border-t border-white/20 px-1 pt-1.5 text-[11px] text-clay-text-muted font-clay">
             Level {derived.level} · {derived.inLevel}/{HP_PER_LEVEL} HP ·{' '}
             {derived.totalHP} total
           </p>

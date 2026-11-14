@@ -16,15 +16,15 @@ export default function AccountScreen({
   onOpenProfile,
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col bg-heat-bg">
+    <div className="flex h-full min-h-0 flex-col bg-clay-bg">
       <main id="main" className="min-h-0 flex-1 overflow-y-auto bih-scroll">
-        <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-heat-amber mb-1">Manage Account</p>
-          <h1 className="mt-0.5 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Your explorer profile</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-300">
+        <div className="mx-auto max-w-7xl px-3 py-8 sm:px-5 sm:py-10 lg:px-8">
+          <p className="text-xs font-clay font-semibold uppercase tracking-[0.18em] text-clay-coral-shadow mb-1">Manage Account</p>
+          <h1 className="mt-0.5 text-3xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-4xl">Your explorer profile</h1>
+          <p className="mt-2 max-w-2xl text-sm text-clay-text-muted font-clay">
             Your chosen handle is the only identity any screen shows — never your Google name or email.
           </p>
-          <div className="mt-6">
+          <div className="mt-8 clay-card--white">
             <AuthButton
               user={user}
               profile={profile}
@@ -36,7 +36,7 @@ export default function AccountScreen({
               onOpenProfile={onOpenProfile}
             />
           </div>
-          <p className="mt-4 text-xs text-slate-500">
+          <p className="mt-4 text-xs text-clay-text-muted font-clay">
             Sign out clears the session and returns you to the guest view; your local progress stays on this device.
           </p>
         </div>

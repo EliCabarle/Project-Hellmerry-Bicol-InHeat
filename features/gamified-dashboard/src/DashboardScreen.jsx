@@ -451,7 +451,7 @@ export default function DashboardScreen({
             <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">
               {LABELS.eyebrow.plain}
             </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">
               {LABELS.title.plain}
             </h1>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
@@ -739,7 +739,7 @@ export default function DashboardScreen({
             <button
               type="button"
               onClick={() => reload?.()}
-              className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 bih-btn"
+              className="cursor-pointer rounded-[12px] bg-clay-blue px-2.5 py-1 text-xs font-semibold text-white hover:bg-clay-blue-shadow bih-btn"
             >
               Try again
             </button>

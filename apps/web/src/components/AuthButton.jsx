@@ -6,10 +6,10 @@
 import { useState } from 'react'
 
 const pill =
-  'flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] px-2 py-1.5 text-xs text-slate-200 shadow-sm backdrop-blur'
+  'flex min-w-0 items-center gap-1.5 rounded-[20px] border border-white/30 bg-white shadow-card px-2 py-1.5 text-xs font-clay font-semibold text-clay-text-body'
 
 const quietButton =
-  'cursor-pointer min-h-11 rounded-md px-2 py-1 font-medium text-slate-300 bih-btn text-slate-300 hover:bg-white/10 hover:text-white'
+  'cursor-pointer min-h-11 rounded-[14px] px-2 py-1 font-clay font-semibold text-clay-text-body clay-btn--white text-clay-text-heading hover:bg-clay-bg-blue-white hover:text-clay-text-heading'
 
 // Profile state is owned by app.jsx (it also drives the consent gate), so this
 // control only renders what it is told and opens the dialog it is given.
@@ -34,7 +34,7 @@ export default function AuthButton({
   if (!configured || !supabase) {
     return (
       <div className={pill} title="VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing">
-        <span className="h-1.5 w-1.5 rounded-full bg-slate-500" aria-hidden="true" />
+        <span className="h-1.5 w-1.5 rounded-full bg-clay-text-muted" aria-hidden="true" />
         <span className="hidden sm:inline">Sign-in unavailable</span>
         <span className="sm:hidden">Offline</span>
       </div>
@@ -77,7 +77,7 @@ export default function AuthButton({
         </>
       )}
 
-      {user && loadingProfile && <span className="px-1 text-slate-400">Loading…</span>}
+      {user && loadingProfile && <span className="px-1 text-clay-text-muted">Loading…</span>}
 
       {showPicker && (
         <button type="button" onClick={onOpenProfile} className={quietButton}>
@@ -87,7 +87,7 @@ export default function AuthButton({
 
       {user && !loadingProfile && profile && (
         <>
-          <span className="max-w-[7.5rem] truncate px-1 text-slate-300" title="Your chosen handle">
+          <span className="max-w-[7.5rem] truncate px-1 text-clay-text-body" title="Your chosen handle">
             {profile.handle}
           </span>
           <button type="button" onClick={onOpenPrivacy} className={quietButton}>
@@ -112,7 +112,7 @@ export default function AuthButton({
       )}
 
       {error && (
-        <span role="alert" className="max-w-[9rem] truncate text-xs text-rose-300" title={errorDetail ?? undefined}>
+        <span role="alert" className="max-w-[9rem] truncate text-xs text-clay-coral" title={errorDetail ?? undefined}>
           {error}
         </span>
       )}

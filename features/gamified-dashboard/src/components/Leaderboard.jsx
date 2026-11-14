@@ -87,7 +87,7 @@ export default function Leaderboard({ supabase = null, reloadKey = null }) {
   if (!LEADERBOARD_ENABLED) {
     return (
       <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Leaderboard</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">Leaderboard</h1>
         <p className="mt-2 text-sm text-slate-300">Leaderboard, coming soon</p>
         <div aria-hidden="true" className="mt-4 space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -99,7 +99,7 @@ export default function Leaderboard({ supabase = null, reloadKey = null }) {
   }
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Leaderboard</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">Leaderboard</h1>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         Ranked by Heat Points, then saved places.
       </p>

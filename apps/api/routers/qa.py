@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import string
 import time
 from pathlib import Path
 from typing import Any
@@ -26,7 +27,11 @@ from openai import APIConnectionError, APIStatusError, OpenAI
 from pydantic import BaseModel, Field
 from supabase import create_client
 
-load_dotenv(Path(__file__).resolve().parents[1] / ".env")
+# Force-load .env with override=True so a stale or empty OS-level variable can
+# never shadow the file. Load the cwd/ancestors first, then the canonical
+# apps/api/.env last so it always wins.
+load_dotenv(override=True)
+load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=True)
 
 router = APIRouter(prefix="/api", tags=["qa"])
 
@@ -65,6 +70,8 @@ SYSTEM_PROMPT = (
     "page, not the whole population.\n"
     "- Keep answers short: at most 6 sentences, or a table of at most 10 rows plus "
     "two sentences. Never restate a whole tool payload.\n"
+    "- When presenting data for 3 or more municipalities or data points, ALWAYS "
+    "format the output as a valid Markdown table with clear column headers.\n"
     "- Answer in the language the question was asked in.\n"
     "- If the user sends a general greeting or asks who you are (Hi, Hello, "
     "Kamusta, 'what is your name'), introduce yourself as Silli and say you "
@@ -90,7 +97,8 @@ IDENTITY = re.compile(
 # Columns for ranking (no series, no narration) and for a single lookup (both).
 LIST_COLUMNS = (
     "name,province,slope,slope_ci_low,slope_ci_high,p_value,is_significant,"
-    "total_danger_days_45y,heat_index_max_c,nighttime_heat_index_c,lst_mean_c"
+    "total_danger_days_45y,heat_index_max_c,nighttime_heat_index_c,lst_mean_c,"
+    "population_2020,ndvi_mean,person_days_danger,elevation_m,distance_to_coast_km"
 )
 DETAIL_COLUMNS = (
     LIST_COLUMNS
@@ -103,7 +111,7 @@ _llm_client: OpenAI | None = None
 
 
 class QARequest(BaseModel):
-    question: str = Field(min_length=3, max_length=2000)
+    question: str = Field(min_length=1, max_length=2000)
 
 
 class QAResponse(BaseModel):
@@ -114,18 +122,24 @@ class QAResponse(BaseModel):
 def _db():
     global _db_client
     if _db_client is None:
-        _db_client = create_client(
-            os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]
-        )
+        url = os.environ.get("SUPABASE_URL")
+        key = os.environ.get("SUPABASE_SERVICE_KEY")
+        if not url or not key:
+            raise HTTPException(
+                status_code=503,
+                detail="Supabase not configured: set SUPABASE_URL and SUPABASE_SERVICE_KEY in apps/api/.env",
+            )
+        _db_client = create_client(url, key)
     return _db_client
 
 
 def _llm() -> OpenAI:
     global _llm_client
     if _llm_client is None:
-        _llm_client = OpenAI(
-            base_url=BASE_URL, api_key=os.environ["GROQ_API_KEY"]
-        )
+        api_key = os.getenv("GROQ_API_KEY")
+        if api_key is None:
+            raise ValueError("GROQ_API_KEY is missing from .env")
+        _llm_client = OpenAI(base_url=BASE_URL, api_key=api_key)
     return _llm_client
 
 
@@ -136,7 +150,13 @@ def _llm() -> OpenAI:
 
 def _embed_query(question: str) -> list[float]:
     """Query embeddings must use RETRIEVAL_QUERY, matching the corpus's DOCUMENT task."""
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Embedding key not configured: set GEMINI_API_KEY in apps/api/.env",
+        )
+    genai.configure(api_key=api_key)
     delay = 2.0
     for attempt in range(1, RETRIES + 1):
         try:
@@ -208,6 +228,11 @@ def _summarise(row: dict, detail: bool = False) -> dict:
             row.get("nighttime_heat_index_c"), 2
         ),
         "lst_mean_c": _round(row.get("lst_mean_c"), 2),
+        "population_2020": row.get("population_2020"),
+        "ndvi_mean": row.get("ndvi_mean"),
+        "person_days_danger": row.get("person_days_danger"),
+        "elevation_m": row.get("elevation_m"),
+        "distance_to_coast_km": row.get("distance_to_coast_km"),
     }
     if detail:
         series = row.get("series") or []
@@ -335,7 +360,9 @@ TOOLS = [
             "description": (
                 "Look up one or more municipalities by name. Returns the Theil-Sen "
                 "slope, confidence interval, p-value, significance, danger days, "
-                "latest heat index, change point and driver ranking."
+                "latest heat index, change point and driver ranking, plus population "
+                "2020, NDVI mean, person-days of danger, elevation and distance to "
+                "coast."
             ),
             "parameters": {
                 "type": "object",
@@ -464,8 +491,13 @@ def _chat(messages: list[dict], tools: list[dict] | None):
 @router.post("/qa", response_model=QAResponse)
 def answer(payload: QARequest) -> QAResponse:
     question = payload.question.strip()
+    # Normalised copy for the chitchat short-circuit: strip punctuation and
+    # lowercase so "Hi!", "hi.", "HEY", "hey there!" all match the greeting
+    # regex. The original `question` is unchanged for retrieval and the user
+    # message.
+    _chitchat_text = question.translate(str.maketrans("", "", string.punctuation)).lower()
     chitchat = bool(IDENTITY.match(question)) or (
-        bool(CHITCHAT.match(question)) and len(question) <= 40
+        bool(CHITCHAT.match(_chitchat_text)) and len(_chitchat_text) <= 40
     )
     chunks = [] if chitchat else _retrieve(question)
     sources = sorted({chunk["source_path"] for chunk in chunks})

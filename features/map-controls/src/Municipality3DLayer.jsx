@@ -42,10 +42,15 @@ import {
   BOUNDS_VISCOSITY,
 } from "./gis/countryFrame.js";
 
+// Satellite basemap (Esri World Imagery) under the extruded municipalities.
+// The old Canvas/World_Light_Gray_Base read as a flat white 2D sheet; imagery
+// gives the 3D extrusions a real ground to stand on.
 const IMAGERY_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+// White-halo place labels keyed for imagery (the light-gray reference labels are
+// dark text and vanish on satellite).
 const LABELS_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
 const SRC = "bih-muni";
 const FILL = "bih-muni-fill";
@@ -75,19 +80,21 @@ const STYLE = {
       type: "raster",
       tiles: [IMAGERY_URL],
       tileSize: 256,
-      maxzoom: 18,
-      attribution: "Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors",
+      maxzoom: 19,
+      attribution:
+        "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
     },
     labels: { type: "raster", tiles: [LABELS_URL], tileSize: 256, maxzoom: 18 },
   },
   layers: [
-    { id: "bg", type: "background", paint: { "background-color": "#F5F3FF" } },
+    // Dark while imagery streams in, so there is no white flash under the data.
+    { id: "bg", type: "background", paint: { "background-color": "#0b1220" } },
     { id: "imagery", type: "raster", source: "imagery" },
     {
       id: "labels",
       type: "raster",
       source: "labels",
-      paint: { "raster-opacity": 0.92 },
+      paint: { "raster-opacity": 0.9 },
     },
   ],
 };

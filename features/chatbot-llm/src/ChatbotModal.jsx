@@ -102,7 +102,7 @@ export default function ChatbotModal({
       />
       <div
         ref={dialogRef}
-        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
+        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-white text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chatbot-title"
@@ -250,7 +250,7 @@ export default function ChatbotModal({
             <button
               type="submit"
               disabled={!canSend}
-              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/20"
+              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-200"
             >
               <IconSend className="h-4 w-4" />
               <span className="sr-only">Send</span>

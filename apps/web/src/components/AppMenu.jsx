@@ -1,7 +1,6 @@
 // Collapsible app menu, anchored under the top-right menu button. No scrim:
 // the map stays pannable behind it. Rows are a menu pattern (active highlight
-// + roving focus), not tactile buttons, so they deliberately do not use
-// .bih-btn; the panel itself uses the shared --alpha-card surface token.
+// + roving focus), rendered on a clay white card surface.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   IconGear,
@@ -13,7 +12,7 @@ import {
   IconUser,
 } from "./Icons.jsx";
 
-const DIVIDER = "mx-3 border-t border-white/10 my-1.5";
+const DIVIDER = "mx-3 border-t border-clay-text-muted/20 my-1.5";
 
 export default function AppMenu({
   open = false,
@@ -162,11 +161,11 @@ export default function AppMenu({
 
   const rowClass = (tone, active) => {
     const base =
-      "flex w-full cursor-pointer items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+      "flex w-full cursor-pointer items-center gap-3 px-3 py-2 rounded-[14px] text-sm font-clay font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
     if (tone === "danger")
-      return `${base} ${active ? "bg-heat-sig/20 text-heat-hot" : "text-slate-300 hover:bg-white/5 hover:text-white"}`;
-    if (active) return `${base} bg-heat-amber text-slate-950`;
-    return `${base} text-slate-300 hover:bg-white/5 hover:text-white`;
+      return `${base} ${active ? "bg-clay-coral/20 text-clay-coral-shadow" : "text-clay-text-muted hover:bg-clay-bg-peach hover:text-clay-text-heading"}`;
+    if (active) return `${base} bg-clay-amber text-clay-text-heading`;
+    return `${base} text-clay-text-body hover:bg-clay-bg-blue-white hover:text-clay-text-heading`;
   };
 
   if (!open) return null;
@@ -176,7 +175,7 @@ export default function AppMenu({
       ref={menuRef}
       role="menu"
       aria-label="Main menu"
-      className="fixed z-[800] mt-0 w-[18rem] flex flex-col rounded-xl border border-white/10 bg-[rgba(13,20,30,var(--alpha-card))] text-slate-100 shadow-hud backdrop-blur-md"
+      className="fixed z-[800] mt-0 w-[18rem] flex flex-col rounded-[24px] border border-white/30 bg-white shadow-card text-clay-text-body font-clay"
       style={{ top: `${menuPos.top}px`, right: `${menuPos.right}px` }}
     >
       {rows.map((row, i) => {
@@ -200,12 +199,12 @@ export default function AppMenu({
             className={rowClass(row.tone, active)}
             disabled={row.disabled}
           >
-            <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <Icon className="h-4 w-4 shrink-0 text-clay-text-muted" aria-hidden="true" />
             <div className="min-w-0 flex-1">
-              <span className="block text-slate-200">{row.label}</span>
+              <span className="block text-clay-text-body">{row.label}</span>
             </div>
             {row.major && (
-              <span className="text-xs font-semibold text-slate-400">→</span>
+              <span className="text-xs font-semibold text-clay-text-muted">→</span>
             )}
           </button>
         );

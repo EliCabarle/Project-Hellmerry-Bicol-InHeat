@@ -20,7 +20,7 @@ export default function QuestsTab({
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
       <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
-      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">Quests</h1>
+      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">Quests</h1>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         Quests earn Heat Points — a game score, not a measurement of anything.
       </p>
@@ -39,7 +39,7 @@ export default function QuestsTab({
         </div>
         {login && login.day > 0 ? (
           <p className="mt-1 text-sm text-slate-200">
-            Streak day <span className="font-mono font-semibold text-white">{login.day}</span> — checked in for today.
+            Streak day <span className="font-mono font-semibold text-clay-text-heading">{login.day}</span> — checked in for today.
             {login.tomorrowHp != null && (
               <span className="text-slate-400"> Tomorrow: +{login.tomorrowHp} HP.</span>
             )}
@@ -75,7 +75,7 @@ export default function QuestsTab({
 
       {/* Checklist — title + description only; the task number and difficulty stay hidden */}
       <section className="mt-4">
-        <h2 className="text-sm font-semibold text-white">Today&apos;s quests</h2>
+        <h2 className="text-sm font-semibold text-clay-text-heading">Today&apos;s quests</h2>
         <p className="mt-0.5 text-xs text-slate-500">Self-reported, honor system.</p>
         {quests.length > 0 ? (
           <ul className="mt-2 space-y-2">

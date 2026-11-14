@@ -52,10 +52,12 @@ import {
 
 const geojson = JSON.parse(raw);
 
+// Clay world basemap: Esri Light Gray Canvas (keyless) + its label overlay, so
+// the map reads as soft paper under the pastel surfaces instead of satellite.
 const IMAGERY_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 const LABELS_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
 
 // Country framing centre, derived from the single country-bounds source.
 const COUNTRY_CENTER = [
@@ -338,7 +340,7 @@ function MunicipalityLayer({
             layer.setStyle({
               ...style,
               weight: style.weight + 1.5,
-              color: "#f8fafc",
+              color: "#1E1B4B",
               opacity: 1,
             });
             layer.openTooltip();
@@ -355,7 +357,7 @@ function MunicipalityLayer({
           layer.setStyle({
             ...style,
             weight: style.weight + 1,
-            color: "#f8fafc",
+            color: "#1E1B4B",
           });
         });
         // Don't clear hoveredProvince on feature mouseout: moving between
@@ -645,7 +647,7 @@ export default function BicolMap({
       >
         <TileLayer
           url={IMAGERY_URL}
-          attribution="Imagery © Esri, Maxar, Earthstar Geographics"
+          attribution="Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors"
           maxZoom={18}
           maxNativeZoom={18}
           noWrap={true}
@@ -753,7 +755,7 @@ export default function BicolMap({
           <button
             type="button"
             onClick={() => reload?.()}
-            className="cursor-pointer rounded-md bg-white/10 px-2.5 py-1 text-xs font-semibold text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+            className="cursor-pointer rounded-[12px] bg-clay-blue px-2.5 py-1 text-xs font-semibold text-white hover:bg-clay-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-shadow"
           >
             Try again
           </button>

@@ -211,7 +211,7 @@ export default function MunicipalityIndex({
                       }}
                       aria-current={selected ? 'true' : undefined}
                       className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber ${
-                        selected ? 'bg-heat-amber/20 text-white' : 'hover:bg-white/5'
+                        selected ? 'bg-heat-amber/20 text-clay-text-heading' : 'hover:bg-white/5'
                       }`}
                     >
                       <span className="min-w-0 flex-1">

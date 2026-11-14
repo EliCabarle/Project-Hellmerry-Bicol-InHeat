@@ -37,7 +37,7 @@ export default function HistoryTab({ derived, events, today }) {
   return (
     <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 lg:px-8">
       <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">Heat Points</p>
-      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white sm:text-3xl">History</h1>
+      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">History</h1>
       <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
         A game score kept on this device. Self-reported, honor system.
       </p>
@@ -135,7 +135,7 @@ export default function HistoryTab({ derived, events, today }) {
 
           {/* Log, newest first */}
           <section className="mt-4">
-            <h2 className="text-sm font-semibold text-white">Log</h2>
+            <h2 className="text-sm font-semibold text-clay-text-heading">Log</h2>
             <div className="mt-2 space-y-3">
               {loggedDays.map((date) => (
                 <section key={date}>

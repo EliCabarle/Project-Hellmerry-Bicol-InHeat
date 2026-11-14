@@ -8,7 +8,16 @@ import {
   getMunicipalityStyle,
   SELECT_COLOUR,
 } from "./gis/engine.js";
-import { DEPTH_BASE, LIFT_MS, LIFT_RATIO, depthFor } from "./gis/lift.js";
+import {
+  DEPTH_BASE,
+  LIFT_MS,
+  LIFT_RATIO,
+  clearFlatFactors,
+  getFlatFactor,
+  stepFlats,
+  snapFlats,
+  depthFor,
+} from "./gis/lift.js";
 import {
   TRACE_MS,
   easeOutCubic,
@@ -180,6 +189,7 @@ export default function Municipality3DLayer({
           _dash: style.dashArray ? 1 : 0,
           _depth: depth,
           _lift: 0,
+          _flatFactor: 0,
         },
       });
     }
@@ -214,6 +224,17 @@ export default function Municipality3DLayer({
       update: [...values].map(([id, value]) => ({
         id,
         addOrUpdateProperties: [{ key: "_entry", value }],
+      })),
+    });
+  }, []);
+
+  const setFlatFactors = useCallback((values) => {
+    const source = mapRef.current?.getSource(SRC);
+    if (!source || values.size === 0) return;
+    source.updateData({
+      update: [...values].map(([id, value]) => ({
+        id,
+        addOrUpdateProperties: [{ key: "_flatFactor", value }],
       })),
     });
   }, []);
@@ -290,6 +311,20 @@ export default function Municipality3DLayer({
     if (entryValues.size) setEntries(entryValues);
     active = active || entryActive;
 
+    // Flatten spotlight: non-selected areas fall to 0 m while the selected area
+    // stays elevated. Runs in this same rAF loop — no second loop.
+    const flatKeys = data.collection.features.map((f) => f.properties?._key).filter(Boolean);
+    let flatActive = false;
+    if (reducedRef.current) {
+      const snapped = snapFlats(flatKeys, selectedRef.current);
+      if (snapped.size) setFlatFactors(snapped);
+    } else {
+      const { changed, active: flatMoving } = stepFlats(now, flatKeys, selectedRef.current);
+      if (changed.size) setFlatFactors(changed);
+      flatActive = flatMoving;
+    }
+    active = active || flatActive;
+
     const trace = traceRef.current;
     if (trace) {
       const p = Math.min(1, (now - trace.start) / TRACE_MS);
@@ -298,7 +333,7 @@ export default function Municipality3DLayer({
       if (p < 1) active = true;
     }
     rafRef.current = active ? requestAnimationFrame(step) : 0;
-  }, [paintTrace, setLifts, setEntries]);
+  }, [paintTrace, setLifts, setEntries, setFlatFactors]);
 
   const moveTo = useCallback(
     (key, to, { finishFirst = false } = {}) => {
@@ -403,13 +438,18 @@ export default function Municipality3DLayer({
         source: SRC,
         paint: {
           "fill-extrusion-color": ["get", "_fill"],
-          // height = depth × entry progress (+ hover/selection lift on top).
-          // _entry defaults to 1 (full) so anything not mid-entry stands at full height.
-          // coalesce: get has no numeric-default overload, so fall back to 1 when absent.
+          // height = (depth × entry + hover/selection lift) × (1 - flatFactor).
+          // When an area is selected, every other area flattens to 0 m; the selected
+          // area stays at full depth + lift with its data ramp colour untouched.
+          // _entry defaults to 1 (full); _flatFactor defaults to 0 (no flatten).
           "fill-extrusion-height": [
-            "+",
-            ["*", ["get", "_depth"], ["coalesce", ["get", "_entry"], 1]],
-            ["get", "_lift"],
+            "*",
+            [
+              "+",
+              ["*", ["get", "_depth"], ["coalesce", ["get", "_entry"], 1]],
+              ["get", "_lift"],
+            ],
+            ["-", 1, ["coalesce", ["get", "_flatFactor"], 0]],
           ],
         },
       });
@@ -515,6 +555,7 @@ export default function Municipality3DLayer({
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       animRef.current.clear();
+      clearFlatFactors();
       traceRef.current = null;
       liftRef.current = new Map();
       map.remove();
@@ -582,7 +623,10 @@ export default function Municipality3DLayer({
       } else if (entryStartedRef.current) {
         entry = 1;
       }
-      return { ...f, properties: { ...f.properties, _entry: entry } };
+      return {
+        ...f,
+        properties: { ...f.properties, _flatFactor: getFlatFactor(key), _entry: entry },
+      };
     });
     source.setData({ ...data.collection, features });
     const keep = new Map();
@@ -644,7 +688,13 @@ export default function Municipality3DLayer({
       traceRef.current.progress = 1;
       paintTrace(traceRef.current, 1);
     }
-  }, [paintTrace, reducedMotion, setLifts]);
+    // prefers-reduced-motion: snap every area to its flatten target in one call.
+    const flatKeys = dataRef.current.collection.features
+      .map((f) => f.properties?._key)
+      .filter(Boolean);
+    const snapped = snapFlats(flatKeys, selectedRef.current);
+    if (snapped.size) setFlatFactors(snapped);
+  }, [paintTrace, reducedMotion, setLifts, setEntries, setFlatFactors]);
 
   useEffect(() => {
     const map = mapRef.current;

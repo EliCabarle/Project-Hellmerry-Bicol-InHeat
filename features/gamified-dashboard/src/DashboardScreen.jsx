@@ -67,6 +67,7 @@ export default function DashboardScreen({
   supabase = null,
   user = null,
   onShowOnMap = null,
+  focusTab = null,
 }) {
   const [mode, setMode] = useState('slope')
   const [savedOnly, setSavedOnly] = useState(false)
@@ -108,6 +109,14 @@ export default function DashboardScreen({
   }, [years])
   const selectedYear =
     yearChoice != null && years.includes(yearChoice) ? yearChoice : latestYear
+
+  // External tab control (used by the map page's menu): switching `focusTab.id`
+  // applies that dashboard tab; the token rises on every request so re-clicking
+  // an already-open tab still refires. Mirrors the shell's focusToken pattern.
+  useEffect(() => {
+    if (!focusTab?.id || focusTab.id === active) return
+    setActive(focusTab.id)
+  }, [focusTab?.id, focusTab?.token])
 
   // A hidden filter that can no longer be switched off would strand the list
   // after sign-out, so clear "saved only" whenever saving is unavailable.
@@ -299,7 +308,7 @@ export default function DashboardScreen({
   const yearLabel = selectedYear != null ? String(selectedYear) : '—'
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-heat-bg">
+    <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
       <HeatBar
         level={derived.level}
         title={derived.title}

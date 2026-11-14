@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Self-hosted variable fonts (SIL OFL, latin subset, weights 300–700 in one
+   file each). No CDN: the offline PWA contract requires identical last-view
+   renders with zero third-party requests. Credited in the landing footer. */
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/fredoka-latin-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/nunito-latin-var.woff2') format('woff2');
+}
+
 :root {
   color-scheme: dark;
   --bih-bg: #070a0f;
@@ -27,6 +45,13 @@
   --btn-press-scale: 0.97;
   --hud-blur-px: 12px;
 
+  /* Focus indicator: dark separator + amber outer (UI-REVIEW B1). Exposed as a
+     token so the light clay landing reuses the same dual-ring pattern with its
+     own surface colours instead of inventing a second focus idiom. */
+  --bih-focus-separator: var(--bih-bg);
+  --bih-focus-accent: var(--bih-amber);
+  --bih-focus-ring: 0 0 0 2px var(--bih-focus-separator), 0 0 0 4px var(--bih-focus-accent);
+
   /* Floating NavBar clearance: viewport-top → 12px below the fixed navbar's
      bottom edge. NavBar publishes the measured value on :root; this fallback
      (72px bar bottom + 12px gap, safe-area aware) covers the first paint. */
@@ -34,8 +59,10 @@
 }
 
 /* Shared tactile button utility: GPU-composited transform/background/border/shadow,
-   hover lift, press scale, 2px heat-amber focus ring. Opacity lives on the
-   background channel only so text/borders keep full WCAG contrast. */
+   hover lift, press scale. Focus is a dual ring — dark separator + amber outer —
+   so the indicator stays visible on amber-filled buttons (B1: amber-on-amber was
+   1.0:1). Opacity lives on the background channel only so text/borders keep full
+   WCAG contrast. Landing CTAs consume the same --bih-focus-ring token. */
 .bih-btn {
   position: relative;
   transition:
@@ -52,7 +79,7 @@
 }
 .bih-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--heat-amber, #fbbf24);
+  box-shadow: var(--bih-focus-ring);
 }
 .bih-btn:disabled {
   cursor: not-allowed;
@@ -236,8 +263,116 @@ body {
   }
   .bih-btn,
   .bih-btn:not(:disabled):hover,
-  .bih-btn:not(:disabled):active {
+  .bih-btn:not(:disabled):active,
+  .clay-btn,
+  .clay-btn:not(:disabled):hover,
+  .clay-btn:not(:disabled):active {
     transition-duration: 0ms !important;
     transform: none !important;
+  }
+}
+
+/* landing clay — light Claymorphism tokens for the guest landing screen
+   (UI-SPEC Token Block, lead-approved 2026-11-14). Everything here is consumed
+   only under .landing-root; the dark app theme above is untouched. The seam is
+   guarded: body stays dark, this root carries its own light surface and
+   color-scheme so native controls inside it follow the cream palette. */
+.landing-root {
+  color-scheme: light;
+  --clay-bg: #fff7ed;
+  --clay-card: #ffffff;
+  --clay-border: #fed7aa;
+  --clay-ink: #9a3412;
+  --clay-primary-surface: #f97316;
+  --clay-on-primary-surface: #0f172a;
+  --clay-accent: #2563eb;
+  --clay-outer: 4px 4px 8px rgba(154, 52, 18, 0.14);
+  --clay-outer-hover: 6px 6px 14px rgba(154, 52, 18, 0.18);
+  --clay-outer-primary: 4px 4px 8px rgba(15, 23, 42, 0.2);
+  --clay-inset:
+    inset -2px -2px 8px rgba(255, 255, 255, 0.75),
+    inset 2px 2px 8px rgba(254, 215, 170, 0.55);
+
+  background: var(--clay-bg);
+  color: var(--clay-ink);
+  font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+.landing-root h1,
+.landing-root h2 {
+  font-family: 'Fredoka', 'Segoe UI Rounded', system-ui, sans-serif;
+}
+
+/* Clay card/chip/btn. The press is 200ms ease-out (locked); focus is the
+   universal dark outline (≈16.8:1 on cream, ≈3.45:1 vs the blue fill — AA
+   1.4.11/2.4.11 pass). Deliberately NOT .bih-btn: the two idioms never mix.
+   Wrapped in @layer components so Tailwind utilities (bg-clay-accent,
+   bg-clay-primary…) sit after them in the cascade and can override the base
+   background — otherwise .clay-card/.clay-chip paint every accent white. */
+@layer components {
+  .clay-card {
+    border-radius: 24px;
+    border: 3px solid var(--clay-border);
+    background: var(--clay-card);
+    box-shadow: var(--clay-inset), var(--clay-outer);
+  }
+  .clay-card--emphasis {
+    border-width: 4px;
+  }
+  .clay-chip {
+    border-radius: 999px;
+    border: 3px solid var(--clay-border);
+    background: var(--clay-card);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .clay-btn {
+    border-radius: 16px;
+    min-height: 52px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.4;
+    transition:
+      transform 200ms ease-out,
+      box-shadow 200ms ease-out,
+      background-color 200ms ease-out,
+      border-color 200ms ease-out;
+  }
+  .clay-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--clay-inset), var(--clay-outer-hover);
+  }
+  .clay-btn:not(:disabled):active {
+    transform: scale(0.97);
+  }
+  .clay-btn:focus-visible {
+    outline: 3px solid var(--clay-on-primary-surface);
+    outline-offset: 2px;
+  }
+  .clay-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+  }
+  /* Blue fill omits the inset (highlight reads wrong on saturated blue). */
+  .clay-btn--primary {
+    background: var(--clay-accent);
+    color: #ffffff;
+    box-shadow: var(--clay-outer-primary);
+  }
+  .clay-btn--primary:not(:disabled):hover {
+    box-shadow: 6px 6px 14px rgba(15, 23, 42, 0.24);
+  }
+  /* White fill + clay border (hero secondary and the climax inverted CTA). */
+  .clay-btn--secondary {
+    background: var(--clay-card);
+    border: 3px solid var(--clay-border);
+    color: var(--clay-ink);
+  }
+  /* Climax band CTA: same white fill, on-primary label per the spec. */
+  .clay-btn--inverted {
+    color: var(--clay-on-primary-surface);
   }
 }

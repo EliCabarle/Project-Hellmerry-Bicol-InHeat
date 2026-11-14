@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { loadMyProfile, saveHandle, validateHandle } from '../lib/profile.js'
+import { signInWithGoogle } from '../lib/auth.js'
 
 // In-flow header control. position: fixed would float over the map overlay's
 // zoom/layer panels (z-[700]) and the tab nav; normal flow needs no z-index.
@@ -70,13 +71,7 @@ export default function AuthButton({ user = null, supabase = null, configured = 
 
   const handleSignIn = async () => {
     clearFailure()
-    const { error: err } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      // select_account forces Google's chooser: signOut() only clears the local
-      // Supabase session, so without this a shared device would silently reuse
-      // the previous Google account.
-      options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } },
-    })
+    const { error: err } = await signInWithGoogle(supabase)
     // On success the browser redirects to Google, so only failures reach here.
     if (err) setFailure('Sign-in failed — try again', err.message)
   }

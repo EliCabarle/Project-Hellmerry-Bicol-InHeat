@@ -66,6 +66,15 @@ export function IconCheck(props) {
   return <svg {...base} {...props}><path d="m5 13 4 4L19 7" /></svg>
 }
 
+export function IconHome(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="m3 10 9-7 9 7" />
+      <path d="M5 9v11h14V9" />
+    </svg>
+  )
+}
+
 export function IconPlus(props) {
   return <svg {...base} {...props}><path d="M12 5v14M5 12h14" /></svg>
 }

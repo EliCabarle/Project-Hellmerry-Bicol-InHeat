@@ -64,9 +64,9 @@ const PULSE = "bih-muni-pulse-ring";
 // Single expanding ring at the selected area's centroid, on its top face.
 // Colours come from the project's single accent token (SELECT_COLOUR).
 const PULSE_MS = 1400
-// Land the ring after the 700 ms fitBounds camera settle (GOAL: "after the camera
+// Land the ring after the 550 ms fitBounds camera settle (GOAL: "after the camera
 // settles"). Without this the pulse fires during the move and reads as noise.
-const PULSE_DELAY = 700
+const PULSE_DELAY = 550
 const PULSE_START = 0.4
 const PULSE_SCALE = 2.5
 const PULSE_RING_INNER = 0.65
@@ -881,7 +881,7 @@ export default function Municipality3DLayer({
     map.fitBounds(bounds, {
       padding: 48,
       maxZoom: 13.5,
-      duration: reducedRef.current ? 0 : 700,
+      duration: reducedRef.current ? 0 : 550,
     });
   }, [ready, selectedFeature]);
 
@@ -892,7 +892,7 @@ export default function Municipality3DLayer({
     if (!bounds) return;
     map.fitBounds(bounds, {
       padding: 28,
-      duration: reducedRef.current ? 0 : 650,
+      duration: reducedRef.current ? 0 : 550,
     });
   }, [joined, ready, resetToken]);
 

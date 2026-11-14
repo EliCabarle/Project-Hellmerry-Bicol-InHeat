@@ -84,7 +84,7 @@ function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
     const bounds = L.geoJSON(bicolFeature).getBounds();
     if (!bounds.isValid()) return;
     if (reducedMotion) map.fitBounds(bounds, { padding: [28, 28] });
-    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.65 });
+    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.55 });
   }, [bicolFeature, map, reducedMotion, resetToken]);
 
   useEffect(() => {
@@ -97,7 +97,7 @@ function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
       map.flyToBounds(bounds, {
         padding: [48, 48],
         maxZoom: 13.5,
-        duration: 0.7,
+        duration: 0.55,
       });
   }, [map, reducedMotion, selectedFeature]);
 

@@ -37,12 +37,14 @@ import {
   IconChevronRight,
   IconCheck,
   IconLayers,
+  IconMap,
   IconMinus,
   IconPause,
   IconPlay,
   IconPlus,
   IconReset,
   IconRobot,
+  IconSatellite,
   IconSearch,
   IconThermometer,
   IconTrend,
@@ -122,6 +124,32 @@ function ModeButton({ active, children, onClick }) {
 }
 
 const SEARCH_PLACEHOLDER = "2019-04-23, Apr 2019, 2019";
+
+// Basemap segmented control, reused by the timeline panel (inline) and the Day
+// view floating header. Satellite flips the map chrome to dark glassmorphism.
+function BasemapButtons({ basemap, onChange, floating = false }) {
+  const wrap = floating
+    ? "inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
+    : "flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5";
+  return (
+    <div role="group" aria-label="Basemap" className={wrap}>
+      <ModeButton
+        active={basemap === "vector"}
+        onClick={() => onChange?.("vector")}
+      >
+        <IconMap className="h-3.5 w-3.5" />
+        Vector
+      </ModeButton>
+      <ModeButton
+        active={basemap === "satellite"}
+        onClick={() => onChange?.("satellite")}
+      >
+        <IconSatellite className="h-3.5 w-3.5" />
+        Satellite
+      </ModeButton>
+    </div>
+  );
+}
 
 function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
   const [text, setText] = useState("");
@@ -391,6 +419,8 @@ function TimeScrubber({
   onViewModeChange,
   renderMode,
   onRenderModeChange,
+  basemap,
+  onBasemapChange,
   onHeightChange,
   dailyReady,
   dailyReason,
@@ -455,7 +485,7 @@ function TimeScrubber({
             {current || "No data"}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <div
             role="group"
             aria-label="Map data mode"
@@ -494,6 +524,7 @@ function TimeScrubber({
               3D
             </ModeButton>
           </div>
+          <BasemapButtons basemap={basemap} onChange={onBasemapChange} />
         </div>
       </div>
 
@@ -576,9 +607,11 @@ function DayModeHeader({
   onViewModeChange,
   renderMode,
   onRenderModeChange,
+  basemap,
+  onBasemapChange,
 }) {
   return (
-    <div className="pointer-events-auto flex items-center gap-2">
+    <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
       <div
         role="group"
         aria-label="Map data mode"
@@ -623,6 +656,7 @@ function DayModeHeader({
           3D
         </ModeButton>
       </div>
+      <BasemapButtons basemap={basemap} onChange={onBasemapChange} floating />
     </div>
   );
 }
@@ -703,7 +737,7 @@ function ZoomPanel({ map, limits, onReset }) {
 }
 
 const FAB_BTN =
-  `${BTN} pointer-events-auto h-11 w-11 shrink-0`; // 44 px touch target on coarse pointers
+  "pointer-events-auto inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-heat-surface/90 text-slate-200 shadow-hud backdrop-blur-md bih-btn hover:bg-white/10"; // 44 px touch target on coarse pointers
 
 function FabButton({ icon: Icon, label, onClick }) {
   return (
@@ -806,6 +840,8 @@ export default function MapControlsOverlay({
   onViewModeChange,
   renderMode = "2d",
   onRenderModeChange,
+  basemap = "vector",
+  onBasemapChange,
   zoomLimits = { min: 7, max: 18 },
   dailyReady = false,
   dailyReason = null,
@@ -865,6 +901,8 @@ export default function MapControlsOverlay({
               onViewModeChange={onViewModeChange}
               renderMode={renderMode}
               onRenderModeChange={onRenderModeChange}
+              basemap={basemap}
+              onBasemapChange={onBasemapChange}
             />
           ) : null}
         </div>
@@ -883,6 +921,8 @@ export default function MapControlsOverlay({
           onViewModeChange={onViewModeChange}
           renderMode={renderMode}
           onRenderModeChange={onRenderModeChange}
+          basemap={basemap}
+          onBasemapChange={onBasemapChange}
           onHeightChange={onHeightChange}
           dailyReady={dailyReady}
           dailyReason={dailyReason}

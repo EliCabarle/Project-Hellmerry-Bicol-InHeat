@@ -1,0 +1,19 @@
+/* Satellite-specific map surface.
+   The UI theme (light/dark) now owns every panel, text and shadow colour via
+   dark-theme.css, so this file only paints what is unique to the satellite
+   basemap: the dark map surface behind the tiles and readable attribution over
+   imagery. Panels flip with the theme, not the basemap. */
+
+[data-basemap="satellite"] .leaflet-container {
+  background: #0b1220;
+}
+
+[data-basemap="satellite"] .leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #c3cddf !important;
+}
+[data-basemap="satellite"] .leaflet-control-attribution a,
+[data-basemap="satellite"] .leaflet-container a {
+  color: #e8edf7 !important;
+}

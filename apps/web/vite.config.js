@@ -10,6 +10,10 @@ const API_PROXY = {
     target: 'http://localhost:8000',
     changeOrigin: true,
   },
+  '/health': {
+    target: 'http://localhost:8000',
+    changeOrigin: true,
+  },
 }
 
 export default defineConfig({

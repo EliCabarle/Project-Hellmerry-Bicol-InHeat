@@ -91,17 +91,29 @@ SYSTEM_PROMPT = (
 # Greetings and identity questions skip retrieval and tools: no embedding call,
 # no irrelevant "Sources" chips (HANDOFF.md once got cited for "what is ur name"),
 # one cheap completion.
+#
+# Matched with `fullmatch`, never `match`: the whole message has to be the
+# greeting. A prefix match plus a length cap used to swallow real questions
+# ("Hi! What is the hottest municipality?" is 35 chars and answered as small
+# talk, tools withheld). The trailing group allows the usual filler words.
 CHITCHAT = re.compile(
-    r"^(hi|hello|hey|kamusta|kumusta|magandang\s+(?:umaga|hapon|gabi)"
-    r"|good\s+(?:morning|afternoon|evening)|who are you"
-    r"|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b",
+    r"(hi|hello|hey|kamusta|kumusta|magandang\s+(?:umaga|hapon|gabi)"
+    r"|good\s+(?:morning|afternoon|evening)|who are you|who r u"
+    r"|what(?:'s| is|s)?\s+(?:your|ur)\s+name)"
+    r"(?:\s+(?:there|po|silli|bot))*",
     re.IGNORECASE,
 )
-# Identity questions skip the pipeline at any length; a greeting only when the
-# whole message is short ("Hello, which municipalities are hottest...?" is data).
+# Identity questions skip the pipeline even when phrased long ("who are you and
+# what can you do?"); greetings must be the entire message.
 IDENTITY = re.compile(
     r"^(who are you|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b", re.IGNORECASE
 )
+
+
+def _is_chitchat(question: str) -> bool:
+    """True only when the whole message is a greeting or an identity question."""
+    normalised = question.translate(str.maketrans("", "", string.punctuation)).lower()
+    return bool(IDENTITY.match(question)) or bool(CHITCHAT.fullmatch(normalised))
 
 # Columns for ranking (no series, no narration) and for a single lookup (both).
 # change_point_year lives here so a ranking can report the regime break, not
@@ -221,6 +233,11 @@ def _context_block(chunks: list[dict]) -> str:
 
 def _round(value: Any, digits: int) -> float | None:
     return None if value is None else round(float(value), digits)
+
+
+def _or(value: Any, fallback: Any) -> Any:
+    """For prose: a null column must read as text, never as the string 'None'."""
+    return fallback if value is None else value
 
 
 def _summarise(row: dict, detail: bool = False) -> dict:
@@ -587,15 +604,15 @@ def tool_compare_municipalities(name_a: str, name_b: str) -> dict:
         "b": right,
         "summary": (
             f"{left['name']} ({left['province']}): "
-            f"{left['person_days_danger']} person-days, "
-            f"{left['population_2020']} people, "
-            f"slope {left['slope_c_per_year']} C/yr, "
-            f"change point {left['change_point_year']}. "
+            f"{_or(left['person_days_danger'], 'no data')} person-days, "
+            f"{_or(left['population_2020'], 'no data')} people, "
+            f"slope {_or(left['slope_c_per_year'], 'no data')} C/yr, "
+            f"change point {_or(left['change_point_year'], 'no data')}. "
             f"Versus {right['name']} ({right['province']}): "
-            f"{right['person_days_danger']} person-days, "
-            f"{right['population_2020']} people, "
-            f"slope {right['slope_c_per_year']} C/yr, "
-            f"change point {right['change_point_year']}."
+            f"{_or(right['person_days_danger'], 'no data')} person-days, "
+            f"{_or(right['population_2020'], 'no data')} people, "
+            f"slope {_or(right['slope_c_per_year'], 'no data')} C/yr, "
+            f"change point {_or(right['change_point_year'], 'no data')}."
         ),
     }
 
@@ -815,15 +832,16 @@ def _chat(messages: list[dict], tools: list[dict] | None):
 @router.post("/qa", response_model=QAResponse)
 def answer(payload: QARequest) -> QAResponse:
     question = payload.question.strip()
-    # Normalised copy for the chitchat short-circuit: strip punctuation and
-    # lowercase so "Hi!", "hi.", "HEY", "hey there!" all match the greeting
-    # regex. The original `question` is unchanged for retrieval and the user
-    # message.
-    _chitchat_text = question.translate(str.maketrans("", "", string.punctuation)).lower()
-    chitchat = bool(IDENTITY.match(question)) or (
-        bool(CHITCHAT.match(_chitchat_text)) and len(_chitchat_text) <= 40
-    )
-    chunks = [] if chitchat else _retrieve(question)
+    chitchat = _is_chitchat(question)
+    if chitchat:
+        chunks = []
+    else:
+        try:
+            chunks = _retrieve(question)
+        except Exception:
+            # A dead RPC or an exhausted embedding quota must not take the tools
+            # down with it: they answer from the pipeline JSON, no database needed.
+            chunks = []
     sources = sorted({chunk["source_path"] for chunk in chunks})
 
     messages: list[dict] = [

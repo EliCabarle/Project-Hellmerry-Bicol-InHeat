@@ -64,6 +64,7 @@ export default function App() {
   const [theme, setTheme] = useState(readTheme)
   const menuButtonRef = useRef(null)
   const navTokenRef = useRef(0)
+  const postAuthRedirectRef = useRef(false)
   const data = useBicolData()
   // Auth lives here so screens can scope their own rows (saved places,
   // leaderboard) to the signed-in user.
@@ -192,6 +193,9 @@ export default function App() {
   const navigate = useCallback(
     (target) => {
       const token = ++navTokenRef.current
+      if (target === 'landing') {
+        postAuthRedirectRef.current = false
+      }
       // Write side of D-01: publish the route token so a refresh or a Back
       // press agrees with the state set below. pushState rather than a hash
       // assignment because it is silent (no hashchange echo into the
@@ -356,17 +360,22 @@ export default function App() {
   // design (AuthButton and the landing own the error UIs).
   const handleSignIn = useCallback(async () => {
     if (!supabase || !configured) return { error: null }
+    postAuthRedirectRef.current = true
     return signInWithGoogle(supabase)
   }, [supabase, configured])
 
   // Keep the app map-first after an OAuth success: when the session resolves,
-  // the landing screen should immediately hand off to the map route.
+  // the landing screen should immediately hand off to the map route. A manual
+  // Home navigation clears the request, so the user can return to landing
+  // without being forced back into the map.
   useEffect(() => {
-    if (!user || screen !== 'landing') return
+    if (!user || screen !== 'landing' || !postAuthRedirectRef.current) return
+    postAuthRedirectRef.current = false
     navigate('map')
   }, [user, screen, navigate])
 
   const handleSignOut = useCallback(() => {
+    postAuthRedirectRef.current = false
     if (!supabase) return
     supabase.auth.signOut()
   }, [supabase])

@@ -33,9 +33,13 @@ const MARKDOWN_COMPONENTS = {
   p: md('p', 'my-1.5 first:mt-0 last:mb-0'),
   ul: md('ul', 'my-1.5 list-disc space-y-0.5 pl-4'),
   ol: md('ol', 'my-1.5 list-decimal space-y-0.5 pl-4'),
-  table: md(
-    'table',
-    'my-2 block w-full overflow-x-auto border-collapse text-left text-[13px]',
+  // The scroll container must be a wrapper, not the <table>: `display:block` on
+  // a table cancels border-collapse, and the bubble needs min-w-0 (see below)
+  // for this to clip instead of widening the flex item.
+  table: ({ node, ...props }) => (
+    <div className="my-2 overflow-x-auto">
+      <table className="w-full border-collapse text-left text-[13px]" {...props} />
+    </div>
   ),
   th: md('th', 'border border-heat-line bg-heat-deep px-2 py-1 font-semibold'),
   td: md('td', 'border border-heat-line px-2 py-1 align-top'),
@@ -236,7 +240,7 @@ export default function ChatbotModal({
                     </div>
                   )}
                   <div
-                    className={`max-w-[82%] rounded-xl px-3 py-2 text-sm leading-5 ${
+                    className={`min-w-0 max-w-[82%] rounded-xl px-3 py-2 text-sm leading-5 ${
                       message.role === 'user'
                         ? 'bg-heat-amber text-slate-950'
                         : 'bg-white/10 border border-white/5 text-slate-200'

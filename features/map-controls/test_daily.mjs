@@ -279,3 +279,19 @@ test('day tooltip shows the date, value, band and 1-day sample; trend branch unc
   strictAssert.doesNotMatch(trend, /Sample: 1 day/, 'trend branch keeps its multi-day sample')
   strictAssert.doesNotMatch(trend, /April 15, 2025/)
 })
+
+test('population density and people icon appear in day and trend tooltips', () => {
+  const withDensity = structuredClone(feature)
+  withDensity.properties.narrative.population_density = 1234.56
+
+  for (const tooltip of [
+    tooltipHtml(withDensity, { viewMode: 'day', date: '2025-04-15', dayValues: new Map() }),
+    tooltipHtml(withDensity, { year: 2025 }),
+  ]) {
+    strictAssert.match(tooltip, /Population density \(2020\): <b>1,234\.6 people\/km²<\/b>/)
+    strictAssert.match(tooltip, /bih-tip__population-icon/)
+  }
+
+  withDensity.properties.narrative.population_density = null
+  strictAssert.doesNotMatch(tooltipHtml(withDensity, { year: 2025 }), /Population density/)
+})

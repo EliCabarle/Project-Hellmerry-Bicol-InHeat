@@ -12,8 +12,8 @@ import {
   CartesianGrid,
   Cell,
   ComposedChart,
-  Legend,
-  Line,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -83,7 +83,7 @@ export function ChartCard({
       {/* `overflow-hidden` clips the Recharts tooltip to the plot bounds — the
           footnote and expanded data table are siblings below this div, so they
           are never clipped. `isolate` keeps tooltip paint inside this card. */}
-      <div className="relative isolate h-52 grow sm:h-60 overflow-hidden">{children}</div>
+      <div className="relative isolate h-72 grow overflow-hidden sm:h-80">{children}</div>
       {table}
       {footnote ? <p className="mt-2 text-xs leading-5 text-slate-500">{footnote}</p> : null}
     </>
@@ -118,14 +118,32 @@ export function ChartCard({
   )
 }
 
-// Yearly trend — dual axis: province-mean heat index (left, °C) and the count
-// of LGUs with at least one danger day (right). One axis detail in the legend
-// covers both units.
-export function YearlyTrendChart({ data = [] }) {
+// Yearly trend — ONE series: the province-mean heat index. The old second
+// axis (count of LGUs with a danger day) was a different unit on the same
+// plot; it cluttered the card and confused the reader, so it is gone. The
+// counts stay in the data table underneath (the accessibility fallback).
+//
+// `changePoint` is the dominant Pettitt break ({ year, count }). When present
+// the break is marked — a structural change in the record, not a decoration.
+// Public view gets a soft marker with no label; analyst view gets the full
+// claim. `ci` is the 95% CI of the province mean, drawn as a band.
+export function YearlyTrendChart({ data = [], changePoint = null, ci = [], isAnalyst = false }) {
   const { setReadout } = useReadout()
+  const lastYear = data?.length ? data[data.length - 1]?.year : null
+  // The band and the line share one dataset, so the CI rows join onto the
+  // yearly rows by year.
+  const ciByYear = new Map((ci ?? []).map((r) => [r.year, r]))
+  const rows = (data ?? []).map((row) => {
+    const band = ciByYear.get(row.year)
+    return {
+      ...row,
+      ciLow: band?.ciLow ?? null,
+      ciHigh: band?.ciHigh ?? null,
+    }
+  })
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: -8 }}>
+      <ComposedChart data={rows} margin={{ top: 24, right: 16, bottom: 0, left: 4 }}>
         <CartesianGrid stroke={GRID_LINE} strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="year"
@@ -137,36 +155,21 @@ export function YearlyTrendChart({ data = [] }) {
         <YAxis
           yAxisId="hi"
           domain={['auto', 'auto']}
+          padding={{ top: 12 }}
           tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
           tickFormatter={(v) => v.toFixed(1)}
           tickLine={false}
           axisLine={false}
           width={44}
           label={{
-            value: 'Mean heat index (°C)',
+            // Short: a rotated Y-axis label grows upward from the axis centre,
+            // so anything longer than half the plot height gets clipped.
+            value: 'Heat (°C)',
             angle: -90,
             position: 'insideLeft',
             fill: AXIS_TICK,
             fontSize: 11,
             offset: 10,
-          }}
-        />
-        <YAxis
-          yAxisId="days"
-          orientation="right"
-          domain={[0, 'auto']}
-          allowDecimals={false}
-          tick={{ fill: AXIS_TICK, fontSize: 11, fontFamily: MONO_FONT }}
-          tickLine={false}
-          axisLine={false}
-          width={34}
-          label={{
-            value: 'LGUs with danger days',
-            angle: 90,
-            position: 'insideRight',
-            fill: AXIS_TICK,
-            fontSize: 11,
-            offset: 4,
           }}
         />
         {/* Tooltip stays inside the plot (x-escape off): recharts clamps it at the
@@ -178,30 +181,71 @@ export function YearlyTrendChart({ data = [] }) {
           isAnimationActive={false}
           allowEscapeViewBox={{ x: false, y: false }}
         />
-        <Legend
-          verticalAlign="top"
-          height={20}
-          iconSize={11}
-          wrapperStyle={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.04em' }}
-        />
+        {/* Regime shift. Public view: a soft clay dashed marker, no label — the
+            break is real but the statistical claim needs the analyst footnote.
+            Analyst view: the dark marker, the label and the shaded era. */}
+        {changePoint?.year != null && (
+          <>
+            {isAnalyst && lastYear != null && changePoint.year < lastYear && (
+              <ReferenceArea
+                yAxisId="hi"
+                x1={changePoint.year}
+                x2={lastYear}
+                fill="var(--bih-ink)"
+                fillOpacity={0.04}
+              />
+            )}
+            <ReferenceLine
+              yAxisId="hi"
+              x={changePoint.year}
+              stroke={isAnalyst ? 'var(--bih-ink)' : 'var(--bih-line)'}
+              strokeDasharray="3 5"
+              strokeWidth={1.5}
+              label={
+                isAnalyst
+                  ? {
+                      value: `${changePoint.year} · regime shift`,
+                      fill: 'var(--bih-ink)',
+                      position: 'top',
+                      fontSize: 10,
+                      fontWeight: '600',
+                    }
+                  : undefined
+              }
+            />
+          </>
+        )}
+        {/* Confidence band: 15% opacity fill, same hue as the line. Analyst
+            only — the public reader gets the single honest series. */}
+        {isAnalyst && (
+          <Area
+            yAxisId="hi"
+            dataKey="ciHigh"
+            stroke="none"
+            fill="rgba(217, 108, 77, 0.15)"
+            isAnimationActive={false}
+            activeDot={false}
+            stackId="ci"
+          />
+        )}
+        {isAnalyst && (
+          <Area
+            yAxisId="hi"
+            dataKey="ciLow"
+            stroke="none"
+            fill="var(--bih-surface)"
+            isAnimationActive={false}
+            activeDot={false}
+            stackId="ci"
+          />
+        )}
         <Area
           yAxisId="hi"
           dataKey="meanHeatIndexC"
           name="Mean heat index"
-          stroke={HEAT_AMBER}
-          fill="rgba(251, 191, 36, 0.16)"
-          strokeWidth={2}
-          type="monotone"
-          isAnimationActive={false}
-          activeDot={false}
-        />
-        <Line
-          yAxisId="days"
-          dataKey="dangerDayLgus"
-          name="LGUs with ≥1 danger day"
-          stroke={HEAT_COOL}
-          strokeWidth={2}
-          dot={false}
+          stroke="#D96C4D"
+          fill={isAnalyst ? 'transparent' : 'rgba(217, 108, 77, 0.10)'}
+          strokeWidth={3}
           type="monotone"
           isAnimationActive={false}
           activeDot={false}
@@ -213,9 +257,10 @@ export function YearlyTrendChart({ data = [] }) {
 
 // Binned bar chart used for the heat-index and warming-rate distributions and
 // the danger-day bands. Bin fills arrive pre-wired (map ramp colours).
-export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAngle = 0 }) {
+export function BinBarChart({ bins = [], unit = null, term = 'LGUs', colorFn = null, labelAngle = 0 }) {
   const { setReadout } = useReadout()
   const angleHeight = labelAngle ? 44 : 26
+  const axisUnit = unit ?? term
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={bins} margin={{ top: 6, right: 8, bottom: 0, left: -16 }}>
@@ -236,7 +281,7 @@ export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAng
           tickLine={false}
           axisLine={false}
           width={40}
-          label={{ value: unit, angle: -90, position: 'insideLeft', fill: AXIS_TICK, fontSize: 11, offset: 8 }}
+          label={{ value: axisUnit, angle: -90, position: 'insideLeft', fill: AXIS_TICK, fontSize: 11, offset: 8 }}
         />
         {/* Tooltip stays inside the plot (x-escape off): recharts clamps it at the
             edges. On coarse pointers the bubble is suppressed in favour of the
@@ -247,7 +292,7 @@ export function BinBarChart({ bins = [], unit = 'LGUs', colorFn = null, labelAng
           isAnimationActive={false}
           allowEscapeViewBox={{ x: false, y: false }}
         />
-        <Bar dataKey="count" name={unit} radius={[3, 3, 0, 0]} maxBarSize={48} isAnimationActive={false}>
+        <Bar dataKey="count" name={axisUnit} radius={[3, 3, 0, 0]} maxBarSize={48} isAnimationActive={false}>
           {bins.map((bin, i) => (
             <Cell key={bin.label ?? i} fill={colorFn ? colorFn(bin, i) : HEAT_AMBER} />
           ))}

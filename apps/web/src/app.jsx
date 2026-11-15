@@ -10,6 +10,7 @@ import PrivacyDialog from './components/PrivacyDialog.jsx'
 import AccountScreen from './screens/AccountScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
 import LandingScreen from './screens/LandingScreen.jsx'
+import NarrationScreen from './screens/NarrationScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
@@ -152,7 +153,7 @@ export default function App() {
     root.dataset.theme = theme
     root.style.colorScheme = theme
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#F5F3FF')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#FDF3E7')
     try {
       localStorage.setItem(THEME_KEY, theme)
     } catch {
@@ -471,6 +472,13 @@ export default function App() {
             />
           )}
           {screen === 'settings' && <SettingsScreen navigate={navigate} />}
+          {screen === 'narration' && (
+            <NarrationScreen
+              {...data}
+              initialKey={focus?.key ?? null}
+              onBack={() => navigate('map')}
+            />
+          )}
         </>
       )}
 
@@ -493,6 +501,7 @@ export default function App() {
         onClose={() => setPrivacyMode(null)}
         onSignOut={handleSignOut}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

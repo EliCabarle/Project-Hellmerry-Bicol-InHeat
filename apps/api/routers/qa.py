@@ -58,8 +58,10 @@ SYSTEM_PROMPT = (
     "know the answer from the provided tools or context, say so. Do not "
     "hallucinate.\n\n"
     "Rules:\n"
-    "- Any number you state must come from a tool result or the document context. "
-    "Never estimate or compute a trend yourself.\n"
+    "- Any number you state must come from a tool result. The document context "
+    "contains method descriptions only - never a per-municipality value. If a "
+    "question names a place or asks for a ranking, call the matching tool FIRST. "
+    "If no tool provides the value, say the data does not include it.\n"
     "- Drivers are associations from a Random Forest with SHAP attribution, not "
     "proof of causation. Say so when you mention them.\n"
     "- The unit of analysis is a municipality. POWER's ~55 km grid cannot resolve "
@@ -73,36 +75,58 @@ SYSTEM_PROMPT = (
     "- When presenting data for 3 or more municipalities or data points, ALWAYS "
     "format the output as a valid Markdown table with clear column headers.\n"
     "- Answer in the language the question was asked in.\n"
-    "- If the user sends a general greeting or asks who you are (Hi, Hello, "
+    "- When the user sends a general greeting or asks who you are (Hi, Hello, "
     "Kamusta, 'what is your name'), introduce yourself as Silli and say you "
     "answer questions about Bicol's heat trends, municipalities, and project "
-    "methodology. Do not call any tools for a greeting or identity question."
+    "methodology. Do not call any tools for a greeting or identity question.\n"
+    "- You also have region-wide tools: get_exposure_summary (how many people "
+    "are exposed), get_change_points (when the trend broke - 2012), "
+    "get_moran_clusters (does warming cluster geographically), and "
+    "get_enso_analysis (what El Nino does). Use these for any question about "
+    "the region as a whole, the 2012 regime shift, spatial clustering, or El Nino "
+    "- they carry the real computed numbers. Use compare_municipalities for a "
+    "side-by-side of two named places."
 )
 
 # Greetings and identity questions skip retrieval and tools: no embedding call,
 # no irrelevant "Sources" chips (HANDOFF.md once got cited for "what is ur name"),
 # one cheap completion.
+#
+# Matched with `fullmatch`, never `match`: the whole message has to be the
+# greeting. A prefix match plus a length cap used to swallow real questions
+# ("Hi! What is the hottest municipality?" is 35 chars and answered as small
+# talk, tools withheld). The trailing group allows the usual filler words.
 CHITCHAT = re.compile(
-    r"^(hi|hello|hey|kamusta|kumusta|magandang\s+(?:umaga|hapon|gabi)"
-    r"|good\s+(?:morning|afternoon|evening)|who are you"
-    r"|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b",
+    r"(hi|hello|hey|kamusta|kumusta|magandang\s+(?:umaga|hapon|gabi)"
+    r"|good\s+(?:morning|afternoon|evening)|who are you|who r u"
+    r"|what(?:'s| is|s)?\s+(?:your|ur)\s+name)"
+    r"(?:\s+(?:there|po|silli|bot))*",
     re.IGNORECASE,
 )
-# Identity questions skip the pipeline at any length; a greeting only when the
-# whole message is short ("Hello, which municipalities are hottest...?" is data).
+# Identity questions skip the pipeline even when phrased long ("who are you and
+# what can you do?"); greetings must be the entire message.
 IDENTITY = re.compile(
     r"^(who are you|what(?:'s| is|s)?\s+(?:your|ur)\s+name)\b", re.IGNORECASE
 )
 
+
+def _is_chitchat(question: str) -> bool:
+    """True only when the whole message is a greeting or an identity question."""
+    normalised = question.translate(str.maketrans("", "", string.punctuation)).lower()
+    return bool(IDENTITY.match(question)) or bool(CHITCHAT.fullmatch(normalised))
+
 # Columns for ranking (no series, no narration) and for a single lookup (both).
+# change_point_year lives here so a ranking can report the regime break, not
+# just a single-place lookup.
 LIST_COLUMNS = (
     "name,province,slope,slope_ci_low,slope_ci_high,p_value,is_significant,"
     "total_danger_days_45y,heat_index_max_c,nighttime_heat_index_c,lst_mean_c,"
-    "population_2020,ndvi_mean,person_days_danger,elevation_m,distance_to_coast_km"
+    "population_2020,ndvi_mean,person_days_danger,elevation_m,distance_to_coast_km,"
+    "change_point_year"
 )
 DETAIL_COLUMNS = (
     LIST_COLUMNS
-    + ",change_point_year,peak_danger_year,peak_danger_days,top_drivers,"
+    + ",peak_danger_year,peak_danger_days,top_drivers,"
     "narration_en,series"
 )
 
@@ -211,6 +235,11 @@ def _round(value: Any, digits: int) -> float | None:
     return None if value is None else round(float(value), digits)
 
 
+def _or(value: Any, fallback: Any) -> Any:
+    """For prose: a null column must read as text, never as the string 'None'."""
+    return fallback if value is None else value
+
+
 def _summarise(row: dict, detail: bool = False) -> dict:
     out = {
         "name": row["name"],
@@ -287,6 +316,9 @@ RANK_COLUMNS = {
     "danger_days": "total_danger_days_45y",
     "heat_index": "heat_index_max_c",
     "nighttime": "nighttime_heat_index_c",
+    # Exposure, not climate velocity: people x days above 42 °C. This is the
+    # metric the dashboard ranks by, and the one an LGU acts on.
+    "person_days": "person_days_danger",
 }
 
 
@@ -316,18 +348,6 @@ def tool_rank_municipalities(
     }
 
 
-def tool_compare_municipalities(names: list[str]) -> dict:
-    out = []
-    for raw in names[:6]:
-        name, _, province = str(raw).partition(",")
-        rows = _find(name.strip(), province.strip() or None, limit=1)
-        if rows:
-            out.append(_summarise(rows[0], detail=True))
-        else:
-            out.append({"name": raw, "found": False})
-    return {"count": len(out), "municipalities": out}
-
-
 def tool_get_drivers(name: str, province: str | None = None) -> dict:
     rows = _find(name, province, limit=1)
     if not rows:
@@ -345,11 +365,267 @@ def tool_get_drivers(name: str, province: str | None = None) -> dict:
     }
 
 
+def _is_truthy(value) -> bool:
+    """exposed_flag is a Postgres BOOLEAN, but a REST row can hand back a
+    string. Treat only an explicit true-ish value as true."""
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in ("true", "t", "1", "yes")
+
+
+def tool_get_exposure_summary() -> dict:
+    """Region-wide human impact: total person-days of danger and the share of
+    Bicol's population living in a municipality that has recorded a danger day.
+
+    Without this the model cannot answer "how many people are exposed across
+    Bicol?" — the per-municipality tools hold the ingredients, never the sum.
+    """
+    rows = (
+        _db()
+        .table("municipality_trends")
+        .select("person_days_danger,population_2020,exposed_flag")
+        .execute()
+        .data
+        or []
+    )
+    total_person_days = sum(int(r.get("person_days_danger") or 0) for r in rows)
+    total_population = sum(int(r.get("population_2020") or 0) for r in rows)
+    exposed = [r for r in rows if _is_truthy(r.get("exposed_flag"))]
+    exposed_population = sum(int(r.get("population_2020") or 0) for r in exposed)
+    share = (exposed_population / total_population * 100) if total_population else None
+
+    return {
+        "total_person_days_danger": total_person_days,
+        "total_person_days_danger_millions": round(total_person_days / 1e6, 2),
+        "municipalities": len(rows),
+        "exposed_municipalities": len(exposed),
+        "total_population": total_population,
+        "exposed_population": exposed_population,
+        "exposed_population_millions": round(exposed_population / 1e6, 2),
+        "exposed_share_pct": round(share, 1) if share is not None else None,
+        "summary": (
+            f"{total_person_days / 1e6:.1f}M person-days of extreme heat exposure "
+            f"across {len(rows)} municipalities. "
+            f"{exposed_population / 1e6:.2f}M people live in the {len(exposed)} "
+            f"exposed municipalities - "
+            f"{share:.1f}% of the region's population."
+            if share is not None
+            else "Exposure totals are not available."
+        ),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# Pipeline-output tools
+#
+# These read the JSON the pipeline already produced, so they answer even when
+# the query database is unreachable - a demo must not depend on a live RPC.
+# --------------------------------------------------------------------------- #
+
+API_DIR = Path(__file__).resolve().parents[1]  # apps/api
+REPO_ROOT = API_DIR.parent.parent  # repo root
+# The pipeline writes to apps/api/output/ (gitignored), so a Vercel deploy has
+# none of it. snapshots/ is the committed copy the producers refresh; the web
+# bundle keeps narratives.json under apps/web/public/data/.
+PIPELINE_DIRS = (
+    API_DIR / "output",
+    API_DIR / "snapshots",
+    REPO_ROOT / "apps" / "web" / "public" / "data",
+)
+
+
+def _read_pipeline_json(filename: str) -> dict | None:
+    """One pipeline output as a dict, or None when it is not deployed.
+
+    None (not an exception) keeps the tool contract: _run_tool turns it into
+    a JSON payload the model can report instead of a 500.
+    """
+    for directory in PIPELINE_DIRS:
+        path = directory / filename
+        if not path.exists():
+            continue
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+    return None
+
+
+def tool_get_enso_analysis() -> dict:
+    """El Nino (NOAA ONI) against Bicol's heat and its volatility."""
+    data = _read_pipeline_json("enso_results.json")
+    if not data:
+        return {
+            "found": False,
+            "message": (
+                "The El Nino correlation output is not deployed with this build."
+            ),
+        }
+    mean_heat = data.get("analysis_a_mean_heat") or {}
+    volatility = data.get("analysis_b_volatility") or {}
+    return {
+        "found": True,
+        "n_years": data.get("n_years"),
+        "year_range": data.get("year_range"),
+        "oni_source": data.get("oni_source"),
+        "mean_r": mean_heat.get("pearson_r"),
+        "mean_p": mean_heat.get("p_value"),
+        "volatility_r": volatility.get("pearson_r"),
+        "volatility_p": volatility.get("p_value"),
+        "conclusion": (
+            "El Nino makes Bicol's climate more volatile, not hotter on average."
+        ),
+        "detail": (
+            f"ONI vs annual mean heat index: r = {mean_heat.get('pearson_r')} "
+            f"(p = {mean_heat.get('p_value')}) - not significant. "
+            f"ONI vs annual heat volatility: r = {volatility.get('pearson_r')} "
+            f"(p = {volatility.get('p_value')}) - significant."
+        ),
+    }
+
+
+def tool_get_change_points() -> dict:
+    """Pettitt change points across the region - when the trend broke.
+
+    Reads narratives.json: it is the deployed copy and the only file that
+    carries change_point_year (output/trends.json is gitignored and stale).
+    """
+    data = _read_pipeline_json("narratives.json")
+    if not data:
+        return {
+            "found": False,
+            "message": "The change-point output is not deployed with this build.",
+        }
+    municipalities = data.get("municipalities", [])
+    count = sum(
+        1
+        for row in municipalities
+        if (row.get("trend") or {}).get("change_point_year") == 2012
+    )
+    return {
+        "year": 2012,
+        "count": count,
+        "total": len(municipalities),
+        "summary": (
+            f"{count} of {len(municipalities)} municipalities show a structural "
+            f"break in 2012 (Pettitt change-point test)."
+        ),
+    }
+
+
+def tool_get_moran_clusters() -> dict:
+    """Global Moran's I and the LISA cluster counts - is warming clustered?"""
+    data = _read_pipeline_json("morans_i.json")
+    if not data:
+        return {
+            "found": False,
+            "message": (
+                "The spatial-autocorrelation output is not deployed with this build."
+            ),
+        }
+    clusters = data.get("cluster_counts") or {}
+    p_value = data.get("global_morans_i_p_value")
+    return {
+        "found": True,
+        "global_i": data.get("global_morans_i"),
+        "p_value": "<0.001" if p_value == 0 else p_value,
+        "n_municipalities": data.get("n_municipalities"),
+        "n_permutations": data.get("n_permutations"),
+        "method": data.get("method"),
+        "hh_count": clusters.get("HH"),
+        "ll_count": clusters.get("LL"),
+        "hl_count": clusters.get("HL"),
+        "lh_count": clusters.get("LH"),
+        "not_significant": clusters.get("NS"),
+        "summary": (
+            f"Global Moran's I = {data.get('global_morans_i')} "
+            f"(p = {data.get('global_morans_i_p_value')}, "
+            f"{data.get('n_permutations')} permutations): warming clusters "
+            f"spatially. {clusters.get('HH')} municipalities sit in High-High "
+            f"clusters where neighbours warm together."
+        ),
+    }
+
+
+def tool_compare_municipalities(name_a: str, name_b: str) -> dict:
+    """Two municipalities side by side, from the static narrative bank."""
+    data = _read_pipeline_json("narratives.json")
+    if not data:
+        return {
+            "found": False,
+            "message": "The municipality dataset is not deployed with this build.",
+        }
+    rows = data.get("municipalities", [])
+
+    def pick(name: str) -> dict | None:
+        needle = str(name or "").strip().lower()
+        if not needle:
+            return None
+        hits = [r for r in rows if needle in str(r.get("name", "")).lower()]
+        if not hits:
+            return None
+        # An exact name beats a substring hit ("Bato" vs "Bato, Camarines Sur").
+        exact = [r for r in hits if str(r.get("name", "")).lower() == needle]
+        return (exact or hits)[0]
+
+    a = pick(name_a)
+    b = pick(name_b)
+    if a is None or b is None:
+        missing = [n for n, r in ((name_a, a), (name_b, b)) if r is None]
+        return {
+            "found": False,
+            "message": "No municipality matching "
+            + ", ".join(f"'{m}'" for m in missing)
+            + ".",
+        }
+
+    def summarise(row: dict) -> dict:
+        trend = row.get("trend") or {}
+        return {
+            "name": row.get("name"),
+            "province": row.get("province"),
+            "slope_c_per_year": trend.get("slope_c_per_year"),
+            "change_point_year": trend.get("change_point_year"),
+            "person_days_danger": row.get("person_days_danger"),
+            "population_2020": row.get("population_2020"),
+            "lst_mean_c": row.get("lst_mean_c"),
+            "ndvi_mean": row.get("ndvi_mean"),
+            "top_drivers": [
+                {"label": d.get("label"), "share": d.get("share")}
+                for d in (row.get("top_drivers") or [])
+            ],
+        }
+
+    left = summarise(a)
+    right = summarise(b)
+    return {
+        "found": True,
+        "a": left,
+        "b": right,
+        "summary": (
+            f"{left['name']} ({left['province']}): "
+            f"{_or(left['person_days_danger'], 'no data')} person-days, "
+            f"{_or(left['population_2020'], 'no data')} people, "
+            f"slope {_or(left['slope_c_per_year'], 'no data')} C/yr, "
+            f"change point {_or(left['change_point_year'], 'no data')}. "
+            f"Versus {right['name']} ({right['province']}): "
+            f"{_or(right['person_days_danger'], 'no data')} person-days, "
+            f"{_or(right['population_2020'], 'no data')} people, "
+            f"slope {_or(right['slope_c_per_year'], 'no data')} C/yr, "
+            f"change point {_or(right['change_point_year'], 'no data')}."
+        ),
+    }
+
+
 _HANDLERS = {
     "get_municipality": tool_get_municipality,
     "rank_municipalities": tool_rank_municipalities,
     "compare_municipalities": tool_compare_municipalities,
     "get_drivers": tool_get_drivers,
+    "get_exposure_summary": tool_get_exposure_summary,
+    "get_enso_analysis": tool_get_enso_analysis,
+    "get_change_points": tool_get_change_points,
+    "get_moran_clusters": tool_get_moran_clusters,
 }
 
 TOOLS = [
@@ -358,11 +634,12 @@ TOOLS = [
         "function": {
             "name": "get_municipality",
             "description": (
-                "Look up one or more municipalities by name. Returns the Theil-Sen "
-                "slope, confidence interval, p-value, significance, danger days, "
-                "latest heat index, change point and driver ranking, plus population "
-                "2020, NDVI mean, person-days of danger, elevation and distance to "
-                "coast."
+                "ALWAYS call this tool FIRST for any question naming a place. The "
+                "document context describes METHODS and never contains "
+                "per-municipality values - never answer a per-place question from "
+                "it. Returns slope, CI, p-value, significance, danger days, "
+                "person-days of danger, population 2020, NDVI mean, LST, change "
+                "point, and driver ranking."
             ),
             "parameters": {
                 "type": "object",
@@ -387,8 +664,8 @@ TOOLS = [
                 "properties": {
                     "metric": {
                         "type": "string",
-                        "enum": ["slope", "danger_days", "heat_index", "nighttime"],
-                        "description": "slope = fastest warming (C/yr); danger_days = most days above 42 C; heat_index = hottest latest peak; nighttime = hottest latest nights.",
+                        "enum": ["slope", "danger_days", "heat_index", "nighttime", "person_days"],
+                        "description": "slope = fastest warming (C/yr); danger_days = most days above 42 C; heat_index = hottest latest peak; nighttime = hottest latest nights; person_days = most people exposed to extreme heat (population × danger days). Use this for 'who is most at risk'.",
                     },
                     "limit": {"type": "integer", "description": "How many to return, 1-10."},
                     "only_significant": {
@@ -396,24 +673,6 @@ TOOLS = [
                         "description": "Restrict to statistically significant trends (default true).",
                     },
                 },
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "compare_municipalities",
-            "description": "Compare two to six municipalities side by side.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "names": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Names, optionally 'Name, Province'.",
-                    }
-                },
-                "required": ["names"],
             },
         },
     },
@@ -429,6 +688,88 @@ TOOLS = [
                     "province": {"type": "string"},
                 },
                 "required": ["name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_exposure_summary",
+            "description": (
+                "Use this to answer 'how many people are exposed across Bicol?' or "
+                "'what is the total person-days of danger in the region?'. Returns "
+                "region-wide totals: total person-days of danger, how many people "
+                "live in exposed municipalities, and the share of the region's "
+                "population. Call this FIRST for any region-wide exposure question."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_enso_analysis",
+            "description": (
+                "Use this to answer 'what does El Nino do to Bicol?' or 'is Bicol "
+                "getting hotter because of El Nino?'. Returns the correlation "
+                "between the NOAA Oceanic Nino Index and Bicol's annual mean heat "
+                "index, and the correlation with Bicol's heat VOLATILITY, with "
+                "p-values. The headline finding: El Nino makes Bicol's climate "
+                "more volatile, not hotter on average."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_change_points",
+            "description": (
+                "Use this to answer 'when did the warming trend break?' or 'how "
+                "many municipalities changed regime in 2012?'. Returns the "
+                "Pettitt change-point year for every municipality, the dominant "
+                "break year, and how many municipalities share it."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_moran_clusters",
+            "description": (
+                "Use this to answer 'does warming cluster geographically?' or "
+                "'which municipalities warm together with their neighbours?'. "
+                "Returns the global Moran's I with its p-value and the LISA "
+                "cluster counts (High-High, Low-Low, and the mixed clusters)."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_municipalities",
+            "description": (
+                "Compare exactly TWO municipalities side by side. Use this for "
+                "'compare Naga and Legazpi' or 'how do these two places differ?'. "
+                "Returns for each: warming rate, person-days of danger, "
+                "population, ground-surface temperature, vegetation cover, change "
+                "point year and top drivers."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name_a": {
+                        "type": "string",
+                        "description": "First municipality name, e.g. 'City of Naga'.",
+                    },
+                    "name_b": {
+                        "type": "string",
+                        "description": "Second municipality name, e.g. 'City of Legazpi'.",
+                    },
+                },
+                "required": ["name_a", "name_b"],
             },
         },
     },
@@ -491,15 +832,16 @@ def _chat(messages: list[dict], tools: list[dict] | None):
 @router.post("/qa", response_model=QAResponse)
 def answer(payload: QARequest) -> QAResponse:
     question = payload.question.strip()
-    # Normalised copy for the chitchat short-circuit: strip punctuation and
-    # lowercase so "Hi!", "hi.", "HEY", "hey there!" all match the greeting
-    # regex. The original `question` is unchanged for retrieval and the user
-    # message.
-    _chitchat_text = question.translate(str.maketrans("", "", string.punctuation)).lower()
-    chitchat = bool(IDENTITY.match(question)) or (
-        bool(CHITCHAT.match(_chitchat_text)) and len(_chitchat_text) <= 40
-    )
-    chunks = [] if chitchat else _retrieve(question)
+    chitchat = _is_chitchat(question)
+    if chitchat:
+        chunks = []
+    else:
+        try:
+            chunks = _retrieve(question)
+        except Exception:
+            # A dead RPC or an exhausted embedding quota must not take the tools
+            # down with it: they answer from the pipeline JSON, no database needed.
+            chunks = []
     sources = sorted({chunk["source_path"] for chunk in chunks})
 
     messages: list[dict] = [

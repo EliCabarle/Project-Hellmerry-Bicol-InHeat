@@ -7,11 +7,12 @@
 /* ── Tokens ──────────────────────────────────────────────────────────── */
 
 :root {
-  /* Background tones (primary page bg first) */
-  --clay-bg: #F5F3FF;
+  /* Background tones (primary page bg first) — peach cream, matching the
+     landing page so light mode reads as one scheme across the site. */
+  --clay-bg: #FDF3E7;
   --clay-bg-blue-white: #EFF6FF;
   --clay-bg-green-white: #F0FDF4;
-  --clay-bg-peach: #FFF7ED;
+  --clay-bg-peach: #FDF3E7;
 
   /* Clay accent colors + paired shadow colors */
   --clay-blue: #60A5FA;
@@ -31,9 +32,9 @@
   --clay-white: #FFFFFF;
   --clay-white-shadow: #CBD5E1;
 
-  /* Text (never pure black) */
-  --clay-text-heading: #1E1B4B;
-  --clay-text-body: #312E81;
+  /* Text (never pure black) — ink and body follow the landing's burnt-orange. */
+  --clay-text-heading: #9A3412;
+  --clay-text-body: #9A3412;
   --clay-text-muted: #64748B;
   --clay-text-white: #FFFFFF;
 

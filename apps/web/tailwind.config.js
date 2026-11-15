@@ -7,28 +7,31 @@ export default {
         // Feature slices read these tokens; remapped to the clay world so every
         // existing component inherits the light surface without JSX rewrites.
         heat: {
-          bg: '#F5F3FF',
+          bg: '#FDF3E7',
           deep: '#EFE9FE',
           surface: '#FFFFFF',
           panel: '#FFFFFF',
-          line: '#E2E8F0',
+          line: '#FED7AA',
           dark: '#CBD5E1',
           darkline: '#94A3B8',
           hot: '#BE123C',
           hotline: '#FDA4AF',
           sig: '#BE123C',
-          amber: '#FCD34D',
+          amber: '#F97316',
           eco: '#059669',
           orange: '#FB923C',
           cool: '#5EEAD4',
-          ink: '#1E1B4B',
+          ink: '#9A3412',
           muted: '#64748B',
         },
         // Slate flips from light-on-dark to ink-on-clay (text usages).
+        // In light mode slate-100/200 are the primary/secondary ink, now the
+        // landing's burnt-orange so text reads as one scheme across the site.
+        // Dark mode overrides all slate text to light (dark-theme.css).
         slate: {
           50: '#F8F7FF',
-          100: '#1E1B4B',
-          200: '#312E81',
+          100: '#9A3412',
+          200: '#9A3412',
           300: '#4A4984',
           400: '#6B7393',
           500: '#64748B',
@@ -42,10 +45,10 @@ export default {
         // (UI-SPEC Token Block). The app's bg/white/text-* stay authoritative;
         // landing consumes primary/onprimary/ink/border/accent/card.
         clay: {
-          bg: '#F5F3FF',
+          bg: '#FDF3E7',
           'bg-blue-white': '#EFF6FF',
           'bg-green-white': '#F0FDF4',
-          'bg-peach': '#FFF7ED',
+          'bg-peach': '#FDF3E7',
           blue: '#60A5FA',
           'blue-shadow': '#1D4ED8',
           green: '#34D399',
@@ -62,8 +65,8 @@ export default {
           'orange-shadow': '#C2410C',
           white: '#FFFFFF',
           'white-shadow': '#CBD5E1',
-          'text-heading': '#1E1B4B',
-          'text-body': '#312E81',
+          'text-heading': '#9A3412',
+          'text-body': '#9A3412',
           'text-muted': '#64748B',
           'text-white': '#FFFFFF',
           // Landing-only keys.

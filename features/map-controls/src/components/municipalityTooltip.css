@@ -28,6 +28,21 @@
   line-height: 1.45;
   margin-top: 2px;
 }
+.bih-tip__population {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.bih-tip__population-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
 .bih-tip__muted {
   color: #64748B;
 }

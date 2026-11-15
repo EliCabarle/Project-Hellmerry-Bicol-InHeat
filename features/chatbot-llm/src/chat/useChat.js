@@ -11,17 +11,24 @@ export function useChat({ adapter } = {}) {
   const serviceRef = useRef(createChatService({ adapter }))
   const [state, dispatch] = useReducer(chatReducer, initialState)
   const [input, setInput] = useState('')
+  // Mirrors state.requestId but is readable inside `send` without a stale closure.
+  const requestRef = useRef(0)
 
   const send = useCallback(
     async (text) => {
       const trimmed = text.trim()
       if (!trimmed) return
-      dispatch({ type: 'send', text: trimmed })
+      const requestId = ++requestRef.current
+      dispatch({ type: 'send', text: trimmed, requestId })
       try {
         const { text: reply, done, sources } = await serviceRef.current.send(trimmed)
-        if (done) dispatch({ type: 'reply', text: reply, sources })
+        if (done) dispatch({ type: 'reply', text: reply, sources, requestId })
       } catch (err) {
-        dispatch({ type: 'fail', message: err.message ?? 'The chatbot could not reply.' })
+        dispatch({
+          type: 'fail',
+          message: err.message ?? 'The chatbot could not reply.',
+          requestId,
+        })
       }
     },
     [],
@@ -32,14 +39,14 @@ export function useChat({ adapter } = {}) {
       event.preventDefault()
       if (!input.trim() || state.status === 'sending') return
       send(input)
+      setInput('')
     },
     [input, send, state.status],
   )
 
   const retry = useCallback(() => {
     if (!state.lastAttempt) return
-    dispatch({ type: 'send', text: state.lastAttempt })
-    send(state.lastAttempt)
+    send(state.lastAttempt) // `send` dispatches 'send'; a second dispatch here duplicated the question
   }, [state.lastAttempt, send])
 
   const clear = useCallback(() => dispatch({ type: 'reset' }), [])

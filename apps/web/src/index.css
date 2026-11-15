@@ -234,6 +234,8 @@ body {
 .bih-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .bih-scroll::-webkit-scrollbar {
@@ -259,6 +261,30 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Mobile safety: crisp taps, no double-tap delay, smooth scroll, safe areas */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimum 44px touch target on interactive elements */
+button,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+html,
+body {
+  touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -384,4 +410,11 @@ body {
   .clay-btn--inverted {
     color: var(--clay-on-primary-surface);
   }
+}
+
+/* Mobile image callout prevention */
+img {
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }

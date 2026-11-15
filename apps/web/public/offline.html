@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon_icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#070a0f" />
+    <title>Offline — Bicol In-Heat</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body {
+        background: #FDF3E7;
+        color: #9A3412;
+        font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .card {
+        background: #FFFFFF;
+        border: 3px solid #FED7AA;
+        border-radius: 24px;
+        padding: 40px 32px;
+        max-width: 320px;
+        width: 90vw;
+        text-align: center;
+        box-shadow: inset -2px -2px 8px rgba(255,255,255,0.75), inset 2px 2px 8px rgba(254,215,170,0.55);
+      }
+      .card h1 {
+        font-family: 'Fredoka', 'Segoe UI Rounded', system-ui, sans-serif;
+        font-size: 28px;
+        margin-bottom: 12px;
+      }
+      .card p {
+        font-size: 15px;
+        line-height: 1.5;
+        color: #64748B;
+        margin-bottom: 24px;
+      }
+      .btn {
+        background: #F97316;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 16px;
+        padding: 14px 28px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        box-shadow: 4px 4px 8px rgba(154, 52, 18, 0.14);
+      }
+      .btn:active { transform: scale(0.97); }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Offline</h1>
+      <p>You're offline. Open the app while online to cache the latest data, then come back — your last-viewed map and narration will still work.</p>
+      <button class="btn" onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

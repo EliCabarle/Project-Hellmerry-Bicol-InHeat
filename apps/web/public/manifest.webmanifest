@@ -2,17 +2,59 @@
   "id": "/",
   "name": "Bicol In-Heat — Earth System Trend Detective",
   "short_name": "Bicol In-Heat",
-  "description": "Map, rank and explain rising heat trends across Bicol's municipalities.",
+  "description": "Map, rank and explain rising heat trends across Bicol's municipalities. NASA POWER · Landsat · MODIS · SEDAC · PAGASA.",
   "lang": "en",
-  "start_url": "/",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "any",
   "background_color": "#070a0f",
   "theme_color": "#070a0f",
+  "categories": ["weather", "science", "education", "utilities"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/narration-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Narration screen — plain-language heat trend explanation"
+    },
+    {
+      "src": "/screenshots/map-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Map screen — Region V heat layer with time scrubber"
+    },
+    {
+      "src": "/screenshots/desktop-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop — full dashboard with ranking and narration"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Map",
+      "short_name": "Map",
+      "description": "Open Region V heat map",
+      "url": "/?source=pwa-shortcut-map",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ranking",
+      "short_name": "Ranking",
+      "description": "View municipality warming rankings",
+      "url": "/?source=pwa-shortcut-ranking",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

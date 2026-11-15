@@ -232,6 +232,43 @@ export default function NarrationPanel({
           note={ndviNote}
           tone={ndvi != null && ndvi < 0.65 ? 'hot' : 'good'}
         />
+        <ConditionTile
+          label="Elevation"
+          value={muni.elevation_m != null ? `${muni.elevation_m.toFixed(0)} m` : '—'}
+          unit=""
+          note="SRTM terrain — meters above sea level"
+        />
+        <ConditionTile
+          label="Distance to coast"
+          value={
+            muni.distance_to_coast_km != null
+              ? `${muni.distance_to_coast_km.toFixed(1)} km`
+              : '—'
+          }
+          unit=""
+          note="Proximity to the Philippine Sea"
+        />
+        <ConditionTile
+          label="Population"
+          value={
+            muni.population_2020 != null
+              ? muni.population_2020.toLocaleString()
+              : '—'
+          }
+          unit=""
+          note="SEDAC GPW 2020 — residents"
+          tone="coral"
+        />
+        <ConditionTile
+          label="Annual precipitation"
+          value={
+            muni.annual_precip_mm_2024 != null
+              ? `${muni.annual_precip_mm_2024.toFixed(0)} mm`
+              : '—'
+          }
+          unit=""
+          detail="2024 total — NASA POWER"
+        />
       </div>
 
       {/* Why this municipality — connects top driver to geography. */}

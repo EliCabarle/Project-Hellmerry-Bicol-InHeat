@@ -30,13 +30,27 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Enable CORS for frontend development
+# Explicit allowlist. Vite dev/preview reach /api through the proxy (same-origin);
+# these entries cover the VITE_API_BASE_URL path where the browser calls Render
+# directly. allow_credentials stays False: the frontend sends no cookies, and
+# Starlette mirrors the request Origin whenever credentials are enabled, which
+# would quietly re-open the endpoint to every site on the internet.
+# Replace the production entry with the real Vercel domain after the first deploy.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to frontend domain
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",
+        "http://127.0.0.1:4173",
+        "https://bicol-in-heat.vercel.app",
+    ],
+    # Preview deployments get a random host per push; scoped to this project's
+    # prefix so other people's Vercel apps cannot call the endpoint.
+    allow_origin_regex=r"https://bicol-in-heat-[a-z0-9-]+\.vercel\.app",
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
 )
 
 app.include_router(qa.router)
@@ -304,6 +318,14 @@ def _load_power() -> tuple[pd.DataFrame, dict]:
     """Lazy-load the POWER daily CSV and build per-municipality history arrays."""
     global _df_cache, _pct_cache
     if _df_cache is None:
+        if not POWER_CSV.exists():
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Daily heat data is not deployed. Run fetch_power_data.py "
+                    "locally; the CSV is too large to ship to the web service."
+                ),
+            )
         _df_cache = pd.read_csv(POWER_CSV, low_memory=False)
         _df_cache["date"] = pd.to_datetime(_df_cache["date"], errors="coerce")
         _df_cache = _df_cache.dropna(subset=["date", "heat_index_max_c"])

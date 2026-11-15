@@ -25,7 +25,8 @@ const HIGHLIGHT = {
   weight: 2,
 }
 
-const DARK = {
+// Exported so the 3D region layers paint the same veil and stroke, not a second palette.
+export const REGION_DARK = {
   // every other region — dark veil over the satellite basemap
   fill: true,
   fillColor: '#1f2937',
@@ -53,7 +54,7 @@ export function loadRegions(geojson) {
 }
 
 export function getRegionStyle(feature) {
-  return isBicol(feature) ? HIGHLIGHT : DARK
+  return isBicol(feature) ? HIGHLIGHT : REGION_DARK
 }
 
 // ---- municipality layer (slice 3) ----
@@ -110,7 +111,7 @@ export function isCity(feature) {
 // slice-1 solid fills so the screen never goes blank
 export const REGION_OUTLINE = { fill: false, color: '#fca5a5', weight: 1.75 }
 export function getRegionOutlineStyle(feature) {
-  return isBicol(feature) ? REGION_OUTLINE : DARK
+  return isBicol(feature) ? REGION_OUTLINE : REGION_DARK
 }
 
 const MUN_PENDING = { fill: true, fillColor: '#1f2937', fillOpacity: 0.25, color: '#334151', weight: 1 }

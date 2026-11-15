@@ -6,6 +6,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import {
   featureKey,
   getMunicipalityStyle,
+  isBicol,
+  REGION_DARK,
+  REGION_OUTLINE,
   SELECT_COLOUR,
 } from "./gis/engine.js";
 import {
@@ -54,6 +57,12 @@ const IMAGERY_URL =
 // dark text and vanish on satellite).
 const LABELS_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+// The basemap button's "vector" mode: the same Light Gray Canvas pair the 2D map
+// uses, so the control means the same thing in both renderers.
+const CLAY_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+const CLAY_LABELS_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
 
 const SRC = "bih-muni";
 const FILL = "bih-muni-fill";
@@ -63,6 +72,10 @@ const TRACE_SRC = "bih-muni-trace";
 const TRACE = "bih-muni-trace-outline";
 const PULSE_SRC = "bih-muni-pulse";
 const PULSE = "bih-muni-pulse-ring";
+// Region boundary layer (2D parity): same source file, same colours as the 2D map.
+const REGION_SRC = "bih-regions";
+const REGION_VEIL = "bih-regions-veil";
+const REGION_LINE = "bih-regions-line";
 
 // Single expanding ring at the selected area's centroid, on its top face.
 // Colours come from the project's single accent token (SELECT_COLOUR).
@@ -79,18 +92,23 @@ const PULSE_SEGMENTS = 64
 const M_PER_DEG_LAT = 110540
 const M_PER_DEG_LNG = 111320
 
-const STYLE = {
+const STYLE = (satellite) => ({
   version: 8,
   sources: {
     imagery: {
       type: "raster",
-      tiles: [IMAGERY_URL],
+      tiles: [satellite ? IMAGERY_URL : CLAY_URL],
       tileSize: 256,
       maxzoom: 19,
       attribution:
-        "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+        "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, GIS User Community, HERE, Garmin, © OpenStreetMap contributors",
     },
-    labels: { type: "raster", tiles: [LABELS_URL], tileSize: 256, maxzoom: 18 },
+    labels: {
+      type: "raster",
+      tiles: [satellite ? LABELS_URL : CLAY_LABELS_URL],
+      tileSize: 256,
+      maxzoom: 18,
+    },
   },
   layers: [
     // Dark while imagery streams in, so there is no white flash under the data.
@@ -103,7 +121,7 @@ const STYLE = {
       paint: { "raster-opacity": 0.9 },
     },
   ],
-};
+});
 
 const EMPTY = { type: "FeatureCollection", features: [] };
 
@@ -179,6 +197,8 @@ function ringGeometry(centre, outerRadius) {
 
 export default function Municipality3DLayer({
   joined,
+  regions = null,
+  basemap = "satellite",
   selectedKey,
   selectedFeature,
   viewMode = "trend",
@@ -217,6 +237,8 @@ export default function Municipality3DLayer({
   // Last camera frame requested by an effect, so a reduced-motion switch can
   // land on the destination instead of freezing somewhere mid-move.
   const cameraRef = useRef(null);
+  // Basemap at mount decides the style's initial tiles; later changes swap tiles in place.
+  const basemapRef = useRef(basemap);
   const [ready, setReady] = useState(false);
 
   yearRef.current = year;
@@ -639,7 +661,7 @@ export default function Municipality3DLayer({
       ];
       map = new maplibregl.Map({
         container: hostRef.current,
-        style: STYLE,
+        style: STYLE(basemapRef.current !== "vector"),
         center: viewRef.current?.center ?? [123.5, 13.3],
         zoom: Math.max(viewRef.current?.zoom ?? 8, MIN_ZOOM),
         minZoom: MIN_ZOOM,
@@ -656,6 +678,54 @@ export default function Municipality3DLayer({
     mapRef.current = map;
 
     map.on("load", () => {
+      // Region layer first, so it renders under the extrusions: the same dark veil on
+      // the neighbours and the same salmon Bicol outline the 2D map draws.
+      if (regions?.features?.length) {
+        map.addSource(REGION_SRC, {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: regions.features.map((f) => ({
+              ...f,
+              properties: { ...f.properties, _bicol: isBicol(f) ? 1 : 0 },
+            })),
+          },
+        });
+        map.addLayer({
+          id: REGION_VEIL,
+          type: "fill",
+          source: REGION_SRC,
+          paint: {
+            // Bicol keeps the ground visible; every other region gets the veil.
+            "fill-color": [
+              "case",
+              ["==", ["get", "_bicol"], 1],
+              "rgba(0,0,0,0)",
+              REGION_DARK.fillColor,
+            ],
+            "fill-opacity": REGION_DARK.fillOpacity,
+          },
+        });
+        map.addLayer({
+          id: REGION_LINE,
+          type: "line",
+          source: REGION_SRC,
+          paint: {
+            "line-color": [
+              "case",
+              ["==", ["get", "_bicol"], 1],
+              REGION_OUTLINE.color,
+              REGION_DARK.color,
+            ],
+            "line-width": [
+              "case",
+              ["==", ["get", "_bicol"], 1],
+              REGION_OUTLINE.weight,
+              REGION_DARK.weight,
+            ],
+          },
+        });
+      }
       map.addSource(SRC, { type: "geojson", data: EMPTY, promoteId: "_key" });
       map.addLayer({
         id: FILL,
@@ -933,6 +1003,18 @@ export default function Municipality3DLayer({
       clearTrace();
     }
   }, [applyOffsets, clearTrace, data, ready, setLifts, startTrace, targetFor]);
+
+  // Basemap is a display choice, never a reason to rebuild the map: swap the raster
+  // tiles on the existing sources, exactly like the 2D TileLayers swap.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready) return;
+    const satellite = basemap !== "vector";
+    map.getSource("imagery")?.setTiles?.([satellite ? IMAGERY_URL : CLAY_URL]);
+    map.getSource("labels")?.setTiles?.([
+      satellite ? LABELS_URL : CLAY_LABELS_URL,
+    ]);
+  }, [basemap, ready]);
 
   useEffect(() => {
     const map = mapRef.current;

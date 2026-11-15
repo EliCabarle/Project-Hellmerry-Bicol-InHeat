@@ -234,6 +234,8 @@ body {
 .bih-scroll {
   scrollbar-width: thin;
   scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .bih-scroll::-webkit-scrollbar {
@@ -261,6 +263,28 @@ body {
   }
 }
 
+/* Mobile safety: crisp taps, no double-tap delay, smooth scroll, safe areas */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimum 44px touch target on interactive elements */
+button,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+html,
+body {
+  touch-action: manipulation;
 /* Peeking Silli tab: a 4 px nudge out from the right edge, not a hop.
    The reduced-motion block above already flattens it to one static frame. */
 @keyframes bih-peek {
@@ -436,4 +460,11 @@ body {
   .clay-btn--inverted {
     color: var(--clay-on-primary-surface);
   }
+}
+
+/* Mobile image callout prevention */
+img {
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }

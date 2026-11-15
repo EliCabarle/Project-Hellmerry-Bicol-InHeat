@@ -245,8 +245,22 @@ export default function App() {
   // wrapper between #root and the leaflet container (collapses the map to 0px).
   return (
     <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
+      {/* This handler owns the hash: a native "#main" click would displace the
+          route token, so a refresh after skipping would fall back to Landing.
+          preventDefault() + focus() keeps the URL's token intact while moving
+          focus to the same #main element focusMain() targets (FLAG-3 path
+          itself is untouched); href="#main" stays for semantics. Dashboard,
+          Account and Settings render #main as a plain element with no
+          tabindex, where focus() would silently no-op — make the skip target
+          programmatically focusable once, idempotently. */}
       <a
         href="#main"
+        onClick={(e) => {
+          e.preventDefault()
+          const main = document.getElementById('main')
+          if (main && !main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1')
+          main?.focus()
+        }}
         className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[900] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
       >
         Skip to content

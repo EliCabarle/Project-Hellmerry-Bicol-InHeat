@@ -58,8 +58,10 @@ SYSTEM_PROMPT = (
     "know the answer from the provided tools or context, say so. Do not "
     "hallucinate.\n\n"
     "Rules:\n"
-    "- Any number you state must come from a tool result or the document context. "
-    "Never estimate or compute a trend yourself.\n"
+    "- Any number you state must come from a tool result. The document context "
+    "contains method descriptions only - never a per-municipality value. If a "
+    "question names a place or asks for a ranking, call the matching tool FIRST. "
+    "If no tool provides the value, say the data does not include it.\n"
     "- Drivers are associations from a Random Forest with SHAP attribution, not "
     "proof of causation. Say so when you mention them.\n"
     "- The unit of analysis is a municipality. POWER's ~55 km grid cannot resolve "
@@ -95,14 +97,17 @@ IDENTITY = re.compile(
 )
 
 # Columns for ranking (no series, no narration) and for a single lookup (both).
+# change_point_year lives here so a ranking can report the regime break, not
+# just a single-place lookup.
 LIST_COLUMNS = (
     "name,province,slope,slope_ci_low,slope_ci_high,p_value,is_significant,"
     "total_danger_days_45y,heat_index_max_c,nighttime_heat_index_c,lst_mean_c,"
-    "population_2020,ndvi_mean,person_days_danger,elevation_m,distance_to_coast_km"
+    "population_2020,ndvi_mean,person_days_danger,elevation_m,distance_to_coast_km,"
+    "change_point_year"
 )
 DETAIL_COLUMNS = (
     LIST_COLUMNS
-    + ",change_point_year,peak_danger_year,peak_danger_days,top_drivers,"
+    + ",peak_danger_year,peak_danger_days,top_drivers,"
     "narration_en,series"
 )
 
@@ -287,6 +292,9 @@ RANK_COLUMNS = {
     "danger_days": "total_danger_days_45y",
     "heat_index": "heat_index_max_c",
     "nighttime": "nighttime_heat_index_c",
+    # Exposure, not climate velocity: people x days above 42 °C. This is the
+    # metric the dashboard ranks by, and the one an LGU acts on.
+    "person_days": "person_days_danger",
 }
 
 
@@ -345,11 +353,62 @@ def tool_get_drivers(name: str, province: str | None = None) -> dict:
     }
 
 
+def _is_truthy(value) -> bool:
+    """exposed_flag is a Postgres BOOLEAN, but a REST row can hand back a
+    string. Treat only an explicit true-ish value as true."""
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in ("true", "t", "1", "yes")
+
+
+def tool_get_exposure_summary() -> dict:
+    """Region-wide human impact: total person-days of danger and the share of
+    Bicol's population living in a municipality that has recorded a danger day.
+
+    Without this the model cannot answer "how many people are exposed across
+    Bicol?" — the per-municipality tools hold the ingredients, never the sum.
+    """
+    rows = (
+        _db()
+        .table("municipality_trends")
+        .select("person_days_danger,population_2020,exposed_flag")
+        .execute()
+        .data
+        or []
+    )
+    total_person_days = sum(int(r.get("person_days_danger") or 0) for r in rows)
+    total_population = sum(int(r.get("population_2020") or 0) for r in rows)
+    exposed = [r for r in rows if _is_truthy(r.get("exposed_flag"))]
+    exposed_population = sum(int(r.get("population_2020") or 0) for r in exposed)
+    share = (exposed_population / total_population * 100) if total_population else None
+
+    return {
+        "total_person_days_danger": total_person_days,
+        "total_person_days_danger_millions": round(total_person_days / 1e6, 2),
+        "municipalities": len(rows),
+        "exposed_municipalities": len(exposed),
+        "total_population": total_population,
+        "exposed_population": exposed_population,
+        "exposed_population_millions": round(exposed_population / 1e6, 2),
+        "exposed_share_pct": round(share, 1) if share is not None else None,
+        "summary": (
+            f"{total_person_days / 1e6:.1f}M person-days of extreme heat exposure "
+            f"across {len(rows)} municipalities. "
+            f"{exposed_population / 1e6:.2f}M people live in the {len(exposed)} "
+            f"exposed municipalities - "
+            f"{share:.1f}% of the region's population."
+            if share is not None
+            else "Exposure totals are not available."
+        ),
+    }
+
+
 _HANDLERS = {
     "get_municipality": tool_get_municipality,
     "rank_municipalities": tool_rank_municipalities,
     "compare_municipalities": tool_compare_municipalities,
     "get_drivers": tool_get_drivers,
+    "get_exposure_summary": tool_get_exposure_summary,
 }
 
 TOOLS = [
@@ -358,11 +417,12 @@ TOOLS = [
         "function": {
             "name": "get_municipality",
             "description": (
-                "Look up one or more municipalities by name. Returns the Theil-Sen "
-                "slope, confidence interval, p-value, significance, danger days, "
-                "latest heat index, change point and driver ranking, plus population "
-                "2020, NDVI mean, person-days of danger, elevation and distance to "
-                "coast."
+                "ALWAYS call this tool FIRST for any question naming a place. The "
+                "document context describes METHODS and never contains "
+                "per-municipality values - never answer a per-place question from "
+                "it. Returns slope, CI, p-value, significance, danger days, "
+                "person-days of danger, population 2020, NDVI mean, LST, change "
+                "point, and driver ranking."
             ),
             "parameters": {
                 "type": "object",
@@ -387,8 +447,8 @@ TOOLS = [
                 "properties": {
                     "metric": {
                         "type": "string",
-                        "enum": ["slope", "danger_days", "heat_index", "nighttime"],
-                        "description": "slope = fastest warming (C/yr); danger_days = most days above 42 C; heat_index = hottest latest peak; nighttime = hottest latest nights.",
+                        "enum": ["slope", "danger_days", "heat_index", "nighttime", "person_days"],
+                        "description": "slope = fastest warming (C/yr); danger_days = most days above 42 C; heat_index = hottest latest peak; nighttime = hottest latest nights; person_days = most people exposed to extreme heat (population × danger days). Use this for 'who is most at risk'.",
                     },
                     "limit": {"type": "integer", "description": "How many to return, 1-10."},
                     "only_significant": {
@@ -430,6 +490,20 @@ TOOLS = [
                 },
                 "required": ["name"],
             },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_exposure_summary",
+            "description": (
+                "Use this to answer 'how many people are exposed across Bicol?' or "
+                "'what is the total person-days of danger in the region?'. Returns "
+                "region-wide totals: total person-days of danger, how many people "
+                "live in exposed municipalities, and the share of the region's "
+                "population. Call this FIRST for any region-wide exposure question."
+            ),
+            "parameters": {"type": "object", "properties": {}},
         },
     },
 ]

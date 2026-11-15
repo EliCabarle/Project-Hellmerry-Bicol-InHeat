@@ -75,10 +75,17 @@ SYSTEM_PROMPT = (
     "- When presenting data for 3 or more municipalities or data points, ALWAYS "
     "format the output as a valid Markdown table with clear column headers.\n"
     "- Answer in the language the question was asked in.\n"
-    "- If the user sends a general greeting or asks who you are (Hi, Hello, "
+    "- When the user sends a general greeting or asks who you are (Hi, Hello, "
     "Kamusta, 'what is your name'), introduce yourself as Silli and say you "
     "answer questions about Bicol's heat trends, municipalities, and project "
-    "methodology. Do not call any tools for a greeting or identity question."
+    "methodology. Do not call any tools for a greeting or identity question.\n"
+    "- You also have region-wide tools: get_exposure_summary (how many people "
+    "are exposed), get_change_points (when the trend broke - 2012), "
+    "get_moran_clusters (does warming cluster geographically), and "
+    "get_enso_analysis (what El Nino does). Use these for any question about "
+    "the region as a whole, the 2012 regime shift, spatial clustering, or El Nino "
+    "- they carry the real computed numbers. Use compare_municipalities for a "
+    "side-by-side of two named places."
 )
 
 # Greetings and identity questions skip retrieval and tools: no embedding call,
@@ -324,18 +331,6 @@ def tool_rank_municipalities(
     }
 
 
-def tool_compare_municipalities(names: list[str]) -> dict:
-    out = []
-    for raw in names[:6]:
-        name, _, province = str(raw).partition(",")
-        rows = _find(name.strip(), province.strip() or None, limit=1)
-        if rows:
-            out.append(_summarise(rows[0], detail=True))
-        else:
-            out.append({"name": raw, "found": False})
-    return {"count": len(out), "municipalities": out}
-
-
 def tool_get_drivers(name: str, province: str | None = None) -> dict:
     rows = _find(name, province, limit=1)
     if not rows:
@@ -403,12 +398,224 @@ def tool_get_exposure_summary() -> dict:
     }
 
 
+# --------------------------------------------------------------------------- #
+# Pipeline-output tools
+#
+# These read the JSON the pipeline already produced, so they answer even when
+# the query database is unreachable - a demo must not depend on a live RPC.
+# --------------------------------------------------------------------------- #
+
+API_DIR = Path(__file__).resolve().parents[1]  # apps/api
+REPO_ROOT = API_DIR.parent  # repo root
+# The pipeline writes to apps/api/output/ (gitignored). The web bundle keeps a
+# committed copy of narratives.json under apps/web/public/data/, so search
+# there too: a deployment that ships only apps/web/ still answers.
+PIPELINE_DIRS = (
+    API_DIR / "output",
+    REPO_ROOT / "apps" / "web" / "public" / "data",
+)
+
+
+def _read_pipeline_json(filename: str) -> dict | None:
+    """One pipeline output as a dict, or None when it is not deployed.
+
+    None (not an exception) keeps the tool contract: _run_tool turns it into
+    a JSON payload the model can report instead of a 500.
+    """
+    for directory in PIPELINE_DIRS:
+        path = directory / filename
+        if not path.exists():
+            continue
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return None
+    return None
+
+
+def tool_get_enso_analysis() -> dict:
+    """El Nino (NOAA ONI) against Bicol's heat and its volatility."""
+    data = _read_pipeline_json("enso_results.json")
+    if not data:
+        return {
+            "found": False,
+            "message": (
+                "The El Nino correlation output is not deployed with this build."
+            ),
+        }
+    mean_heat = data.get("analysis_a_mean_heat") or {}
+    volatility = data.get("analysis_b_volatility") or {}
+    return {
+        "found": True,
+        "n_years": data.get("n_years"),
+        "year_range": data.get("year_range"),
+        "oni_source": data.get("oni_source"),
+        "mean_heat_correlation": {
+            "pearson_r": mean_heat.get("pearson_r"),
+            "p_value": mean_heat.get("p_value"),
+            "significant": mean_heat.get("significant"),
+        },
+        "volatility_correlation": {
+            "pearson_r": volatility.get("pearson_r"),
+            "p_value": volatility.get("p_value"),
+            "significant": volatility.get("significant"),
+        },
+        "conclusion": (
+            "El Nino makes Bicol's climate more volatile, not hotter on average."
+        ),
+        "detail": (
+            f"ONI vs annual mean heat index: r = {mean_heat.get('pearson_r')} "
+            f"(p = {mean_heat.get('p_value')}) - not significant. "
+            f"ONI vs annual heat volatility: r = {volatility.get('pearson_r')} "
+            f"(p = {volatility.get('p_value')}) - significant."
+        ),
+    }
+
+
+def tool_get_change_points() -> dict:
+    """Pettitt change points across the region - when the trend broke."""
+    data = _read_pipeline_json("trends.json")
+    if not data:
+        return {
+            "found": False,
+            "message": "The change-point output is not deployed with this build.",
+        }
+    municipalities = data.get("municipalities", [])
+    counts: dict[int, int] = {}
+    for row in municipalities:
+        year = row.get("change_point_year")
+        if year is None:
+            continue
+        counts[year] = counts.get(year, 0) + 1
+    dominant = (
+        max(counts.items(), key=lambda item: item[1]) if counts else (None, 0)
+    )
+    return {
+        "found": True,
+        "total_municipalities": len(municipalities),
+        "dominant_change_point_year": dominant[0],
+        "dominant_count": dominant[1],
+        "change_point_2012_count": counts.get(2012, 0),
+        "counts_by_year": {str(k): v for k, v in sorted(counts.items())},
+        "summary": (
+            f"{counts.get(2012, 0)} of {len(municipalities)} municipalities show a "
+            f"structural break in 2012 (Pettitt change-point test)."
+        ),
+    }
+
+
+def tool_get_moran_clusters() -> dict:
+    """Global Moran's I and the LISA cluster counts - is warming clustered?"""
+    data = _read_pipeline_json("morans_i.json")
+    if not data:
+        return {
+            "found": False,
+            "message": (
+                "The spatial-autocorrelation output is not deployed with this build."
+            ),
+        }
+    clusters = data.get("cluster_counts") or {}
+    return {
+        "found": True,
+        "global_morans_i": data.get("global_morans_i"),
+        "p_value": data.get("global_morans_i_p_value"),
+        "n_municipalities": data.get("n_municipalities"),
+        "n_permutations": data.get("n_permutations"),
+        "method": data.get("method"),
+        "hh_clusters": clusters.get("HH"),
+        "ll_clusters": clusters.get("LL"),
+        "hl_clusters": clusters.get("HL"),
+        "lh_clusters": clusters.get("LH"),
+        "not_significant": clusters.get("NS"),
+        "summary": (
+            f"Global Moran's I = {data.get('global_morans_i')} "
+            f"(p = {data.get('global_morans_i_p_value')}, "
+            f"{data.get('n_permutations')} permutations): warming clusters "
+            f"spatially. {clusters.get('HH')} municipalities sit in High-High "
+            f"clusters where neighbours warm together."
+        ),
+    }
+
+
+def tool_compare_municipalities(name_a: str, name_b: str) -> dict:
+    """Two municipalities side by side, from the static narrative bank."""
+    data = _read_pipeline_json("narratives.json")
+    if not data:
+        return {
+            "found": False,
+            "message": "The municipality dataset is not deployed with this build.",
+        }
+    rows = data.get("municipalities", [])
+
+    def pick(name: str) -> dict | None:
+        needle = str(name or "").strip().lower()
+        if not needle:
+            return None
+        hits = [r for r in rows if needle in str(r.get("name", "")).lower()]
+        if not hits:
+            return None
+        # An exact name beats a substring hit ("Bato" vs "Bato, Camarines Sur").
+        exact = [r for r in hits if str(r.get("name", "")).lower() == needle]
+        return (exact or hits)[0]
+
+    a = pick(name_a)
+    b = pick(name_b)
+    if a is None or b is None:
+        missing = [n for n, r in ((name_a, a), (name_b, b)) if r is None]
+        return {
+            "found": False,
+            "message": "No municipality matching "
+            + ", ".join(f"'{m}'" for m in missing)
+            + ".",
+        }
+
+    def summarise(row: dict) -> dict:
+        trend = row.get("trend") or {}
+        return {
+            "name": row.get("name"),
+            "province": row.get("province"),
+            "slope_c_per_year": trend.get("slope_c_per_year"),
+            "change_point_year": trend.get("change_point_year"),
+            "person_days_danger": row.get("person_days_danger"),
+            "population_2020": row.get("population_2020"),
+            "lst_mean_c": row.get("lst_mean_c"),
+            "ndvi_mean": row.get("ndvi_mean"),
+            "top_drivers": [
+                {"label": d.get("label"), "share": d.get("share")}
+                for d in (row.get("top_drivers") or [])
+            ],
+        }
+
+    left = summarise(a)
+    right = summarise(b)
+    return {
+        "found": True,
+        "a": left,
+        "b": right,
+        "summary": (
+            f"{left['name']} ({left['province']}): "
+            f"{left['person_days_danger']} person-days, "
+            f"{left['population_2020']} people, "
+            f"slope {left['slope_c_per_year']} C/yr, "
+            f"change point {left['change_point_year']}. "
+            f"Versus {right['name']} ({right['province']}): "
+            f"{right['person_days_danger']} person-days, "
+            f"{right['population_2020']} people, "
+            f"slope {right['slope_c_per_year']} C/yr, "
+            f"change point {right['change_point_year']}."
+        ),
+    }
+
+
 _HANDLERS = {
     "get_municipality": tool_get_municipality,
     "rank_municipalities": tool_rank_municipalities,
     "compare_municipalities": tool_compare_municipalities,
     "get_drivers": tool_get_drivers,
     "get_exposure_summary": tool_get_exposure_summary,
+    "get_enso_analysis": tool_get_enso_analysis,
+    "get_change_points": tool_get_change_points,
+    "get_moran_clusters": tool_get_moran_clusters,
 }
 
 TOOLS = [
@@ -462,24 +669,6 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "compare_municipalities",
-            "description": "Compare two to six municipalities side by side.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "names": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Names, optionally 'Name, Province'.",
-                    }
-                },
-                "required": ["names"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "get_drivers",
             "description": "Driver ranking (Random Forest / SHAP) for one municipality.",
             "parameters": {
@@ -504,6 +693,74 @@ TOOLS = [
                 "population. Call this FIRST for any region-wide exposure question."
             ),
             "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_enso_analysis",
+            "description": (
+                "Use this to answer 'what does El Nino do to Bicol?' or 'is Bicol "
+                "getting hotter because of El Nino?'. Returns the correlation "
+                "between the NOAA Oceanic Nino Index and Bicol's annual mean heat "
+                "index, and the correlation with Bicol's heat VOLATILITY, with "
+                "p-values. The headline finding: El Nino makes Bicol's climate "
+                "more volatile, not hotter on average."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_change_points",
+            "description": (
+                "Use this to answer 'when did the warming trend break?' or 'how "
+                "many municipalities changed regime in 2012?'. Returns the "
+                "Pettitt change-point year for every municipality, the dominant "
+                "break year, and how many municipalities share it."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_moran_clusters",
+            "description": (
+                "Use this to answer 'does warming cluster geographically?' or "
+                "'which municipalities warm together with their neighbours?'. "
+                "Returns the global Moran's I with its p-value and the LISA "
+                "cluster counts (High-High, Low-Low, and the mixed clusters)."
+            ),
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_municipalities",
+            "description": (
+                "Compare exactly TWO municipalities side by side. Use this for "
+                "'compare Naga and Legazpi' or 'how do these two places differ?'. "
+                "Returns for each: warming rate, person-days of danger, "
+                "population, ground-surface temperature, vegetation cover, change "
+                "point year and top drivers."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name_a": {
+                        "type": "string",
+                        "description": "First municipality name, e.g. 'City of Naga'.",
+                    },
+                    "name_b": {
+                        "type": "string",
+                        "description": "Second municipality name, e.g. 'City of Legazpi'.",
+                    },
+                },
+                "required": ["name_a", "name_b"],
+            },
         },
     },
 ]

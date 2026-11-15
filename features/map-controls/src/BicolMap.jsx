@@ -222,6 +222,7 @@ function MunicipalityLayer({
     viewMode,
     year,
     dayValues,
+    playing,
   ]);
 
   // Staggered opacity reveal strictly on 3D→2D switch: areas fade in top-down

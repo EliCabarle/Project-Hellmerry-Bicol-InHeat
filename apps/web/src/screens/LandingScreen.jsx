@@ -212,13 +212,17 @@ export default function LandingScreen({ user = null, supabase = null, configured
                   aria-disabled={googleDisabled || undefined}
                   aria-describedby={googleDisabled ? 'google-hint' : undefined}
                   title={googleDisabled ? 'VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing' : undefined}
-                  className="clay-btn clay-btn--secondary flex w-full items-center justify-center gap-2 px-7 sm:w-auto"
+                  className="clay-btn clay-btn--secondary flex min-h-[58px] w-full items-center justify-center gap-2 px-7 sm:w-[14rem]"
                 >
                   <GoogleG />
                   Continue with Google
                 </button>
               </span>
-              <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary px-5 py-2 text-sm">
+              <button
+                type="button"
+                onClick={enterMap}
+                className="clay-btn clay-btn--primary flex min-h-[58px] w-full items-center justify-center gap-2 px-7 sm:w-[14rem]"
+              >
                 Explore as guest
               </button>
             </div>

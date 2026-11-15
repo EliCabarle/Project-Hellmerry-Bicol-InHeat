@@ -10,11 +10,11 @@ export {
   trendColor,
 } from '../../map-controls/src/gis/yearRamp.js'
 
-// UI chrome (axis ticks, grid, tooltip) — clay-world equivalents of the
-// heat-* tokens. Data accents below keep their map-ramp identity.
-export const AXIS_TICK = '#64748B'
-export const GRID_LINE = '#E6E3F7'
-export const TOOLTIP_BG = '#FFFFFF'
+// UI chrome follows the shell's theme variables. Data accents below keep
+// their map-ramp identity.
+export const AXIS_TICK = 'var(--bih-muted)'
+export const GRID_LINE = 'var(--bih-line)'
+export const TOOLTIP_BG = 'var(--bih-surface)'
 
 export const HEAT_AMBER = '#fbbf24'
 export const HEAT_COOL = '#67e8f9'

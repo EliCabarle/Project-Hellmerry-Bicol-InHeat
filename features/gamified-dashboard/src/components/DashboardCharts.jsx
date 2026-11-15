@@ -191,21 +191,21 @@ export function YearlyTrendChart({ data = [], changePoint = null, ci = [], isAna
                 yAxisId="hi"
                 x1={changePoint.year}
                 x2={lastYear}
-                fill="#7F2D08"
+                fill="var(--bih-ink)"
                 fillOpacity={0.04}
               />
             )}
             <ReferenceLine
               yAxisId="hi"
               x={changePoint.year}
-              stroke={isAnalyst ? '#7F2D08' : '#C9A58C'}
+              stroke={isAnalyst ? 'var(--bih-ink)' : 'var(--bih-line)'}
               strokeDasharray="3 5"
               strokeWidth={1.5}
               label={
                 isAnalyst
                   ? {
                       value: `${changePoint.year} · regime shift`,
-                      fill: '#7F2D08',
+                      fill: 'var(--bih-ink)',
                       position: 'top',
                       fontSize: 10,
                       fontWeight: '600',
@@ -233,7 +233,7 @@ export function YearlyTrendChart({ data = [], changePoint = null, ci = [], isAna
             yAxisId="hi"
             dataKey="ciLow"
             stroke="none"
-            fill="#FFFFFF"
+            fill="var(--bih-surface)"
             isAnimationActive={false}
             activeDot={false}
             stackId="ci"

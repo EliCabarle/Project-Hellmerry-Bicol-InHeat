@@ -7,7 +7,7 @@ export default function ChartDataTable({ caption, columns = [], rows = [], empty
     return (
       <details className="mt-2 border-t border-white/5 pt-2">
         <summary className="cursor-pointer min-h-11 select-none text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
-          ▶ Data table
+          Data table
         </summary>
         <p className="mt-2 text-xs text-slate-500">{empty}</p>
       </details>
@@ -16,7 +16,7 @@ export default function ChartDataTable({ caption, columns = [], rows = [], empty
   return (
     <details className="mt-2 border-t border-white/5 pt-2">
       <summary className="cursor-pointer min-h-11 select-none text-xs font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber">
-        ▶ Data table
+        Data table
       </summary>
       <div className="mt-2 max-h-56 overflow-y-auto bih-scroll">
         <table className="w-full border-collapse text-xs tabular-nums">

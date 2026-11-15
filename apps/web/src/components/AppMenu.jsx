@@ -61,7 +61,11 @@ export default function AppMenu({
         tone: user ? null : "neutral",
       },
       {
-        label: "Top BECOlanos",
+        label: (
+          <>
+            Top B<span className="text-clay-green">ECO</span>lanos
+          </>
+        ),
         icon: IconTrophy,
         onClick: () => navigate("leaderboard"),
       },

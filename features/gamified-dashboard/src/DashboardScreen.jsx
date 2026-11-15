@@ -640,25 +640,6 @@ export default function DashboardScreen({
                         rows={trendDist}
                       />
                     }
-                {/* The claim behind the marker: how many municipalities break at
-                    that year, and the exact statistical method. Analyst-only —
-                    the public reader gets the marker, not the claim. */}
-                {isAnalyst && changePoint && (
-                  <p className="-mt-2 rounded-[1.25rem] border border-white/10 bg-heat-surface/80 px-4 py-3 text-xs leading-5 text-clay-text-muted">
-                    <span className="font-bold text-heat-ink">
-                      Pettitt change-point test: {changePoint.count} of {coverage.withData || '—'} {term.toLowerCase()}
-                    </span>{' '}
-                    show a structural break in {changePoint.year}. Shaded band: 95% CI of the province mean. Method: {narratives?.meta?.method ?? 'Theil-Sen slope with Mann-Kendall significance'}
-                    {narratives?.meta?.alpha != null ? `, α = ${narratives.meta.alpha}` : ''}.
-                  </p>
-                )}
-
-                {readyData && (
-                  <CollapsibleSection
-                    ariaLabel="Toggle heat index distribution and warming rate charts"
-                    bareLabel="Heat and warming charts"
-                    className="mt-4"
-                    bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
                   >
                     <BinBarChart bins={trendDist} term={term} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
                   </ChartCard>

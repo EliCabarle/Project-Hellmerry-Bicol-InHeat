@@ -179,7 +179,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
           )}
 
           {card.narrationEn ? (
-            <p className="mt-1.5 line-clamp-4 text-[10px] leading-4 text-slate-300">
+            <p className="mt-1.5 text-[10px] leading-4 text-slate-300">
               {isAnalyst ? card.narrationEn : publicNarration(card.narrationEn)}
             </p>
           ) : null}

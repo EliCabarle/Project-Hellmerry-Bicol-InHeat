@@ -25,13 +25,17 @@
 
 :root {
   color-scheme: light;
-  --bih-bg: #F5F3FF;
+  --bih-bg: #FDF3E7;
   --bih-surface: #FFFFFF;
-  --bih-line: rgba(30, 27, 75, 0.10);
-  --bih-ink: #1E1B4B;
+  --bih-line: rgba(154, 52, 18, 0.10);
+  --bih-ink: #9A3412;
   --bih-muted: #64748B;
-  --bih-amber: #B45309;
+  --bih-amber: #F97316;
   --bih-cool: #0F766E;
+
+  /* Clay page background — cream peach matching the landing surface so the
+     whole site reads as one light scheme. Overrides clay.css's import. */
+  --clay-bg: #FDF3E7;
 
   /* 4A — Component background opacity hierarchy (recommended_opacity_levels_core_tokens.md) */
   --alpha-header: 0.92;
@@ -121,8 +125,8 @@ body {
 }
 
 ::selection {
-  background: rgba(96, 165, 250, 0.35);
-  color: #1E1B4B;
+  background: rgba(249, 115, 22, 0.35);
+  color: #9A3412;
 }
 
 .leaflet-container {
@@ -160,11 +164,11 @@ body {
 }
 
 .leaflet-control-attribution a {
-  color: #1E1B4B !important;
+  color: #9A3412 !important;
 }
 
 .leaflet-container a {
-  color: #1E1B4B;
+  color: #9A3412;
 }
 
 .leaflet-interactive:focus {
@@ -173,16 +177,16 @@ body {
 
 .bih-tip {
   background: rgba(255, 255, 255, var(--alpha-tooltip));
-  border: 1px solid rgba(30, 27, 75, 0.10);
+  border: 1px solid rgba(154, 52, 18, 0.10);
   border-radius: 14px;
-  color: #312E81;
-  box-shadow: 0 5px 0 0 #CBD5E1, 0 10px 20px rgba(30, 27, 75, 0.12);
+  color: #9A3412;
+  box-shadow: 0 5px 0 0 #CBD5E1, 0 10px 20px rgba(154, 52, 18, 0.12);
   padding: 8px 10px;
   backdrop-filter: blur(12px);
 }
 
 .bih-tip::before {
-  border-top-color: rgba(30, 27, 75, 0.10);
+  border-top-color: rgba(154, 52, 18, 0.10);
 }
 
 .bih-range {
@@ -190,8 +194,8 @@ body {
   appearance: none;
   height: 6px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #34D399, #60A5FA);
-  box-shadow: inset 0 1px 2px rgba(30, 27, 75, 0.12);
+  background: linear-gradient(90deg, #F97316, #FB923C);
+  box-shadow: inset 0 1px 2px rgba(154, 52, 18, 0.12);
   outline: none;
 }
 
@@ -203,7 +207,7 @@ body {
   border-radius: 999px;
   border: none;
   background: #FFFFFF;
-  box-shadow: 0 3px 0 0 #CBD5E1, 0 4px 10px rgba(30, 27, 75, 0.18);
+  box-shadow: 0 3px 0 0 #CBD5E1, 0 4px 10px rgba(154, 52, 18, 0.18);
   cursor: pointer;
 }
 
@@ -213,7 +217,7 @@ body {
   border-radius: 999px;
   border: none;
   background: #FFFFFF;
-  box-shadow: 0 3px 0 0 #CBD5E1, 0 4px 10px rgba(30, 27, 75, 0.18);
+  box-shadow: 0 3px 0 0 #CBD5E1, 0 4px 10px rgba(154, 52, 18, 0.18);
   cursor: pointer;
 }
 
@@ -284,7 +288,7 @@ body {
    color-scheme so native controls inside it follow the cream palette. */
 .landing-root {
   color-scheme: light;
-  --clay-bg: #fff7ed;
+  --clay-bg: #fdf3e7;
   --clay-card: #ffffff;
   --clay-border: #fed7aa;
   --clay-ink: #9a3412;

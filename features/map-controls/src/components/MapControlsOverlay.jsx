@@ -49,7 +49,6 @@ import {
   IconThermometer,
   IconTrend,
 } from "./Icons.jsx";
-import { HoverRevealHud } from "./HoverRevealHud.jsx";
 
 // Selectors are module-level so getSnapshot stays stable. They must return a
 // primitive or a reference that only changes when the slice changes.
@@ -431,6 +430,18 @@ function TimeScrubber({
   const playing = useTimelineState(selectPlaying, store);
   const actions = useTimelineActions(store);
   const rootRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return undefined;
+    const publish = () => onHeightChange?.(el.offsetHeight);
+    publish();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onHeightChange, expanded]);
 
   const count = timestamps.length;
   const canStep = count > 1;
@@ -456,63 +467,60 @@ function TimeScrubber({
     );
   }
 
-  // Pill (collapsed) content for HoverRevealHud
-  const renderPill = ({
-    expanded,
-    pinned,
-    onClick,
-    "aria-expanded": ariaExpanded,
-    "aria-controls": ariaControls,
-    "aria-label": ariaLabel,
-    onPointerEnter,
-    onPointerLeave,
-    onFocus,
-    onBlur,
-    tabIndex,
-  }) => (
-    <button
-      type="button"
-      ref={rootRef}
-      aria-expanded={ariaExpanded}
-      aria-controls={ariaControls}
-      aria-label={ariaLabel}
-      onClick={onClick}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      tabIndex={tabIndex}
-      className="flex w-full items-center justify-between gap-2 text-left"
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Historical time
-        </span>
-        <span
-          className="font-mono text-sm font-semibold text-slate-100"
-          aria-live="polite"
+  if (!expanded) {
+    return (
+      <div
+        ref={rootRef}
+        role="group"
+        aria-label="Historical time controls"
+        className={`${GLASS} w-full px-3 py-2.5 sm:px-4`}
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-label="Show historical time controls"
+          onClick={() => setExpanded(true)}
+          className="flex w-full items-center justify-between gap-2 text-left"
         >
-          {current || "No data"}
-        </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+            <span
+              className="font-mono text-sm font-semibold text-slate-100"
+              aria-live="polite"
+            >
+              {current || "No data"}
+            </span>
+          </div>
+          <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
+            Show controls
+          </span>
+        </button>
       </div>
-      <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
-        {expanded ? "Hide controls" : "Show controls"}
-      </span>
-    </button>
-  );
+    );
+  }
 
-  // Expanded content for HoverRevealHud
-  const renderExpanded = ({ expanded, pinned }) => (
+  return (
     <div
+      ref={rootRef}
       role="group"
       aria-label="Historical time controls"
       className={`${GLASS} flex w-full flex-col gap-2 px-3 py-2.5 sm:px-4`}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Historical time
-          </span>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-label="Collapse historical time controls"
+            onClick={() => setExpanded(false)}
+            className="text-left"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+          </button>
           <span
             className="font-mono text-sm font-semibold text-slate-100"
             aria-live="polite"
@@ -521,6 +529,14 @@ function TimeScrubber({
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            aria-label="Hide historical time controls"
+            onClick={() => setExpanded(false)}
+            className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-white/5 hover:text-slate-100"
+          >
+            Hide controls
+          </button>
           <div
             role="group"
             aria-label="Map data mode"
@@ -632,15 +648,6 @@ function TimeScrubber({
         <span>{last}</span>
       </div>
     </div>
-  );
-
-  return (
-    <HoverRevealHud
-      renderPill={renderPill}
-      renderExpanded={renderExpanded}
-      aria-label="Historical time controls"
-      aria-controls="bih-time-scrubber-expanded"
-    />
   );
 }
 

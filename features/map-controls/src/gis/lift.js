@@ -9,6 +9,22 @@ export const DEPTH_SPAN = 9000 // metres added across the full colour domain
 export const LIFT_RATIO = 0.30 // of the area's own depth
 export const LIFT_MS = 150
 
+// Per-group slab separation: each group's areas stand on a slightly different plane so
+// the map reads as layered instead of one flat sheet. Metres, on the scene's up axis.
+export const GROUP_STEP = 120 // static offset between consecutive groups
+export const PARALLAX_MAX = 120 // metres a group shifts across a 90° camera rotation
+export const PITCH_FULL = 45 // degrees of pitch at which separation is fully on
+
+// Group index → static slab offset plus a parallax factor in [-1, 1]. The factor is what
+// makes a rotation shift groups relative to each other instead of moving them all together.
+export function groupOffsets(index, count) {
+  const n = Math.max(1, count)
+  return {
+    base: index * GROUP_STEP,
+    factor: n > 1 ? (index / (n - 1)) * 2 - 1 : 0,
+  }
+}
+
 // 3D selection spotlight: when an area is selected, every other area flattens to 0 m.
 export const FLATTEN_3D_MS = 380 // ms to fall flat / rise back, ease-out cubic
 export const FLAT_FLOOR_M = 0 // flattened neighbours sit exactly at 0 m

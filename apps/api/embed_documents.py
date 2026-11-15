@@ -47,7 +47,21 @@ RETRIES = 5
 EMBED_MODEL = "models/gemini-embedding-001"
 EMBED_DIMS = 1536
 
-SKIP_DIRS = {".git", "node_modules", ".opencode", "graphify-out", ".planning", "dist", "build", ".venv"}
+SKIP_DIRS = {".git", "node_modules", ".opencode", ".graphify", "graphify-out", ".planning", "dist", "build", ".venv"}
+# Internal process docs, not method documentation. They leak cut lines and
+# agent instructions into a public retrieval corpus, and `_context_block` pastes
+# chunk text straight into the system prompt - an injection surface.
+SKIP_FILES = {
+    "agents.md",
+    "handoff.md",
+    "changelog.md",
+    "concept.md",
+    # Internal notes: PITCH_STATS carries pipeline numbers (the system prompt
+    # forbids values from document context), PLANCONTINUATION is session state.
+    "pitch_stats.md",
+    "plancontinuation.md",
+}
+SKIP_PREFIXES = ("features/",)
 HEADING = re.compile(r"^(#{1,6})[ \t]+(.+?)[ \t]*$", re.MULTILINE)
 H1 = re.compile(r"^#[ \t]+(.+?)[ \t]*$", re.MULTILINE)
 
@@ -57,15 +71,19 @@ def estimate_tokens(text: str) -> int:
 
 
 def corpus() -> list[Path]:
-    """Every non-empty markdown file, minus generated and tooling directories."""
+    """Every non-empty markdown file, minus generated, tooling and internal docs."""
     found = []
     for dirpath, dirnames, filenames in os.walk(REPO):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
         for name in filenames:
-            if name.endswith(".md"):
-                path = Path(dirpath) / name
-                if path.stat().st_size:
-                    found.append(path)
+            if not name.endswith(".md"):
+                continue
+            path = Path(dirpath) / name
+            rel = path.relative_to(REPO).as_posix().lower()
+            if name.lower() in SKIP_FILES or rel.startswith(SKIP_PREFIXES):
+                continue
+            if path.stat().st_size:
+                found.append(path)
     return sorted(found, key=lambda p: str(p.relative_to(REPO)).lower())
 
 
@@ -288,6 +306,19 @@ def main() -> None:
     for path, title, chunks in entries:
         print(f"{str(path.relative_to(REPO)).replace(chr(92), '/'):<46}", end=" ", flush=True)
         print(store(client, path, title, chunks))
+
+    # `store` only upserts, so a document that dropped out of the corpus (an
+    # internal process doc, a moved file) would keep its chunks retrievable
+    # forever. qa_chunks.document_id is `on delete cascade`, so this prunes both.
+    indexed = {str(path.relative_to(REPO)).replace("\\", "/") for path, _, _ in entries}
+    stale = [
+        row
+        for row in client.table("qa_documents").select("id,source_path").execute().data
+        if row["source_path"] not in indexed
+    ]
+    for row in stale:
+        client.table("qa_documents").delete().eq("id", row["id"]).execute()
+        print(f"pruned {row['source_path']}")
 
     total = (
         client.table("qa_chunks").select("id", count="exact").limit(1).execute().count

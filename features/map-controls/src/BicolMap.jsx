@@ -487,6 +487,8 @@ export default function BicolMap({
   // BicolMap renders identically without them.
   onOpenChatbot = null,
   onToggleIndex = null,
+  chatbotIcon = null,
+  chatOpen = false,
 }) {
   const handleToggleIndex = onToggleIndex ?? (() => setIndexOpen((open) => !open))
   const regions = useMemo(() => loadRegions(geojson), []);
@@ -944,6 +946,8 @@ export default function BicolMap({
         onHeightChange={onOverlayHeightChange}
         onToggleIndex={handleToggleIndex}
         onOpenChatbot={onOpenChatbot}
+        chatbotIcon={chatbotIcon}
+        chatOpen={chatOpen}
       />
     </div>
   );

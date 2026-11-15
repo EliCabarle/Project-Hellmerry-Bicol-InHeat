@@ -10,6 +10,12 @@ export const fmtP = (p) => (p == null ? '—' : p < 0.001 ? 'p < 0.001' : `p = $
 export const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
 export const fmtSlope = (slope) => (Number.isFinite(slope) ? `${slope >= 0 ? '+' : ''}${slope.toFixed(3)} °C/yr` : '—')
 
+// Theil-Sen slope 95% confidence interval, as it arrives on the trend record.
+export const fmtCI = (t) =>
+  Number.isFinite(t?.slope_ci_low) && Number.isFinite(t?.slope_ci_high)
+    ? `[${t.slope_ci_low.toFixed(3)}, ${t.slope_ci_high.toFixed(3)}]`
+    : '—'
+
 export function SigPill({ trend }) {
   const significant = Boolean(trend?.is_significant)
   return (
@@ -62,6 +68,7 @@ export default function DashboardTable({
   onToggleSave = null,
   canSave = false,
   onShowInFinder = null,
+  isAnalyst = false,
 }) {
   const dangerLabel = String(mode).startsWith('danger') ? 'font-semibold text-heat-amber' : 'text-slate-200'
 
@@ -109,7 +116,7 @@ export default function DashboardTable({
               <th scope="col" className="px-3 py-3 w-[128px]">
                 <DualLabel
                   label={LABELS.thSignificance.plain}
-                  tech={LABELS.thSignificance.tech}
+                  tech={isAnalyst ? LABELS.thSignificance.tech : ''}
                   className="text-xs"
                   techClassName="font-normal normal-case tracking-normal text-slate-400"
                 />
@@ -162,7 +169,12 @@ export default function DashboardTable({
                   <td className="px-3 py-2 w-[128px]">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <SigPill trend={t} />
-                      <span className="font-mono text-xs text-slate-500">{fmtP(t.p_value)}</span>
+                      {isAnalyst && (
+                        <>
+                          <span className="font-mono text-xs text-slate-500">{fmtP(t.p_value)}</span>
+                          <span className="font-mono text-[10px] text-slate-400">CI {fmtCI(t)}</span>
+                        </>
+                      )}
                     </div>
                   </td>
                   <td className="hidden px-3 py-2 w-[120px] text-xs text-slate-400 lg:table-cell">
@@ -220,7 +232,12 @@ export default function DashboardTable({
                 </div>
                 <div className="col-span-2 flex flex-wrap items-center gap-1.5 border-t border-white/5 pt-2">
                   <SigPill trend={t} />
-                  <span className="font-mono text-xs text-slate-500">{fmtP(t.p_value)}</span>
+                  {isAnalyst && (
+                    <>
+                      <span className="font-mono text-xs text-slate-500">{fmtP(t.p_value)}</span>
+                      <span className="font-mono text-[10px] text-slate-400">CI {fmtCI(t)}</span>
+                    </>
+                  )}
                   <span className="ml-auto font-mono text-xs text-slate-500">
                     {m?.sample?.n_days != null ? `${fmtInt(m.sample.n_days)} d · ${fmtInt(m.sample.n_years ?? 0)} y` : '—'}
                   </span>

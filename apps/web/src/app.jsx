@@ -15,7 +15,7 @@ import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
-import { parseRoute } from './lib/routes.js'
+import { parseRoute, hashFor } from './lib/routes.js'
 
 // UI theme lives on <html data-theme>, so every surface (shell, dashboard, map
 // chrome) flips together. index.html sets it before first paint; this mirrors
@@ -39,7 +39,8 @@ export default function App() {
   // An empty hash (first visit) and any unrecognized fragment (#main,
   // #access_token=..., arbitrary text) are not routes → Landing, for guests
   // and signed-in users alike (lead ruling 2026-11-14). Parsed once at load;
-  // navigate()/showOnMap() keep the hash in step — that write half is plan 02.
+  // navigate() and showOnMap() write the token back, so the URL never
+  // promises a screen a refresh would not restore.
   const route = parseRoute(typeof window === 'undefined' ? '' : window.location.hash)
   const [screen, setScreen] = useState(() => route?.screen ?? 'landing')
   // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
@@ -188,6 +189,27 @@ export default function App() {
   const navigate = useCallback(
     (target) => {
       const token = ++navTokenRef.current
+      // Write side of D-01: publish the route token so a refresh or a Back
+      // press agrees with the state set below. pushState rather than a hash
+      // assignment because it is silent (no hashchange echo into the
+      // traversal listener), it reuses the History API showOnMap already
+      // uses, and it gives explicit push-versus-replace control — showOnMap
+      // keeps replaceState for the selection (C-02). Computed before the
+      // branches so a live selection renders as '#muni=<key>' — the URL then
+      // equals what a refresh would restore. Written only when the token
+      // differs from location.hash (a re-click must not stack duplicate
+      // history entries while still bumping the in-memory token) and only
+      // when the grammar accepts it (an unknown target falls through every
+      // branch below and writes no hash). focus?.key rides the dependency
+      // array so the map branch never sees a stale selection.
+      const hash = target === 'map' ? hashFor('map', focus?.key) : hashFor(target)
+      if (parseRoute(hash) && hash !== window.location.hash) {
+        try {
+          window.history.pushState(null, '', hash)
+        } catch {
+          // Old browsers: the in-app navigation still works, the URL just stays stale.
+        }
+      }
       if (target === 'landing') {
         setScreen('landing')
         setFocusTab(null)
@@ -225,7 +247,29 @@ export default function App() {
       setFocusTab(null)
       return
     }
-  }, [focusMain])
+  }, [focusMain, focus?.key])
+
+  // DashboardScreen owns its tab state and never receives navigate() (the
+  // feature file is outside this plan's write boundary per C-01), so the
+  // shell mirrors the feature's own output back into the route: watching
+  // aria-selected on its tablist catches a click and an arrow-key move alike,
+  // and every change runs through navigate(). '#dashboard'/'#quests'/
+  // '#leaderboard' are pushed; '#history' is not in the grammar, so hashFor's
+  // token is rejected by parseRoute and nothing is written — the same silent
+  // fall-through navigate() already gives an unknown target. pushState fires
+  // no events, so a mirrored write cannot echo back into this effect.
+  useEffect(() => {
+    if (screen !== 'dashboard') return undefined
+    const list = document.querySelector('[role="tablist"][aria-label="Dashboard sections"]')
+    if (!list) return undefined
+    const mirror = () => {
+      const id = list.querySelector('[role="tab"][aria-selected="true"]')?.id
+      if (typeof id === 'string' && id.startsWith('tab-')) navigate(id.slice(4))
+    }
+    const observer = new MutationObserver(mirror)
+    observer.observe(list, { subtree: true, attributes: true, attributeFilter: ['aria-selected'] })
+    return () => observer.disconnect()
+  }, [screen, navigate])
 
   // Shared OAuth helper (lib/auth.js) — awaited so the landing CTA can render
   // the failure (FLAG-1); the menu's onSignIn ignores the returned error by

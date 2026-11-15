@@ -7,12 +7,13 @@
 
 const MUNI_PREFIX = '#muni='
 
-// '#token' → { screen, tab }. The three dashboard sub-tab tokens imply the
+// '#token' → { screen, tab }. The four dashboard sub-tab tokens imply the
 // dashboard screen (D-03): '#quests' is both the tab id and the hash token.
 const ROUTES = {
   '#map': { screen: 'map', tab: null },
   '#dashboard': { screen: 'dashboard', tab: 'dashboard' },
   '#quests': { screen: 'dashboard', tab: 'quests' },
+  '#history': { screen: 'dashboard', tab: 'history' },
   '#leaderboard': { screen: 'dashboard', tab: 'leaderboard' },
   '#account': { screen: 'account', tab: null },
   '#settings': { screen: 'settings', tab: null },
@@ -25,7 +26,7 @@ const ROUTES = {
  * - '#muni=<encoded joinKey>' → map with that municipality selected; the
  *   decode is guarded exactly like the original parseMuniHash, so malformed
  *   percent-encoding yields null instead of throwing.
- * - one of the seven screen tokens → that screen (sub-tab tokens → dashboard).
+ * - one of the eight screen tokens → that screen (sub-tab tokens → dashboard).
  * - anything else → null (caller falls back to Landing).
  */
 export function parseRoute(hash) {

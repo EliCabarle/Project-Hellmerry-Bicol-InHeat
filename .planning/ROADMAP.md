@@ -15,7 +15,7 @@ them to the Landing page.
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 01: hash-routing** - Refresh and back/forward restore the current screen via URL hash routes
+- [x] **Phase 01: hash-routing** - Refresh and back/forward restore the current screen via URL hash routes (completed 2026-11-15)
 
 ## Phase Details
 
@@ -37,7 +37,7 @@ Plans:
 - [x] 01-01-PLAN.md
 - [x] 01-02-PLAN.md
 - [x] 01-01: Route grammar module + load-time restore + skip-link hash protection
-- [ ] 01-02: navigate() hash writes + popstate/hashchange restore + acceptance matrix
+- [x] 01-02: navigate() hash writes + popstate/hashchange restore + acceptance matrix
 
 ## Progress
 
@@ -46,4 +46,4 @@ Phases execute in numeric order: 01
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 01. hash-routing | 2/2 | In Progress|  |
+| 01. hash-routing | 2/2 | Complete    | 2026-11-15 |

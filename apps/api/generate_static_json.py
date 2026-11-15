@@ -21,6 +21,7 @@ hides its driver chart instead of showing blanks.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import re
 import unicodedata
@@ -45,6 +46,12 @@ API_DIR = Path(__file__).resolve().parent
 IN_JSON = API_DIR / "output" / "trends.json"
 DRIVERS_JSON = API_DIR / "output" / "drivers.json"
 OUT_JSON = API_DIR / "output" / "narratives.json"
+# Exposure + condition sources. trends.json holds only trend statistics, so the
+# human-impact fields are joined in from the modules that already produce them.
+POPULATION_CSV = API_DIR / "data" / "population.csv"
+LST_CSV = API_DIR / "data" / "lst_means.csv"
+GEO_CSV = API_DIR / "data" / "geo_features.csv"
+PERSON_DAYS_JSON = API_DIR / "output" / "person_days_danger.json"
 # Boundary source of truth for the completeness check (114 municipalities).
 GEOJSON_PATH = (
     API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
@@ -214,7 +221,15 @@ def _danger_summary(series: list[dict]) -> dict:
     }
 
 
-def build(trends: dict, drivers: dict | None = None) -> dict:
+def build(
+    trends: dict,
+    drivers: dict | None = None,
+    exposure: dict | None = None,
+    precipitation: dict | None = None,
+) -> dict:
+    exposure = exposure or {}
+    precipitation = precipitation or {}
+    precip_meta = load_precipitation_meta()
     municipalities = []
     for row in trends["municipalities"]:
         latest = row["series"][-1] if row["series"] else None
@@ -228,6 +243,12 @@ def build(trends: dict, drivers: dict | None = None) -> dict:
             if drivers is not None
             else "absent"
         )
+        key = (row["name"], row["province"])
+        expo = exposure.get(key, {})
+        precip = precipitation.get(key, {})
+        narration = render_narration(row)
+        if precip.get("_precip_sentence"):
+            narration["en"] = narration["en"] + precip["_precip_sentence"]
         municipality = {
             "id": slugify(row["name"], row["province"]),
             "name": row["name"],
@@ -259,8 +280,17 @@ def build(trends: dict, drivers: dict | None = None) -> dict:
             },
             "total_danger_days_45y": danger["total_danger_days_45y"],
             "peak_danger_days": danger["peak_danger_days"],
-            "narration": render_narration(row),
+            "narration": narration,
             "series": row["series"],
+            # Human impact + ground conditions: population exposure, person-days
+            # of danger, ground temperature, vegetation cover. Joined from the
+            # modules that produce them; an absent source omits its keys.
+            **expo,
+            **{
+                k: v
+                for k, v in precip.items()
+                if k != "_precip_sentence" and v is not None
+            },
         }
         if municipality_drivers != "absent":
             municipality["top_drivers"] = municipality_drivers
@@ -295,6 +325,7 @@ def build(trends: dict, drivers: dict | None = None) -> dict:
             },
             "disclaimer": "Municipality is the smallest unit: POWER's ~55 km grid "
             "cannot resolve barangays. Drivers are associations, not causation.",
+            **precip_meta,
         },
         "municipalities": municipalities,
     }
@@ -337,6 +368,121 @@ def load_driver_index() -> dict | None:
     }
 
 
+def _read_csv(path: Path) -> list[dict]:
+    """Rows of a CSV as dicts, or [] when the file is absent."""
+    if not path.exists():
+        print(f"warning: {path.name} missing - related fields omitted")
+        return []
+    with path.open(encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def _num(value: str | None) -> float | None:
+    try:
+        return float(value) if value not in (None, "") else None
+    except (TypeError, ValueError):
+        return None
+
+
+def load_exposure() -> dict[tuple[str, str], dict]:
+    """(name, province) -> population exposure + ground-condition fields.
+
+    trends.json holds trend statistics only. The human-impact numbers an LGU
+    needs — population, person-days of danger, ground temperature, vegetation
+    cover — come from the modules that already produce them. Each source is
+    optional: a missing file omits its fields rather than failing the build.
+    """
+    out: dict[tuple[str, str], dict] = {}
+
+    for row in _read_csv(POPULATION_CSV):
+        key = (row.get("name"), row.get("province"))
+        out.setdefault(key, {}).update(
+            {
+                "population_2020": int(_num(row.get("population_2020")) or 0),
+                "population_density": _num(row.get("population_density")),
+                "area_km2": _num(row.get("area_km2")),
+                "exposed_flag": str(row.get("exposed_flag", "")).lower() == "true",
+            }
+        )
+
+    for row in _read_csv(LST_CSV):
+        key = (row.get("name"), row.get("province"))
+        out.setdefault(key, {})["lst_mean_c"] = _num(row.get("lst_mean_c"))
+
+    for row in _read_csv(GEO_CSV):
+        key = (row.get("name"), row.get("province"))
+        out.setdefault(key, {}).update(
+            {
+                "ndvi_mean": _num(row.get("ndvi_mean")),
+                "elevation_m": _num(row.get("elevation_m")),
+                "distance_to_coast_km": _num(row.get("distance_to_coast_km")),
+            }
+        )
+
+    if PERSON_DAYS_JSON.exists():
+        payload = json.loads(PERSON_DAYS_JSON.read_text(encoding="utf-8"))
+        for row in payload.get("all_municipalities", []):
+            key = (row.get("name"), row.get("province"))
+            out.setdefault(key, {}).update(
+                {
+                    "person_days_danger": row.get("person_days_danger"),
+                    "person_days_density": row.get("person_days_density"),
+                }
+            )
+    else:
+        print(f"warning: {PERSON_DAYS_JSON.name} missing - person-days omitted")
+
+    return out
+
+
+def load_precipitation() -> dict[tuple[str, str], dict]:
+    """Carry forward the precipitation fields and their narration sentences.
+
+    Precipitation needs a live NASA POWER fetch (fetch_new_variable.py), so a
+    local rebuild cannot recompute it. Reading it back from the previous
+    narratives.json keeps a regeneration lossless instead of silently dropping
+    a whole Earth-system variable.
+    """
+    if not OUT_JSON.exists():
+        print("warning: no previous narratives.json - precipitation omitted")
+        return {}
+    previous = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+    carried: dict[tuple[str, str], dict] = {}
+    for row in previous.get("municipalities", []):
+        key = (row.get("name"), row.get("province"))
+        entry = {
+            "annual_precip_mm_2024": row.get("annual_precip_mm_2024"),
+            "precip_source": row.get("precip_source"),
+            "precip_heat_index_corr_2024": row.get("precip_heat_index_corr_2024"),
+        }
+        # The precipitation sentence lives inside the narration; keep it so the
+        # rebuilt text matches the previous one.
+        en = (row.get("narration") or {}).get("en") or ""
+        marker = " In 2024, annual precipitation totaled"
+        if marker in en:
+            entry["_precip_sentence"] = en[en.index(marker):]
+        carried[key] = entry
+    return carried
+
+
+def load_precipitation_meta() -> dict:
+    """The meta-level precipitation notes, carried forward the same way."""
+    if not OUT_JSON.exists():
+        return {}
+    previous = json.loads(OUT_JSON.read_text(encoding="utf-8"))
+    meta = previous.get("meta") or {}
+    return {
+        key: meta[key]
+        for key in (
+            "precip_variable",
+            "precip_source",
+            "precip_heat_index_corr_2024",
+            "precip_note",
+        )
+        if key in meta
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--trends", default=str(IN_JSON))
@@ -349,7 +495,9 @@ def main() -> None:
         print(
             "warning: output/drivers.json missing - top_drivers omitted from narratives"
         )
-    payload = build(trends, drivers)
+    exposure = load_exposure()
+    precipitation = load_precipitation()
+    payload = build(trends, drivers, exposure, precipitation)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -552,37 +552,94 @@ export default function DashboardScreen({
               )}
             </div>
 
-            {/* ===== ROW 2 — trend chart (2/3) + narration (1/3) ===== */}
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-              <div className="flex min-w-0 flex-col gap-6 lg:w-2/3">
-                <div className="rounded-[2rem] border border-white/10 bg-white p-6 shadow-card">
+            {/* ===== ROW 2 — trend chart full width ===== */}
+            <div className="flex min-w-0 flex-col gap-6 w-full">
+              <div className="rounded-[2rem] border-none bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                <ChartCard
+                  title={LABELS.chartYearly.plain}
+                  tech={LABELS.chartYearly.tech}
+                  yearNote={`${start ?? '—'}–${end ?? '—'}`}
+                  ariaLabel="Yearly trend of province-wide mean heat index and count of municipalities with danger days"
+                  table={
+                    <ChartDataTable
+                      caption="Yearly trend data: mean heat index and municipality danger counts per year"
+                      columns={[
+                        { key: 'year', label: 'Year', numeric: true },
+                        { key: 'meanHeatIndexC', label: 'Mean heat index (°C)', format: (v) => (v == null ? '—' : v.toFixed(2)) },
+                        { key: 'dangerDayLgus', label: `${term} with ≥1 danger day` },
+                        { key: 'nCounted', label: `${term} counted` },
+                      ]}
+                      rows={yearly}
+                    />
+                  }
+                >
+                  <YearlyTrendChart
+                    data={yearly}
+                    changePoint={changePoint}
+                    ci={meanCi}
+                    isAnalyst={isAnalyst}
+                  />
+                </ChartCard>
+              </div>
+
+              {/* The claim behind the marker: how many municipalities break at
+                  that year, and the exact statistical method. Analyst-only —
+                  the public reader gets the marker, not the claim. */}
+              {isAnalyst && changePoint && (
+                <p className="-mt-2 rounded-[1.25rem] border-none bg-[#FFFDF9] px-4 py-3 text-xs leading-5 text-[#8C847A]">
+                  <span className="font-bold text-[#7F2D08]">
+                    Pettitt change-point test: {changePoint.count} of {coverage.withData || '—'} {term.toLowerCase()}
+                  </span>{' '}
+                  show a structural break in {changePoint.year}. Shaded band: 95% CI of the province mean. Method: {narratives?.meta?.method ?? 'Theil-Sen slope with Mann-Kendall significance'}
+                  {narratives?.meta?.alpha != null ? `, α = ${narratives.meta.alpha}` : ''}.
+                </p>
+              )}
+
+              {readyData && (
+                <CollapsibleSection
+                  ariaLabel="Toggle heat index distribution and warming rate charts"
+                  bareLabel="Heat and warming charts"
+                  className="mt-4"
+                  bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
+                >
                   <ChartCard
-                    title={LABELS.chartYearly.plain}
-                    tech={LABELS.chartYearly.tech}
-                    yearNote={`${start ?? '—'}–${end ?? '—'}`}
-                    ariaLabel="Yearly trend of province-wide mean heat index and count of municipalities with danger days"
+                    collapsible={false}
+                    title={LABELS.chartHeatDist.plain}
+                    tech={LABELS.chartHeatDist.tech}
+                    yearNote={yearLabel}
+                    ariaLabel={`Distribution of mean heat index across municipalities in ${yearLabel}`}
+                    footnote="Same bins as the map legend, so bar colours match the map."
                     table={
                       <ChartDataTable
-                        caption="Yearly trend data: mean heat index and municipality danger counts per year"
+                        caption="Mean heat index distribution data"
                         columns={[
-                          { key: 'year', label: 'Year', numeric: true },
-                          { key: 'meanHeatIndexC', label: 'Mean heat index (°C)', format: (v) => (v == null ? '—' : v.toFixed(2)) },
-                          { key: 'dangerDayLgus', label: `${term} with ≥1 danger day` },
-                          { key: 'nCounted', label: `${term} counted` },
+                          { key: 'label', label: 'Heat index (°C)', numeric: false },
+                          { key: 'count', label: term },
                         ]}
-                        rows={yearly}
+                        rows={heatDist}
                       />
                     }
                   >
-                    <YearlyTrendChart
-                      data={yearly}
-                      changePoint={changePoint}
-                      ci={meanCi}
-                      isAnalyst={isAnalyst}
-                    />
+                    <BinBarChart bins={heatDist} term={term} colorFn={(bin) => YEAR_COLORS[bin.binIndex] ?? HEAT_AMBER} />
                   </ChartCard>
-                </div>
 
+                  <ChartCard
+                    collapsible={false}
+                    title={LABELS.chartWarming.plain}
+                    tech={LABELS.chartWarming.tech}
+                    yearNote={`${start ?? '—'}–${end ?? '—'}`}
+                    ariaLabel="Distribution of warming rates across municipalities"
+                    footnote="Same bins as the map's rate legend. Non-significant rates are still counted."
+                    table={
+                      <ChartDataTable
+                        caption="Warming rate distribution data"
+                        columns={[
+                          { key: 'label', label: 'Warming rate (°C/yr)', numeric: false },
+                          { key: 'count', label: term },
+                        ]}
+                        rows={trendDist}
+                      />
+                    }
                 {/* The claim behind the marker: how many municipalities break at
                     that year, and the exact statistical method. Analyst-only —
                     the public reader gets the marker, not the claim. */}
@@ -603,63 +660,23 @@ export default function DashboardScreen({
                     className="mt-4"
                     bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
                   >
-                    <ChartCard
-                      collapsible={false}
-                      title={LABELS.chartHeatDist.plain}
-                      tech={LABELS.chartHeatDist.tech}
-                      yearNote={yearLabel}
-                      ariaLabel={`Distribution of mean heat index across municipalities in ${yearLabel}`}
-                      footnote="Same bins as the map legend, so bar colours match the map."
-                      table={
-                        <ChartDataTable
-                          caption="Mean heat index distribution data"
-                          columns={[
-                            { key: 'label', label: 'Heat index (°C)', numeric: false },
-                            { key: 'count', label: term },
-                          ]}
-                          rows={heatDist}
-                        />
-                      }
-                    >
-                      <BinBarChart bins={heatDist} term={term} colorFn={(bin) => YEAR_COLORS[bin.binIndex] ?? HEAT_AMBER} />
-                    </ChartCard>
+                    <BinBarChart bins={trendDist} term={term} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
+                  </ChartCard>
+                </CollapsibleSection>
+              )}
+            </div>
 
-                    <ChartCard
-                      collapsible={false}
-                      title={LABELS.chartWarming.plain}
-                      tech={LABELS.chartWarming.tech}
-                      yearNote={`${start ?? '—'}–${end ?? '—'}`}
-                      ariaLabel="Distribution of warming rates across municipalities"
-                      footnote="Same bins as the map's rate legend. Non-significant rates are still counted."
-                      table={
-                        <ChartDataTable
-                          caption="Warming rate distribution data"
-                          columns={[
-                            { key: 'label', label: 'Warming rate (°C/yr)', numeric: false },
-                            { key: 'count', label: term },
-                          ]}
-                          rows={trendDist}
-                        />
-                      }
-                    >
-                      <BinBarChart bins={trendDist} term={term} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
-                    </ChartCard>
-                  </CollapsibleSection>
-                )}
-              </div>
-
-              {/* Right Column (1/3) — Why It Heats */}
-              <div ref={narrationRef} className="flex min-w-0 flex-col gap-6 lg:w-1/3">
-                <NarrationPanel
-                  selectedMunicipality={selectedMunicipality}
-                  narratives={narratives}
-                  isAnalyst={isAnalyst}
-                  exposure={exposure}
-                  regionalDrivers={regionalDrivers}
-                  ndviMedian={ndviMedian}
-                  lstMedian={lstMedian}
-                />
-              </div>
+            {/* ===== ROW 2b — Narration panel full width, room to breathe ===== */}
+            <div ref={narrationRef} className="flex min-w-0 flex-col gap-6 w-full">
+              <NarrationPanel
+                selectedMunicipality={selectedMunicipality}
+                narratives={narratives}
+                isAnalyst={isAnalyst}
+                exposure={exposure}
+                regionalDrivers={regionalDrivers}
+                ndviMedian={ndviMedian}
+                lstMedian={lstMedian}
+              />
             </div>
 
             {/* ===== ROW 3 — Most people at risk, full width ===== */}
@@ -752,45 +769,55 @@ export default function DashboardScreen({
               </div>
             )}
 
-            {/* ===== Municipality List ===== */}
-            <CollapsibleSection title="Municipality list" ariaLabel="Municipality list">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div className="min-w-0 shrink-0">
-                  <label htmlFor="dashboard-sort" className="sr-only">
-                    Sort {term}
-                  </label>
-                  <select
-                    id="dashboard-sort"
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                    className="min-h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs font-bold text-clay-text-heading focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange sm:w-auto"
-                  >
-                    <option value="slope-desc">Warming rate · highest → lowest</option>
-                    <option value="slope-asc">Warming rate · lowest → highest</option>
-                    <option value="danger-desc">Danger days · highest → lowest</option>
-                    <option value="danger-asc">Danger days · lowest → highest</option>
-                    <option value="name-asc">Name · A → Z</option>
-                    <option value="name-desc">Name · Z → A</option>
-                  </select>
+            {/* ===== Municipality List — prominent, core product ===== */}
+            <div className="mt-8">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-[#8C847A] uppercase tracking-wider">
+                    {term} Ranking
+                  </p>
+                  <h2 className="mt-0 text-xl font-black text-[#2D2D2D] tracking-tight">
+                    Sorted by {sort.replace('-', ' · ')}
+                  </h2>
                 </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div className="min-w-0 shrink-0">
+                    <label htmlFor="dashboard-sort" className="sr-only">
+                      Sort {term}
+                    </label>
+                    <select
+                      id="dashboard-sort"
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                      className="min-h-11 w-full cursor-pointer rounded-lg border-none bg-[#F3EFE9] px-3 py-2 text-xs font-bold text-[#2D2D2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D] sm:w-auto"
+                    >
+                      <option value="slope-desc">Warming rate · highest → lowest</option>
+                      <option value="slope-asc">Warming rate · lowest → highest</option>
+                      <option value="danger-desc">Danger days · highest → lowest</option>
+                      <option value="danger-asc">Danger days · lowest → highest</option>
+                      <option value="name-asc">Name · A → Z</option>
+                      <option value="name-desc">Name · Z → A</option>
+                    </select>
+                  </div>
 
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="dashboard-search" className="sr-only">
-                    Search {term} or provinces
-                  </label>
-                  <input
-                    id="dashboard-search"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder={`Search ${term} or province`}
-                    className="min-h-11 w-full rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs text-clay-text-heading placeholder:text-clay-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange sm:max-w-xs"
-                  />
+                  <div className="min-w-0 flex-1">
+                    <label htmlFor="dashboard-search" className="sr-only">
+                      Search {term} or provinces
+                    </label>
+                    <input
+                      id="dashboard-search"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder={`Search ${term} or province`}
+                      className="min-h-11 w-full rounded-lg border-none bg-[#F3EFE9] px-3 py-2 text-xs text-[#2D2D2D] placeholder:text-[#8C847A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D] sm:max-w-xs"
+                    />
+                  </div>
+                  <p className="text-xs text-[#8C847A] md:hidden">
+                    Trend data for{' '}
+                    <span className="font-mono font-bold text-[#2D2D2D]">{coverage.withData}</span> of{' '}
+                    <span className="font-mono font-bold text-[#2D2D2D]">{coverage.total}</span>
+                  </p>
                 </div>
-                <p className="text-xs text-clay-text-muted md:hidden">
-                  Trend data for{' '}
-                  <span className="font-mono font-bold text-clay-text-heading">{coverage.withData}</span> of{' '}
-                  <span className="font-mono font-bold text-clay-text-heading">{coverage.total}</span>
-                </p>
               </div>
 
               {saveError && (
@@ -839,14 +866,14 @@ export default function DashboardScreen({
                   isAnalyst={isAnalyst}
                 />
               )}
-            </CollapsibleSection>
+            </div>
 
             {/* ===== Data sources — the multi-mission proof strip ===== */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-none pb-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Data sources
               </span>
-              {['NASA POWER', 'MODIS', 'SEDAC', 'NOAA CDO', 'NOAA ONI'].map((name) => (
+              {['NASA POWER', 'Landsat', 'MODIS', 'SEDAC', 'PAGASA', 'geoBoundaries'].map((name) => (
                 <span
                   key={name}
                   className="inline-flex items-center rounded-full border border-white/10 bg-heat-surface/70 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-clay-text-muted"

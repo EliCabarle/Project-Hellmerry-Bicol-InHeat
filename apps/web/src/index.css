@@ -285,6 +285,8 @@ button,
 html,
 body {
   touch-action: manipulation;
+}
+
 /* Peeking Silli tab: a 4 px nudge out from the right edge, not a hop.
    The reduced-motion block above already flattens it to one static frame. */
 @keyframes bih-peek {

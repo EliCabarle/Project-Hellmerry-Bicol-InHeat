@@ -36,7 +36,7 @@
 | App shell + 3-screen routing | CORE | todo | web |
 | Map screen mount + layout | CORE | todo | web |
 | Ranking screen mount | CORE | todo | web |
-| Narration screen mount | CORE | todo | web |
+| Narration screen mount | CORE | done — `src/screens/NarrationScreen.jsx`, wired in `app.jsx` route + `AppMenu` | web |
 | PWA manifest + service worker | CORE | done — `public/manifest.webmanifest`, `public/sw.js`, icons in `public/icons/` | web |
 | Supabase anon client + auth flag | CORE | todo | web |
 | Privacy notice + consent gate | CORE | done — `src/lib/privacy.js`, `src/components/PrivacyDialog.jsx`, gate owned by `app.jsx`, permanent link in `AppMenu` + Account pill | web |

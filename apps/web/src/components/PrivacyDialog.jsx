@@ -14,15 +14,19 @@ import {
 } from '../lib/privacy.js'
 
 const LINK =
-  'rounded text-heat-amber underline underline-offset-2 hover:text-amber-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
-const PRIMARY = 'bih-btn min-h-11 cursor-pointer rounded-md bg-heat-amber px-3 text-xs font-semibold text-slate-950 hover:bg-amber-300'
-const SECONDARY = 'bih-btn min-h-11 cursor-pointer rounded-md px-3 text-xs font-medium text-slate-300 hover:bg-white/10 hover:text-white'
+  'rounded text-heat-amber underline underline-offset-2 hover:text-heat-amber focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber'
+// Clay tokens, not heat-*/slate-*: dark-theme.css redeclares the --clay-* set,
+// so these flip with <html data-theme>. A bare bg-heat-deep does not flip — it
+// stays pale lavender while slate text turns near-white.
+const PRIMARY = 'bih-btn min-h-11 cursor-pointer rounded-md bg-heat-amber px-3 text-xs font-semibold text-slate-950 hover:bg-amber-200'
+const SECONDARY =
+  'bih-btn min-h-11 cursor-pointer rounded-md px-3 text-xs font-medium text-clay-text-body hover:bg-clay-bg-blue-white hover:text-clay-text-heading'
 
 function Section({ title, children }) {
   return (
     <section className="mt-4 first:mt-0">
       <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-heat-amber">{title}</h3>
-      <div className="mt-1 space-y-1.5 text-xs leading-5 text-slate-300">{children}</div>
+      <div className="mt-1 space-y-1.5 text-xs leading-5 text-clay-text-body">{children}</div>
     </section>
   )
 }
@@ -33,7 +37,7 @@ function Section({ title, children }) {
 function Notice() {
   return (
     <>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-clay-text-muted">
         Version 2026-11-14 · applies from your first sign-in
       </p>
 
@@ -213,11 +217,11 @@ export default function PrivacyDialog({
       ref={ref}
       onClose={() => onClose?.()}
       aria-labelledby="privacy-title"
-      className="w-[min(34rem,92vw)] rounded-2xl border border-white/10 bg-heat-deep p-0 text-slate-200 shadow-hud backdrop:bg-black/70"
+      className="w-[min(34rem,92vw)] rounded-2xl border border-white/10 bg-clay-white p-0 font-clay text-clay-text-body shadow-hud backdrop:bg-black/70"
     >
       <div className="flex max-h-[85vh] flex-col">
         <header className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-          <h2 id="privacy-title" className="text-sm font-semibold text-white">
+          <h2 id="privacy-title" className="text-sm font-semibold text-clay-text-heading">
             {TITLES[mode] ?? TITLES.read}
           </h2>
           <button type="button" onClick={dismiss} className={SECONDARY} aria-label="Close">
@@ -228,11 +232,11 @@ export default function PrivacyDialog({
         <div className="bih-scroll min-h-0 flex-1 overflow-y-auto px-4 py-4">
           {mode === 'handle' ? (
             <form id="handle-form" onSubmit={submitHandle}>
-              <p className="text-xs leading-5 text-slate-300">
+              <p className="text-xs leading-5 text-clay-text-body">
                 Pick the name other players will see. Letters, numbers and underscores, 3–20
                 characters. Your Google name and email are never shown.
               </p>
-              <label htmlFor="handle-input" className="mt-4 block text-xs font-medium text-slate-200">
+              <label htmlFor="handle-input" className="mt-4 block text-xs font-medium text-clay-text-body">
                 Your handle
               </label>
               <input
@@ -241,14 +245,14 @@ export default function PrivacyDialog({
                 onChange={(e) => setHandleInput(e.target.value)}
                 maxLength={20}
                 autoComplete="off"
-                className="mt-1 min-h-11 w-full rounded-md border border-white/10 bg-black/30 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
+                className="mt-1 min-h-11 w-full rounded-md border border-white/10 bg-black/30 px-3 text-sm text-clay-text-heading placeholder:text-clay-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
               />
             </form>
           ) : (
             <>
               <Notice />
               {mode === 'consent' && (
-                <label className="mt-4 flex items-start gap-2 rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-5 text-slate-200">
+                <label className="mt-4 flex items-start gap-2 rounded-lg border border-white/10 bg-white/5 p-3 text-xs leading-5 text-clay-text-body">
                   <input
                     type="checkbox"
                     checked={agreed}
@@ -261,7 +265,7 @@ export default function PrivacyDialog({
                 </label>
               )}
               {mode === 'read' && !user && (
-                <p className="mt-4 text-xs text-slate-400">
+                <p className="mt-4 text-xs text-clay-text-muted">
                   Signing in means you agree to this notice.
                 </p>
               )}

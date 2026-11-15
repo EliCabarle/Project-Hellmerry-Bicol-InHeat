@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { IconCheck, IconGrid, IconMap, IconTrophy } from '../components/Icons.jsx'
+import SillieHappy from '../../assets/Sillie Happy.png'
 
 // Motion engine lives ONLY here (never app.jsx top-level): the 2D bundle must
 // stay map-first, and the landing screen is the sole scroll-storytelling owner.
@@ -170,60 +171,76 @@ export default function LandingScreen({ user = null, supabase = null, configured
           </svg>
         </div>
 
-        <div className="relative mx-auto flex max-w-[1120px] flex-col items-center">
-          <div data-hero className="flex flex-wrap items-center justify-center gap-4">
-            <img
-              src="/BICOL_IN_HEAT.png"
-              alt="Bicol In-Heat"
-              width={201}
-              height={40}
-              className="h-8 w-auto md:h-10"
-            />
-          </div>
+        <div className="relative mx-auto flex max-w-[1120px] flex-col md:flex-row items-start md:items-center gap-8 md:gap-16">
+          {/* Left column: copy + CTAs */}
+          <div data-hero className="flex flex-col items-center md:items-start gap-6 text-center md:text-left">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+              <img
+                src="/BICOL_IN_HEAT.png"
+                alt="Bicol In-Heat"
+                width={201}
+                height={40}
+                className="h-8 w-auto md:h-10"
+              />
+            </div>
 
-          <p className="clay-chip mt-6 inline-flex items-center px-4 py-1.5 text-clay-ink">
-            2026 NASA Space Apps Challenge
-          </p>
+            <p className="clay-chip inline-flex items-center px-4 py-1.5 text-clay-ink">
+              2026 NASA Space Apps Challenge
+            </p>
 
-          {/* Verbatim hook (lead ruling): a long sentence, so the mobile size
-              drops to 28px and the desktop clamp is dropped — keeps the hero
-              hook + CTAs on one viewport instead of 8+ wrapped lines. */}
-          <h1 data-hero className="mt-6 max-w-[46ch] text-[1.75rem] font-semibold leading-[1.15] text-clay-ink md:text-[3.5rem] md:leading-[1.1]">
-            Every dry season in Bicol, the heat index climbs into PAGASA&rsquo;s Danger
-            band above 42 degrees Celsius, yet neighboring municipalities heat at
-            different rates and existing advisories never show why.
-          </h1>
+            {/* Verbatim hook (lead ruling): a long sentence, so the mobile size
+                drops to 28px and the desktop clamp is dropped — keeps the hero
+                hook + CTAs on one viewport instead of 8+ wrapped lines. */}
+            <h1 data-hero className="mt-0 max-w-[46ch] text-[1.75rem] font-semibold leading-[1.15] text-clay-ink md:text-[3.5rem] md:leading-[1.1]">
+              Every dry season in Bicol, the heat index climbs into PAGASA&rsquo;s Danger
+              band above 42 degrees Celsius, yet neighboring municipalities heat at
+              different rates and existing advisories never show why.
+            </h1>
 
-          <p data-hero className="mt-5 max-w-[46ch] text-base leading-relaxed text-clay-ink">
-            Bicol In-Heat reads 45 years of NASA data to show which municipalities
-            are heating, how fast, and what&rsquo;s driving them.
-          </p>
+            <p data-hero className="mt-5 max-w-[46ch] text-base leading-relaxed text-clay-ink">
+              Bicol In-Heat reads 45 years of NASA data to show which municipalities
+              are heating, how fast, and what&rsquo;s driving them.
+            </p>
 
-          <div data-hero className="mt-8 flex w-full flex-col items-center justify-center gap-3">
-            <span className="contents">
-              <GoogleHint />
-              <button
-                type="button"
-                onClick={handleGoogle}
-                disabled={googleDisabled}
-                aria-disabled={googleDisabled || undefined}
-                aria-describedby={googleDisabled ? 'google-hint' : undefined}
-                title={googleDisabled ? 'VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing' : undefined}
-                className="clay-btn clay-btn--secondary flex w-full items-center justify-center gap-2 px-7 sm:w-auto"
-              >
-                <GoogleG />
-                Continue with Google
+            <div data-hero className="mt-8 flex w-full flex-col items-center md:items-start justify-center md:justify-start gap-3">
+              <span className="contents">
+                <GoogleHint />
+                <button
+                  type="button"
+                  onClick={handleGoogle}
+                  disabled={googleDisabled}
+                  aria-disabled={googleDisabled || undefined}
+                  aria-describedby={googleDisabled ? 'google-hint' : undefined}
+                  title={googleDisabled ? 'VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY missing' : undefined}
+                  className="clay-btn clay-btn--secondary flex w-full items-center justify-center gap-2 px-7 sm:w-auto"
+                >
+                  <GoogleG />
+                  Continue with Google
+                </button>
+              </span>
+              <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary px-5 py-2 text-sm">
+                Explore as guest
               </button>
-            </span>
-            <button type="button" onClick={enterMap} className="clay-btn clay-btn--primary px-5 py-2 text-sm">
-              Explore as guest
-            </button>
+            </div>
+            {signInError && (
+              <span role="alert" className="mt-3 text-sm font-semibold text-clay-ink">
+                {signInError}
+              </span>
+            )}
           </div>
-          {signInError && (
-            <span role="alert" className="mt-3 text-sm font-semibold text-clay-ink">
-              {signInError}
-            </span>
-          )}
+
+          {/* Right column: Sillie hero visual, anchored beside the copy on desktop */}
+          <div data-hero className="relative w-full max-w-[360px] flex items-center justify-center md:justify-end">
+            <div className="relative w-full max-w-[340px]">
+              <img
+                src={SillieHappy}
+                alt="Sillie mascot"
+                className="w-full h-auto block drop-shadow-2xl rounded-[32px] relative z-10"
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -264,11 +281,11 @@ export default function LandingScreen({ user = null, supabase = null, configured
               does not.
             </p>
           </div>
-          <div className="clay-card clay-card--emphasis flex flex-col items-center gap-2 bg-clay-primary p-8 text-center md:p-10">
-            <p className="text-[2.5rem] font-semibold leading-[1.1] text-clay-onprimary md:text-[3.5rem]">
+          <div className="clay-card flex flex-col items-center gap-2 border border-clay-text-muted/10 p-6 md:p-8 shadow-sm">
+            <p className="text-[1.75rem] font-bold leading-[1.1] text-clay-coral-shadow md:text-[2.5rem]">
               42&ndash;51 &deg;C
             </p>
-            <p className="text-sm font-semibold leading-[1.4] text-clay-onprimary">
+            <p className="text-xs font-semibold leading-[1.4] text-clay-text-muted uppercase tracking-[0.12em]">
               PAGASA Danger heat-index band
             </p>
           </div>
@@ -345,6 +362,101 @@ export default function LandingScreen({ user = null, supabase = null, configured
                 </span>
                 <h3 className="mt-4 text-sm font-semibold leading-[1.4] text-clay-ink">{title}</h3>
                 <p className="mt-2 text-base leading-relaxed text-clay-ink">{line}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* §3b All the data we use — every dataset, named. */}
+      <section className="relative px-4 py-12 md:py-16 lg:py-24">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div
+            data-parallax="data-a"
+            className="absolute -left-10 bottom-20 h-48 w-48 rounded-full bg-clay-primary/15 blur-2xl"
+          />
+          <div
+            data-parallax="data-b"
+            className="absolute right-8 top-24 h-40 w-40 rounded-full bg-clay-border/60 blur-2xl"
+          />
+        </div>
+
+        <div data-reveal className="relative mx-auto max-w-[1120px]">
+          <p className="clay-chip inline-flex bg-clay-primary px-4 py-1.5 text-clay-onprimary">
+            ALL THE DATA WE USE
+          </p>
+          <h2 className="mt-4 max-w-[24ch] text-[1.625rem] font-semibold leading-[1.2] text-clay-ink md:text-[2rem]">
+            Every dataset behind the trend.
+          </h2>
+          <p className="mt-4 max-w-[60ch] text-base leading-relaxed text-clay-ink">
+            114 municipalities across Bicol (Region V), 45 years of observations,
+            gridded climate data, satellite land surface temperature, vegetation,
+            land cover, and population exposure — all joined per municipality.
+          </p>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3 lg:grid-cols-4">
+            {[
+              {
+                title: 'NASA POWER',
+                line: 'Daily T2M (max temp) + RH2M (humidity), 1981–2025, per 0.5° grid cell.',
+                source: 'NASA',
+                primary: true,
+              },
+              {
+                title: 'Heat Index',
+                line: 'Rothfusz formula from POWER temperature + dew point, felt heat index.',
+                source: 'Computed',
+                primary: true,
+              },
+              {
+                title: 'Landsat C2 L2',
+                line: 'Land surface temperature (LST), skin temperature from thermal bands.',
+                source: 'NASA / USGS',
+                primary: true,
+              },
+              {
+                title: 'MODIS MOD44B',
+                line: 'Tree canopy percent, 2000–2023, 250 m resolution.',
+                source: 'NASA',
+                primary: false,
+              },
+              {
+                title: 'MCD12Q1',
+                line: 'Land cover type, IGBP classification per grid cell.',
+                source: 'NASA',
+                primary: false,
+              },
+              {
+                title: 'SEDAC GPW',
+                line: 'Gridded population of the world, exposure per municipality.',
+                source: 'NASA / CIESIN',
+                primary: false,
+              },
+              {
+                title: 'PAGASA',
+                line: 'Heat-index danger bands (≥ 42 °C), station observations.',
+                source: 'Philippines',
+                primary: true,
+              },
+              {
+                title: 'geoBoundaries',
+                line: 'Municipality boundaries (adm3), CC BY 4.0, 114 LGUs.',
+                source: 'CC BY 4.0',
+                primary: false,
+              },
+            ].map(({ title, line, source, primary }) => (
+              <article key={title} className={`clay-card p-6 ${primary ? 'border-clay-amber/30 shadow-sm' : ''}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  {primary && (
+                    <span className="shrink-0 clay-chip inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold text-white bg-clay-amber">P</span>
+                  )}
+                  {!primary && (
+                    <span className="shrink-0 clay-chip inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold text-clay-text-muted bg-white/50 border border-clay-text-muted/20">S</span>
+                  )}
+                  <span className="shrink-0 text-clay-coral-shadow font-clay font-bold text-sm">{source}</span>
+                  <h3 className="text-sm font-semibold leading-[1.4] text-clay-ink">{title}</h3>
+                </div>
+                <p className="text-base leading-relaxed text-clay-ink">{line}</p>
               </article>
             ))}
           </div>
@@ -472,13 +584,10 @@ export default function LandingScreen({ user = null, supabase = null, configured
                 Fonts: Fredoka &amp; Nunito (SIL OFL). Code &amp; data used under
                 their respective source licences.
               </p>
-              {/* The landing is the only screen without a menu, and the Google
-                  button sits on it: without this, the notice is unreachable
-                  before the sign-in that collects the account data. */}
               <button
                 type="button"
                 onClick={onOpenPrivacy}
-                className="mt-3 inline-flex min-h-6 cursor-pointer items-center text-clay-accent underline decoration-clay-border underline-offset-2 hover:decoration-clay-ink"
+                className="mt-3 inline-flex items-center gap-2 cursor-pointer text-clay-accent font-clay font-semibold text-sm underline decoration-clay-border underline-offset-2 hover:decoration-clay-ink"
               >
                 Privacy Notice
               </button>

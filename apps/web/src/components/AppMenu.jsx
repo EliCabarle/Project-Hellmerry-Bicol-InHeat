@@ -9,8 +9,8 @@ import {
   IconMap,
   IconShield,
   IconSignOut,
-  IconTrophy,
   IconUser,
+  IconVolume,
 } from "./Icons.jsx";
 
 const DIVIDER = "mx-3 border-t border-clay-text-muted/20 my-1.5";
@@ -54,22 +54,6 @@ export default function AppMenu({
         onClick: () => navigate("map"),
       },
       {
-        label: user ? "Manage Account" : "Sign in",
-        icon: IconUser,
-        onClick: user ? () => navigate("account") : onSignIn,
-        disabled: !user && !configured,
-        tone: user ? null : "neutral",
-      },
-      {
-        label: (
-          <>
-            Top B<span className="text-clay-green">ECO</span>lanos
-          </>
-        ),
-        icon: IconTrophy,
-        onClick: () => navigate("leaderboard"),
-      },
-      {
         label: "Dashboard",
         icon: IconGrid,
         major: true,
@@ -77,17 +61,27 @@ export default function AppMenu({
       },
       {
         label: "Narration",
-        icon: IconGrid,
+        icon: IconVolume,
+        major: true,
         onClick: () => navigate("narration"),
+      },
+      { divider: true },
+      {
+        label: user ? "Manage Account" : "Sign in",
+        icon: IconUser,
+        major: Boolean(user),
+        onClick: user ? () => navigate("account") : onSignIn,
+        disabled: !user && !configured,
+        tone: user ? null : "neutral",
       },
       ...(user
         ? [
             {
               label: "Settings",
               icon: IconGear,
+              major: true,
               onClick: () => navigate("settings"),
             },
-            { divider: true },
             {
               label: "Sign Out",
               icon: IconSignOut,
@@ -180,7 +174,7 @@ export default function AppMenu({
 
   const rowClass = (tone, active) => {
     const base =
-      "flex w-full cursor-pointer items-center gap-3 px-3 py-2 rounded-[14px] text-sm font-clay font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+      "flex w-full cursor-pointer items-center gap-3 px-3 py-2 rounded-[14px] text-left text-sm font-clay font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
     if (tone === "danger")
       return `${base} ${active ? "bg-clay-coral/20 text-clay-coral-shadow" : "text-clay-text-muted hover:bg-clay-bg-peach hover:text-clay-text-heading"}`;
     if (active) return `${base} bg-clay-amber text-clay-text-heading`;

@@ -846,8 +846,7 @@ export default function NarrationScreen({
                     <div className="clay-card--white rounded-[40px] border border-clay-text-muted/10 p-0 md:p-0 shadow-card relative overflow-hidden">
                       <div className="flex flex-col md:flex-row items-start md:items-center gap-0 min-h-[320px] md:h-[420px]">
                         <div className="w-full md:w-[52%] p-6 md:p-16 flex flex-col justify-center">
-                          <div className="flex items-start gap-2 mb-3">
-                            <span className="clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-amber">1</span>
+                          <div className="mb-3">
                             <h2
                               data-heading
                               className="mt-0 text-3xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-4xl"

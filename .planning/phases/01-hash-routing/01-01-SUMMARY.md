@@ -178,3 +178,9 @@ None — no external service configuration required.
 ---
 *Phase: 01-hash-routing*
 *Completed: 2026-11-15*
+
+## Self-Check: PASSED
+
+- Files exist: `apps/web/src/lib/routes.js`, `apps/web/test_routes.mjs`, `apps/web/src/app.jsx`, `01-01-SUMMARY.md` — all FOUND.
+- Commits exist: `08fe793`, `6225631`, `bb5edb5`, `97f4169` — all FOUND in `git log --oneline --all`.
+- Full verify set green at Task 2 completion: `test_routes` 7/7, `test_privacy` 4/4, `test_profile` 3/3, `npm --prefix apps/web run build` green.

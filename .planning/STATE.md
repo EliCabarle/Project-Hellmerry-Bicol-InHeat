@@ -30,7 +30,7 @@ See: CONCEPT.md (authoritative concept + decision log; no PROJECT.md in this rep
 Phase: 01
 Plan: Not started
 Status: All phases complete
-Last activity: 2026-11-15 - Completed quick task 261115-o0c: enlarge mascot icon past tile edge and clip so gradient tile is fully covered
+Last activity: 2026-11-15 - Completed quick task 261115-pl6: fix unclosed html,body CSS block in index.css breaking postcss build
 
 Progress: [██████████] 100%
 
@@ -95,6 +95,7 @@ None yet.
 | 261115-lqi | wire #narration route token and navigate branch so AppMenu Narration row works | 2026-11-15 | db2e906 | [261115-lqi-wire-narration-route-token-and-navigate-](./quick/261115-lqi-wire-narration-route-token-and-navigate-/) |
 | 261115-nwe | zoom mascot_icon.png to fill the NavBar logo placeholder | 2026-11-15 | cb51fba | [261115-nwe-zoom-mascot-icon-png-to-fill-the-navbar-](./quick/261115-nwe-zoom-mascot-icon-png-to-fill-the-navbar-/) |
 | 261115-o0c | enlarge mascot icon past tile edge and clip so gradient tile is fully covered | 2026-11-15 | fab481e | [261115-o0c-enlarge-mascot-icon-past-tile-edge-and-c](./quick/261115-o0c-enlarge-mascot-icon-past-tile-edge-and-c/) |
+| 261115-pl6 | fix unclosed html body CSS block in index.css breaking postcss build | 2026-11-15 | c1e006c | [261115-pl6-fix-unclosed-html-body-css-block-in-inde](./quick/261115-pl6-fix-unclosed-html-body-css-block-in-inde/) |
 
 ## Deferred Items
 

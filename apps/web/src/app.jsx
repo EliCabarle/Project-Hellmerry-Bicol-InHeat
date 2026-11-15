@@ -17,6 +17,7 @@ import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
 import { parseRoute, hashFor } from './lib/routes.js'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 // UI theme lives on <html data-theme>, so every surface (shell, dashboard, map
 // chrome) flips together. index.html sets it before first paint; this mirrors
@@ -366,7 +367,8 @@ export default function App() {
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
   // wrapper between #root and the leaflet container (collapses the map to 0px).
   return (
-    <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
+    <ErrorBoundary>
+      <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
       {/* This handler owns the hash: a native "#main" click would displace the
           route token, so a refresh after skipping would fall back to Landing.
           preventDefault() + focus() keeps the URL's token intact while moving
@@ -507,5 +509,6 @@ export default function App() {
         onSignOut={handleSignOut}
       />
       </div>
+    </ErrorBoundary>
   )
 }

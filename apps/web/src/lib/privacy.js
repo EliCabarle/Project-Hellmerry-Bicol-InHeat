@@ -8,7 +8,7 @@ export const PRIVACY_VERSION = '2026-11-14'
 // shortcut: placeholder contact, replace before submission
 export const PRIVACY_CONTACT = 'ashronbengimpa9@gmail.com'
 // shortcut: placeholder accountable person, replace before submission
-export const PRIVACY_ACCOUNTABLE = 'Asi'
+export const PRIVACY_ACCOUNTABLE = 'Ashron Ben Gimpao'
 // shortcut: placeholder Supabase region, replace before submission
 export const PRIVACY_REGION = 'South Asia(Mumbai)'
 

@@ -440,29 +440,30 @@ export default function DashboardScreen({
               )
             })}
           </div>
-
-          <div
-            role="group"
-            aria-label="Dashboard detail level"
-            className="flex items-center overflow-hidden rounded-full border border-white/10 bg-heat-surface/70"
-          >
-            <button
-              type="button"
-              onClick={() => setIsAnalyst(false)}
-              aria-pressed={!isAnalyst}
-              className={`${headerClasses} ${!isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
+          {active === 'dashboard' && (
+            <div
+              role="group"
+              aria-label="Dashboard detail level"
+              className="ml-auto flex items-center overflow-hidden rounded-full border border-white/10 bg-heat-surface/70"
             >
-              Public View
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsAnalyst(true)}
-              aria-pressed={isAnalyst}
-              className={`${headerClasses} ${isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
-            >
-              Analyst View
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => setIsAnalyst(false)}
+                aria-pressed={!isAnalyst}
+                className={`${headerClasses} ${!isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
+              >
+                Public View
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAnalyst(true)}
+                aria-pressed={isAnalyst}
+                className={`${headerClasses} ${isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
+              >
+                Analyst View
+              </button>
+            </div>
+          )}
         </div>
         {/* Level-up announcement (was the HeatBar's live region). */}
         <div aria-live="polite" className="sr-only">
@@ -504,7 +505,7 @@ export default function DashboardScreen({
                 Person-Days of Danger is the hero: population exposure to days
                 above the danger threshold, summed across every municipality.
                 The pipeline computes it per municipality; this only sums it. */}
-            <div className={`mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 ${isAnalyst ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+            <div className={`pt-6 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 ${isAnalyst ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
               <StatCard
                 title="Person-Days of Danger"
                 value={personDays > 0 ? `${(personDays / 1e6).toFixed(1)}M` : '—'}

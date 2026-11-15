@@ -11,6 +11,9 @@ import {
   flatHeight,
   flatTarget,
   getFlatFactor,
+  GROUP_STEP,
+  groupOffsets,
+  PARALLAX_MAX,
   depthFor,
   liftFor,
   stepFlats,
@@ -130,4 +133,20 @@ test('selection keeps the exact ramp fill colour; only the border changes to SEL
   strictAssert.equal(chosen.fillColor, base.fillColor, 'ramp fill colour identical on selection')
   strictAssert.equal(chosen.color, SELECT_COLOUR, 'border becomes the selection colour')
   strictAssert.ok(chosen.weight > base.weight, 'border gets thicker on selection')
+})
+
+test('group offsets step upward and their parallax factors span [-1, 1]', () => {
+  const n = 6
+  const all = Array.from({ length: n }, (_, i) => groupOffsets(i, n))
+  strictAssert.equal(all[0].base, 0, 'first group sits on the ground plane')
+  strictAssert.equal(all[0].factor, -1)
+  strictAssert.equal(all[n - 1].factor, 1)
+  for (let i = 1; i < n; i += 1) {
+    strictAssert.equal(all[i].base - all[i - 1].base, GROUP_STEP, 'groups step by GROUP_STEP')
+    strictAssert.ok(all[i].factor > all[i - 1].factor, 'factors are strictly increasing')
+  }
+  // Total spread must stay under the smallest depth, so no group floats clear of the map.
+  strictAssert.ok(all[n - 1].base + PARALLAX_MAX < DEPTH_BASE, 'separation stays under the minimum depth')
+  // A single group has nothing to separate from.
+  strictAssert.deepEqual(groupOffsets(0, 1), { base: 0, factor: 0 })
 })

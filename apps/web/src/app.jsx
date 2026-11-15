@@ -15,6 +15,7 @@ import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 // Deep link: #muni=<encoded joinKey> opens the map with that municipality
 // selected. The skip link targets #main, so only the #muni= prefix counts as a
@@ -247,13 +248,14 @@ export default function App() {
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
   // wrapper between #root and the leaflet container (collapses the map to 0px).
   return (
-    <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[900] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
-      >
-        Skip to content
-      </a>
+    <ErrorBoundary>
+      <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[900] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
+        >
+          Skip to content
+        </a>
 
       {/* Floating translucent navbar on every screen except landing — the dark
           HUD would clash with the cream clay surface and duplicate the hero
@@ -298,6 +300,7 @@ export default function App() {
           configured={configured}
           navigate={navigate}
           onSignIn={handleSignIn}
+          onOpenPrivacy={openPrivacyNotice}
         />
       ) : screen === 'map' ? (
         <div id="main" tabIndex={-1} className="relative min-h-0 flex-1">
@@ -365,6 +368,7 @@ export default function App() {
         onClose={() => setPrivacyMode(null)}
         onSignOut={handleSignOut}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

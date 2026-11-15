@@ -399,14 +399,14 @@ export default function DashboardScreen({
   const headerClasses = `shrink-0 cursor-pointer min-h-11 rounded-full px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm transition-colors`
 
   return (
-    <div id="main" className="flex h-full min-h-0 flex-col bg-[#FAF7F2]">
+    <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
       {/* ===== Secondary Navigation =====
           The global header (BIH logo + Heat Points progress + menu) is the
           fixed NavBar in apps/web. The dashboard owns only page-level nav:
           the section tabs on the left, the Public/Analyst toggle on the right.
           The duplicated HeatBar is gone — the NavBar already shows the same
           level/HP numbers. */}
-      <div className="sticky top-2 z-[700] mb-6 rounded-[2rem] border-none bg-[#FAF7F2]/95 px-5 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur">
+      <div className="sticky top-2 z-[700] mb-6 rounded-[2rem] border border-white/10 bg-heat-surface/95 px-5 py-1.5 shadow-hud backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
           <div
             role="tablist"
@@ -431,8 +431,8 @@ export default function DashboardScreen({
                   onClick={() => setActive(t.id)}
                   className={`relative min-h-11 cursor-pointer px-4 text-sm transition-colors ${
                     selected
-                      ? 'font-bold text-[#2D2D2D] after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#D96C4D]'
-                      : 'font-semibold text-[#8C847A] hover:text-[#2D2D2D]'
+                      ? 'font-bold text-clay-text-heading after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full after:bg-heat-orange'
+                      : 'font-semibold text-clay-text-muted hover:text-clay-text-heading'
                   }`}
                 >
                   {t.label}
@@ -444,13 +444,13 @@ export default function DashboardScreen({
           <div
             role="group"
             aria-label="Dashboard detail level"
-            className="flex items-center overflow-hidden rounded-full bg-[#F3EFE9] border-none"
+            className="flex items-center overflow-hidden rounded-full border border-white/10 bg-heat-surface/70"
           >
             <button
               type="button"
               onClick={() => setIsAnalyst(false)}
               aria-pressed={!isAnalyst}
-              className={`${headerClasses} ${!isAnalyst ? 'bg-[#F2C94C] text-[#5D4037]' : 'bg-[#F3EFE9] text-[#8C847A]'}`}
+              className={`${headerClasses} ${!isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
             >
               Public View
             </button>
@@ -458,7 +458,7 @@ export default function DashboardScreen({
               type="button"
               onClick={() => setIsAnalyst(true)}
               aria-pressed={isAnalyst}
-              className={`${headerClasses} ${isAnalyst ? 'bg-[#F2C94C] text-[#5D4037]' : 'bg-[#F3EFE9] text-[#8C847A]'}`}
+              className={`${headerClasses} ${isAnalyst ? 'bg-heat-amber text-slate-950' : 'bg-heat-surface/70 text-clay-text-muted'}`}
             >
               Analyst View
             </button>
@@ -482,20 +482,20 @@ export default function DashboardScreen({
           <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
             {/* Page header */}
             <div className="flex flex-col gap-3 mb-6">
-              <p className="text-xs font-bold text-[#8C847A] uppercase tracking-wider">
+              <p className="text-xs font-bold text-clay-text-muted uppercase tracking-wider">
                 {LABELS.eyebrow.plain}
               </p>
-              <h1 className="mt-1 text-3xl font-black text-[#2D2D2D] tracking-tight">
+              <h1 className="mt-1 text-3xl font-black text-clay-text-heading tracking-tight">
                 {LABELS.title.plain}
               </h1>
-              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#8C847A]">
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-clay-text-muted">
                 <DualLabel label={LABELS.methodPlain.plain} tech={LABELS.methodPlain.tech} />
               </p>
-              <p className="mt-0.5 font-mono text-xs text-[#A79C90]">{periodLine}</p>
+              <p className="mt-0.5 font-mono text-xs text-slate-400">{periodLine}</p>
             </div>
 
             {narratives?.meta?.disclaimer && (
-              <p className="mt-3 rounded-lg border-none bg-[#FFFDF9] px-3 py-2 text-xs leading-5 text-[#8C847A]">
+              <p className="mt-3 rounded-lg border border-white/10 bg-heat-surface/80 px-3 py-2 text-xs leading-5 text-clay-text-muted">
                 {narratives.meta.disclaimer}
               </p>
             )}
@@ -640,6 +640,25 @@ export default function DashboardScreen({
                         rows={trendDist}
                       />
                     }
+                {/* The claim behind the marker: how many municipalities break at
+                    that year, and the exact statistical method. Analyst-only —
+                    the public reader gets the marker, not the claim. */}
+                {isAnalyst && changePoint && (
+                  <p className="-mt-2 rounded-[1.25rem] border border-white/10 bg-heat-surface/80 px-4 py-3 text-xs leading-5 text-clay-text-muted">
+                    <span className="font-bold text-heat-ink">
+                      Pettitt change-point test: {changePoint.count} of {coverage.withData || '—'} {term.toLowerCase()}
+                    </span>{' '}
+                    show a structural break in {changePoint.year}. Shaded band: 95% CI of the province mean. Method: {narratives?.meta?.method ?? 'Theil-Sen slope with Mann-Kendall significance'}
+                    {narratives?.meta?.alpha != null ? `, α = ${narratives.meta.alpha}` : ''}.
+                  </p>
+                )}
+
+                {readyData && (
+                  <CollapsibleSection
+                    ariaLabel="Toggle heat index distribution and warming rate charts"
+                    bareLabel="Heat and warming charts"
+                    className="mt-4"
+                    bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
                   >
                     <BinBarChart bins={trendDist} term={term} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
                   </ChartCard>
@@ -802,7 +821,7 @@ export default function DashboardScreen({
               </div>
 
               {saveError && (
-                <div role="alert" className="mt-3 rounded-lg border-none bg-[#FFF9F0] px-3 py-2 text-xs text-[#C0392B]">
+                <div role="alert" className="mt-3 rounded-lg border border-heat-hot/30 bg-heat-surface/80 px-3 py-2 text-xs text-heat-hot">
                   {saveError}
                 </div>
               )}
@@ -810,25 +829,25 @@ export default function DashboardScreen({
               {status === 'loading' && (
                 <div aria-busy="true" className="mt-4 space-y-2">
                   {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-14 animate-pulse rounded-[1rem] bg-[#F3EFE9]" />
+                    <div key={i} className="h-14 animate-pulse rounded-[1rem] bg-heat-surface/70" />
                   ))}
                 </div>
               )}
               {status === 'error' && (
-                <div role="alert" className="mt-4 rounded-[1rem] border border-[#C0392B]/30 bg-[#FFF9F0] px-3 py-2.5 text-sm">
-                  <div className="font-bold text-[#2D2D2D]">Could not load trend data</div>
-                  <div className="mb-2 text-xs text-[#8C847A]">{error}</div>
+                <div role="alert" className="mt-4 rounded-[1rem] border border-heat-hot/30 bg-heat-surface/80 px-3 py-2.5 text-sm">
+                  <div className="font-bold text-clay-text-heading">Could not load trend data</div>
+                  <div className="mb-2 text-xs text-clay-text-muted">{error}</div>
                   <button
                     type="button"
                     onClick={() => reload?.()}
-                    className="cursor-pointer rounded-[12px] bg-[#D96C4D] px-2.5 py-1 text-xs font-bold text-[#5D4037] hover:bg-[#C0392B] bih-btn"
+                    className="cursor-pointer rounded-[12px] bg-heat-orange px-2.5 py-1 text-xs font-bold text-slate-950 hover:bg-heat-hot bih-btn"
                   >
                     Try again
                   </button>
                 </div>
               )}
               {status === 'ready' && ranked.length === 0 && (
-                <div className="mt-4 rounded-[1rem] border-none bg-[#F3EFE9] px-3 py-2.5 text-sm text-[#8C847A]">
+                <div className="mt-4 rounded-[1rem] border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-clay-text-muted">
                   No trend data yet — check back soon.
                 </div>
               )}
@@ -851,13 +870,13 @@ export default function DashboardScreen({
 
             {/* ===== Data sources — the multi-mission proof strip ===== */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-none pb-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#A79C90]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Data sources
               </span>
               {['NASA POWER', 'Landsat', 'MODIS', 'SEDAC', 'PAGASA', 'geoBoundaries'].map((name) => (
                 <span
                   key={name}
-                  className="inline-flex items-center rounded-full border-none bg-[#F3EFE9] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#8C847A]"
+                  className="inline-flex items-center rounded-full border border-white/10 bg-heat-surface/70 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-clay-text-muted"
                 >
                   {name}
                 </span>
@@ -925,11 +944,11 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledPrev}
         onClick={() => onChangePage((p) => Math.max(1, p - 1))}
         aria-label="Previous page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-[#F3EFE9] px-3 py-1 text-xs font-bold bih-btn ${disabledPrev ? 'text-[#8C847A] disabled:opacity-40 disabled:cursor-not-allowed' : 'text-[#2D2D2D] hover:bg-[#F3EFE9]'}`}
+        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-white/10 px-3 py-1 text-xs font-bold bih-btn ${disabledPrev ? 'text-clay-text-muted disabled:opacity-40 disabled:cursor-not-allowed' : 'text-clay-text-heading hover:bg-white/5'}`}
       >
         ← Prev
       </button>
-      <span className="text-xs font-bold text-[#8C847A] shrink-0">
+      <span className="text-xs font-bold text-clay-text-muted shrink-0">
         Page {page} of {totalPages}
       </span>
       <button
@@ -937,7 +956,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledNext}
         onClick={() => onChangePage((p) => Math.min(totalPages, p + 1))}
         aria-label="Next page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-[#F3EFE9] px-3 py-1 text-xs font-bold bih-btn ${disabledNext ? 'text-[#8C847A] disabled:opacity-40 disabled:cursor-not-allowed' : 'text-[#2D2D2D] hover:bg-[#F3EFE9]'}`}
+        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-white/10 px-3 py-1 text-xs font-bold bih-btn ${disabledNext ? 'text-clay-text-muted disabled:opacity-40 disabled:cursor-not-allowed' : 'text-clay-text-heading hover:bg-white/5'}`}
       >
         Next →
       </button>
@@ -981,7 +1000,7 @@ function DashboardTableRows({
 
   if (shown.length === 0) {
     return (
-      <div className="mt-4 rounded-[1rem] border-none bg-[#F3EFE9] px-3 py-2.5 text-sm text-[#8C847A]">
+      <div className="mt-4 rounded-[1rem] border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-clay-text-muted">
         {query.trim()
           ? 'No municipality matches that search.'
           : province !== 'All'
@@ -996,12 +1015,12 @@ function DashboardTableRows({
 
   return (
     <div className="mt-4">
-      <p className="text-xs text-[#8C847A]">
+      <p className="text-xs text-clay-text-muted">
         {province === 'All'
           ? `Showing ${rangeStart}–${rangeEnd} of ${shown.length} ${term === 'LGUs' ? 'LGUs' : 'municipalities'} (page ${page} of ${totalPages})`
           : `${shown.length} ${term === 'LGUs' ? 'LGUs' : 'municipalities'} in ${province} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
       </p>
-      <span className="block mt-1 text-xs text-[#8C847A]">Significance is a flag, never a filter</span>
+      <span className="block mt-1 text-xs text-clay-text-muted">Significance is a flag, never a filter</span>
       <DashboardTable
         rows={paginated}
         mode={mode}

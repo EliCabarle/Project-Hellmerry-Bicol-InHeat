@@ -1,0 +1,29 @@
+{
+  "project": "Bicol In-Heat",
+  "module": "enso_correlation",
+  "oni_source": "NOAA CPC Oceanic Niño Index (oni.ascii.txt)",
+  "oni_url": "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
+  "n_years": 45,
+  "year_range": [
+    1981,
+    2025
+  ],
+  "analysis_a_mean_heat": {
+    "pearson_r": 0.128489,
+    "p_value": 0.400253,
+    "r_squared": 0.016509,
+    "slope": 0.156949,
+    "intercept": 33.27864,
+    "significant": false
+  },
+  "analysis_b_volatility": {
+    "pearson_r": 0.444801,
+    "p_value": 0.002203,
+    "r_squared": 0.197848,
+    "slope": 0.094113,
+    "intercept": 0.651497,
+    "significant": true
+  },
+  "regression_formula": "annual_mean_heat = 0.1569 * ONI + 33.2786",
+  "interpretation": "Positive ONI (El Niño) correlates with higher Bicol mean heat and volatility."
+}

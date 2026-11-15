@@ -16,15 +16,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 function ConditionTile({ label, value, unit, note, tone = 'neutral' }) {
   const toneClass =
-    tone === 'hot' ? 'text-[#C0392B]' : tone === 'good' ? 'text-[#1E8449]' : 'text-[#2D2D2D]'
+    tone === 'hot' ? 'text-heat-hot' : tone === 'good' ? 'text-heat-cool' : 'text-clay-text-heading'
   return (
-    <div className="rounded-[1.25rem] border-none bg-[#FAF7F2] px-3.5 py-3">
-      <p className="text-[10px] font-bold uppercase tracking-wider text-[#8C847A]">{label}</p>
+    <div className="rounded-[1.25rem] border border-white/10 bg-heat-surface/70 px-3.5 py-3">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-clay-text-muted">{label}</p>
       <p className={`mt-1 font-mono text-xl font-bold tracking-tight ${toneClass}`}>
         {value}
-        {unit && <span className="ml-0.5 text-xs font-bold text-[#8C847A]">{unit}</span>}
+        {unit && <span className="ml-0.5 text-xs font-bold text-clay-text-muted">{unit}</span>}
       </p>
-      {note && <p className="mt-0.5 text-[10px] leading-4 text-[#A79C90]">{note}</p>}
+      {note && <p className="mt-0.5 text-[10px] leading-4 text-slate-400">{note}</p>}
     </div>
   )
 }
@@ -110,43 +110,43 @@ export default function NarrationPanel({
           </p>
 
         {headline && (
-          <p className="mt-3 text-[#2D2D2D] leading-relaxed">{headline}</p>
+          <p className="mt-3 text-clay-text-heading leading-relaxed">{headline}</p>
         )}
 
         {regionalDrivers.length > 0 && (
           <div className="mt-4">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#8C847A]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-clay-text-muted">
               Top regional drivers
             </p>
             <div className="mt-2 space-y-2">
               {regionalDrivers.slice(0, 3).map((d) => (
                 <div key={d.label} className="flex items-center gap-2">
-                  <span className="w-32 shrink-0 truncate text-xs text-[#8C847A]" title={d.label}>
+                  <span className="w-32 shrink-0 truncate text-xs text-clay-text-muted" title={d.label}>
                     {plainDriverLabel(d.label)}
                   </span>
-                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#F3EFE9]">
+                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-heat-surface/70">
                     <span
-                      className="block h-full rounded-full bg-[#D96C4D]"
+                      className="block h-full rounded-full bg-heat-orange"
                       style={{ width: `${Math.round(d.meanShare * 100)}%` }}
                     />
                   </span>
-                  <span className="w-9 shrink-0 text-right font-mono text-xs text-[#2D2D2D]">
+                  <span className="w-9 shrink-0 text-right font-mono text-xs text-clay-text-heading">
                     {Math.round(d.meanShare * 100)}%
                   </span>
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[10px] leading-4 text-[#A79C90] italic">
+            <p className="mt-2 text-[10px] leading-4 text-slate-400 italic">
               Association, not causation. The model&rsquo;s strongest signal is wind and location.
             </p>
           </div>
         )}
 
-        <div className="mt-4 rounded-[1.25rem] border-none bg-[#FFF9F0] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#C2410C]">
+        <div className="mt-4 rounded-[1.25rem] border border-heat-orange/20 bg-heat-surface/70 p-4">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-heat-orange">
             ✦ Where to act first
           </p>
-          <p className="mt-1.5 text-xs leading-5 text-[#5D4037]">
+          <p className="mt-1.5 text-xs leading-5 text-clay-text-body">
             {exposure && exposure.exposedCount > 0
               ? `${exposure.exposedCount} municipalities hold ${(exposure.exposedPopulation / 1e6).toFixed(2)}M people and have crossed the 42 °C Danger threshold. Start there — every intervention reaches more people.`
               : 'No municipality has crossed the 42 °C Danger threshold yet. Keep monitoring and protect the tree canopy.'}
@@ -206,15 +206,15 @@ export default function NarrationPanel({
       : null
 
   return (
-    <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-none p-6 flex-1 min-h-[320px]">
+    <div className="bg-white rounded-[2rem] border border-white/10 shadow-card p-6 flex-1 min-h-[320px]">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="text-xs font-bold text-[#8C847A] uppercase tracking-wider">Why It Heats</h3>
-        <span className="truncate text-xs font-mono text-[#8C847A]">
+        <h3 className="text-xs font-bold text-clay-text-muted uppercase tracking-wider">Why It Heats</h3>
+        <span className="truncate text-xs font-mono text-clay-text-muted">
           {muni.name}, {muni.province}
         </span>
       </div>
 
-      {narration && <p className="mt-3 text-[#2D2D2D] leading-relaxed">{narration}</p>}
+      {narration && <p className="mt-3 text-clay-text-heading leading-relaxed">{narration}</p>}
 
       {/* The two conditions an LGU can actually change. */}
       <div className="mt-4 grid grid-cols-2 gap-2">
@@ -254,12 +254,12 @@ export default function NarrationPanel({
       />
 
       {isAnalyst && drivers.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-[#F3EFE9]/80">
+        <div className="mt-4 pt-4 border-t border-white/10">
           <div className="flex items-center gap-1.5 mb-3">
-            <h4 className="text-xs font-bold text-[#8C847A] uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-clay-text-muted uppercase tracking-wider">
               Top Drivers · SHAP share
             </h4>
-            <span className="inline-flex items-center rounded-full bg-[#F2C94C]/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#5D4037]">
+            <span className="inline-flex items-center rounded-full bg-heat-amber/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-clay-text-body">
               Analyst
             </span>
           </div>
@@ -268,36 +268,36 @@ export default function NarrationPanel({
               const pct = Math.round((d?.share ?? 0) * 100)
               return (
                 <div key={d?.feature ?? d?.label} className="flex items-center gap-2">
-                  <span className="w-24 shrink-0 truncate text-xs text-[#8C847A]" title={d?.label}>
+                  <span className="w-24 shrink-0 truncate text-xs text-clay-text-muted" title={d?.label}>
                     {plainDriverLabel(d?.label)}
                   </span>
-                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#F3EFE9]">
+                  <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-heat-surface/70">
                     <span
-                      className="block h-full rounded-full bg-[#D96C4D] rounded-full"
+                      className="block h-full rounded-full bg-heat-orange"
                       style={{ width: `${pct}%` }}
                     />
                   </span>
-                  <span className="w-9 shrink-0 text-right font-mono text-xs text-[#2D2D2D]">
+                  <span className="w-9 shrink-0 text-right font-mono text-xs text-clay-text-heading">
                     {pct}%
                   </span>
                 </div>
               )
             })}
-            <p className="mt-2 text-xs text-[#8C847A] italic">Association, not causation.</p>
+            <p className="mt-2 text-xs text-clay-text-muted italic">Association, not causation.</p>
           </div>
         </div>
       )}
 
       {/* The action box — the point of the whole panel. */}
-      <div className="mt-4 rounded-[1.25rem] border-none bg-[#FFF9F0] p-4">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-[#C2410C]">
+      <div className="mt-4 rounded-[1.25rem] border border-heat-orange/20 bg-heat-surface/70 p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-heat-orange">
           ✦ Recommended action
         </p>
         <ul className="mt-2 space-y-2">
           {actions.map((a) => (
             <li key={a.id}>
-              <p className="text-xs font-bold text-[#2D2D2D]">→ {a.label}</p>
-              <p className="mt-0.5 text-[11px] leading-4 text-[#5D4037]">{a.detail}</p>
+              <p className="text-xs font-bold text-clay-text-heading">→ {a.label}</p>
+              <p className="mt-0.5 text-[11px] leading-4 text-clay-text-body">{a.detail}</p>
             </li>
           ))}
         </ul>

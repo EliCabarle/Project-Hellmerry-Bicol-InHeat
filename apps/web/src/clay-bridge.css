@@ -9,26 +9,26 @@
    ====================================================================== */
 
 /* Inset tracks (progress bars, inputs, segmented controls, rank chips).
-   Tinted indigo, never neutral grey — clay shadows stay saturated. */
-.bg-black\/20 { background-color: rgba(99, 102, 241, 0.07); }
-.bg-black\/25 { background-color: rgba(99, 102, 241, 0.07); }
-.bg-black\/30 { background-color: rgba(99, 102, 241, 0.09); }
-.bg-black\/50 { background-color: rgba(99, 102, 241, 0.11); }
+   Tinted peach-orange, never neutral grey — clay shadows stay saturated. */
+.bg-black\/20 { background-color: rgba(154, 52, 18, 0.07); }
+.bg-black\/25 { background-color: rgba(154, 52, 18, 0.07); }
+.bg-black\/30 { background-color: rgba(154, 52, 18, 0.09); }
+.bg-black\/50 { background-color: rgba(154, 52, 18, 0.11); }
 /* Modal scrim stays dimming */
 .bg-black\/40 { background-color: rgba(30, 27, 75, 0.30); }
 
-/* Translucent white surfaces become translucent clay-blue tints */
-.bg-white\/5 { background-color: rgba(96, 165, 250, 0.10); }
-.bg-white\/10 { background-color: rgba(96, 165, 250, 0.14); }
-.bg-white\/\[0\.04\] { background-color: rgba(96, 165, 250, 0.10); }
-.hover\:bg-white\/5:hover { background-color: rgba(96, 165, 250, 0.10); }
-.hover\:bg-white\/10:hover { background-color: rgba(96, 165, 250, 0.16); }
-.hover\:bg-white\/20:hover { background-color: rgba(96, 165, 250, 0.24); }
-.hover\:bg-white\/\[0\.035\]:hover { background-color: rgba(96, 165, 250, 0.08); }
-.hover\:text-white:hover { color: #1E1B4B; }
+/* Translucent white surfaces become translucent peach-orange tints */
+.bg-white\/5 { background-color: rgba(249, 115, 22, 0.10); }
+.bg-white\/10 { background-color: rgba(249, 115, 22, 0.14); }
+.bg-white\/\[0\.04\] { background-color: rgba(249, 115, 22, 0.10); }
+.hover\:bg-white\/5:hover { background-color: rgba(249, 115, 22, 0.10); }
+.hover\:bg-white\/10:hover { background-color: rgba(249, 115, 22, 0.16); }
+.hover\:bg-white\/20:hover { background-color: rgba(249, 115, 22, 0.24); }
+.hover\:bg-white\/\[0\.035\]:hover { background-color: rgba(249, 115, 22, 0.08); }
+.hover\:text-white:hover { color: #9A3412; }
 
 /* Accent text: the ramp keeps its hue for data, text uses the deep pair.
-   Values chosen for AA on white and on their own 10-20% tints. */
+   Values chosen for AA on cream and on their own 10-20% tints. */
 .text-heat-amber { color: #92400E; }
 .hover\:text-heat-amber:hover { color: #92400E; }
 .text-heat-cool { color: #115E59; }
@@ -37,19 +37,19 @@
 .text-rose-200,
 .text-rose-300 { color: #BE123C; }
 
-/* Focus rings: the amber ring was legible on the dark theme, not on clay.
-   One rule repaints all 40 feature focus rings to the clay focus blue. */
-.ring-heat-amber { --tw-ring-color: #1D4ED8; }
-.focus-visible\:ring-heat-amber:focus-visible { --tw-ring-color: #1D4ED8; }
+/* Focus rings: orange ring legible on cream. One rule repaints feature focus
+   rings to the landing's orange instead of the old blue. */
+.ring-heat-amber { --tw-ring-color: #C2410C; }
+.focus-visible\:ring-heat-amber:focus-visible { --tw-ring-color: #C2410C; }
 
-/* Hairlines on light surfaces */
-.border-white\/5 { border-color: rgba(30, 27, 75, 0.06); }
-.border-white\/10 { border-color: rgba(30, 27, 75, 0.08); }
-.border-white\/15 { border-color: rgba(30, 27, 75, 0.10); }
-.border-white\/20 { border-color: rgba(30, 27, 75, 0.14); }
+/* Hairlines on light cream surfaces */
+.border-white\/5 { border-color: rgba(154, 52, 18, 0.06); }
+.border-white\/10 { border-color: rgba(154, 52, 18, 0.08); }
+.border-white\/15 { border-color: rgba(154, 52, 18, 0.10); }
+.border-white\/20 { border-color: rgba(154, 52, 18, 0.14); }
 .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(30, 27, 75, 0.08);
+  border-color: rgba(154, 52, 18, 0.08);
 }
 .ring-white\/10 {
-  --tw-ring-color: rgba(30, 27, 75, 0.09);
+  --tw-ring-color: rgba(154, 52, 18, 0.09);
 }

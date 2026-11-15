@@ -120,6 +120,12 @@
 [data-theme="dark"] .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: rgba(255, 255, 255, 0.10); }
 [data-theme="dark"] .ring-white\/10 { --tw-ring-color: rgba(255, 255, 255, 0.14); }
 
+/* Focus rings: amber visible on dark surfaces. */
+[data-theme="dark"] .ring-heat-amber,
+[data-theme="dark"] .focus-visible\:ring-heat-amber:focus-visible {
+  --tw-ring-color: #fcd34d;
+}
+
 /* ── Depth: clay contact shadows -> dark drop with a top highlight ────── */
 [data-theme="dark"] .shadow-hud {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 28px rgba(2, 6, 23, 0.55);

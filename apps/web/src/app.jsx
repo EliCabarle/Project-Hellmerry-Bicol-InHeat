@@ -155,7 +155,7 @@ export default function App() {
     root.dataset.theme = theme
     root.style.colorScheme = theme
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#F5F3FF')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1220' : '#FDF3E7')
     try {
       localStorage.setItem(THEME_KEY, theme)
     } catch {

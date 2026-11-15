@@ -828,7 +828,7 @@ function PeekingSilli({ image, onOpen, hidden }) {
           type="button"
           onClick={onOpen}
           aria-label="Open Silli chatbot"
-          className="bih-peek bih-silli-tab pointer-events-auto flex h-16 w-14 cursor-pointer items-center justify-center rounded-l-2xl border border-r-0 shadow-xl backdrop-blur-md transition-colors sm:h-24 sm:w-20"
+          className="bih-peek bih-silli-tab pointer-events-auto flex h-14 w-12 cursor-pointer items-center justify-center rounded-l-2xl border border-r-0 shadow-xl backdrop-blur-md transition-colors sm:h-24 sm:w-20"
         >
           {image ? (
             // drop-shadow follows the cut-out silhouette, unlike box-shadow

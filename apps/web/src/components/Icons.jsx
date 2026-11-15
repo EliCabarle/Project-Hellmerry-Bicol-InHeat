@@ -53,6 +53,15 @@ export function IconGrid(props) {
   return <svg {...base} {...props}><path d="M3 6h3M3 12h3M3 18h3M18 6h3M18 12h3M18 18h3M6 3v3M12 3v3M18 3v3M6 18v3M12 18v3M18 18v3" /></svg>
 }
 
+export function IconVolume(props) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" />
+    </svg>
+  )
+}
+
 export function IconGear(props) {
   return (
     <svg {...base} {...props}>

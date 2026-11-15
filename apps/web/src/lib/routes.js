@@ -3,7 +3,7 @@
 // legacy '#muni=' branch), so a near-miss (#mapx), a foreign fragment
 // (#access_token=... from Supabase's implicit OAuth flow) or the skip-link
 // target (#main) is never mistaken for a route — those return null and the
-// shell falls back to the first-visit Landing screen (lead ruling 2026-11-14).
+// shell falls back to the first-visit Landing screen (lead ruling 11-13-2026).
 
 const MUNI_PREFIX = '#muni='
 

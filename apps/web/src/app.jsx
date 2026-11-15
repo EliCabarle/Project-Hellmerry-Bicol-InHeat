@@ -46,7 +46,7 @@ export default function App() {
   // #muni=<encoded joinKey> deep link (shared links resolve logged-out — h44).
   // An empty hash (first visit) and any unrecognized fragment (#main,
   // #access_token=..., arbitrary text) are not routes → Landing, for guests
-  // and signed-in users alike (lead ruling 2026-11-14). Parsed once at load;
+  // and signed-in users alike (lead ruling 11-13-2026). Parsed once at load;
   // navigate() and showOnMap() write the token back, so the URL never
   // promises a screen a refresh would not restore.
   const route = parseRoute(typeof window === 'undefined' ? '' : window.location.hash)

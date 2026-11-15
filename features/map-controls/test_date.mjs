@@ -204,7 +204,7 @@ test('dayTick stops at Dec 31 even when the range extends past the year', () => 
   store.actions.setDate('2025-12-31')
   store.actions.play()
   store.actions.dayTick()
-  strictAssert.equal(store.getState().date, '2025-12-31', 'year-end snap, not 2026-01-01')
+  strictAssert.equal(store.getState().date, '2025-12-31', 'year-end snap, not 11-13-2026')
   strictAssert.equal(store.getState().playing, false)
 })
 

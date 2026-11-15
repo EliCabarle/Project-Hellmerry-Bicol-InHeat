@@ -1,5 +1,5 @@
 // Guest landing screen — Claymorphism scroll-storytelling (UI-SPEC, approved
-// 2026-11-14). Light clay surface scoped by .landing-root (index.css); the dark
+// 11-13-2026). Light clay surface scoped by .landing-root (index.css); the dark
 // app theme is untouched. Exactly 5 sections, 1 H1, 3 CTAs — anti-clutter is
 // binding. Claims map to CONCEPT §8 CORE only; the Bato vs San Fernando seed
 // card stays gated out until the demo seeds are wired. Decorative layers carry

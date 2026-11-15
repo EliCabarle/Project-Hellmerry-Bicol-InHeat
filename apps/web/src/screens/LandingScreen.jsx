@@ -32,7 +32,7 @@ const GoogleHint = () => (
   </span>
 )
 
-export default function LandingScreen({ user = null, supabase = null, configured = false, navigate = () => {}, onSignIn = () => {} }) {
+export default function LandingScreen({ user = null, supabase = null, configured = false, navigate = () => {}, onSignIn = () => {}, onOpenPrivacy = () => {} }) {
   // FLAG-1 contract: the shared async helper's error lands here as the
   // mandated role="alert" string (same copy as AuthButton).
   const [signInError, setSignInError] = useState(null)
@@ -472,6 +472,16 @@ export default function LandingScreen({ user = null, supabase = null, configured
                 Fonts: Fredoka &amp; Nunito (SIL OFL). Code &amp; data used under
                 their respective source licences.
               </p>
+              {/* The landing is the only screen without a menu, and the Google
+                  button sits on it: without this, the notice is unreachable
+                  before the sign-in that collects the account data. */}
+              <button
+                type="button"
+                onClick={onOpenPrivacy}
+                className="mt-3 inline-flex min-h-6 cursor-pointer items-center text-clay-accent underline decoration-clay-border underline-offset-2 hover:decoration-clay-ink"
+              >
+                Privacy Notice
+              </button>
             </div>
             <div>
               <h3 className="text-sm font-semibold leading-[1.4] text-clay-ink">Challenge credit</h3>

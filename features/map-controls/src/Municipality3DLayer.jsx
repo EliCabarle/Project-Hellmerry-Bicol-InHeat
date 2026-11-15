@@ -14,6 +14,9 @@ import {
   LIFT_RATIO,
   clearFlatFactors,
   getFlatFactor,
+  groupOffsets,
+  PARALLAX_MAX,
+  PITCH_FULL,
   stepFlats,
   snapFlats,
   depthFor,
@@ -42,10 +45,15 @@ import {
   BOUNDS_VISCOSITY,
 } from "./gis/countryFrame.js";
 
+// Satellite basemap (Esri World Imagery) under the extruded municipalities.
+// The old Canvas/World_Light_Gray_Base read as a flat white 2D sheet; imagery
+// gives the 3D extrusions a real ground to stand on.
 const IMAGERY_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+// White-halo place labels keyed for imagery (the light-gray reference labels are
+// dark text and vanish on satellite).
 const LABELS_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
 const SRC = "bih-muni";
 const FILL = "bih-muni-fill";
@@ -59,6 +67,9 @@ const PULSE = "bih-muni-pulse-ring";
 // Single expanding ring at the selected area's centroid, on its top face.
 // Colours come from the project's single accent token (SELECT_COLOUR).
 const PULSE_MS = 1400
+// Land the ring after the 550 ms fitBounds camera settle (GOAL: "after the camera
+// settles"). Without this the pulse fires during the move and reads as noise.
+const PULSE_DELAY = 550
 const PULSE_START = 0.4
 const PULSE_SCALE = 2.5
 const PULSE_RING_INNER = 0.65
@@ -75,19 +86,21 @@ const STYLE = {
       type: "raster",
       tiles: [IMAGERY_URL],
       tileSize: 256,
-      maxzoom: 18,
-      attribution: "Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors",
+      maxzoom: 19,
+      attribution:
+        "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community",
     },
     labels: { type: "raster", tiles: [LABELS_URL], tileSize: 256, maxzoom: 18 },
   },
   layers: [
-    { id: "bg", type: "background", paint: { "background-color": "#F5F3FF" } },
+    // Dark while imagery streams in, so there is no white flash under the data.
+    { id: "bg", type: "background", paint: { "background-color": "#0b1220" } },
     { id: "imagery", type: "raster", source: "imagery" },
     {
       id: "labels",
       type: "raster",
       source: "labels",
-      paint: { "raster-opacity": 0.92 },
+      paint: { "raster-opacity": 0.9 },
     },
   ],
 };
@@ -179,8 +192,11 @@ export default function Municipality3DLayer({
 }) {
   const hostRef = useRef(null);
   const tipRef = useRef(null);
+  // sheen: revert = delete this ref, the effect below, and the <div ref={sheenRef}>.
+  const sheenRef = useRef(null);
   const mapRef = useRef(null);
   const hoverRef = useRef(null);
+  const lastPointRef = useRef(null); // last cursor point, for re-picking after a move
   const selectedRef = useRef(selectedKey);
   const liftRef = useRef(new Map());
   const animRef = useRef(new Map());
@@ -198,6 +214,9 @@ export default function Municipality3DLayer({
   const viewRef = useRef(initialView);
   const reducedMotion = usePrefersReducedMotion();
   const reducedRef = useRef(reducedMotion);
+  // Last camera frame requested by an effect, so a reduced-motion switch can
+  // land on the destination instead of freezing somewhere mid-move.
+  const cameraRef = useRef(null);
   const [ready, setReady] = useState(false);
 
   yearRef.current = year;
@@ -214,6 +233,15 @@ export default function Municipality3DLayer({
     const rings = new Map();
     const centroids = new Map();
     const records = new Map();
+    // Group = province, taken from the data. Stable order so a group's plane does not
+    // change when the year or the view mode changes.
+    const groups = [
+      ...new Set(
+        (joined?.features ?? []).map((f) => f?.properties?.province ?? ""),
+      ),
+    ].sort();
+    const offsets = new Map(); // key -> static slab offset in metres
+    const factors = new Map(); // key -> parallax factor in [-1, 1]
     for (const [i, f] of (joined?.features ?? []).entries()) {
       // promoteId needs a unique id; a nameless feature would otherwise collapse the source.
       const key = featureKey(f) || `unnamed-${i}`;
@@ -225,6 +253,12 @@ export default function Municipality3DLayer({
       const depth = depthFor(f, viewMode, year);
       const centroid = centroidOf(f);
       const name = f?.properties?.adm3_en ?? f?.properties?.shapeName ?? "";
+      const group = groupOffsets(
+        Math.max(0, groups.indexOf(f?.properties?.province ?? "")),
+        groups.length,
+      );
+      offsets.set(key, group.base);
+      factors.set(key, group.factor);
       depths.set(key, depth);
       byKey.set(key, f);
       rings.set(key, ringsOf(f.geometry));
@@ -245,6 +279,7 @@ export default function Municipality3DLayer({
           _weight: style.weight ?? 1.5,
           _dash: style.dashArray ? 1 : 0,
           _depth: depth,
+          _base: group.base,
           _lift: 0,
           _flatFactor: 0,
         },
@@ -257,11 +292,59 @@ export default function Municipality3DLayer({
       rings,
       centroids,
       records,
+      offsets,
+      factors,
     };
   }, [joined, viewMode, year]);
 
   const dataRef = useRef(data);
   dataRef.current = data;
+
+  // Effective slab offset per area, in metres. Recomputed from the camera: rotation
+  // shifts groups relative to each other, pitch fades the whole effect out so a
+  // top-down view stays flat. Kept in a ref because the trace reads it too.
+  const offsetsRef = useRef(new Map());
+
+  const applyOffsets = useCallback(() => {
+    const map = mapRef.current;
+    const source = map?.getSource(SRC);
+    if (!map || !source) return;
+    const { offsets, factors } = dataRef.current;
+    // Top-down: the separation is invisible and only costs offsets, so switch it off.
+    const fade = Math.min(1, Math.max(0, map.getPitch() / PITCH_FULL));
+    const sway = reducedRef.current
+      ? 0 // static separation stays, the rotation-driven part is dropped
+      : Math.sin((map.getBearing() * Math.PI) / 180) * PARALLAX_MAX;
+    const updates = [];
+    for (const [key, base] of offsets) {
+      const value = (base + (factors.get(key) ?? 0) * sway) * fade;
+      if (offsetsRef.current.get(key) === value) continue;
+      offsetsRef.current.set(key, value);
+      updates.push({
+        id: key,
+        addOrUpdateProperties: [{ key: "_base", value }],
+      });
+    }
+    if (updates.length) source.updateData({ update: updates });
+  }, []);
+
+  // One place that issues a camera move. The frame is remembered, and reduced
+  // motion turns the move into an immediate placement at the same destination.
+  const placeCamera = useCallback((bounds, options) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const frame = { bounds, options };
+    cameraRef.current = frame;
+    // Forget the frame once it lands, so a later preference flip does not yank
+    // the camera back to an old destination.
+    map.once("moveend", () => {
+      if (cameraRef.current === frame) cameraRef.current = null;
+    });
+    map.fitBounds(bounds, {
+      ...options,
+      duration: reducedRef.current ? 0 : options.duration,
+    });
+  }, []);
 
   const setLifts = useCallback((values) => {
     const source = mapRef.current?.getSource(SRC);
@@ -324,7 +407,10 @@ export default function Municipality3DLayer({
       return;
     }
     const lift = liftRef.current.get(trace.key) ?? 0;
-    const z = (dataRef.current.depths.get(trace.key) ?? DEPTH_BASE) + lift + 2;
+    // The ribbon must ride on the group's own plane, or it sinks into the slab.
+    const base = offsetsRef.current.get(trace.key) ?? 0;
+    const z =
+      (dataRef.current.depths.get(trace.key) ?? DEPTH_BASE) + base + lift + 2;
     source.setData({
       type: "Feature",
       properties: { _z: z },
@@ -450,7 +536,10 @@ export default function Municipality3DLayer({
 
   const cancelPulse = useCallback(() => {
     const p = pulseRef.current;
-    if (p) cancelAnimationFrame(p.raf);
+    if (p) {
+      if (p.timer) clearTimeout(p.timer);
+      if (p.raf) cancelAnimationFrame(p.raf);
+    }
     pulseRef.current = null;
     mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
   }, []);
@@ -461,8 +550,9 @@ export default function Municipality3DLayer({
     mapRef.current?.getSource(PULSE_SRC)?.setData(EMPTY);
   }, []);
 
-  // One pulse per selection: an expanding ring at the centroid that fades out,
-  // then removes itself. Restarting replaces any in-flight pulse (never stacks).
+  // One pulse per selection: after the camera settles, an expanding ring at the
+  // centroid fades out and removes itself. Restarting cancels any pending or
+  // in-flight pulse (never stacks).
   const startPulse = useCallback(
     (key) => {
       if (reducedRef.current) return;
@@ -473,10 +563,16 @@ export default function Municipality3DLayer({
       if (!centre || !rings?.length) return;
       const size = sizeOf(rings);
       const gen = ++pulseGen.current;
-      const start = performance.now();
-      pulseRef.current = { key, start, centre, size, depth, gen };
-      const raf = requestAnimationFrame(() => animatePulse(gen));
-      pulseRef.current.raf = raf;
+      // Wait for the camera to settle before acknowledging the selection; the
+      // clock starts when the ring actually begins, not at selection time.
+      const timer = setTimeout(() => {
+        const p = pulseRef.current;
+        if (!p || p.gen !== gen) return;
+        p.timer = 0;
+        p.start = performance.now();
+        p.raf = requestAnimationFrame(() => animatePulse(gen));
+      }, PULSE_DELAY);
+      pulseRef.current = { key, start: 0, centre, size, depth, gen, timer };
     },
     [cancelPulse]
   );
@@ -571,11 +667,30 @@ export default function Municipality3DLayer({
           // When an area is selected, every other area flattens to 0 m; the selected
           // area stays at full depth + lift with its data ramp colour untouched.
           // _entry defaults to 1 (full); _flatFactor defaults to 0 (no flatten).
+          // _base is the group's slab offset: the whole slab (base and top) moves by
+          // it, so groups are separated without changing any area's own depth.
+          "fill-extrusion-base": [
+            "*",
+            ["coalesce", ["get", "_base"], 0],
+            [
+              "*",
+              ["coalesce", ["get", "_entry"], 1],
+              ["-", 1, ["coalesce", ["get", "_flatFactor"], 0]],
+            ],
+          ],
           "fill-extrusion-height": [
             "*",
             [
               "+",
-              ["*", ["get", "_depth"], ["coalesce", ["get", "_entry"], 1]],
+              [
+                "*",
+                [
+                  "+",
+                  ["get", "_depth"],
+                  ["coalesce", ["get", "_base"], 0],
+                ],
+                ["coalesce", ["get", "_entry"], 1],
+              ],
               ["get", "_lift"],
             ],
             ["-", 1, ["coalesce", ["get", "_flatFactor"], 0]],
@@ -650,6 +765,7 @@ export default function Municipality3DLayer({
     });
 
     map.on("mousemove", FILL, (event) => {
+      lastPointRef.current = event.point;
       const id = event.features?.[0]?.id ?? null;
       if (id === hoverRef.current) {
         showTip(event);
@@ -690,9 +806,32 @@ export default function Municipality3DLayer({
     // A finished trace is kept at its last length; repaint on camera moves so the
     // ribbon stays TRACE_PX wide at every zoom instead of drifting in metres.
     map.on("move", () => {
+      // A camera move invalidates what is under the cursor and no mousemove
+      // fires to close the tooltip, so clear it here.
+      hideTip();
       const trace = traceRef.current;
       if (trace?.progress >= 1) paintTrace(trace, 1);
     });
+
+    // Once the camera settles, re-pick at the last cursor point: the geometry
+    // moved, so the card must follow what is actually under the pointer.
+    map.on("moveend", () => {
+      const point = lastPointRef.current;
+      if (!point) return;
+      const features = map.queryRenderedFeatures(point, { layers: [FILL] });
+      if (features.length) showTip({ features, point });
+      else hideTip();
+    });
+
+    // Cursor off the canvas: no point to re-pick from.
+    map.on("mouseout", () => {
+      lastPointRef.current = null;
+    });
+
+    // Group separation follows the camera: rotation slides the groups past each
+    // other, pitch fades the whole effect out when the view goes top-down.
+    map.on("rotate", applyOffsets);
+    map.on("pitch", applyOffsets);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
@@ -706,7 +845,7 @@ export default function Municipality3DLayer({
       mapRef.current = null;
     };
     // Mount-only: the entity is created when 3D is selected and destroyed when it is not.
-  }, [hideTip, moveTo, paintTrace, showTip, targetFor]);
+  }, [applyOffsets, hideTip, moveTo, paintTrace, showTip, targetFor]);
 
   // New level: every area starts at ENTRY_FROM height, then rises into place in
   // sequence ordered by centroid north-to-south (top-down). Delays are scaled so
@@ -773,6 +912,10 @@ export default function Municipality3DLayer({
       };
     });
     source.setData({ ...data.collection, features });
+    // Group offsets are camera-derived and cached per key: drop the cache so the
+    // fresh geometry gets its planes back.
+    offsetsRef.current.clear();
+    applyOffsets();
     const keep = new Map();
     for (const key of [hoverRef.current, selectedRef.current]) {
       if (key != null) keep.set(key, targetFor(key));
@@ -789,7 +932,7 @@ export default function Municipality3DLayer({
     } else {
       clearTrace();
     }
-  }, [clearTrace, data, ready, setLifts, startTrace, targetFor]);
+  }, [applyOffsets, clearTrace, data, ready, setLifts, startTrace, targetFor]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -823,6 +966,13 @@ export default function Municipality3DLayer({
   // Reduced motion turning on mid-flight finishes every offset and trace immediately.
   useEffect(() => {
     if (!reducedMotion) return;
+    // End a camera move already running on the frame that was requested.
+    const camera = cameraRef.current;
+    const map = mapRef.current;
+    if (camera && map) {
+      map.stop();
+      map.fitBounds(camera.bounds, { ...camera.options, duration: 0 });
+    }
     const values = new Map();
     for (const [key, anim] of animRef.current) {
       liftRef.current.set(key, anim.to);
@@ -852,31 +1002,82 @@ export default function Municipality3DLayer({
   }, [cancelPulse, paintTrace, reducedMotion, setLifts, setEntries, setFlatFactors]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || !selectedFeature) return;
+    if (!ready || !selectedFeature) return;
     const bounds = boundsOf(selectedFeature);
     if (!bounds) return;
-    map.fitBounds(bounds, {
-      padding: 48,
-      maxZoom: 13.5,
-      duration: reducedRef.current ? 0 : 700,
-    });
-  }, [ready, selectedFeature]);
+    placeCamera(bounds, { padding: 48, maxZoom: 13.5, duration: 550 });
+  }, [placeCamera, ready, selectedFeature]);
 
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !ready || resetToken === 0) return;
+    if (!ready || resetToken === 0) return;
     const bounds = boundsOf(joined);
     if (!bounds) return;
-    map.fitBounds(bounds, {
-      padding: 28,
-      duration: reducedRef.current ? 0 : 650,
-    });
-  }, [joined, ready, resetToken]);
+    placeCamera(bounds, { padding: 28, duration: 550 });
+  }, [joined, placeCamera, ready, resetToken]);
+
+  // sheen: soft radial highlight that trails the pointer over the map.
+  // Revert = delete this whole effect, `sheenRef`, and the <div ref={sheenRef}> in the JSX.
+  useEffect(() => {
+    const host = hostRef.current;
+    const sheen = sheenRef.current;
+    if (!host || !sheen) return;
+    // Off for reduced motion (skill: Reduced Motion, High) and coarse pointers.
+    if (reducedMotion) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    let primed = false;
+    const move = (e) => {
+      const r = host.getBoundingClientRect();
+      const at = `translate3d(${e.clientX - r.left}px, ${e.clientY - r.top}px, 0)`;
+      // First placement jumps (no sweep in from the corner); later moves trail.
+      if (primed) {
+        sheen.style.transform = at;
+      } else {
+        primed = true;
+        sheen.style.transition = "opacity 200ms ease-out";
+        sheen.style.transform = at;
+        requestAnimationFrame(() => {
+          sheen.style.transition = "transform 150ms ease-out, opacity 200ms ease-out";
+        });
+      }
+      sheen.style.opacity = "1";
+    };
+    // Fade out completely when the pointer leaves the map.
+    const leave = () => {
+      sheen.style.opacity = "0";
+      primed = false;
+    };
+    host.addEventListener("pointermove", move);
+    host.addEventListener("pointerleave", leave);
+    return () => {
+      host.removeEventListener("pointermove", move);
+      host.removeEventListener("pointerleave", leave);
+      sheen.style.opacity = "0";
+    };
+  }, [reducedMotion]);
 
   return (
     <div className="absolute inset-0 z-[450]">
       <div ref={hostRef} className="h-full w-full" />
+      {/* sheen: delete this block to revert. Sits above the canvas, below the tooltip. */}
+      <div
+        ref={sheenRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 opacity-0"
+        style={{
+          width: "50vmin",
+          height: "50vmin",
+          marginLeft: "-25vmin",
+          marginTop: "-25vmin",
+          borderRadius: "50%",
+          // SHEEN_STRENGTH 0.12, minimal glow (dark-mode-oled style); blend=screen adds light only.
+          background:
+            "radial-gradient(circle closest-side, rgba(255,255,255,0.12), rgba(255,255,255,0) 70%)",
+          mixBlendMode: "screen",
+          // SHEEN_LAG: the 150 ms transition is what makes it trail instead of snap.
+          transition: "transform 150ms ease-out, opacity 200ms ease-out",
+          willChange: "transform, opacity",
+        }}
+      />
       <div
         ref={tipRef}
         className="bih-tip pointer-events-none absolute left-0 top-0 hidden"

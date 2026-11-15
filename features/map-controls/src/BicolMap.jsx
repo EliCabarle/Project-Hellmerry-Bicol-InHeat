@@ -75,6 +75,14 @@ const COUNTRY_CENTER = [
   (COUNTRY_BOUNDS[0][1] + COUNTRY_BOUNDS[1][1]) / 2,
 ];
 
+// Under reduced motion a camera change is a placement, not a move. A plain
+// fitBounds lands instantly and setView's own `_stop()` cancels whatever flyTo
+// is still running — do not call map.stop() first, it re-applies the interrupted
+// mid-flight view on the next frame and lands after (undoing) this placement.
+function placeAt(map, bounds, options) {
+  map.fitBounds(bounds, { ...options, animate: false });
+}
+
 function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
   const map = useMap();
   const reducedMotion = usePrefersReducedMotion();
@@ -83,21 +91,22 @@ function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
     if (resetToken === 0 || !bicolFeature) return;
     const bounds = L.geoJSON(bicolFeature).getBounds();
     if (!bounds.isValid()) return;
-    if (reducedMotion) map.fitBounds(bounds, { padding: [28, 28] });
-    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.65 });
+    // Reduced motion: this effect re-runs when the preference flips, so stop any
+    // move already in flight and place the camera on the destination instead.
+    if (reducedMotion) placeAt(map, bounds, { padding: [28, 28] });
+    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.55 });
   }, [bicolFeature, map, reducedMotion, resetToken]);
 
   useEffect(() => {
     if (!selectedFeature) return;
     const bounds = L.geoJSON(selectedFeature).getBounds();
     if (!bounds.isValid()) return;
-    if (reducedMotion)
-      map.fitBounds(bounds, { padding: [48, 48], maxZoom: 13.5 });
+    if (reducedMotion) placeAt(map, bounds, { padding: [48, 48], maxZoom: 13.5 });
     else
       map.flyToBounds(bounds, {
         padding: [48, 48],
         maxZoom: 13.5,
-        duration: 0.7,
+        duration: 0.55,
       });
   }, [map, reducedMotion, selectedFeature]);
 
@@ -135,7 +144,10 @@ function MunicipalityLayer({
   onProvinceHover,
   playing,
 }) {
+  const map = useMap();
   const layerRef = useRef(null);
+  const movingRef = useRef(false); // camera in motion → no tooltips
+  const pointerRef = useRef(null); // last real cursor position, client coords
   const stateRef = useRef({
     selectedKey,
     viewMode,
@@ -241,9 +253,8 @@ function MunicipalityLayer({
       (a, b) => b.getBounds().getCenter().lat - a.getBounds().getCenter().lat,
     );
     const delays = entryDelays(items.length);
-    items.forEach((child, i) => {
-      const el = child.getElement();
-      el.animate(
+    const animations = items.map((child, i) =>
+      child.getElement().animate(
         [{ opacity: 0 }, { opacity: 1 }],
         {
           duration: ENTRY_DURATION_MS,
@@ -251,8 +262,11 @@ function MunicipalityLayer({
           easing: "cubic-bezier(0.215, 0.61, 0.355, 1)", // easeOutCubic
           fill: "backwards",
         },
-      );
-    });
+      ),
+    );
+    // Preference turned on mid-wave: finish each area at full opacity (the
+    // settled state) instead of leaving the reveal half-played.
+    return () => animations.forEach((animation) => animation.finish());
   }, [triggerStagger, reducedMotion]);
 
   useEffect(() => {
@@ -270,6 +284,65 @@ function MunicipalityLayer({
       );
     });
   }, [joined, year, viewMode, date, dayValues, provinceCounts]);
+
+  // Leaflet closes a tooltip only on mouseout, which never fires when the camera
+  // moves under a stationary pointer: zooming left one card per hover stacked on
+  // screen, and a legitimate hover lost its card with nothing to reopen it. So
+  // suppress while the camera moves and re-derive the hover from the cursor once
+  // it settles — one card, always for the area actually under the pointer.
+  useEffect(() => {
+    const closeAll = () => {
+      layerRef.current?.eachLayer((child) => child.closeTooltip());
+      // Reclaim tooltips orphaned when the layer group was rebuilt.
+      map
+        .getPane("tooltipPane")
+        ?.querySelectorAll(".leaflet-tooltip")
+        .forEach((el) => el.remove());
+    };
+    const resync = () => {
+      closeAll();
+      const p = pointerRef.current;
+      if (!p) return;
+      // Leaflet has no public hit test; a DOM path maps to its layer via _targets.
+      const el = document.elementFromPoint(p.x, p.y);
+      const owner = map._targets?.[el?._leaflet_id];
+      if (owner?.feature) owner.openTooltip();
+    };
+    const track = (e) => {
+      pointerRef.current = {
+        x: e.originalEvent.clientX,
+        y: e.originalEvent.clientY,
+      };
+    };
+    const leave = () => {
+      pointerRef.current = null;
+    };
+    const start = () => {
+      movingRef.current = true;
+      closeAll();
+    };
+    // One frame after settle, so a late re-dispatched mouseover still falls in
+    // the suppressed window and resync has the final say.
+    const settle = () =>
+      requestAnimationFrame(() => {
+        movingRef.current = false;
+        resync();
+      });
+    map.on("mousemove", track);
+    map.on("mouseout", leave);
+    map.on("zoomstart", start);
+    map.on("movestart", start);
+    map.on("zoomend", settle);
+    map.on("moveend", settle);
+    return () => {
+      map.off("mousemove", track);
+      map.off("mouseout", leave);
+      map.off("zoomstart", start);
+      map.off("movestart", start);
+      map.off("zoomend", settle);
+      map.off("moveend", settle);
+    };
+  }, [map]);
 
   return (
     <GeoJSON
@@ -291,6 +364,12 @@ function MunicipalityLayer({
             opacity: 1,
           },
         );
+
+        // A tooltip can open from a re-dispatched mouseover mid-gesture; the
+        // camera has not settled, so drop it and let resync decide.
+        layer.on("tooltipopen", (event) => {
+          if (movingRef.current) event.target.closeTooltip();
+        });
 
         const select = () => {
           const key = featureKey(feature);
@@ -481,10 +560,22 @@ export default function BicolMap({
 
   // Remembers the opening flight happened so it never replays this session.
   const opened = useRef(false);
+  // True while the opening flight is still travelling, so a preference flip can
+  // end it where it was going instead of letting it coast.
+  const flightRef = useRef(false);
   // True only on the render right after a 3D→2D switch: the 2D stagger plays
   // strictly on mode switch, never on initial mount or on a scrub.
   const switchTo2dFrom3d = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  // Leaflet decides once, at map init, whether zoom/pan is eased (_zoomAnimated);
+  // both it and the option have to follow the preference for a live flip to stop
+  // wheel/button zoom from easing. Interaction is untouched — only the easing.
+  useEffect(() => {
+    if (!map) return;
+    map.options.zoomAnimation = !reducedMotion;
+    map._zoomAnimated = !reducedMotion;
+  }, [map, reducedMotion]);
 
   // Hand the current 2D camera to the 3D entity so toggling does not jump.
   const changeRenderMode = (mode) => {
@@ -574,14 +665,26 @@ export default function BicolMap({
   // Runs once per session, only when the map is sized and data is ready.
   // A deep link / preselection skips it and lands on its target instead.
   useEffect(() => {
-    if (!ready || !map || opened.current) return;
+    if (!ready || !map) return;
+    // Preference turned on while the opening flight is under way: land on the
+    // study region now rather than stopping somewhere half-way.
+    if (reducedMotion && flightRef.current) {
+      flightRef.current = false;
+      placeAt(map, STUDY_REGION_BOUNDS, { padding: [28, 28] });
+      return;
+    }
+    if (opened.current) return;
     if (initialSelectedKey) return;
     opened.current = true;
 
     const go = () => {
       if (reducedMotion) {
-        map.fitBounds(STUDY_REGION_BOUNDS, { padding: [28, 28], animate: false });
+        placeAt(map, STUDY_REGION_BOUNDS, { padding: [28, 28] });
       } else {
+        flightRef.current = true;
+        map.once("moveend", () => {
+          flightRef.current = false;
+        });
         map.flyToBounds(STUDY_REGION_BOUNDS, {
           padding: [28, 28],
           duration: FLIGHT_MS / 1000,

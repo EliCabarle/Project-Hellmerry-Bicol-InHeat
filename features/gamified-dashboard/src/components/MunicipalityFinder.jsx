@@ -40,6 +40,8 @@ export default function MunicipalityFinder({
   canSave = false,
   onSavedOnlyChange = null,
   focus = null,
+  isAnalyst = false,
+  term = 'LGUs',
 }) {
   const municipalities = narratives?.municipalities ?? []
   const provinces = useMemo(() => provincesOf(municipalities), [municipalities])
@@ -261,7 +263,7 @@ export default function MunicipalityFinder({
       openSignal={focus?.nonce ?? 0}
     >
       <p className="text-xs text-slate-500">
-        Browse every LGU&rsquo;s outline — flip a card for its trend, sample and why it heats.
+        Browse every {term === 'LGUs' ? 'LGU' : 'municipality'}&rsquo;s outline — flip a card for its trend, sample and why it heats.
       </p>
 
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
@@ -376,6 +378,7 @@ export default function MunicipalityFinder({
                       interactive={isCenter}
                       onFlip={setFlipped}
                       onShowOnMap={onShowOnMap}
+                      isAnalyst={isAnalyst}
                     />
                   </div>
                 </div>

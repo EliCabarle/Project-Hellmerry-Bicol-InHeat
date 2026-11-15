@@ -5,6 +5,9 @@ const slopeOf = (r) => r?.trend?.slope_c_per_year ?? 0
 const pOf = (r) => r?.trend?.p_value ?? 1
 const dangerOf = (r) => r?.total_danger_days_45y ?? 0
 const peakOf = (r) => r?.peak_danger_days?.days ?? 0
+// Population exposure to extreme heat — the figure an LGU can act on. It is
+// people x days, so it ranks exposure rather than climate velocity.
+const personDaysOf = (r) => (Number.isFinite(r?.person_days_danger) ? r.person_days_danger : 0)
 
 const byName = (a, b) =>
   String(a?.name ?? '').localeCompare(String(b?.name ?? '')) ||
@@ -17,6 +20,14 @@ export function rankMunicipalities(list = [], mode = 'slope') {
 
   if (mode === 'name-asc') return rows.sort(byName)
   if (mode === 'name-desc') return rows.sort((a, b) => byName(b, a))
+
+  // Exposure first: who has the most people in extreme heat. Ties fall back to
+  // the warming rate, then the name, so the order is stable.
+  if (mode === 'person-days') {
+    return rows.sort(
+      (a, b) => personDaysOf(b) - personDaysOf(a) || slopeOf(b) - slopeOf(a) || byName(a, b),
+    )
+  }
 
   if (mode === 'danger' || mode === 'danger-desc') {
     return rows.sort((a, b) => dangerOf(b) - dangerOf(a) || peakOf(b) - peakOf(a) || byName(a, b))

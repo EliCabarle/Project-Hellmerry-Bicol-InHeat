@@ -283,17 +283,17 @@ export default function NarrationScreen({
 
       // Sad bubbles rise above Sillie's head — only when significant warming.
       if (isSad) {
-        gsap.utils.toArray('[data-sad-bubble]').forEach((bubble, i) => {
-          gsap.fromTo(bubble,
+        gsap.utils.toArray('[data-sad-smoke]').forEach((puff, i) => {
+          gsap.fromTo(puff,
             { y: 0, opacity: 0, scale: 0.5 },
             {
-              y: -80,
-              opacity: 0.6,
-              scale: 1,
-              duration: 3 + i * 0.4,
+              y: -64,
+              opacity: 0.6875,
+              scale: 1.5,
+              duration: 2.6 + i * 0.35,
               repeat: -1,
               ease: 'power1.inOut',
-              delay: i * 0.5,
+              delay: i * 0.35,
             }
           )
         })
@@ -877,17 +877,18 @@ export default function NarrationScreen({
                             <div className="absolute inset-0 bg-clay-amber/20 blur-[80px] rounded-full -z-10" />
                             <div data-sillie className="relative w-full max-w-[420px] h-auto shrink-0 -mb-8 md:-mb-16">
                               {isSad && (
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 md:-top-16 flex items-end justify-center pb-2">
+                                <div className="pointer-events-none absolute inset-0 z-20 overflow-visible">
                                   {[...Array(6)].map((_, i) => (
                                     <div
                                       key={i}
-                                      data-sad-bubble
-                                      className="absolute rounded-full bg-white/60 blur-sm"
+                                      data-sad-smoke
+                                      className="absolute rounded-full bg-clay-text-muted/40 blur-md"
                                       style={{
-                                        left: `${10 + i * 16}%`,
-                                        bottom: `${60 + i * 10}px`,
-                                        width: `${6 + i * 2}px`,
-                                        height: `${6 + i * 2}px`,
+                                        left: `${39 + i * 4}%`,
+                                        top: `${25 + (i % 3) * 5}%`,
+                                        width: `${16 + i * 3}px`,
+                                        height: `${16 + i * 3}px`,
+                                        opacity: 0.4375,
                                       }}
                                     />
                                   ))}

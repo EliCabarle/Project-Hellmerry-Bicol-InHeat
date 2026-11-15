@@ -8,14 +8,26 @@
 const ENV = typeof import.meta !== 'undefined' ? import.meta.env : undefined
 const BASE_URL = String(ENV?.VITE_API_BASE_URL ?? '').replace(/\/+$/, '')
 const QA_URL = `${BASE_URL}/api/qa`
+// Free-tier hosts sleep; a stalled socket never rejects on its own, which used to
+// leave the modal in "sending" forever with the input disabled.
+const TIMEOUT_MS = 60_000
 
 /** @param {string} text */
 async function send(text) {
-  const res = await fetch(QA_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: text }),
-  })
+  let res
+  try {
+    res = await fetch(QA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    })
+  } catch (err) {
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+      throw new Error('Request timed out. Silli might be waking up. Please try again.')
+    }
+    throw err
+  }
   if (!res.ok) {
     // FastAPI puts the reason in `detail`; a bare "500" would hide it.
     const body = await res.text()

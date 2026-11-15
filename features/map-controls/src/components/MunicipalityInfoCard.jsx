@@ -165,18 +165,17 @@ export default function MunicipalityInfoCard({
 
           {!isDay && narrText ? (
             <div className="mt-1.5 flex items-start gap-2">
-              {(() => {
-                // lang matters: Filipino text without it is a WCAG 3.1.2 failure.
-                const long = narrText.length > 140
-                return (
-                  <p
-                    lang={narrLang}
-                    className={`min-w-0 flex-1 text-[11px] leading-4 text-slate-300 ${long ? 'line-clamp-2' : ''}`}
-                  >
-                    {narrText}
-                  </p>
-                )
-              })()}
+              {/* Fixed-height scroll region: the full narration is longer than
+                  the card can spare, and a tab stop is what lets a keyboard
+                  user actually scroll it (WCAG 2.1.1). */}
+              <p
+                lang={narrLang}
+                tabIndex={0}
+                aria-label="Narration"
+                className="max-h-16 min-w-0 flex-1 overflow-y-auto pr-1 text-[11px] leading-4 text-slate-300"
+              >
+                {narrText}
+              </p>
               {hasFil ? (
                 <div role="group" aria-label="Narration language" className="flex shrink-0 items-center gap-0.5 rounded border border-white/10 bg-black/30 p-0.5">
                   {[['en', 'EN'], ['fil', 'Fil']].map(([id, label]) => (

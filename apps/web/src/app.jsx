@@ -16,20 +16,7 @@ import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
-import ErrorBoundary from './components/ErrorBoundary.jsx'
-
-// Deep link: #muni=<encoded joinKey> opens the map with that municipality
-// selected. The skip link targets #main, so only the #muni= prefix counts as a
-// deep link; anything else leaves the hash untracked.
-function parseMuniHash() {
-  const raw = typeof window === 'undefined' ? '' : window.location.hash
-  if (!raw.startsWith('#muni=')) return null
-  try {
-    return decodeURIComponent(raw.slice('#muni='.length)) || null
-  } catch {
-    return null
-  }
-}
+import { parseRoute, hashFor } from './lib/routes.js'
 
 // UI theme lives on <html data-theme>, so every surface (shell, dashboard, map
 // chrome) flips together. index.html sets it before first paint; this mirrors
@@ -46,20 +33,30 @@ function readTheme() {
 }
 
 export default function App() {
-  // Guests see the landing screen first (lead ruling 2026-11-14: everyone does,
-  // signed-in included). #muni= deep links still open the map directly so
-  // shared links resolve logged-out (h44).
-  const [screen, setScreen] = useState(() => (parseMuniHash() ? 'map' : 'landing'))
+  // The URL hash is the source of truth for the screen a page load restores
+  // (grammar: src/lib/routes.js). Supported tokens: #map, #dashboard, #quests,
+  // #history, #leaderboard, #account, #settings, #landing, plus the legacy
+  // #muni=<encoded joinKey> deep link (shared links resolve logged-out — h44).
+  // An empty hash (first visit) and any unrecognized fragment (#main,
+  // #access_token=..., arbitrary text) are not routes → Landing, for guests
+  // and signed-in users alike (lead ruling 2026-11-14). Parsed once at load;
+  // navigate() and showOnMap() write the token back, so the URL never
+  // promises a screen a refresh would not restore.
+  const route = parseRoute(typeof window === 'undefined' ? '' : window.location.hash)
+  const [screen, setScreen] = useState(() => route?.screen ?? 'landing')
   // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
   // Token rises on every request so re-clicking the same LGU still refires
   // after the user cleared the selection on the map.
-  const [focus, setFocus] = useState(() => {
-    const key = parseMuniHash()
-    return key ? { key, token: 1 } : null
-  })
+  const [focus, setFocus] = useState(() =>
+    route?.muniKey ? { key: route.muniKey, token: 1 } : null,
+  )
   // External tab control for the Dashboard screen: { id, token }. The menu and
-  // the quests/chatbot/LGU FABs drive the Dashboard through this contract.
-  const [focusTab, setFocusTab] = useState(null)
+  // the quests/chatbot/LGU FABs drive the Dashboard through this contract. A
+  // restored sub-tab arrives with token 1 — DashboardScreen's focusTab effect
+  // consumes id+token on mount, so the token activates the restored tab.
+  const [focusTab, setFocusTab] = useState(() =>
+    route?.screen === 'dashboard' ? { id: route.tab, token: 1 } : null,
+  )
   const [menuOpen, setMenuOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [theme, setTheme] = useState(readTheme)
@@ -193,6 +190,27 @@ export default function App() {
   const navigate = useCallback(
     (target) => {
       const token = ++navTokenRef.current
+      // Write side of D-01: publish the route token so a refresh or a Back
+      // press agrees with the state set below. pushState rather than a hash
+      // assignment because it is silent (no hashchange echo into the
+      // traversal listener), it reuses the History API showOnMap already
+      // uses, and it gives explicit push-versus-replace control — showOnMap
+      // keeps replaceState for the selection (C-02). Computed before the
+      // branches so a live selection renders as '#muni=<key>' — the URL then
+      // equals what a refresh would restore. Written only when the token
+      // differs from location.hash (a re-click must not stack duplicate
+      // history entries while still bumping the in-memory token) and only
+      // when the grammar accepts it (an unknown target falls through every
+      // branch below and writes no hash). focus?.key rides the dependency
+      // array so the map branch never sees a stale selection.
+      const hash = target === 'map' ? hashFor('map', focus?.key) : hashFor(target)
+      if (parseRoute(hash) && hash !== window.location.hash) {
+        try {
+          window.history.pushState(null, '', hash)
+        } catch {
+          // Old browsers: the in-app navigation still works, the URL just stays stale.
+        }
+      }
       if (target === 'landing') {
         setScreen('landing')
         setFocusTab(null)
@@ -215,6 +233,11 @@ export default function App() {
       setFocusTab({ id: 'quests', token })
       return
     }
+    if (target === 'history') {
+      setScreen('dashboard')
+      setFocusTab({ id: 'history', token })
+      return
+    }
     if (target === 'leaderboard') {
       setScreen('dashboard')
       setFocusTab({ id: 'leaderboard', token })
@@ -230,11 +253,94 @@ export default function App() {
       setFocusTab(null)
       return
     }
-    if (target === 'narration') {
-      setScreen('narration')
-      setFocusTab(null)
-      focusMain()
-      return
+  }, [focusMain, focus?.key])
+
+  // DashboardScreen owns its tab state and never receives navigate() (the
+  // feature file is outside this plan's write boundary per C-01), so the
+  // shell mirrors the feature's own output back into the route: watching
+  // aria-selected on its tablist catches a click and an arrow-key move alike,
+  // and every change runs through navigate(). All four dashboard tabs are
+  // grammar tokens ('#dashboard'/'#quests'/'#history'/'#leaderboard'), so
+  // each mirror pushes its token — a History-tab click or arrow move writes
+  // '#history' exactly like the other tabs. pushState fires no events, so a
+  // mirrored write cannot echo back into this effect.
+  useEffect(() => {
+    if (screen !== 'dashboard') return undefined
+    const list = document.querySelector('[role="tablist"][aria-label="Dashboard sections"]')
+    if (!list) return undefined
+    const mirror = () => {
+      if (!list.isConnected) return
+      const id = list.querySelector('[role="tab"][aria-selected="true"]')?.id
+      if (typeof id === 'string' && id.startsWith('tab-')) navigate(id.slice(4))
+    }
+    const observer = new MutationObserver(mirror)
+    observer.observe(list, { subtree: true, attributes: true, attributeFilter: ['aria-selected'] })
+    return () => observer.disconnect()
+  }, [screen, navigate])
+
+  // Traversal sync — the read half of D-01/D-03 (URL → state). Back/forward
+  // and any native fragment navigation replay location.hash into app state
+  // through the same grammar a page load uses. One handler on both events,
+  // subscribed once: it reads the latest screen/focusTab/focus through a ref
+  // instead of re-subscribing whenever state changes, and StrictMode's
+  // double-invoked effect adds and removes the same reference symmetrically,
+  // so no listener ever stacks. pushState from navigate() and replaceState
+  // from showOnMap() fire no events, so this runs only on real traversal —
+  // no echo loop back into the writes. Idempotence: one traversal fires
+  // popstate and hashchange back to back, before React has re-rendered, so
+  // after applying, the handler writes the applied state into the ref — the
+  // paired event then matches and returns instead of bumping navTokenRef.
+  const latestRef = useRef({ screen, focusTab, focus })
+  latestRef.current = { screen, focusTab, focus }
+  useEffect(() => {
+    const applyTraversal = () => {
+      const latest = latestRef.current
+      const hash = window.location.hash
+      // D-02: the empty entry is the true first visit. Back past the first
+      // click restores Landing (screen + sub-tab + focus #main); focus is
+      // never part of what an empty hash requests.
+      if (hash === '') {
+        if (latest.screen === 'landing' && latest.focusTab == null) return
+        latestRef.current = { screen: 'landing', focusTab: null, focus: latest.focus }
+        setScreen('landing')
+        setFocusTab(null)
+        focusMain()
+        return
+      }
+      const route = parseRoute(hash)
+      // Unrecognized fragment (#main, #access_token=..., crafted text): inert —
+      // only the whitelist may write state (T-02-01), so a hostile history
+      // entry cannot reach setScreen/setFocus.
+      if (!route) return
+      // Already there? The guard is what keeps the paired popstate+hashchange
+      // fire from double-bumping navTokenRef (and from double-running focusMain).
+      const sameTab =
+        route.screen !== 'dashboard' || (latest.focusTab?.id ?? null) === route.tab
+      const sameMuni =
+        route.muniKey == null || (latest.focus?.key ?? null) === route.muniKey
+      if (latest.screen === route.screen && sameTab && sameMuni) return
+      // Apply exactly what navigate() would, with a fresh nav token so
+      // DashboardScreen's focusTab effect refires (rising-token semantics,
+      // C-05). A hash without a key never clears focus: BicolMap only ever
+      // selects (features are out of write boundary per C-01), so clearing
+      // would desync state from the visible map (C-02).
+      const nextFocusTab =
+        route.screen === 'dashboard' ? { id: route.tab, token: ++navTokenRef.current } : null
+      const nextFocus =
+        route.muniKey != null ? { key: route.muniKey, token: ++navTokenRef.current } : latest.focus
+      latestRef.current = { screen: route.screen, focusTab: nextFocusTab, focus: nextFocus }
+      setScreen(route.screen)
+      setFocusTab(nextFocusTab)
+      if (route.muniKey != null) setFocus(nextFocus)
+      // Landing ↔ app swaps move focus to #main, mirroring navigate()'s
+      // landing/map branches (FLAG-3, C-05).
+      if (route.screen === 'landing' || route.screen === 'map') focusMain()
+    }
+    window.addEventListener('popstate', applyTraversal)
+    window.addEventListener('hashchange', applyTraversal)
+    return () => {
+      window.removeEventListener('popstate', applyTraversal)
+      window.removeEventListener('hashchange', applyTraversal)
     }
   }, [focusMain])
 
@@ -255,14 +361,27 @@ export default function App() {
   // main.min-h-0.flex-1 -> MapContainer.h-full. Never insert a height:auto
   // wrapper between #root and the leaflet container (collapses the map to 0px).
   return (
-    <ErrorBoundary>
-      <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[900] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
-        >
-          Skip to content
-        </a>
+    <div className="flex h-full flex-col bg-heat-bg text-heat-ink">
+      {/* This handler owns the hash: a native "#main" click would displace the
+          route token, so a refresh after skipping would fall back to Landing.
+          preventDefault() + focus() keeps the URL's token intact while moving
+          focus to the same #main element focusMain() targets (FLAG-3 path
+          itself is untouched); href="#main" stays for semantics. Dashboard,
+          Account and Settings render #main as a plain element with no
+          tabindex, where focus() would silently no-op — make the skip target
+          programmatically focusable once, idempotently. */}
+      <a
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault()
+          const main = document.getElementById('main')
+          if (main && !main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1')
+          main?.focus()
+        }}
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[900] focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
+      >
+        Skip to content
+      </a>
 
       {/* Floating translucent navbar on every screen except landing — the dark
           HUD would clash with the cream clay surface and duplicate the hero

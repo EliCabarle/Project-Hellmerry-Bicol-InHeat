@@ -27,6 +27,7 @@ test('the standalone screen tokens parse to their own screen', () => {
   assert(eq(parseRoute('#map'), route('map')), '#map → map screen')
   assert(eq(parseRoute('#account'), route('account')), '#account → account screen')
   assert(eq(parseRoute('#settings'), route('settings')), '#settings → settings screen')
+  assert(eq(parseRoute('#narration'), route('narration')), '#narration → narration screen')
   assert(eq(parseRoute('#landing'), route('landing')), '#landing → landing screen')
 })
 
@@ -78,6 +79,7 @@ test('parseRoute(hashFor(...)) round-trips every supported target', () => {
     ['leaderboard', null, route('dashboard', 'leaderboard')],
     ['account', null, route('account')],
     ['settings', null, route('settings')],
+    ['narration', null, route('narration')],
   ]
   for (const [target, key, expected] of cases) {
     assert(eq(parseRoute(hashFor(target, key)), expected), `${target} round-trips`)

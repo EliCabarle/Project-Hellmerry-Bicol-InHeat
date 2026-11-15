@@ -17,6 +17,7 @@ const ROUTES = {
   '#leaderboard': { screen: 'dashboard', tab: 'leaderboard' },
   '#account': { screen: 'account', tab: null },
   '#settings': { screen: 'settings', tab: null },
+  '#narration': { screen: 'narration', tab: null },
   '#landing': { screen: 'landing', tab: null },
 }
 
@@ -26,7 +27,7 @@ const ROUTES = {
  * - '#muni=<encoded joinKey>' → map with that municipality selected; the
  *   decode is guarded exactly like the original parseMuniHash, so malformed
  *   percent-encoding yields null instead of throwing.
- * - one of the eight screen tokens → that screen (sub-tab tokens → dashboard).
+ * - one of the nine screen tokens → that screen (sub-tab tokens → dashboard).
  * - anything else → null (caller falls back to Landing).
  */
 export function parseRoute(hash) {

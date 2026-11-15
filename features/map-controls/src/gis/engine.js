@@ -25,7 +25,8 @@ const HIGHLIGHT = {
   weight: 2,
 }
 
-const DARK = {
+// Exported so the 3D region layers paint the same veil and stroke, not a second palette.
+export const REGION_DARK = {
   // every other region — dark veil over the satellite basemap
   fill: true,
   fillColor: '#1f2937',
@@ -53,7 +54,7 @@ export function loadRegions(geojson) {
 }
 
 export function getRegionStyle(feature) {
-  return isBicol(feature) ? HIGHLIGHT : DARK
+  return isBicol(feature) ? HIGHLIGHT : REGION_DARK
 }
 
 // ---- municipality layer (slice 3) ----
@@ -110,7 +111,7 @@ export function isCity(feature) {
 // slice-1 solid fills so the screen never goes blank
 export const REGION_OUTLINE = { fill: false, color: '#fca5a5', weight: 1.75 }
 export function getRegionOutlineStyle(feature) {
-  return isBicol(feature) ? REGION_OUTLINE : DARK
+  return isBicol(feature) ? REGION_OUTLINE : REGION_DARK
 }
 
 const MUN_PENDING = { fill: true, fillColor: '#1f2937', fillOpacity: 0.25, color: '#334151', weight: 1 }
@@ -175,6 +176,7 @@ export function getMunicipalityStyle(
     dayValues = null,
     hoveredProvince = null,
     selectedProvince = null,
+    playing = false,
   } = {},
 ) {
   const n = feature?.properties?.narrative
@@ -188,9 +190,10 @@ export function getMunicipalityStyle(
         : trendBase(feature)
   const sig = n.trend?.is_significant
   // A municipality is revealed when its province is under pointer hover or is
-  // the parent province of an active selection. Otherwise its fill is a subtle
-  // tint and its internal boundary stroke is fully transparent.
+  // the parent province of an active selection. During playback, all municipalities
+  // are revealed so the user can see trend changes in real time.
   const revealed =
+    playing ||
     (hoveredProvince &&
       normalizeName(p.province) === normalizeName(hoveredProvince)) ||
     (selectedProvince &&

@@ -298,6 +298,7 @@ export default function App() {
           configured={configured}
           navigate={navigate}
           onSignIn={handleSignIn}
+          onOpenPrivacy={openPrivacyNotice}
         />
       ) : screen === 'map' ? (
         <div id="main" tabIndex={-1} className="relative min-h-0 flex-1">

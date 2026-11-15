@@ -352,8 +352,6 @@ export default function App() {
       {chatOpen && (
         <ChatbotModal open={chatOpen} onClose={() => setChatOpen(false)} />
       )}
-      </div>
-    </ErrorBoundary>
 
       {/* One dialog for the whole app: the first-sign-in gate and the permanent
           Privacy link both land here, so there is only ever one notice open. */}
@@ -370,6 +368,7 @@ export default function App() {
         onClose={() => setPrivacyMode(null)}
         onSignOut={handleSignOut}
       />
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

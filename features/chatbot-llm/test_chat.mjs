@@ -98,6 +98,20 @@ test('clear resets to initial state', () => {
   assert2(state.error === null, 'reset clears error')
 })
 
+test('a reply tagged with a superseded requestId is discarded', () => {
+  // "New Chat" while a message is loading: the late answer must not appear
+  // above no question.
+  let state = chatReducer(initialState, { type: 'send', text: 'first', requestId: 1 })
+  state = chatReducer(state, { type: 'reset' })
+  const stale = chatReducer(state, { type: 'reply', text: 'late answer', requestId: 1 })
+  assert2(stale.messages.length === 0, 'stale reply is not appended')
+  assert2(stale.status === 'idle', 'status stays idle after a stale reply')
+
+  let fresh = chatReducer(initialState, { type: 'send', text: 'q', requestId: 2 })
+  fresh = chatReducer(fresh, { type: 'reply', text: 'a', requestId: 2 })
+  assert2(fresh.messages.length === 2, 'matching reply is still appended')
+})
+
 test('reducer ignores unknown actions without throwing', () => {
   let state = initialState
   state = chatReducer(state, { type: 'not-a-real-action' })

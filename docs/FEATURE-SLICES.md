@@ -4,7 +4,7 @@
 
 Cross-slice index of the `features/` directory. Bicol In-Heat is organized as four **feature slices**, each a self-contained vertical with its own agent sub-contract (`AGENTS.md`), source, and tests. This doc says what each slice owns, its state, how the write-boundary contract holds them apart, and how `FEATURE-PROMPTS.md` maps onto them.
 
-**State authority:** the root `AGENTS.md` "What exists now" table (verified 2026-11-10) is authoritative for built vs. not-started. Several per-slice workboards are stale (e.g. `map-controls/AGENTS.md` still lists "todo" items that are built); trust the root code map and re-confirm on disk before relying on a workboard row.
+**State authority:** the root `AGENTS.md` "What exists now" table (verified 11-13-2026) is authoritative for built vs. not-started. Several per-slice workboards are stale (e.g. `map-controls/AGENTS.md` still lists "todo" items that are built); trust the root code map and re-confirm on disk before relying on a workboard row.
 
 ## Overview
 
@@ -21,7 +21,7 @@ Two slices have source today; two hold only their `AGENTS.md` contract. The four
 
 ## Slice index
 
-| Slice | Owns | State (root code map, 2026-11-10) | Real files on disk |
+| Slice | Owns | State (root code map, 11-13-2026) | Real files on disk |
 |---|---|---|---|
 | `map-controls` | Map screen: Region V basemap, 114-municipality layer, time scrubber, tooltips, significance-as-border-pattern | **built** | `src/BicolMap.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend,Icons}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/engine.js`, `src/gis/yearRamp.js`, `src/state/timelineStore.js`, `src/data/ph-regions.geojson`, `test_engine.mjs`, `test_year.mjs` |
 | `gamified-dashboard` | Ranking screen, progress, leaderboard | **built** | `src/{DashboardScreen,RankingScreen}.jsx`, `src/{ranking,savedStore,leaderboardStore,progressStore}.js`, `src/components/{RankingTable,QuestsTab,Leaderboard,HistoryTab,HeatBar}.jsx`, `test_{ranking,saved,progress}.mjs`, `ATTRIBUTION.md` |

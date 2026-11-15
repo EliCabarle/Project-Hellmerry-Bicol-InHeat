@@ -195,7 +195,7 @@ _STACK_QUERY_NAMES = {
 AVAILABLE_STACKS = list(STACK_CONFIG.keys())
 
 _INDEX_VERSION = 2
-_SEARCH_CALIBRATION_VERSION = "2026-08-12-v1"
+_SEARCH_CALIBRATION_VERSION = "11-13-2026-v1"
 
 # Search calibration uses evidence coverage first; raw BM25 floors are kept
 # domain-specific because corpora vary greatly in size and document length.

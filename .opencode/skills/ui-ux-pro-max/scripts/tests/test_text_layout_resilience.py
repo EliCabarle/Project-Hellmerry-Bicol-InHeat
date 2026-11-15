@@ -95,7 +95,7 @@ class TestTextLayoutDataContracts(unittest.TestCase):
                     self.assertIn(phrase.casefold(), text)
                 self.assertEqual("active", row["Status"])
                 self.assertEqual("html-tailwind 4.3", row["Applies To"])
-                self.assertEqual("2026-08-13", row["Verified At"])
+                self.assertEqual("11-13-2026", row["Verified At"])
 
     def test_refined_rows_are_context_sensitive_not_universal_recipes(self):
         expected = {

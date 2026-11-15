@@ -1,5 +1,5 @@
 // Municipality outline projection: GeoJSON rings -> SVG path strings for the
-// finder cards. Pure, no React. Verified fact (2026-11-11): the 114 adm3
+// finder cards. Pure, no React. Verified fact (11-13-2026): the 114 adm3
 // features hold only 2,626 ring points (median 21, max 49) — no decimation is
 // needed, so don't "optimise" this into lossy simplification later.
 

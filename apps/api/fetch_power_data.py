@@ -12,9 +12,9 @@ through the day.
 `nighttime_heat_index_c` applies the same Rothfusz call to T2M_MIN, with RH also
 derived from T2MDEW - that is the overnight recovery the daily peak hides.
 
-Verified 2026-11-03: POWER daily T2M/T2M_MAX/T2MDEW/RH2M/U10M/V10M start at 19810101
+Verified 11-13-2026: POWER daily T2M/T2M_MAX/T2MDEW/RH2M/U10M/V10M start at 19810101
 (CONCEPT §13 open fact "POWER daily start year (assumed 1981)" -> now confirmed).
-T2M_MIN verified 2026-11-10: present from 19810101 for a Region V point.
+T2M_MIN verified 11-13-2026: present from 19810101 for a Region V point.
 
 Usage:
   python fetch_power_data.py

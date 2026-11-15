@@ -31,8 +31,8 @@ Notes on how these behave:
 - They are **offline**: `test_engine.mjs` reads a local GeoJSON (`src/data/ph-regions.geojson`);
   no network, no Supabase, no secrets required.
 - Last verified results (see `HANDOFF.md`): `test_engine.mjs` 14/14, `test_year.mjs` 4/4,
-  `test_ranking.mjs` 4/4 (2026-11-09); `test_progress.mjs` (14 tests), `test_ranking.mjs`,
-  `test_saved.mjs` all pass (2026-11-10, run from `features/gamified-dashboard/`).
+  `test_ranking.mjs` 4/4 (11-13-2026); `test_progress.mjs` (14 tests), `test_ranking.mjs`,
+  `test_saved.mjs` all pass (11-13-2026, run from `features/gamified-dashboard/`).
 
 ### Python (`unittest`)
 
@@ -46,7 +46,7 @@ python -m unittest test_pipeline -v        # or: python test_pipeline.py
   (`calculate_trends`, `calculate_drivers`, `fetch_power_data`, `generate_static_json`,
   `push_to_supabase`, `validate_pagasa`) — so run it from `apps/api`, where those modules live.
 - Requires `pandas` (and the rest of `apps/api/requirements.txt`). `HANDOFF.md` records the last
-  green run as `uv run python -m unittest test_pipeline` → **32/32** (2026-11-07), which needs a
+  green run as `uv run python -m unittest test_pipeline` → **32/32** (11-13-2026), which needs a
   `.venv` in `apps/api`; a plain `pip install -r requirements.txt` environment works the same way.
 - `apps/api/validate_pagasa.py` is **not a test suite** — it is the PAGASA hold-out validation
   module (bias/RMSE comparison, `compare()` and `metrics()`), exercised *by* `test_pipeline.py`

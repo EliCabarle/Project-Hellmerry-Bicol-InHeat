@@ -2,7 +2,7 @@
 
 ## NoteQuest (github.com/manavrenjith/NoteQuest) — MIT
 
-- License verified 2026-11-10 via `api.github.com/repos/manavrenjith/NoteQuest/license` (SPDX: MIT, copyright Manav Renjith).
+- License verified 11-13-2026 via `api.github.com/repos/manavrenjith/NoteQuest/license` (SPDX: MIT, copyright Manav Renjith).
 - Adapted (with permission of the MIT license): the **concept and layout pattern** of an XP/level bar — a level label, a filled progress track, and an "x / max" figure driven by a total-XP number (`src/components/XPBar.jsx`), and the derived-level-from-total pattern (`getLevel` in `src/utils/storage.js`).
 - Not copied: Framer Motion, lucide-react icons, Next/TS/server-sync code, and NoteQuest's non-linear level thresholds. Bicol In-Heat uses its own linear `HP_PER_LEVEL = 100`, verbatim title bands, and an append-only event log (original to this repo).
 

@@ -21,7 +21,7 @@ test('no metadata means no consent', () => {
 
 test('a different notice version no longer counts', () => {
   assert(hasConsent({ privacy_version: '2025-01-01' }) === false, 'an older notice re-prompts')
-  assert(hasConsent({ privacy_version: '2026-11-14 ' }) === false, 'a stray space is not a match')
+  assert(hasConsent({ privacy_version: '11-13-2026 ' }) === false, 'a stray space is not a match')
 })
 
 test('the current version counts', () => {

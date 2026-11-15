@@ -38,7 +38,7 @@ export default function AppMenu({
   // zone and crash the whole tree on open.
   const rows = useMemo(
     () => [
-      // Home → landing (lead ruling 2026-11-14: every user, guests included).
+      // Home → landing (lead ruling 11-13-2026: every user, guests included).
       // First row; the landing screen renders no NavBar, so this is the only
       // in-app way back to it.
       {

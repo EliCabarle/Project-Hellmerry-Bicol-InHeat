@@ -9,7 +9,7 @@
 >
 > **Compliance note:** This repository hosts the **working prototype** (near-final-
 > product target); code work is expected here. The former no-code-before-Nov-14 rule
-> was rescinded by the lead on **2026-11-02** (see Sect. 13 decision log). The
+> was rescinded by the lead on **11-13-2026** (see Sect. 13 decision log). The
 > challenge-weekend cut lines h30 / h42 / h44 (Sect. 11) remain the hard constraints.
 
 ---
@@ -151,7 +151,7 @@ client.
 - STRETCH: source-cited narration (RAG over NASA/PAGASA docs) - "why this, with a link".
 - FALLBACK: templates with an LLM used only offline to polish wording.
 
-**CORE (promoted 2026-11-13): QA chatbot - hybrid RAG + function calling.**
+**CORE (promoted 11-13-2026): QA chatbot - hybrid RAG + function calling.**
 One runtime LLM exception exists, scoped to a single server-side endpoint:
 
 - **`POST /api/qa` on FastAPI** (`apps/api/routers/qa.py`). Hybrid retrieval over
@@ -169,7 +169,7 @@ One runtime LLM exception exists, scoped to a single server-side endpoint:
 
 ## 7. Objective mapping (Relevance)
 
-Official objective *(captured 2026-11-02 from the published challenge statement;
+Official objective *(captured 11-13-2026 from the published challenge statement;
 re-confirm against the live page at h0 - page is JS-rendered)*:
 
 > *"Your challenge is to create a tool that can select variables measured by Earth
@@ -199,7 +199,7 @@ offline last-view + progress / Supabase accounts + leaderboard / ranked mitigati
 list / validated hold-out / variable glossary (EN) / 2 seeded demo examples ("Try
 this": one warming municipality, one opposite/flat trend - demonstrates the
 challenge's same-process-opposite-direction quote) / **QA chatbot - hybrid RAG +
-function calling via the server-side `/api/qa` endpoint (promoted 2026-11-13)** /
+function calling via the server-side `/api/qa` endpoint (promoted 11-13-2026)** /
 static host.
 
 **STRETCH** (viable, costed; each has a lock hour in Sect. 13): Bicolano narration /
@@ -286,7 +286,7 @@ Judges assign categories; we shape the throughline, not the claim.
 |---|---|---|---|
 | Overall scope | TENTATIVE | Bicol only (Region V municipalities) | h0 |
 | LLM role | TENTATIVE | Build-time narrator, static JSON | h0 |
-| QA chatbot (hybrid RAG + function calling) | **CHANGED 2026-11-13** | **CORE.** Runtime LLM restriction lifted **only** for the server-side `POST /api/qa` endpoint (pgvector RAG + Azure OpenAI function calling over `municipality_trends`). Client holds no LLM key; every model call terminates at FastAPI. Promoted from OUT/STRETCH by lead decision - see Sect. 6d | h30 |
+| QA chatbot (hybrid RAG + function calling) | **CHANGED 11-13-2026** | **CORE.** Runtime LLM restriction lifted **only** for the server-side `POST /api/qa` endpoint (pgvector RAG + Azure OpenAI function calling over `municipality_trends`). Client holds no LLM key; every model call terminates at FastAPI. Promoted from OUT/STRETCH by lead decision - see Sect. 6d | h30 |
 | Variables | TENTATIVE | CORE tier in 6a; STRETCH added only as time allows | h0 |
 | Time depth | TENTATIVE | POWER 1981-2025 for trend; satellites 2000-2025 for drivers | h6 |
 | Geography | TENTATIVE | Municipality + province roll-up | h6 |
@@ -296,18 +296,18 @@ Judges assign categories; we shape the throughline, not the claim.
 | Validation | TENTATIVE | Hold-out station + last 3 yrs; CV = STRETCH | h30 |
 | Boundaries source | TENTATIVE | PSA/PSGC (official) -> fallback geoBoundaries/OSM | h6 |
 | Award throughline | TENTATIVE | Local Impact + Best Use of Science | h30 |
-| Pre-event work rule | **CHANGED 2026-11-02** | No-code-before-Nov-14 rescinded - repo is the working prototype (lead decision) | h0 |
+| Pre-event work rule | **CHANGED 11-13-2026** | No-code-before-Nov-14 rescinded - repo is the working prototype (lead decision) | h0 |
 | Event name + close time | **OPEN** | - | h0 |
-| Challenge statement verbatim | **CAPTURED** | Full text captured 2026-11-02; re-fetch live page at h0 to confirm | h0 |
+| Challenge statement verbatim | **CAPTURED** | Full text captured 11-13-2026; re-fetch live page at h0 to confirm | h0 |
 | POWER daily start year | **OPEN** | Verify (assumed 1981) | h6 |
 | Region V PAGASA station list | **OPEN** | Which stations, access route | h6 |
 | Exact Region V LGU count | **OPEN** | Count from official source - never estimate | h6 |
 
 ---
 
-*Created 2026-10-27 as a pre-event planning document. Updated 2026-11-02: this
+*Created 11-13-2026 as a pre-event planning document. Updated 11-13-2026: this
 repository is the home of the working prototype - the no-code-before-Nov-14 rule
-was rescinded by the lead (see Sect. 13 decision log). Updated 2026-11-13: the QA
+was rescinded by the lead (see Sect. 13 decision log). Updated 11-13-2026: the QA
 chatbot (hybrid RAG + function calling) was promoted from OUT/STRETCH to CORE, and
 the runtime-LLM restriction was lifted for the server-side `/api/qa` endpoint only
 (Sect. 6d, Sect. 13).*

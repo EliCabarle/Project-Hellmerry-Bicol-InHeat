@@ -3,7 +3,7 @@
 All notable changes to Bicol In-Heat are recorded here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · versions follow the hackathon milestone, not semver.
 
-## [Unreleased] — 2026-11-12
+## [Unreleased] — 11-13-2026
 
 ### Added
 
@@ -17,7 +17,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · versions fol
 
 - `maplibre-gl` added to `apps/web/package.json` and aliased in `apps/web/vite.config.js` (needed because `features/` sits outside the Vite root). It is `React.lazy`-loaded: the `index` chunk carries zero MapLibre bytes, the lazy `Municipality3DLayer` chunk is 1.06 MB / 288 kB gzip.
 - 3D colour reuses the single colour source (`getMunicipalityStyle` from `gis/yearRamp.js`); height comes from `gis/lift.js`. No second ramp and no second join key.
-- `AGENTS.md` / `apps/web/AGENTS.md`: code map, invariants (3D is a separate entity; lift is one case, never a sum; MapLibre cannot transition feature-state paint so the lift animates via `source.updateData`), and verified-status rows for 2026-11-12.
+- `AGENTS.md` / `apps/web/AGENTS.md`: code map, invariants (3D is a separate entity; lift is one case, never a sum; MapLibre cannot transition feature-state paint so the lift animates via `source.updateData`), and verified-status rows for 11-13-2026.
 - **One outline token.** `SELECT_COLOUR` is now exported from `features/map-controls/src/gis/engine.js` and read by the 2D selected style, the 3D line paint and the trace (was the literal `#67e8f9` in three places).
 - **The trace is a ribbon extrusion, not a line.** MapLibre 5.24.1 has no `line-z-offset`/`line-elevation-reference` and `drawLine` runs `DepthMode.ReadOnly`, so a ground-level line is occluded by the extrusion. `gis/trace.js` builds a `TRACE_PX`-wide (1.5 px, metres derived from zoom) ribbon rendered as a flat `fill-extrusion` at `depth + lift + 2 m`, repainted on camera moves so it keeps its screen width. Partial draw is a sliced ring prefix — this version has no `line-trim-offset`.
 - `Municipality3DLayer` `data` memo now also carries a per-area `rings` record (exterior rings keyed by `joinKey`), so the trace reads the same id the picking path uses. Camera timing is untouched: the trace matches the 700 ms `fitBounds` settle, never the reverse.

@@ -38,7 +38,7 @@ function Notice() {
   return (
     <>
       <p className="text-[11px] text-clay-text-muted">
-        Version 2026-11-14 · applies from your first sign-in
+        Version 11-13-2026 · applies from your first sign-in
       </p>
 
       <Section title="Who we are">

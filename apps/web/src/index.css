@@ -360,7 +360,7 @@ body {
 }
 
 /* landing clay — light Claymorphism tokens for the guest landing screen
-   (UI-SPEC Token Block, lead-approved 2026-11-14). Everything here is consumed
+   (UI-SPEC Token Block, lead-approved 11-13-2026). Everything here is consumed
    only under .landing-root; the dark app theme above is untouched. The seam is
    guarded: body stays dark, this root carries its own light surface and
    color-scheme so native controls inside it follow the cream palette. */

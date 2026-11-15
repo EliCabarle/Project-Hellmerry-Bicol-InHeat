@@ -135,24 +135,6 @@ export default function NarrationScreen({
   const containerRef = useRef(null)
   const municipalities = narratives?.municipalities ?? []
   const region = useMemo(() => aggregateRegion(municipalities), [municipalities])
-  // Regional average heat-index series over 45 years — one line to skim the
-  // region-wide heating trend. Aggregates stored series verbatim; no new stats.
-  const regionSeries = useMemo(() => {
-    if (municipalities.length === 0) return []
-    const byYear = {}
-    for (const m of municipalities) {
-      for (const pt of m.series ?? []) {
-        if (!byYear[pt.year]) byYear[pt.year] = []
-        if (pt.mean_heat_index_c != null) byYear[pt.year].push(pt.mean_heat_index_c)
-      }
-    }
-    return Object.entries(byYear)
-      .map(([year, vals]) => ({
-        year: Number(year),
-        mean_heat_index_c: vals.reduce((a, b) => a + b, 0) / vals.length,
-      }))
-      .sort((a, b) => a.year - b.year)
-  }, [municipalities])
   const muni = key
     ? municipalities.find((m) => joinKey(m.name, m.province) === key)
     : municipalities[0] ?? null
@@ -199,46 +181,50 @@ export default function NarrationScreen({
     const mm = gsap.matchMedia()
 
     if (!prefersReduced) {
-      // Hero entrance: the one authored moment for this surface.
-      const hero = root.querySelector('[data-hero]')
-      const sillie = root.querySelector('[data-sillie]')
-      const heading = root.querySelector('[data-heading]')
-      const intro = root.querySelector('[data-intro]')
+      // ── 1. Hero entrance: the one authored moment for this surface ──
+      // Only animate elements within the ACTIVE view container.
+      const activeView = root.querySelector(`[data-view="${view}"]`)
+      if (activeView) {
+        const hero = activeView.querySelector('[data-hero]')
+        const sillie = activeView.querySelector('[data-sillie]')
+        const heading = activeView.querySelector('[data-heading]')
+        const intro = activeView.querySelector('[data-intro]')
 
-      const tl = gsap.timeline()
-      if (hero) tl.fromTo(hero, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0)
-      if (heading) tl.fromTo(heading, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.15)
-      if (intro) tl.fromTo(intro, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.3)
-      if (sillie) tl.fromTo(sillie, { opacity: 0, scale: 0.8, rotation: -3 }, { opacity: 1, scale: 1, rotation: 0, duration: 1, ease: 'power3.out' }, 0.2)
+        const tl = gsap.timeline()
+        if (hero) tl.fromTo(hero, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0)
+        if (heading) tl.fromTo(heading, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.15)
+        if (intro) tl.fromTo(intro, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, 0.3)
+        if (sillie) tl.fromTo(sillie, { opacity: 0, scale: 0.8, rotation: -3 }, { opacity: 1, scale: 1, rotation: 0, duration: 1, ease: 'power3.out' }, 0.2)
 
-      // Pulse glow behind Sillie — breathing effect, not spatial movement.
-      if (sillie) {
-        gsap.to(sillie, {
-          filter: 'drop-shadow(0 0 24px rgba(212, 175, 55, 0.35))',
-          duration: 3,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        })
-        // Float — Sillie bobs up and down gently, feels alive.
-        gsap.to(sillie, {
-          y: -14,
-          duration: 4,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut',
-        })
+        // Pulse glow behind Sillie — breathing effect, not spatial movement.
+        if (sillie) {
+          gsap.to(sillie, {
+            filter: 'drop-shadow(0 0 24px rgba(212, 175, 55, 0.35))',
+            duration: 3,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          })
+          // Float — Sillie bobs up and down gently, feels alive.
+          gsap.to(sillie, {
+            y: -14,
+            duration: 4,
+            repeat: -1,
+            yoyo: true,
+            ease: 'sine.inOut',
+          })
+        }
       }
 
-      // Parallax: section backgrounds drift slower than foreground text as you scroll.
-      gsap.utils.toArray('[data-parallax-bg]').forEach((el) => {
+      // ── 2. Parallax: section backgrounds drift slower than foreground text ──
+      gsap.utils.toArray(root.querySelectorAll('[data-parallax-bg]')).forEach((el) => {
         const speed = parseFloat(el.dataset.speed ?? '0.15')
         gsap.to(el, {
           yPercent: -50 * speed,
           ease: 'none',
           scrollTrigger: {
             trigger: el,
-            scroller: '#main',
+            scroller: undefined,
             start: 'top bottom',
             end: 'bottom top',
             scrub: true,
@@ -246,15 +232,15 @@ export default function NarrationScreen({
         })
       })
 
-      // Section reveals on scroll — subtle slide-up, content always visible.
-      gsap.utils.toArray('[data-section]').forEach((section) => {
+      // ── 3. Section reveals on scroll — each section enters once ──
+      gsap.utils.toArray(root.querySelectorAll('[data-section]')).forEach((section) => {
         gsap.fromTo(section,
-          { y: 30 },
+          { opacity: 0, y: 30 },
           {
-            y: 0, duration: 0.7, ease: 'power3.out',
+            opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
             scrollTrigger: {
               trigger: section,
-              scroller: '#main',
+              scroller: undefined,
               start: 'top 85%',
               once: true,
             },
@@ -262,8 +248,8 @@ export default function NarrationScreen({
         )
       })
 
-      // Driver bars grow from zero — reveals importance.
-      gsap.utils.toArray('[data-driver-bar]').forEach((bar) => {
+      // ── 4. Driver bars grow from zero — reveals importance ──
+      gsap.utils.toArray(root.querySelectorAll('[data-driver-bar]')).forEach((bar) => {
         const targetWidth = bar.style.width
         gsap.fromTo(bar,
           { width: 0 },
@@ -273,27 +259,27 @@ export default function NarrationScreen({
             ease: 'power2.out',
             scrollTrigger: {
               trigger: bar,
-              scroller: '#main',
-              start: 'top 85%',
+              scroller: undefined,
+              start: 'top 90%',
               once: true,
             },
           }
         )
       })
 
-      // Sad bubbles rise above Sillie's head — only when significant warming.
+      // ── 5. Sad bubbles rise above Sillie Sad — only when significant warming ──
       if (isSad) {
-        gsap.utils.toArray('[data-sad-smoke]').forEach((puff, i) => {
-          gsap.fromTo(puff,
+        gsap.utils.toArray(root.querySelectorAll('[data-sad-bubble]')).forEach((bubble, i) => {
+          gsap.fromTo(bubble,
             { y: 0, opacity: 0, scale: 0.5 },
             {
-              y: -64,
-              opacity: 0.6875,
-              scale: 1.5,
-              duration: 2.6 + i * 0.35,
+              y: -80,
+              opacity: 0.6,
+              scale: 1,
+              duration: 3 + i * 0.4,
               repeat: -1,
               ease: 'power1.inOut',
-              delay: i * 0.35,
+              delay: i * 0.5,
             }
           )
         })
@@ -314,6 +300,7 @@ export default function NarrationScreen({
 
     return () => {
       document.removeEventListener('visibilitychange', onVisibility)
+      mm.revert()
       ScrollTrigger.getAll().forEach((t) => t.kill())
     }
   }, [view, key, lang, isSad])
@@ -457,16 +444,16 @@ export default function NarrationScreen({
           </div>
 
           {view === 'region' ? (
-            <>
+            <div data-view="region">
               {/* ── §1 Hero — the Bicol story ──
                   Sillie centered in his zone on the left, text on the right. No overlap.
                   Sillie drop-shadow pulse glow. ── */}
-              <section data-section data-parallax-bg data-speed="0.12" className="mb-10 relative overflow-hidden md:mb-14">
+              <section data-section data-parallax-bg data-speed="0.12" className="mb-14 relative overflow-hidden">
                 <div className="clay-card--white rounded-[40px] border border-clay-text-muted/10 p-0 md:p-0 shadow-card overflow-hidden">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-0 min-h-[320px] md:h-[420px]">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-0 h-[420px] md:h-auto">
                     {/* Sillie contained inside card, left side, centered in his zone */}
-                    <div className="w-full md:w-[45%] h-full flex items-center justify-center p-6 md:p-12">
-                      <div data-sillie className="w-full max-w-[280px] h-auto shrink-0 relative">
+                    <div className="w-full md:w-[45%] h-full flex items-center justify-center p-8 md:p-12">
+                      <div data-sillie className="w-[280px] h-auto shrink-0 relative">
                         <img
                           src={SillieThinking}
                           alt="Sillie thinking about heat trends"
@@ -498,8 +485,7 @@ export default function NarrationScreen({
 
               {/* ── §2 Region at a glance ── */}
               <section data-section className="mb-14">
-                <h2 className="mt-0 mb-10 flex items-center gap-2 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
-                  <span className="clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-amber">2</span>
+                <h2 className="mt-0 mb-10 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
                   The region at a glance
                 </h2>
                 <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
@@ -534,206 +520,46 @@ export default function NarrationScreen({
                 </div>
               </section>
 
-              {/* ── §3 Why the region is heating — trend graph ── */}
+              {/* ── §3 Drivers across the region ── */}
               <section data-section className="mb-14">
-                <h2 className="mt-0 mb-8 flex items-center gap-2 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
-                  <span className="clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-coral-shadow">3</span>
-                  Why the region is heating
+                <h2 className="mt-0 mb-8 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
+                  What drives the region
                 </h2>
-                <p className="mb-8 text-base leading-relaxed text-clay-text-body font-clay max-w-[65ch]">
-                  Annual mean daily peak heat index, averaged across all 114 Bicol
-                  municipalities (1981–2025). The dashed line shows the region-wide
-                  trend. PAGASA's Danger band starts at 42 °C — every year since
-                  the mid-2000s sits above it.
+                <p className="mb-10 text-base leading-relaxed text-clay-text-body font-clay max-w-[65ch]">
+                  Random Forest / SHAP ranks which features move with the heat-index trend across all 114
+                  municipalities. Listed by how often each driver appears at the top of a municipality's
+                  ranking — association, not proof of cause.
                 </p>
-                <div className="h-[240px] sm:h-[260px] w-full">
-                  <ResponsiveContainer width="100%" height={260}>
-                    <LineChart data={regionSeries} margin={{ top: 20, right: 30, bottom: 40, left: 50 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                      <XAxis
-                        dataKey="year"
-                        tick={{ fontSize: 11, fill: '#64748b' }}
-                        tickFormatter={(tick) => String(tick)}
-                        width={80}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 11, fill: '#64748b' }}
-                        width={50}
-                        domain={['auto', 'auto']}
-                      />
-                      <Tooltip
-                        contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px' }}
-                        itemStyle={{ color: '#1e293b' }}
-                        labelStyle={{ color: '#64748b', fontWeight: 600 }}
-                        formatter={(value) => `${value.toFixed(1)} °C`}
-                      />
-                      <ReferenceLine
-                        y={42}
-                        stroke="#ef4444"
-                        strokeDasharray="6 4"
-                        label={{ value: 'Danger 42 °C', position: 'insideLeft', fill: '#ef4444', fontSize: 10 }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="mean_heat_index_c"
-                        stroke="#ef4444"
-                        strokeWidth={3}
-                        dot={false}
-                        animationDuration={1500}
-                        animationEasing="ease-out"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                <div className="space-y-5">
+                  {region.topDrivers.map((d, i) => (
+                    <DriverRow
+                      key={d.label}
+                      rank={i + 1}
+                      label={d.label}
+                      count={d.count}
+                      total={region.total}
+                    />
+                  ))}
                 </div>
-              </section>
-
-              {/* ── §3b What's driving the heat across Bicol — qualitative why ── */}
-              <section data-section className="mb-14">
-                <div className="clay-card--white rounded-[32px] border border-clay-text-muted/10 p-8 md:p-14 shadow-card">
-                  <div className="flex items-start gap-3 mb-8">
-                    <span className="shrink-0 clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-amber">3b</span>
-                    <div>
-                      <h2 className="mt-0 mb-2 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
-                        What's driving the heat across Bicol
-                      </h2>
-                      <p className="mt-0 text-sm text-clay-text-muted font-clay">
-                        The geographic and physical drivers — the "why" behind the numbers.
-                      </p>
-                    </div>
-                  </div>
-                  <p className="mb-8 text-base leading-relaxed text-clay-text-body font-clay max-w-[65ch]">
-                    {lang === 'fil'
-                      ? 'Ang Bicol ay mainit dahil sa kataas-patayo ng lupa, distansya sa dagat, at kapal ng mga puno. Ang POWER grid ng NASA ay tumatakda ng temperatura bawat 0.5° (tungkol 55 km), kaya ang mga nakapiling na munisipalidad ay maaaring mag-ambag ng parehong cell ng datos. Ang ulat na ito ay batay sa observed na data, hindi sa hulaan.'
-                      : 'Bicol heats up because of its terrain, distance from the coast, and tree cover. NASA POWER’s 0.5° grid (~55 km) means neighboring municipalities can share a grid cell. Every figure below is based on observed 1981–2025 data — not projections.'}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="flex gap-3 items-start">
-                      <span className="shrink-0 text-clay-amber font-clay font-extrabold text-lg">1</span>
-                      <div className="min-w-0">
-                        <p className="mt-0 text-sm font-clay font-semibold text-clay-text-heading">
-                          {lang === 'fil' ? 'Mga bundok humahinto sa hangin' : 'Mountains stall airflow'}
-                        </p>
-                        <p className="mt-1 text-sm text-clay-text-body leading-relaxed">
-                          {lang === 'fil'
-                            ? 'Ang mga bundok ng Bicol ay humihinga sa hangin at lumilikha ng mga mikroklima — ang init ay nahahalaan sa ilalim ng bundok.'
-                            : 'Bicol’s mountain ranges block airflow and create microclimates — heat gets trapped behind the ranges.'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 items-start">
-                      <span className="shrink-0 text-clay-amber font-clay font-extrabold text-lg">2</span>
-                      <div className="min-w-0">
-                        <p className="mt-0 text-sm font-clay font-semibold text-clay-text-heading">
-                          {lang === 'fil' ? 'Batayan ng karagatan' : 'Pacific coastline'}
-                        </p>
-                        <p className="mt-1 text-sm text-clay-text-body leading-relaxed">
-                          {lang === 'fil'
-                            ? 'Ang mahabang baybayin ay nakahahalas sa init at malinya, lalo na sa tag-init.'
-                            : 'The long coastal strip traps heat and moisture, especially in the dry season.'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 items-start">
-                      <span className="shrink-0 text-clay-amber font-clay font-extrabold text-lg">3</span>
-                      <div className="min-w-0">
-                        <p className="mt-0 text-sm font-clay font-semibold text-clay-text-heading">
-                          {lang === 'fil' ? 'Sentro ng lungsod' : 'Urban centers'}
-                        </p>
-                        <p className="mt-1 text-sm text-clay-text-body leading-relaxed">
-                          {lang === 'fil'
-                            ? 'Ang mga lungsod ay nakakahalas sa init, lumalaki ang heat island effect.'
-                            : 'Cities trap heat and intensify the heat-island effect.'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-3 items-start">
-                      <span className="shrink-0 text-clay-amber font-clay font-extrabold text-lg">4</span>
-                      <div className="min-w-0">
-                        <p className="mt-0 text-sm font-clay font-semibold text-clay-text-heading">
-                          {lang === 'fil' ? 'Kakulangan ng punong-dahon' : 'Less tree cover'}
-                        </p>
-                        <p className="mt-1 text-sm text-clay-text-body leading-relaxed">
-                          {lang === 'fil'
-                            ? 'Kakulangan ng canopy at mas maraming nakagat na lupa ay nangangahulugang mas kaunting nitso at mas mainit ang lupa.'
-                            : 'Less canopy and more paved land means less cooling and hotter ground.'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="mt-10 text-xs font-clay font-semibold uppercase tracking-[0.12em] text-clay-coral-shadow">
-                    Association, not causation
-                  </p>
-                  <p className="mt-2 text-sm text-clay-text-muted font-clay">
-                    {lang === 'fil'
-                      ? 'Ang mga driver na ito ay kinakatutukan lamang ng pagsusuri, hindi patunay ng sanhi. Ang mga kamailang munisipalidad ay maaaring magkaroon ng isa pang driver ngunit magkalabi-labi ang kalakaran — iyon ang patakaran na nililikha ng tool na ito, hindi isang error.'
-                      : 'These drivers are observational associations, not proven causes. Neighboring municipalities can share one driver yet trend in opposite directions — that is the pattern this tool exists to surface, not an error.'}
-                  </p>
-                </div>
-              </section>
-
-              {/* ── §4 Drivers across the region — SHAP data proof ── */}
-              <section data-section className="mb-14">
-                <div className="clay-card--white rounded-[32px] border border-clay-coral-shadow/20 p-8 md:p-14 shadow-card">
-                  <div className="flex items-start gap-3 mb-8">
-                    <span className="shrink-0 clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-coral-shadow">4</span>
-                    <div>
-                      <h2 className="mt-0 mb-2 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
-                        What drives the region
-                      </h2>
-                      <p className="mt-0 text-sm text-clay-text-muted font-clay">
-                        Random Forest / SHAP ranks which features move with the heat-index trend —
-                        data-driven proof, not assumption.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-5">
-                    {region.topDrivers.map((d, i) => (
-                      <DriverRow
-                        key={d.label}
-                        rank={i + 1}
-                        label={d.label}
-                        count={d.count}
-                        total={region.total}
-                      />
-                    ))}
-                  </div>
-                  <p className="mt-8 text-xs font-clay font-semibold uppercase tracking-[0.12em] text-clay-coral-shadow">
-                    Association, not causation
-                  </p>
-                  <p className="mt-2 text-sm text-clay-text-muted font-clay">
-                    These drivers are observational associations, not proven causes. Neighboring
-                    municipalities can share one driver yet trend in opposite directions — that is
-                    the pattern this tool exists to surface, not an error.
-                  </p>
-                </div>
+                <p className="mt-8 text-xs font-clay font-semibold uppercase tracking-[0.12em] text-clay-coral-shadow">
+                  Association, not causation
+                </p>
+                <p className="mt-2 text-sm text-clay-text-muted font-clay">
+                  These drivers are observational associations, not proven causes. Neighboring
+                  municipalities can share one driver yet trend in opposite directions — that is
+                  the pattern this tool exists to surface, not an error.
+                </p>
               </section>
 
               {/* ── §4 Why Bicol ── */}
-              <section data-section className="mb-10 relative md:mb-14">
-                <div className="clay-card--white rounded-[40px] border border-clay-text-muted/10 p-0 md:p-0 shadow-card overflow-hidden">
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-0 min-h-[320px] md:h-[420px]">
-                    <div className="w-full md:w-[52%] p-6 md:p-16 flex flex-col justify-center">
-                      <h2 className="mt-0 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
-                        Why Bicol heats differently
-                      </h2>
-                      <p className="mt-6 text-base leading-relaxed text-clay-text-body font-clay max-w-[65ch]">
-                        {lang === 'fil' ? WhyBicolFIL : WhyBicolEN}
-                      </p>
-                    </div>
-                    <div className="w-full md:w-[48%] h-full p-6 md:p-12 flex flex-col justify-center items-center md:items-end">
-                      <div data-sillie className="relative w-full max-w-[320px] h-auto shrink-0 -mb-8 md:-mb-0">
-                        <img
-                          src={SillieThinking}
-                          alt="Sillie thinking about why Bicol heats"
-                          className="w-full h-auto block drop-shadow-lg"
-                          loading="eager"
-                          decoding="async"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <section data-section className="mb-14">
+                <h2 className="mt-0 mb-8 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
+                  Why Bicol heats differently
+                </h2>
+                <p className="mb-10 text-base leading-relaxed text-clay-text-body font-clay max-w-[65ch]">
+                  {lang === 'fil' ? WhyBicolFIL : WhyBicolEN}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <FeatureItem
                     icon={<CoastIcon />}
                     title={lang === 'fil' ? 'Batayan ng karagatan' : 'Pacific coastline'}
@@ -813,9 +639,9 @@ export default function NarrationScreen({
                   </ul>
                 </div>
               </section>
-            </>
+            </div>
           ) : (
-            <>
+            <div data-view="municipality">
               {/* ── Municipality selector ── */}
               <div className="mb-10">
                 <label
@@ -842,18 +668,16 @@ export default function NarrationScreen({
               {muni && (
                 <>
                   {/* ── Municipality hero ── */}
-                  <section data-section className="mb-10 relative md:mb-14">
+                  <section data-section className="mb-14 relative">
                     <div className="clay-card--white rounded-[40px] border border-clay-text-muted/10 p-0 md:p-0 shadow-card relative overflow-hidden">
                       <div className="flex flex-col md:flex-row items-start md:items-center gap-0 min-h-[320px] md:h-[420px]">
-                        <div className="w-full md:w-[52%] p-6 md:p-16 flex flex-col justify-center">
-                          <div className="mb-3">
-                            <h2
-                              data-heading
-                              className="mt-0 text-3xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-4xl"
-                            >
-                              {muni.name}, {muni.province}
-                            </h2>
-                          </div>
+                        <div className="w-full md:w-[52%] p-8 md:p-16 flex flex-col justify-center">
+                          <h2
+                            data-heading
+                            className="mt-0 text-3xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-4xl"
+                          >
+                            {muni.trend.direction.charAt(0).toUpperCase() + muni.trend.direction.slice(1)}
+                          </h2>
                           <p className="mt-3 text-base text-clay-text-body font-clay">
                             {formatSlope(muni.trend.slope_c_per_year)} over {muni.sample.n_years} years
                           </p>
@@ -871,45 +695,41 @@ export default function NarrationScreen({
                           )}
                         </div>
 
-                        {/* Sillie hero — framed breakout for intentional visual impact */}
-                        <div className="w-full md:w-[48%] h-full p-6 md:p-12 flex flex-col justify-center items-center md:items-end">
-                          <div className="relative w-full max-w-[420px] h-auto shrink-0 -mb-8 md:-mb-16">
-                            <div className="absolute inset-0 bg-clay-amber/20 blur-[80px] rounded-full -z-10" />
-                            <div data-sillie className="relative w-full max-w-[420px] h-auto shrink-0 -mb-8 md:-mb-16">
-                              {isSad && (
-                                <div className="pointer-events-none absolute inset-0 z-20 overflow-visible">
-                                  {[...Array(6)].map((_, i) => (
-                                    <div
-                                      key={i}
-                                      data-sad-smoke
-                                      className="absolute rounded-full bg-clay-text-muted/40 blur-md"
-                                      style={{
-                                        left: `${39 + i * 4}%`,
-                                        top: `${25 + (i % 3) * 5}%`,
-                                        width: `${16 + i * 3}px`,
-                                        height: `${16 + i * 3}px`,
-                                        opacity: 0.4375,
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                              <img
-                                src={
-                                  muni.trend?.is_significant && muni.trend?.direction === 'increasing'
-                                    ? SillieSad
-                                    : SillieHappy
-                                }
-                                alt={`${muni.name} — ${muni.trend?.direction === 'increasing' ? 'warming trend' : 'stable trend'}`}
-                                className="w-full h-auto block drop-shadow-xl relative z-10"
-                                loading="lazy"
-                                decoding="async"
-                                onError={(e) => {
-                                  e.target.src = SillieThinking
-                                  e.target.alt = 'Bicol In-Heat'
-                                }}
-                              />
-                            </div>
+                        {/* Sillie contained inside card, right side */}
+                        <div className="w-full md:w-[48%] h-full p-8 md:p-12 flex flex-col justify-center items-center md:items-end">
+                          <div data-sillie className="relative w-full max-w-[520px] h-auto shrink-0 -mb-12 md:-mb-20 -mr-4 md:-mr-0">
+                            {isSad && (
+                              <div className="absolute -top-16 left-1/2 -translate-x-1/2 md:-top-24 flex items-end justify-center pb-2">
+                                {[...Array(8)].map((_, i) => (
+                                  <div
+                                    key={i}
+                                    data-sad-bubble
+                                    className="absolute rounded-full bg-white/70 blur-sm"
+                                    style={{
+                                      left: `${5 + i * 14}%`,
+                                      bottom: `${70 + i * 12}px`,
+                                      width: `${8 + i * 3}px`,
+                                      height: `${8 + i * 3}px`,
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            <img
+                              src={
+                                muni.trend?.is_significant && muni.trend?.direction === 'increasing'
+                                  ? SillieSad
+                                  : SillieHappy
+                              }
+                              alt={`${muni.name} — ${muni.trend?.direction === 'increasing' ? 'warming trend' : 'stable trend'}`}
+                              className="w-full h-auto block drop-shadow-2xl relative z-10"
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                e.target.src = SillieThinking
+                                e.target.alt = 'Bicol In-Heat'
+                              }}
+                            />
                           </div>
                         </div>
                       </div>
@@ -929,7 +749,7 @@ export default function NarrationScreen({
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         >
-                          <path d="M14 10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z" />
+                          <path d="M14 10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2 2v-4a2 2 0 0 1 2-2z" />
                         </svg>
                         <h2 className="mt-0 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
                           Plain-language explanation
@@ -946,6 +766,91 @@ export default function NarrationScreen({
                     </div>
                   </section>
 
+                  {/* ── Physical context & drivers ── */}
+                  <section data-section className="mb-14">
+                    <div className="clay-card--white rounded-[32px] border border-clay-text-muted/10 p-8 md:p-12 shadow-card">
+                      <h2 className="mt-0 mb-6 text-2xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-3xl">
+                        Physical context & drivers
+                      </h2>
+                      <p className="mb-8 text-sm text-clay-text-muted font-clay max-w-[65ch]">
+                        Each municipality's heat trend is shaped by its physical setting. Surface
+                        temperature comes from NASA Landsat; vegetation from MODIS; population
+                        exposure from SEDAC GPW; terrain from SRTM; precipitation from NASA POWER.
+                      </p>
+                      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+                        <StatMini
+                          label="Land surface temp"
+                          value={
+                            muni.lst_mean_c != null
+                              ? `${muni.lst_mean_c.toFixed(1)} °C`
+                              : 'n/a'
+                          }
+                          detail="NASA Landsat C2 L2 — surface temperature"
+                          tone="coral"
+                        />
+                        <StatMini
+                          label="Tree cover"
+                          value={
+                            muni.ndvi_mean != null
+                              ? `${(muni.ndvi_mean * 100).toFixed(0)}%`
+                              : 'n/a'
+                          }
+                          detail="MODIS MOD44B — canopy fraction"
+                          tone="green"
+                        />
+                        <StatMini
+                          label="Elevation"
+                          value={
+                            muni.elevation_m != null
+                              ? `${muni.elevation_m.toFixed(0)} m`
+                              : 'n/a'
+                          }
+                          detail="SRTM terrain — meters above sea level"
+                        />
+                        <StatMini
+                          label="Distance to coast"
+                          value={
+                            muni.distance_to_coast_km != null
+                              ? `${muni.distance_to_coast_km.toFixed(1)} km`
+                              : 'n/a'
+                          }
+                          detail="Proximity to the Philippine Sea"
+                        />
+                        <StatMini
+                          label="Population"
+                          value={
+                            muni.population_2020 != null
+                              ? muni.population_2020.toLocaleString()
+                              : 'n/a'
+                          }
+                          detail="SEDAC GPW 2020 — residents"
+                          tone="coral"
+                        />
+                      </div>
+                      <div className="mt-6 grid grid-cols-2 gap-6 sm:grid-cols-2">
+                        <StatMini
+                          label="Annual precipitation"
+                          value={
+                            muni.annual_precip_mm_2024 != null
+                              ? `${muni.annual_precip_mm_2024.toFixed(0)} mm`
+                              : 'n/a'
+                          }
+                          detail="2024 total — NASA POWER"
+                        />
+                        <StatMini
+                          label="Person-days in danger"
+                          value={
+                            muni.person_days_danger != null
+                              ? muni.person_days_danger.toLocaleString()
+                              : 'n/a'
+                          }
+                          detail="45-year cumulative — population × danger days"
+                          tone="coral"
+                        />
+                      </div>
+                    </div>
+                  </section>
+
                   {/* ── Trend graph ── */}
                   <section data-section className="mb-14">
                     <div className="clay-card--white rounded-[32px] border border-clay-text-muted/10 p-8 md:p-12 shadow-card">
@@ -954,11 +859,11 @@ export default function NarrationScreen({
                       </h2>
                       <p className="mb-8 text-sm text-clay-text-muted font-clay max-w-[65ch]">
                         Annual mean daily peak heat index from NASA POWER (1981–2025). The dashed line
-                        shows the Theil–Sen trend. PAGASA’s Danger band starts at 42 °C; Extreme Danger
+                        shows the Theil–Sen trend. PAGASA's Danger band starts at 42 °C; Extreme Danger
                         at 52 °C.
                       </p>
-                      <div className="h-[200px] sm:h-[220px] w-full">
-                        <ResponsiveContainer width="100%" height={220}>
+                      <div className="h-[260px] sm:h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height={300}>
                           <LineChart
                             data={muni.series}
                             margin={{ top: 20, right: 30, bottom: 40, left: 50 }}
@@ -1119,7 +1024,7 @@ export default function NarrationScreen({
                   </section>
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
       </main>
@@ -1186,7 +1091,7 @@ function DriverRow({ rank, label, count, total }) {
       </div>
       <div className="h-2 w-full flex-1 mx-4 rounded-full bg-clay-text-muted/10 overflow-hidden [data-driver-bar]">
         <div
-          className="h-full bg-clay-coral-shadow transition-all duration-1000 ease-out"
+          className="h-full bg-clay-amber transition-all duration-1000 ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -1210,8 +1115,6 @@ function FeatureItem({ icon, title, line }) {
 }
 
 // ── Inline SVG illustrations ──
-// Crisp, consistent stroke weight — no PNG converter needed.
-
 function RegionIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5 text-clay-amber" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

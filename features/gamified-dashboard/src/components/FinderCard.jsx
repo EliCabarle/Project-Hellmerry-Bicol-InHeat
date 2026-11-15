@@ -12,6 +12,7 @@ import { LABELS } from '../labels.js'
 import { fmtInt, fmtP, fmtSlope, SigPill } from './DashboardTable.jsx'
 import { HEAT_COOL } from '../chartColors.js'
 import { joinKey } from '../../../map-controls/src/gis/engine.js'
+import { publicNarration } from '../viewMode.js'
 
 const FACE =
   'absolute inset-0 flex flex-col rounded-xl border border-white/10 bg-heat-surface/80 p-3 shadow-hud [backface-visibility:hidden]'
@@ -20,7 +21,7 @@ const FACE =
 // enough that a passing pointer never pops a panel the reader did not aim at.
 const HOVER_PREVIEW_MS = 1500
 
-export default function FinderCard({ card, flipped = false, interactive = true, onFlip = null, onShowOnMap = null }) {
+export default function FinderCard({ card, flipped = false, interactive = true, onFlip = null, onShowOnMap = null, isAnalyst = false }) {
   const stroke = outlineStroke(card.trend)
   const band = card.latest?.danger_band
   const hoverTimer = useRef(0)
@@ -113,10 +114,10 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
               </div>
               <div className="flex flex-wrap gap-x-2 font-mono text-slate-400">
                 <span>{fmtSlope(card.trend?.slope_c_per_year)}</span>
-                <span>{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
+                {isAnalyst && <span>{card.trend ? fmtP(card.trend.p_value) : '—'}</span>}
                 <span>{Number.isFinite(card.totalDangerDays) ? `${fmtInt(card.totalDangerDays)} danger days` : 'danger —'}</span>
               </div>
-              {card.drivers.length > 0 && (
+              {isAnalyst && card.drivers.length > 0 && (
                 <div className="mt-0.5 truncate">
                   <span className="text-slate-500">Top driver: </span>
                   <span className="font-mono text-slate-200">
@@ -125,7 +126,7 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
                 </div>
               )}
               {card.narrationEn ? (
-                <p className="mt-0.5 line-clamp-2 italic text-slate-400">{card.narrationEn}</p>
+                <p className="mt-0.5 line-clamp-2 italic text-slate-400">{publicNarration(card.narrationEn)}</p>
               ) : null}
             </div>
           )}
@@ -151,8 +152,16 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
               </div>
               <div className="text-slate-500">
                 <span className="font-semibold">{LABELS.finderBackP.plain}:</span>{' '}
-                <span className="font-mono text-slate-300">{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
-                <span className="block text-xs font-mono text-slate-400">{LABELS.finderBackP.tech}</span>
+                {isAnalyst ? (
+                  <>
+                    <span className="font-mono text-slate-300">{card.trend ? fmtP(card.trend.p_value) : '—'}</span>
+                    <span className="block text-xs font-mono text-slate-400">{LABELS.finderBackP.tech}</span>
+                  </>
+                ) : (
+                  <span className="font-semibold text-slate-300">
+                    {card.trend?.is_significant ? 'Statistically significant' : 'Not significant'}
+                  </span>
+                )}
               </div>
               <div className="text-slate-500">
                 <span className="font-semibold">{LABELS.finderBackSample.plain}:</span>{' '}
@@ -169,11 +178,15 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
             <p className="mt-1 text-[11px] text-slate-500">No trend data yet</p>
           )}
 
-          {card.narrationEn ? (
-            <p className="mt-1.5 line-clamp-4 text-[10px] leading-4 text-slate-300">{card.narrationEn}</p>
+          {/* Analyst view carries the numbers instead of the story: the
+              narration paragraph is public-view only. */}
+          {!isAnalyst && card.narrationEn ? (
+            <p className="mt-1.5 text-[10px] leading-4 text-slate-300">
+              {publicNarration(card.narrationEn)}
+            </p>
           ) : null}
 
-          {card.drivers.length > 0 && (
+          {isAnalyst && card.drivers.length > 0 && (
             <div className="mt-1.5">
               <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">{LABELS.finderBackDrivers.plain}</div>
               <div className="text-xs font-mono text-slate-400">{LABELS.finderBackDrivers.tech}</div>

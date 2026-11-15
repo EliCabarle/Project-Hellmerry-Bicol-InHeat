@@ -234,6 +234,7 @@ function MunicipalityLayer({
     viewMode,
     year,
     dayValues,
+    playing,
   ]);
 
   // Staggered opacity reveal strictly on 3D→2D switch: areas fade in top-down
@@ -841,6 +842,8 @@ export default function BicolMap({
         <Suspense fallback={null}>
           <Municipality3DLayer
             joined={joined}
+            regions={geojson}
+            basemap={basemap}
             selectedKey={selectedKey}
             selectedFeature={selectedFeature}
             viewMode={viewMode}

@@ -24,6 +24,8 @@ API_DIR = Path(__file__).resolve().parent
 ONI_CSV = API_DIR / "data" / "oni_annual.csv"
 POWER_CSV = API_DIR / "data" / "power_daily_full.csv"
 OUT_JSON = API_DIR / "output" / "enso_results.json"
+# Committed copy: output/ is gitignored, so a deploy reads this one instead.
+SNAPSHOT_JSON = API_DIR / "snapshots" / "enso_results.json"
 
 TARGET = "heat_index_max_c"
 START_YEAR = 1981
@@ -129,6 +131,11 @@ def main() -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Wrote {OUT_JSON}")
+    SNAPSHOT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    SNAPSHOT_JSON.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(f"Wrote {SNAPSHOT_JSON}")
     print(
         f'ENSO CORRELATION DONE | Mean Heat r={r_mean:.4f} (p={p_mean:.4f}) | '
         f'Volatility r={r_vol:.4f} (p={p_vol:.4f})'

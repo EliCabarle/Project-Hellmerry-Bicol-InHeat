@@ -63,3 +63,19 @@ export const label = (key) => {
   if (!entry) return { plain: key, tech: '' }
   return entry
 }
+
+// Public view speaks "Municipalities"; the analyst view keeps the exact
+// term "LGU". Only the words around the numbers change — computed values and
+// units are never touched.
+import { termSwap } from './viewMode.js'
+
+// A term-aware copy of LABELS. Returns the original object for the analyst
+// view so the common path allocates nothing.
+export function labelsFor(term = 'LGUs') {
+  if (term === 'LGUs') return LABELS
+  const out = {}
+  for (const [key, entry] of Object.entries(LABELS)) {
+    out[key] = { plain: termSwap(entry.plain, term), tech: termSwap(entry.tech, term) }
+  }
+  return out
+}

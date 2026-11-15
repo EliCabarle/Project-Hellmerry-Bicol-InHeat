@@ -502,6 +502,5 @@ export default function App() {
         onSignOut={handleSignOut}
       />
       </div>
-    </ErrorBoundary>
   )
 }

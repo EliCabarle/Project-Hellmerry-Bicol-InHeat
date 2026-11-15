@@ -359,6 +359,13 @@ export default function App() {
     return signInWithGoogle(supabase)
   }, [supabase, configured])
 
+  // Keep the app map-first after an OAuth success: when the session resolves,
+  // the landing screen should immediately hand off to the map route.
+  useEffect(() => {
+    if (!user || screen !== 'landing') return
+    navigate('map')
+  }, [user, screen, navigate])
+
   const handleSignOut = useCallback(() => {
     if (!supabase) return
     supabase.auth.signOut()

@@ -31,7 +31,7 @@ test('the standalone screen tokens parse to their own screen', () => {
 })
 
 test('the dashboard sub-tab tokens imply the dashboard screen', () => {
-  for (const tab of ['dashboard', 'quests', 'leaderboard']) {
+  for (const tab of ['dashboard', 'quests', 'history', 'leaderboard']) {
     assert(eq(parseRoute(`#${tab}`), route('dashboard', tab)), `#${tab} → dashboard/${tab} tab`)
   }
 })
@@ -59,6 +59,7 @@ test('foreign and legacy fragments are not routes', () => {
 
 test('hashFor renders the canonical token for each target', () => {
   assert(hashFor('quests') === '#quests', 'quests → #quests')
+  assert(hashFor('history') === '#history', 'history → #history')
   assert(hashFor('map', null) === '#map', 'map without a key → #map')
   assert(
     hashFor('map', 'bato|camarines sur') === '#muni=bato%7Ccamarines%20sur',
@@ -73,6 +74,7 @@ test('parseRoute(hashFor(...)) round-trips every supported target', () => {
     ['landing', null, route('landing')],
     ['dashboard', null, route('dashboard', 'dashboard')],
     ['quests', null, route('dashboard', 'quests')],
+    ['history', null, route('dashboard', 'history')],
     ['leaderboard', null, route('dashboard', 'leaderboard')],
     ['account', null, route('account')],
     ['settings', null, route('settings')],

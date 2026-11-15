@@ -34,7 +34,7 @@ function readTheme() {
 export default function App() {
   // The URL hash is the source of truth for the screen a page load restores
   // (grammar: src/lib/routes.js). Supported tokens: #map, #dashboard, #quests,
-  // #leaderboard, #account, #settings, #landing, plus the legacy
+  // #history, #leaderboard, #account, #settings, #landing, plus the legacy
   // #muni=<encoded joinKey> deep link (shared links resolve logged-out — h44).
   // An empty hash (first visit) and any unrecognized fragment (#main,
   // #access_token=..., arbitrary text) are not routes → Landing, for guests
@@ -232,6 +232,11 @@ export default function App() {
       setFocusTab({ id: 'quests', token })
       return
     }
+    if (target === 'history') {
+      setScreen('dashboard')
+      setFocusTab({ id: 'history', token })
+      return
+    }
     if (target === 'leaderboard') {
       setScreen('dashboard')
       setFocusTab({ id: 'leaderboard', token })
@@ -253,11 +258,11 @@ export default function App() {
   // feature file is outside this plan's write boundary per C-01), so the
   // shell mirrors the feature's own output back into the route: watching
   // aria-selected on its tablist catches a click and an arrow-key move alike,
-  // and every change runs through navigate(). '#dashboard'/'#quests'/
-  // '#leaderboard' are pushed; '#history' is not in the grammar, so hashFor's
-  // token is rejected by parseRoute and nothing is written — the same silent
-  // fall-through navigate() already gives an unknown target. pushState fires
-  // no events, so a mirrored write cannot echo back into this effect.
+  // and every change runs through navigate(). All four dashboard tabs are
+  // grammar tokens ('#dashboard'/'#quests'/'#history'/'#leaderboard'), so
+  // each mirror pushes its token — a History-tab click or arrow move writes
+  // '#history' exactly like the other tabs. pushState fires no events, so a
+  // mirrored write cannot echo back into this effect.
   useEffect(() => {
     if (screen !== 'dashboard') return undefined
     const list = document.querySelector('[role="tablist"][aria-label="Dashboard sections"]')

@@ -37,7 +37,8 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 API_DIR = Path(__file__).resolve().parent
-load_dotenv(API_DIR / ".env")
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
+load_dotenv(ENV_FILE)
 
 POWER_URL = "https://power.larc.nasa.gov/api/temporal/daily/point"
 PARAMETERS = ("T2M", "T2M_MAX", "T2M_MIN", "T2MDEW", "RH2M", "U10M", "V10M")

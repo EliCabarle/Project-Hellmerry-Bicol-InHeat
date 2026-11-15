@@ -27,11 +27,10 @@ from openai import APIConnectionError, APIStatusError, OpenAI
 from pydantic import BaseModel, Field
 from supabase import create_client
 
-# Force-load .env with override=True so a stale or empty OS-level variable can
-# never shadow the file. Load the cwd/ancestors first, then the canonical
-# apps/api/.env last so it always wins.
-load_dotenv(override=True)
-load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=True)
+# Force-load the repo-root .env with override=True so a stale or empty OS-level
+# variable can never shadow the file.
+ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
+load_dotenv(ENV_FILE, override=True)
 
 router = APIRouter(prefix="/api", tags=["qa"])
 
@@ -115,6 +114,7 @@ def _is_chitchat(question: str) -> bool:
     normalised = question.translate(str.maketrans("", "", string.punctuation)).lower()
     return bool(IDENTITY.match(question)) or bool(CHITCHAT.fullmatch(normalised))
 
+
 # Columns for ranking (no series, no narration) and for a single lookup (both).
 # change_point_year lives here so a ranking can report the regime break, not
 # just a single-place lookup.
@@ -125,9 +125,7 @@ LIST_COLUMNS = (
     "change_point_year"
 )
 DETAIL_COLUMNS = (
-    LIST_COLUMNS
-    + ",peak_danger_year,peak_danger_days,top_drivers,"
-    "narration_en,series"
+    LIST_COLUMNS + ",peak_danger_year,peak_danger_days,top_drivers,narration_en,series"
 )
 
 _db_client: Any = None
@@ -151,7 +149,7 @@ def _db():
         if not url or not key:
             raise HTTPException(
                 status_code=503,
-                detail="Supabase not configured: set SUPABASE_URL and SUPABASE_SERVICE_KEY in apps/api/.env",
+                detail="Supabase not configured: set SUPABASE_URL and SUPABASE_SERVICE_KEY in the repo-root .env",
             )
         _db_client = create_client(url, key)
     return _db_client
@@ -178,7 +176,7 @@ def _embed_query(question: str) -> list[float]:
     if not api_key:
         raise HTTPException(
             status_code=503,
-            detail="Embedding key not configured: set GEMINI_API_KEY in apps/api/.env",
+            detail="Embedding key not configured: set GEMINI_API_KEY in the repo-root .env",
         )
     genai.configure(api_key=api_key)
     delay = 2.0
@@ -253,9 +251,7 @@ def _summarise(row: dict, detail: bool = False) -> dict:
         "is_significant": row.get("is_significant"),
         "total_danger_days_45y": row.get("total_danger_days_45y"),
         "latest_peak_heat_index_c": _round(row.get("heat_index_max_c"), 2),
-        "latest_nighttime_heat_index_c": _round(
-            row.get("nighttime_heat_index_c"), 2
-        ),
+        "latest_nighttime_heat_index_c": _round(row.get("nighttime_heat_index_c"), 2),
         "lst_mean_c": _round(row.get("lst_mean_c"), 2),
         "population_2020": row.get("population_2020"),
         "ndvi_mean": row.get("ndvi_mean"),
@@ -644,7 +640,10 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string", "description": "Municipality name, e.g. 'Aroroy'."},
+                    "name": {
+                        "type": "string",
+                        "description": "Municipality name, e.g. 'Aroroy'.",
+                    },
                     "province": {
                         "type": "string",
                         "description": "Optional province, needed when a name exists in two provinces ('Bato', 'San Fernando').",
@@ -664,10 +663,19 @@ TOOLS = [
                 "properties": {
                     "metric": {
                         "type": "string",
-                        "enum": ["slope", "danger_days", "heat_index", "nighttime", "person_days"],
+                        "enum": [
+                            "slope",
+                            "danger_days",
+                            "heat_index",
+                            "nighttime",
+                            "person_days",
+                        ],
                         "description": "slope = fastest warming (C/yr); danger_days = most days above 42 C; heat_index = hottest latest peak; nighttime = hottest latest nights; person_days = most people exposed to extreme heat (population × danger days). Use this for 'who is most at risk'.",
                     },
-                    "limit": {"type": "integer", "description": "How many to return, 1-10."},
+                    "limit": {
+                        "type": "integer",
+                        "description": "How many to return, 1-10.",
+                    },
                     "only_significant": {
                         "type": "boolean",
                         "description": "Restrict to statistically significant trends (default true).",

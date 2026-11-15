@@ -35,6 +35,7 @@ from google.api_core.exceptions import ResourceExhausted
 from supabase import create_client
 
 ROOT = Path(__file__).resolve().parent
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
 REPO = ROOT.parent.parent
 
 CHARS_PER_TOKEN = 4
@@ -296,7 +297,7 @@ def main() -> None:
         print("\n--dry-run: nothing embedded, nothing written")
         return
 
-    load_dotenv(ROOT / ".env")
+    load_dotenv(ENV_FILE)
     genai.configure(api_key=os.environ["GEMINI_API_KEY"])
     client = create_client(
         os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]

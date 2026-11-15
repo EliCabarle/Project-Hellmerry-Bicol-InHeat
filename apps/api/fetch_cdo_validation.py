@@ -27,7 +27,8 @@ import requests
 from dotenv import load_dotenv
 
 API_DIR = Path(__file__).resolve().parent
-load_dotenv(API_DIR / ".env")
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
+load_dotenv(ENV_FILE)
 
 CDO_TOKEN = os.getenv("CDO_API_TOKEN")
 CDO_BASE = "https://www.ncei.noaa.gov/cdo-web/api/v2"

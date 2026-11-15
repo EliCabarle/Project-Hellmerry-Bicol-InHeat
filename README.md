@@ -20,7 +20,7 @@ Every dry season, Bicol breaks its own heat record — but the **heat index** (w
 - **Frontend:** Vite + React + Tailwind PWA (installable, offline last-view), static hosting.
 - **Core engine:** Theil–Sen slope + Mann–Kendall test (α = 0.05), Rothfusz heat index, Random Forest / SHAP driver ranking (association, not causation).
 - **Backend:** static PWA + Supabase Auth/Postgres (accounts, saved history, leaderboard — user-chosen handle only, never a real name).
-- **LLM:** build-time, open-weights — renders *computed* numbers into the narrative bank as static JSON; never generates numbers. The QA chatbot adds one **server-side** runtime call (`POST /api/qa`); its key stays in `apps/api/.env` and never reaches the browser.
+- **LLM:** build-time, open-weights — renders *computed* numbers into the narrative bank as static JSON; never generates numbers. The QA chatbot adds one **server-side** runtime call (`POST /api/qa`); its key stays in the root `.env` and never reaches the browser.
 
 ## Repo layout
 
@@ -71,14 +71,14 @@ No lockfile-managed workspace tooling is required — the root `package.json` ha
    cd apps/web && npm install
    ```
 
-2. *(Optional — accounts/leaderboard only)* create `apps/web/.env.local` with the public Supabase config:
+2. *(Optional — accounts/leaderboard only)* create the repo-root `.env` with the public Supabase config:
 
    ```bash
    VITE_SUPABASE_URL=https://<your-project>.supabase.co
    VITE_SUPABASE_ANON_KEY=<anon key>
    ```
 
-   The client must only ever hold the **anon** key — secrets live server-side in `apps/api/.env`.
+   The client must only ever hold the **anon** key — secrets live server-side in the repo-root `.env`.
 
 3. Start the dev server and open the printed local URL:
 

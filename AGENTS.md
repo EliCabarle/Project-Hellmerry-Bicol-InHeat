@@ -19,7 +19,6 @@ CONCEPT.md                         Authoritative concept doc + decision log — 
 AGENTS.md                          This file
 HANDOFF.md                         Session history + decision log — history, not a code map
 README.md                          Project readme
-package.json / docker-compose.yml  Root tooling — lead-owned
 .opencode/                         Agent/tooling config, skills, plugins — tooling, not product code
 ```
 
@@ -92,9 +91,9 @@ Commands below are **verified to exist on disk 2026-11-10**. Root `package.json`
 
 ## Environment
 
-**Hard rule: no secrets ship in the client.** The web bundle contains zero API keys and zero passwords; LLM narration is build-time into static JSON. The model keys in the project live in `apps/api/.env` and are read solely by the server-side `POST /api/qa` endpoint and its embedding pipeline (CONCEPT 6d): `GEMINI_API_KEY` (embeddings) and the OpenRouter key (chat).
+**Hard rule: no secrets ship in the client.** The web bundle contains zero API keys and zero passwords; LLM narration is build-time into static JSON. The model keys in the project live in the repo-root `.env` and are read solely by the server-side `POST /api/qa` endpoint and its embedding pipeline (CONCEPT 6d): `GEMINI_API_KEY` (embeddings) and the OpenRouter key (chat).
 
-Server-side only — `apps/api/.env`, never committed:
+Server-side only — the repo-root `.env`, never committed:
 
 - `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` — Earthdata Login (Landsat C2 L2 LANDSAT_OT_C2_L2, MOD44B.061, MCD12Q1.061, ECOSTRESS STRETCH)
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -155,7 +154,7 @@ Process gotchas:
 - Every link must resolve in a logged-out private window — test at h44.
 - No minor's name, voice, or likeness in video or materials.
 - Cut lines are hard: h30 (auth), h42 (STRETCH freeze), h44 (video fallback). Do not renegotiate.
-- `.gitignore` populated 2026-11-10 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside `apps/api/.env`.
+- `.gitignore` populated 2026-11-10 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside the repo-root `.env`.
 - **`maplibre-gl` is the only non-Leaflet map dependency**: declared in `apps/web/package.json` and aliased in `apps/web/vite.config.js` (because `features/` sits outside the Vite root, bare imports need the alias). Cross-boundary dep add approved by the lead 2026-11-12. It is lazy-loaded — never import it from a non-lazy module or the 2D bundle pays for it.
 - Parallel work follows the write-boundary contract below.
 
@@ -171,7 +170,7 @@ Rule: an agent or team member writes **only inside its own boundary**; cross-bou
 | `apps/api/` | Data-pipeline agent | Only place server secrets are ever read |
 | `CONCEPT.md`, `AGENTS.md`, `README.md` | Lead / integrator | CONCEPT edits must update the decision log with a lock hour |
 | `.opencode/` | Tooling owner | Not product code |
-| Root `package.json`, `docker-compose.yml` | Lead | |
+| Root `package.json`, `vercel.json`, `render.yaml` | Lead | |
 | Static JSON narrative bank | Pipeline writes, web reads | Shared output: produced in `apps/api`/build, consumed by `apps/web` |
 
 ### Verified status

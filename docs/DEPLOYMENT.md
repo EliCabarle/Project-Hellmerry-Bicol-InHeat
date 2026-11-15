@@ -1,23 +1,23 @@
-<!-- generated-by: gsd-doc-writer -->
+﻿<!-- generated-by: gsd-doc-writer -->
 
 # Deployment
 
-Bicol In-Heat deploys as two independently hosted pieces: a **static Vite/React PWA** (the user-facing app) and a **hosted Supabase project** (auth, Postgres, leaderboard). The Python `apps/api` service is a data pipeline and dev API — it is not part of the production client path.
+Bicol In-Heat deploys as two independently hosted pieces: a **static Vite/React PWA** (the user-facing app) and a **hosted Supabase project** (auth, Postgres, leaderboard). The Python `apps/api` service is a data pipeline and dev API â€” it is not part of the production client path.
 
 ## Deployment targets
 
 | Target | What ships there | Config in repo |
 |---|---|---|
-| Static host (Netlify / Vercel / GitHub Pages / any file server) | `apps/web/dist/` — built PWA bundle | `apps/web/vite.config.js` (build output default `dist/`) |
+| Static host (Netlify / Vercel / GitHub Pages / any file server) | `apps/web/dist/` â€” built PWA bundle | `apps/web/vite.config.js` (build output default `dist/`) |
 | Supabase (hosted) | Auth, Postgres, RLS-guarded tables | `supabase/migrations/*.sql`, `apps/api/migrations/*.sql` |
 | Optional dev API | FastAPI service from `apps/api/main.py` | `uvicorn main:app` |
 
-- No platform config files exist in the repository — no `vercel.json`, `netlify.toml`, `fly.toml`, `Dockerfile`, or `.github/workflows/`. The root `docker-compose.yml` is present but **empty (0 lines)**; it is a placeholder, not a working deployment definition.
-- Hosting platform choice is therefore open. <!-- VERIFY: chosen static host and its project URL --> <!-- VERIFY: Supabase project URL -->
+- Two platform configs exist: `vercel.json` (static web build from `apps/web` + Python function from `apps/api/api/index.py`) and `render.yaml` (FastAPI service from `apps/api`).
+- The web app deploys to Vercel; the optional API deploys to Render.
 
 ## Build pipeline
 
-No CI/CD pipeline is configured — every step below runs manually. Order matters: the static JSON narrative bank must exist before the web build.
+No CI/CD pipeline is configured â€” every step below runs manually. Order matters: the static JSON narrative bank must exist before the web build.
 
 1. **ETL / trend pipeline** (from `apps/api`, in order):
 
@@ -57,22 +57,22 @@ No CI/CD pipeline is configured — every step below runs manually. Order matter
 
 Full variable reference: [CONFIGURATION.md](CONFIGURATION.md). Production essentials:
 
-**Client (build-time, public-by-design — set as build env vars on the host):**
+**Client (build-time, public-by-design â€” set as build env vars on the host):**
 
 | Variable | Required | Notes |
 |---|---|---|
 | `VITE_SUPABASE_URL` | Optional* | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Optional* | Anon (public) key — **never** the service-role key |
+| `VITE_SUPABASE_ANON_KEY` | Optional* | Anon (public) key â€” **never** the service-role key |
 
 \* The app builds and runs without them, but accounts/leaderboard/Saved Places are disabled and `AuthButton` shows a "missing config" state.
 
-**Server-side (`apps/api/.env`, secrets — never in the client bundle, never committed):**
+**Server-side (the repo-root `.env`, secrets â€” never in the client bundle, never committed):**
 
-- `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` — Earthdata Login, needed only when running ETL.
-- `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (some scripts also read `SUPABASE_SERVICE_KEY` / `SUPABASE_KEY`) — used by `push_to_supabase.py` and `seed_locations.py`.
-- `FIRMS_MAP_KEY` — optional, STRETCH-only.
+- `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD` â€” Earthdata Login, needed only when running ETL.
+- `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` (some scripts also read `SUPABASE_SERVICE_KEY` / `SUPABASE_KEY`) â€” used by `push_to_supabase.py` and `seed_locations.py`.
+- `FIRMS_MAP_KEY` â€” optional, STRETCH-only.
 
-Set these in the pipeline runner's environment (local `.env` or CI secret store) — never as `VITE_*` variables. <!-- VERIFY: production secret-store location if/when a CI runner is added -->
+Set these in the pipeline runner's environment (local `.env` or CI secret store) â€” never as `VITE_*` variables. <!-- VERIFY: production secret-store location if/when a CI runner is added -->
 
 **Supabase-side setup on a fresh project:**
 
@@ -88,24 +88,24 @@ Enable RLS policies contained in those migration files; the leaderboard is read 
 
 No automated rollback exists in the repo. The static-host model makes rollback simple:
 
-1. **Web bundle:** redeploy the previous `dist/` artifact — keep the last-known-good build archive, or redeploy the previous Git commit if the host is Git-connected. <!-- VERIFY: host-specific rollback command -->
-2. **Supabase schema:** migrations are forward-only files; to revert a bad migration write and apply a corrective migration — do not edit an applied file in place.
+1. **Web bundle:** redeploy the previous `dist/` artifact â€” keep the last-known-good build archive, or redeploy the previous Git commit if the host is Git-connected. <!-- VERIFY: host-specific rollback command -->
+2. **Supabase schema:** migrations are forward-only files; to revert a bad migration write and apply a corrective migration â€” do not edit an applied file in place.
 3. **Static JSON data:** re-run the pipeline from the previous `output/` snapshot or restore the prior `apps/web/public/data/*` files and rebuild.
 
 ## Monitoring
 
-- No APM/error-tracking integration is configured — no Sentry, Datadog, OpenTelemetry, or similar appears in any `package.json` or `requirements.txt`. <!-- VERIFY: add error monitoring before public launch if desired -->
+- No APM/error-tracking integration is configured â€” no Sentry, Datadog, OpenTelemetry, or similar appears in any `package.json` or `requirements.txt`. <!-- VERIFY: add error monitoring before public launch if desired -->
 - What exists today:
   - **FastAPI dev API** (`apps/api/main.py`) logs to stdout when run under `uvicorn`; endpoints `/`, `/locations`, `/anomalies`, `/verdant` return JSON errors inline.
-  - **Static host logs** — request logs on whatever platform you choose (see the host's dashboard). <!-- VERIFY: host dashboard URL -->
-  - **Supabase dashboard** — auth events, table usage, and API logs in the project's dashboard. <!-- VERIFY: Supabase dashboard URL -->
+  - **Static host logs** â€” request logs on whatever platform you choose (see the host's dashboard). <!-- VERIFY: host dashboard URL -->
+  - **Supabase dashboard** â€” auth events, table usage, and API logs in the project's dashboard. <!-- VERIFY: Supabase dashboard URL -->
 - Client-side failures (e.g. missing `VITE_SUPABASE_*`) surface as a visible degraded UI state in `AuthButton`, not as silent errors.
 
 ## Production checklist
 
 - [ ] `npm run build` completes with zero errors; `npm run preview` smoke-tested.
 - [ ] `narratives.json` and `bicol-municipalities.geojson` present in `apps/web/public/data/` and current.
-- [ ] Client bundle contains **zero** secrets — grep the build output for `SERVICE_ROLE`, `EARTHDATA`, passwords.
+- [ ] Client bundle contains **zero** secrets â€” grep the build output for `SERVICE_ROLE`, `EARTHDATA`, passwords.
 - [ ] `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` set as public build vars; service-role key absent from the client.
 - [ ] Supabase migrations applied and RLS enabled.
 - [ ] Every link resolves in a logged-out private window.

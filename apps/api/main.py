@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
+from pathlib import Path
 
-# Force-load .env before any module reads os.environ.
-load_dotenv(override=True)
+# Force-load the repo-root .env before any module reads os.environ.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=True)
 
 from datetime import date, datetime
 
@@ -11,7 +12,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
 try:  # `uvicorn main:app` from apps/api
     from routers import qa
@@ -57,9 +57,11 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "Bicol In-Heat API"}
+
 
 app.include_router(qa.router)
 

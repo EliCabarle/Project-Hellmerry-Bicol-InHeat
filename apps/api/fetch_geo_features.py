@@ -35,7 +35,8 @@ from shapely.ops import transform, unary_union
 import pyproj
 
 API_DIR = Path(__file__).resolve().parent
-load_dotenv(API_DIR / ".env")
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
+load_dotenv(ENV_FILE)
 
 GEOJSON_PATH = (
     API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"

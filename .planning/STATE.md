@@ -30,7 +30,7 @@ See: CONCEPT.md (authoritative concept + decision log; no PROJECT.md in this rep
 Phase: 01
 Plan: Not started
 Status: All phases complete
-Last activity: 2026-11-15 — Phase 01 complete
+Last activity: 2026-11-15 - Completed quick task 261115-lfs: repair scrambled chart-pair JSX in DashboardScreen.jsx breaking vite build
 
 Progress: [██████████] 100%
 
@@ -85,6 +85,13 @@ None yet.
 
 - `.planning/UI-SPEC.md` row ~277 ("All other loads land on landing") under-describes refresh restore — flagged for the lead; lead-owned doc, not edited here.
 - `.planning/WINDOWS.md` entry #1 (open): on-map polygon clicks do not write `#muni=` — would need a shell callback prop on `features/map-controls/src/BicolMap.jsx` (lead decision, cross-boundary).
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 261115-l5s | fix stray ErrorBoundary closing tag breaking vite build in app.jsx | 2026-11-15 | c1709fc | [261115-l5s-fix-stray-errorboundary-closing-tag-brea](./quick/261115-l5s-fix-stray-errorboundary-closing-tag-brea/) |
+| 261115-lfs | repair scrambled chart-pair JSX in DashboardScreen.jsx breaking vite build | 2026-11-15 | 48b5bb6 | [261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb](./quick/261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb/) |
 
 ## Deferred Items
 

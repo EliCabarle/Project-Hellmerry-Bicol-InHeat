@@ -178,9 +178,11 @@ export default function FinderCard({ card, flipped = false, interactive = true, 
             <p className="mt-1 text-[11px] text-slate-500">No trend data yet</p>
           )}
 
-          {card.narrationEn ? (
-            <p className="mt-1.5 line-clamp-4 text-[10px] leading-4 text-slate-300">
-              {isAnalyst ? card.narrationEn : publicNarration(card.narrationEn)}
+          {/* Analyst view carries the numbers instead of the story: the
+              narration paragraph is public-view only. */}
+          {!isAnalyst && card.narrationEn ? (
+            <p className="mt-1.5 text-[10px] leading-4 text-slate-300">
+              {publicNarration(card.narrationEn)}
             </p>
           ) : null}
 

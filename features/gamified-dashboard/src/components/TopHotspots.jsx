@@ -37,7 +37,7 @@ const COLUMNS = [
     key: 'name',
     header: LABELS.thMunicipality.plain,
     tech: LABELS.thMunicipality.tech,
-    width: 'w-[28%]',
+    width: 'w-[24%]',
     render: (m, { onSelect }) => (
       <div className="min-w-0">
         <button
@@ -62,7 +62,7 @@ const COLUMNS = [
     key: 'population',
     header: 'Population',
     tech: 'SEDAC GPW 2020',
-    width: 'w-[13%]',
+    width: 'w-[11%]',
     align: 'right',
     render: (m) => (
       <span className="font-mono text-xs text-clay-text-heading">
@@ -77,7 +77,7 @@ const COLUMNS = [
     key: 'personDays',
     header: 'Person-Days of Danger',
     tech: 'population × days above 42 °C',
-    width: 'w-[30%]',
+    width: 'w-[24%]',
     render: (m, { maxPersonDays }) => {
       const pd = Number.isFinite(m?.person_days_danger) ? m.person_days_danger : 0
       const days = Number.isFinite(m?.total_danger_days_45y) ? m.total_danger_days_45y : 0
@@ -110,13 +110,15 @@ const COLUMNS = [
     key: 'sig',
     header: LABELS.hotspotsHeaderSignificance.plain,
     tech: LABELS.hotspotsHeaderSignificance.tech,
-    width: 'w-[20%]',
+    width: 'w-[17%]',
     analystOnly: true,
     render: (m) => {
       const t = m?.trend ?? {}
       const significant = Boolean(t?.is_significant)
+      // Wraps instead of nowrap: the pill + p-value + CI do not fit one line in
+      // an analyst column and would overlap the warming-rate cell.
       return (
-        <div className="flex items-center gap-2 whitespace-nowrap">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <span
             className={`inline-flex shrink-0 items-center rounded-full px-3 py-1 text-xs font-bold ${
               significant ? 'bg-heat-orange/10 text-heat-orange' : 'border border-heat-orange/30 text-clay-text-muted'
@@ -135,7 +137,7 @@ const COLUMNS = [
     key: 'slope',
     header: LABELS.hotspotsHeaderWarming.plain,
     tech: LABELS.hotspotsHeaderWarming.tech,
-    width: 'w-[14%]',
+    width: 'w-[13%]',
     align: 'right',
     analystOnly: true,
     render: (m) => {
@@ -143,7 +145,7 @@ const COLUMNS = [
       const warming = t?.direction !== 'decreasing'
       return (
         <span
-          className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 font-mono text-xs font-bold ${
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-xs font-bold ${
             warming ? 'bg-heat-hot/10 text-heat-hot' : 'bg-heat-cool/10 text-heat-cool'
           }`}
         >
@@ -210,8 +212,9 @@ export default function TopHotspots({
       aside={<span className="text-xs text-clay-text-muted">{note ?? 'Ranked by people exposed · jump to the map'}</span>}
       className="mt-4"
     >
-      {/* Mobile: vertical card list — no horizontal scroll at any width. */}
-      <ul role="list" aria-label="Municipalities with the most people exposed" className="md:hidden divide-y divide-white/10 p-2">
+      {/* Card list below 1024px: seven analyst columns cannot fit a tablet-width
+          table, and squeezing them overlaps cells. No horizontal scroll at all. */}
+      <ul role="list" aria-label="Municipalities with the most people exposed" className="lg:hidden divide-y divide-white/10 p-2">
         {rows.map((m) => {
           const t = m?.trend ?? {}
           const pd = Number.isFinite(m?.person_days_danger) ? m.person_days_danger : 0
@@ -329,9 +332,9 @@ export default function TopHotspots({
         })}
       </ul>
 
-      {/* Desktop (≥768px): the table renders straight from COLUMNS, so the header
+      {/* Desktop (≥1024px): the table renders straight from COLUMNS, so the header
           row and the body can never disagree on column count. */}
-      <div className="hidden overflow-x-auto md:block rounded-[2rem] border border-white/10 bg-white shadow-card">
+      <div className="hidden overflow-x-auto lg:block rounded-[2rem] border border-white/10 bg-white shadow-card">
         <table className="w-full border-collapse text-sm tabular-nums table-fixed">
           <caption className="sr-only">Municipalities ranked by people exposed to extreme heat, with a jump-to-map action per row</caption>
           <thead className="bg-heat-bg text-clay-text-muted text-xs font-bold uppercase">

@@ -62,7 +62,7 @@ export default function MunicipalityLegend({
               Bicol · Region V
             </span>
             <span className="block truncate text-xs font-semibold text-slate-100">
-              {coverage.withData} municipalities · 1981–2025
+              45 years of {coverage.withData} LGUs
             </span>
           </span>
           <IconChevronDown

@@ -53,7 +53,7 @@ const TABS = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'quests', label: 'Quests' },
   { id: 'history', label: 'History' },
-  { id: 'leaderboard', label: 'Leaderboard' },
+  { id: 'leaderboard', label: <>B<span className="text-clay-green">ECO</span>lanos</> },
 ]
 
 export default function DashboardScreen({

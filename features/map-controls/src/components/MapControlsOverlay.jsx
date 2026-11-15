@@ -774,7 +774,7 @@ function FabButton({ icon: Icon, label, onClick }) {
   );
 }
 
-function FabColumn({ onToggleIndex, onOpenChatbot }) {
+function FabColumn({ onToggleIndex }) {
   return (
     <div className="flex flex-col gap-2">
       <FabButton
@@ -782,11 +782,67 @@ function FabColumn({ onToggleIndex, onOpenChatbot }) {
         label="Find a municipality"
         onClick={onToggleIndex}
       />
-      <FabButton
-        icon={IconRobot}
-        label="Open chatbot"
-        onClick={onOpenChatbot}
-      />
+    </div>
+  );
+}
+
+// Silli as a peeking tab on the right edge: image clipped by the tab's own
+// overflow, so the mascot reads as half-hidden behind the screen edge.
+// Unmounted while the chat is open so it can never sit over the panel.
+const SILLI_LINES = [
+  "Hi, I'm Silli. Need help?",
+  'Ask me about heat trends!',
+  'Click me to chat!',
+];
+const SILLI_MS = 4500;
+
+function PeekingSilli({ image, onOpen, hidden }) {
+  const [line, setLine] = useState(0);
+
+  useEffect(() => {
+    if (!onOpen || hidden) return undefined;
+    setLine(0);
+    const timer = setInterval(
+      () => setLine((n) => (n + 1) % SILLI_LINES.length),
+      SILLI_MS,
+    );
+    return () => clearInterval(timer);
+  }, [onOpen, hidden]);
+
+  if (!onOpen || hidden) return null;
+
+  return (
+    <div className="pointer-events-none fixed right-0 top-1/2 z-[900] -translate-y-1/2">
+      <div className="relative">
+        {/* bg-white / text-heat-ink are the pair dark-theme.css flips
+            (#131d33 / #e8edf7); `dark:` variants would follow the OS, not
+            <html data-theme>. Decorative: the tab carries the label. */}
+        <p
+          aria-hidden="true"
+          className="pointer-events-none absolute right-full top-1/2 mr-3 hidden w-max max-w-[min(16rem,55vw)] -translate-y-1/2 rounded-xl bg-white px-4 py-2 text-sm text-heat-ink shadow-lg sm:block"
+        >
+          {SILLI_LINES[line]}
+          <span className="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 bg-white" />
+        </p>
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label="Open Silli chatbot"
+          className="bih-peek bih-silli-tab pointer-events-auto flex h-14 w-12 cursor-pointer items-center justify-center rounded-l-2xl border border-r-0 shadow-xl backdrop-blur-md transition-colors sm:h-24 sm:w-20"
+        >
+          {image ? (
+            // drop-shadow follows the cut-out silhouette, unlike box-shadow
+            <img
+              src={image}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
+            />
+          ) : (
+            <IconRobot className="mb-2 h-5 w-5 text-slate-300 sm:mb-4 sm:h-6 sm:w-6" />
+          )}
+        </button>
+      </div>
     </div>
   );
 }
@@ -870,6 +926,8 @@ export default function MapControlsOverlay({
   onHeightChange,
   onToggleIndex = null,
   onOpenChatbot = null,
+  chatbotIcon = null,
+  chatOpen = false,
 }) {
   const actions = useTimelineActions(store);
   const selected = useTimelineState(selectTimestamps, store);
@@ -907,7 +965,7 @@ export default function MapControlsOverlay({
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[700] flex flex-col p-3">
-      {/* top-right: LGU/chatbot FAB column + layer panel + day-mode header,
+      {/* top-right: municipality-search FAB + layer panel + day-mode header,
           all stacked under the shell's fixed floating navbar. Mobile: the row
           padding clears the measured --bih-nav-clear (NavBar bottom + 12px)
           minus the root's own p-3, so the FABs sit 12px under the bar.
@@ -915,7 +973,7 @@ export default function MapControlsOverlay({
           the navbar is centred there and never reaches the right edge. */}
       <div className="flex items-start justify-end w-full pt-[calc(var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))-12px)] lg:pt-0">
         <div className="flex flex-col items-end gap-2">
-          <FabColumn onToggleIndex={onToggleIndex} onOpenChatbot={onOpenChatbot} />
+          <FabColumn onToggleIndex={onToggleIndex} />
           <LayerPanel registry={layerRegistry} onLayerChange={onLayerChange} />
           {viewMode === "day" ? (
             <DayModeHeader
@@ -950,6 +1008,11 @@ export default function MapControlsOverlay({
           dailyReason={dailyReason}
         />
       </div>
+      <PeekingSilli
+        image={chatbotIcon}
+        onOpen={onOpenChatbot}
+        hidden={chatOpen}
+      />
     </div>
   );
 }

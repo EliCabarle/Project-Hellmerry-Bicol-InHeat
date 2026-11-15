@@ -3,6 +3,22 @@
 // errors as unhandled rejections. `select_account` forces Google's chooser:
 // signOut() only clears the local Supabase session, so without it a shared
 // device would silently reuse the previous Google account.
+const POST_AUTH_REDIRECT_KEY = 'bih:post-auth-redirect'
+
+export function markPostAuthRedirect(storage) {
+  storage.setItem(POST_AUTH_REDIRECT_KEY, 'map')
+}
+
+export function consumePostAuthRedirect(storage) {
+  const destination = storage.getItem(POST_AUTH_REDIRECT_KEY)
+  if (destination !== null) storage.removeItem(POST_AUTH_REDIRECT_KEY)
+  return destination === 'map'
+}
+
+export function clearPostAuthRedirect(storage) {
+  storage.removeItem(POST_AUTH_REDIRECT_KEY)
+}
+
 export async function signInWithGoogle(supabase) {
   return supabase.auth.signInWithOAuth({
     provider: 'google',

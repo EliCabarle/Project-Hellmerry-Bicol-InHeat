@@ -36,7 +36,7 @@ function readTheme() {
 export default function App() {
   // The URL hash is the source of truth for the screen a page load restores
   // (grammar: src/lib/routes.js). Supported tokens: #map, #dashboard, #quests,
-  // #history, #leaderboard, #account, #settings, #landing, plus the legacy
+  // #history, #leaderboard, #account, #settings, #narration, #landing, plus the legacy
   // #muni=<encoded joinKey> deep link (shared links resolve logged-out — h44).
   // An empty hash (first visit) and any unrecognized fragment (#main,
   // #access_token=..., arbitrary text) are not routes → Landing, for guests
@@ -251,6 +251,11 @@ export default function App() {
     }
     if (target === 'settings') {
       setScreen('settings')
+      setFocusTab(null)
+      return
+    }
+    if (target === 'narration') {
+      setScreen('narration')
       setFocusTab(null)
       return
     }

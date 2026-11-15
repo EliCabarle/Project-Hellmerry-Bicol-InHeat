@@ -71,6 +71,11 @@ export default function AppMenu({
         major: true,
         onClick: () => navigate("dashboard"),
       },
+      {
+        label: "Narration",
+        icon: IconGrid,
+        onClick: () => navigate("narration"),
+      },
       ...(user
         ? [
             {

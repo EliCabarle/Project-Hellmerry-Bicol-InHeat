@@ -28,7 +28,7 @@ const COLUMNS = [
     header: '#',
     width: 'w-[52px]',
     render: (m) => (
-      <span className="grid h-7 w-7 place-items-center rounded-full bg-[#F3EFE9] text-xs font-bold text-[#8C847A]">
+      <span className="grid h-7 w-7 place-items-center rounded-full bg-heat-surface/70 text-xs font-bold text-clay-text-muted">
         {m?.rank ?? '—'}
       </span>
     ),
@@ -50,11 +50,11 @@ const COLUMNS = [
             onSelect?.(m)
           }}
           aria-label={`Explain why ${m?.name ?? 'municipality'} is at risk`}
-          className="block max-w-full cursor-pointer truncate text-left font-semibold text-[#2D2D2D] hover:text-[#D96C4D] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D]"
+          className="block max-w-full cursor-pointer truncate text-left font-semibold text-clay-text-heading hover:text-heat-orange hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
         >
           {m?.name ?? 'Unknown'}
         </button>
-        <span className="block truncate text-xs text-[#8C847A]">{m?.province ?? ''}</span>
+        <span className="block truncate text-xs text-clay-text-muted">{m?.province ?? ''}</span>
       </div>
     ),
   },
@@ -65,7 +65,7 @@ const COLUMNS = [
     width: 'w-[13%]',
     align: 'right',
     render: (m) => (
-      <span className="font-mono text-xs text-[#2D2D2D]">
+      <span className="font-mono text-xs text-clay-text-heading">
         {Number.isFinite(m?.population_2020) ? fmtInt(m.population_2020) : '—'}
       </span>
     ),
@@ -86,17 +86,17 @@ const COLUMNS = [
       return (
         <div className="min-w-0">
           <div className="flex items-baseline gap-2">
-            <span className="font-mono text-lg font-bold tracking-tight text-[#2D2D2D]">
+            <span className="font-mono text-lg font-bold tracking-tight text-clay-text-heading">
               {fmtCompact(pd)}
             </span>
             <span
-              className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#F3EFE9]"
+              className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-heat-surface/70"
               aria-hidden="true"
             >
-              <span className="block h-full rounded-full bg-[#D96C4D]" style={{ width: `${pct}%` }} />
+              <span className="block h-full rounded-full bg-heat-orange" style={{ width: `${pct}%` }} />
             </span>
           </div>
-          <p className="mt-0.5 font-mono text-[10px] text-[#A79C90]">
+          <p className="mt-0.5 font-mono text-[10px] text-slate-400">
             {days} {days === 1 ? 'day' : 'days'} × {pop.toLocaleString()} people
           </p>
         </div>
@@ -119,12 +119,12 @@ const COLUMNS = [
         <div className="flex items-center gap-2 whitespace-nowrap">
           <span
             className={`inline-flex shrink-0 items-center rounded-full px-3 py-1 text-xs font-bold ${
-              significant ? 'bg-[#D96C4D]/10 text-[#D96C4D]' : 'border border-[#D96C4D]/30 text-[#8C847A]'
+              significant ? 'bg-heat-orange/10 text-heat-orange' : 'border border-heat-orange/30 text-clay-text-muted'
             }`}
           >
             {significant ? 'Significant' : 'Not significant'}
           </span>
-          <span className="font-mono text-[11px] text-[#8C847A]">
+          <span className="font-mono text-[11px] text-clay-text-muted">
             {fmtP(t?.p_value)} · CI {fmtCI(t)}
           </span>
         </div>
@@ -144,7 +144,7 @@ const COLUMNS = [
       return (
         <span
           className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 font-mono text-xs font-bold ${
-            warming ? 'bg-[#C0392B]/10 text-[#C0392B]' : 'bg-[#1E8449]/10 text-[#1E8449]'
+            warming ? 'bg-heat-hot/10 text-heat-hot' : 'bg-heat-cool/10 text-heat-cool'
           }`}
         >
           <span aria-hidden="true">{arrow(t?.direction)}</span>
@@ -167,7 +167,7 @@ const COLUMNS = [
             onShowInFinder?.(m?.name, m?.province)
           }}
           aria-label={`Open the ${m?.name ?? 'municipality'} card in the finder`}
-          className="cursor-pointer text-[10px] font-bold uppercase tracking-[0.12em] text-[#8C847A] hover:text-[#C2410C] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FB923C]"
+          className="cursor-pointer text-[10px] font-bold uppercase tracking-[0.12em] text-clay-text-muted hover:text-heat-orange hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
         >
           Card →
         </button>
@@ -178,7 +178,7 @@ const COLUMNS = [
             onShowOnMap?.(m)
           }}
           aria-label={`Show ${m?.name ?? 'municipality'} on the map`}
-          className="cursor-pointer whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.12em] text-[#C2410C] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FB923C]"
+          className="cursor-pointer whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.12em] text-heat-orange hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
         >
           Map
         </button>
@@ -207,11 +207,11 @@ export default function TopHotspots({
     <CollapsibleSection
       title="Most people at risk"
       ariaLabel="Municipalities ranked by people exposed to extreme heat"
-      aside={<span className="text-xs text-[#8C847A]">{note ?? 'Ranked by people exposed · jump to the map'}</span>}
+      aside={<span className="text-xs text-clay-text-muted">{note ?? 'Ranked by people exposed · jump to the map'}</span>}
       className="mt-4"
     >
       {/* Mobile: vertical card list — no horizontal scroll at any width. */}
-      <ul role="list" aria-label="Municipalities with the most people exposed" className="md:hidden divide-y divide-[#F3EFE9]/70 p-2">
+      <ul role="list" aria-label="Municipalities with the most people exposed" className="md:hidden divide-y divide-white/10 p-2">
         {rows.map((m) => {
           const t = m?.trend ?? {}
           const pd = Number.isFinite(m?.person_days_danger) ? m.person_days_danger : 0
@@ -221,7 +221,7 @@ export default function TopHotspots({
           return (
             <li
               key={`${m?.id ?? m?.name ?? Math.random()}|${m?.province ?? ''}`}
-              className="rounded-[1.25rem] p-4 border-none bg-white shadow-[0_4px_12px_rgb(0,0,0,0.03)]"
+              className="rounded-[1.25rem] border border-white/10 bg-white p-4 shadow-card"
             >
               <div
                 className="flex items-start gap-3"
@@ -235,11 +235,11 @@ export default function TopHotspots({
                   }
                 }}
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#F3EFE9] font-mono text-xs font-bold text-[#8C847A]">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-heat-surface/70 font-mono text-xs font-bold text-clay-text-muted">
                   {m?.rank ?? '—'}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-[#2D2D2D]">
+                  <h3 className="truncate text-sm font-semibold text-clay-text-heading">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -247,43 +247,43 @@ export default function TopHotspots({
                         onSelect?.(m)
                       }}
                       aria-label={`Explain why ${m?.name ?? 'municipality'} is at risk`}
-                      className="block max-w-full cursor-pointer truncate text-left hover:text-[#D96C4D] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D]"
+                      className="block max-w-full cursor-pointer truncate text-left hover:text-heat-orange hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
                     >
                       {m?.name ?? 'Unknown'}
                     </button>
                   </h3>
-                  <p className="truncate text-xs text-[#8C847A]">{m?.province ?? ''}</p>
+                  <p className="truncate text-xs text-clay-text-muted">{m?.province ?? ''}</p>
                 </div>
               </div>
 
               {/* The headline number comes first on mobile too. */}
               <div className="mt-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-mono text-2xl font-bold tracking-tight text-[#2D2D2D]">
+                  <span className="font-mono text-2xl font-bold tracking-tight text-clay-text-heading">
                     {fmtCompact(pd)}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#8C847A]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-clay-text-muted">
                     person-days
                   </span>
                 </div>
-                <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-[#F3EFE9]">
-                  <span className="block h-full rounded-full bg-[#D96C4D]" style={{ width: `${pct}%` }} />
+                <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-heat-surface/70">
+                  <span className="block h-full rounded-full bg-heat-orange" style={{ width: `${pct}%` }} />
                 </span>
-                <p className="mt-1 font-mono text-[10px] text-[#A79C90]">
+                <p className="mt-1 font-mono text-[10px] text-slate-400">
                   {days} {days === 1 ? 'day' : 'days'} × {pop.toLocaleString()} people
                 </p>
               </div>
 
               <dl className="mt-2.5 grid grid-cols-2 gap-2 text-xs leading-5">
                 <div>
-                  <dt className="font-semibold text-[#8C847A]">Population</dt>
-                  <dd className="font-mono text-[#2D2D2D]">
+                  <dt className="font-semibold text-clay-text-muted">Population</dt>
+                  <dd className="font-mono text-clay-text-heading">
                     {Number.isFinite(m?.population_2020) ? fmtInt(m.population_2020) : '—'}
                   </dd>
                 </div>
                 <div className="text-right">
-                  <dt className="font-semibold text-[#8C847A]">Warming rate</dt>
-                  <dd className="font-mono text-[#2D2D2D]">{fmtSlope(t?.slope_c_per_year)}</dd>
+                  <dt className="font-semibold text-clay-text-muted">Warming rate</dt>
+                  <dd className="font-mono text-clay-text-heading">{fmtSlope(t?.slope_c_per_year)}</dd>
                 </div>
               </dl>
 
@@ -291,12 +291,12 @@ export default function TopHotspots({
                 <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
                   <span
                     className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
-                      t?.is_significant ? 'bg-[#D96C4D]/10 text-[#D96C4D]' : 'border border-[#D96C4D]/30 text-[#8C847A]'
+                      t?.is_significant ? 'bg-heat-orange/10 text-heat-orange' : 'border border-heat-orange/30 text-clay-text-muted'
                     }`}
                   >
                     {t?.is_significant ? 'Significant' : 'Not significant'}
                   </span>
-                  <span className="font-mono text-[11px] text-[#8C847A]">
+                  <span className="font-mono text-[11px] text-clay-text-muted">
                     {fmtP(t?.p_value)} · CI {fmtCI(t)}
                   </span>
                 </div>
@@ -309,7 +309,7 @@ export default function TopHotspots({
                   onShowInFinder?.(m?.name, m?.province)
                 }}
                 aria-label={`Open the ${m?.name ?? 'municipality'} card in the finder`}
-                className="mt-3 mr-2 min-h-11 cursor-pointer rounded-md border border-[#8C847A]/40 bg-white px-3 py-1.5 text-xs font-semibold text-[#8C847A] hover:bg-[#F3EFE9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FB923C]"
+                className="mt-3 mr-2 min-h-11 cursor-pointer rounded-md border border-white/15 bg-white px-3 py-1.5 text-xs font-semibold text-clay-text-muted hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
               >
                 Open card →
               </button>
@@ -320,7 +320,7 @@ export default function TopHotspots({
                   onShowOnMap?.(m)
                 }}
                 aria-label={`Show ${m?.name ?? 'municipality'} on the map`}
-                className="mt-3 min-h-11 cursor-pointer rounded-md border border-[#FB923C]/50 bg-[#FB923C]/20 px-3 py-1.5 text-xs font-semibold text-[#C2410C] hover:bg-[#FB923C]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FB923C]"
+                className="mt-3 min-h-11 cursor-pointer rounded-md border border-heat-orange/50 bg-heat-orange/20 px-3 py-1.5 text-xs font-semibold text-heat-orange hover:bg-heat-orange/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-orange"
               >
                 Show on map
               </button>
@@ -331,10 +331,10 @@ export default function TopHotspots({
 
       {/* Desktop (≥768px): the table renders straight from COLUMNS, so the header
           row and the body can never disagree on column count. */}
-      <div className="hidden overflow-x-auto md:block rounded-[2rem] border-none bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+      <div className="hidden overflow-x-auto md:block rounded-[2rem] border border-white/10 bg-white shadow-card">
         <table className="w-full border-collapse text-sm tabular-nums table-fixed">
           <caption className="sr-only">Municipalities ranked by people exposed to extreme heat, with a jump-to-map action per row</caption>
-          <thead className="bg-[#FAF7F2] text-[#8C847A] text-xs font-bold uppercase">
+          <thead className="bg-heat-bg text-clay-text-muted text-xs font-bold uppercase">
             <tr>
               {visible.map((col) => (
                 <th key={col.key} scope="col" className={`px-4 py-3 ${col.width} ${col.align === 'right' ? 'text-right' : 'text-left'}`}>
@@ -343,7 +343,7 @@ export default function TopHotspots({
                       label={col.header}
                       tech={isAnalyst ? (col.tech ?? '') : ''}
                       className="text-xs"
-                      techClassName="font-normal normal-case tracking-normal text-[#8C847A]"
+                      techClassName="font-normal normal-case tracking-normal text-clay-text-muted"
                     />
                   ) : (
                     <span className="sr-only">Map</span>
@@ -356,7 +356,7 @@ export default function TopHotspots({
             {rows.map((m) => (
               <tr
                 key={`${m?.id ?? m?.name}|${m?.province ?? ''}`}
-                className="border-b-0 border-l-2 border-transparent transition-colors duration-150 hover:border-l-[#D96C4D] hover:bg-[#FFF9F0] cursor-pointer"
+                className="border-b-0 border-l-2 border-transparent transition-colors duration-150 hover:border-l-heat-orange hover:bg-heat-surface/70 cursor-pointer"
                 onClick={() => onSelect?.(m)}
               >
                 {visible.map((col) => (

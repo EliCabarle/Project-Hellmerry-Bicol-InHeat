@@ -33,6 +33,7 @@ import {
 } from "../state/dateModel.js";
 import { DAILY_MISSING_REASON } from "../data/dailyStore.js";
 import {
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconCheck,
@@ -467,20 +468,20 @@ function TimeScrubber({
     );
   }
 
-  if (!expanded) {
-    return (
-      <div
-        ref={rootRef}
-        role="group"
-        aria-label="Historical time controls"
-        className={`${GLASS} w-full px-3 py-2.5 sm:px-4`}
-      >
+  return (
+    <div ref={rootRef} className="w-full">
+      <div className={`${GLASS} overflow-hidden`}>
         <button
           type="button"
           aria-expanded={expanded}
-          aria-label="Show historical time controls"
-          onClick={() => setExpanded(true)}
-          className="flex w-full items-center justify-between gap-2 text-left"
+          aria-controls="bih-time-controls"
+          aria-label={
+            expanded
+              ? "Collapse historical time controls"
+              : "Show historical time controls"
+          }
+          onClick={() => setExpanded((v) => !v)}
+          className="flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-heat-amber sm:px-4"
         >
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -493,159 +494,129 @@ function TimeScrubber({
               {current || "No data"}
             </span>
           </div>
-          <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
-            Show controls
-          </span>
+          <IconChevronDown
+            className={`h-3.5 w-3.5 shrink-0 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+          />
         </button>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      ref={rootRef}
-      role="group"
-      aria-label="Historical time controls"
-      className={`${GLASS} flex w-full flex-col gap-2 px-3 py-2.5 sm:px-4`}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            aria-expanded={expanded}
-            aria-label="Collapse historical time controls"
-            onClick={() => setExpanded(false)}
-            className="text-left"
-          >
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Historical time
-            </span>
-          </button>
-          <span
-            className="font-mono text-sm font-semibold text-slate-100"
-            aria-live="polite"
-          >
-            {current || "No data"}
-          </span>
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <button
-            type="button"
-            aria-label="Hide historical time controls"
-            onClick={() => setExpanded(false)}
-            className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-white/5 hover:text-slate-100"
-          >
-            Hide controls
-          </button>
+        {expanded && (
           <div
+            id="bih-time-controls"
             role="group"
-            aria-label="Map data mode"
-            className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
+            aria-label="Historical time controls"
+            className="flex flex-col gap-2 border-t border-white/10 px-3 py-2.5 sm:px-4"
           >
-            <ModeButton
-              active={viewMode === "trend"}
-              onClick={() => onViewModeChange?.("trend")}
-            >
-              <IconTrend className="h-3.5 w-3.5" />
-              Trend
-            </ModeButton>
-            <ModeButton
-              active={viewMode === "year"}
-              onClick={() => onViewModeChange?.("year")}
-            >
-              <IconThermometer className="h-3.5 w-3.5" />
-              Year
-            </ModeButton>
-          </div>
-          <div
-            role="group"
-            aria-label="Map view"
-            className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
-          >
-            <ModeButton
-              active={renderMode === "2d"}
-              onClick={() => onRenderModeChange?.("2d")}
-            >
-              2D
-            </ModeButton>
-            <ModeButton
-              active={renderMode === "3d"}
-              onClick={() => onRenderModeChange?.("3d")}
-            >
-              3D
-            </ModeButton>
-          </div>
-          <BasemapButtons basemap={basemap} onChange={onBasemapChange} />
-        </div>
-      </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <div
+                role="group"
+                aria-label="Map data mode"
+                className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
+              >
+                <ModeButton
+                  active={viewMode === "trend"}
+                  onClick={() => onViewModeChange?.("trend")}
+                >
+                  <IconTrend className="h-3.5 w-3.5" />
+                  Trend
+                </ModeButton>
+                <ModeButton
+                  active={viewMode === "year"}
+                  onClick={() => onViewModeChange?.("year")}
+                >
+                  <IconThermometer className="h-3.5 w-3.5" />
+                  Year
+                </ModeButton>
+              </div>
+              <div
+                role="group"
+                aria-label="Map view"
+                className="flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5"
+              >
+                <ModeButton
+                  active={renderMode === "2d"}
+                  onClick={() => onRenderModeChange?.("2d")}
+                >
+                  2D
+                </ModeButton>
+                <ModeButton
+                  active={renderMode === "3d"}
+                  onClick={() => onRenderModeChange?.("3d")}
+                >
+                  3D
+                </ModeButton>
+              </div>
+              <BasemapButtons basemap={basemap} onChange={onBasemapChange} />
+            </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Previous year"
-          disabled={!canStep}
-          onClick={() => {
-            onViewModeChange?.("year");
-            actions.prev();
-          }}
-          className={ICON_BTN}
-        >
-          <IconChevronLeft className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
-          aria-label={playing ? "Pause playback" : "Play playback"}
-          aria-pressed={playing}
-          disabled={!canStep || reducedMotion}
-          title={
-            reducedMotion
-              ? "Autoplay is off because your system prefers reduced motion"
-              : undefined
-          }
-          onClick={() => {
-            onViewModeChange?.("year");
-            actions.toggle();
-          }}
-          className={ICON_BTN}
-        >
-          {playing ? (
-            <IconPause className="h-4 w-4" />
-          ) : (
-            <IconPlay className="h-4 w-4" />
-          )}
-        </button>
-        <button
-          type="button"
-          aria-label="Next year"
-          disabled={!canStep}
-          onClick={() => {
-            onViewModeChange?.("year");
-            actions.next();
-          }}
-          className={ICON_BTN}
-        >
-          <IconChevronRight className="h-4 w-4" />
-        </button>
-        <input
-          type="range"
-          min={0}
-          max={Math.max(count - 1, 0)}
-          step={1}
-          value={count ? safeIndex : 0}
-          disabled={!canStep}
-          aria-label="Selected historical year"
-          aria-valuetext={valueText}
-          onChange={(event) => {
-            onViewModeChange?.("year");
-            actions.seek(Number(event.target.value));
-          }}
-          className="bih-range w-full cursor-pointer disabled:cursor-not-allowed"
-        />
-      </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Previous year"
+                disabled={!canStep}
+                onClick={() => {
+                  onViewModeChange?.("year");
+                  actions.prev();
+                }}
+                className={ICON_BTN}
+              >
+                <IconChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label={playing ? "Pause playback" : "Play playback"}
+                aria-pressed={playing}
+                disabled={!canStep || reducedMotion}
+                title={
+                  reducedMotion
+                    ? "Autoplay is off because your system prefers reduced motion"
+                    : undefined
+                }
+                onClick={() => {
+                  onViewModeChange?.("year");
+                  actions.toggle();
+                }}
+                className={ICON_BTN}
+              >
+                {playing ? (
+                  <IconPause className="h-4 w-4" />
+                ) : (
+                  <IconPlay className="h-4 w-4" />
+                )}
+              </button>
+              <button
+                type="button"
+                aria-label="Next year"
+                disabled={!canStep}
+                onClick={() => {
+                  onViewModeChange?.("year");
+                  actions.next();
+                }}
+                className={ICON_BTN}
+              >
+                <IconChevronRight className="h-4 w-4" />
+              </button>
+              <input
+                type="range"
+                min={0}
+                max={Math.max(count - 1, 0)}
+                step={1}
+                value={count ? safeIndex : 0}
+                disabled={!canStep}
+                aria-label="Selected historical year"
+                aria-valuetext={valueText}
+                onChange={(event) => {
+                  onViewModeChange?.("year");
+                  actions.seek(Number(event.target.value));
+                }}
+                className="bih-range w-full cursor-pointer disabled:cursor-not-allowed"
+              />
+            </div>
 
-      <div className="flex justify-between font-mono text-[10px] text-slate-500">
-        <span>{first}</span>
-        <span>{last}</span>
+            <div className="flex justify-between font-mono text-[10px] text-slate-500">
+              <span>{first}</span>
+              <span>{last}</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

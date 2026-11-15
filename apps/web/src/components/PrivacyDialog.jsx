@@ -43,7 +43,7 @@ function Notice() {
 
       <Section title="Who we are">
         <p>
-          Bicol In-Heat is a team entry to the NASA International Space Apps Challenge. In
+          Bicol In-Heat is a team entry by Project HellMerry to the NASA International Space Apps Challenge. In
           data-protection terms we are the “personal information controller” of everything described
           below — the people who decide what is collected and why.
         </p>

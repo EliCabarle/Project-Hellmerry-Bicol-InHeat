@@ -120,7 +120,7 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="clay-btn--white pointer-events-auto absolute left-3 top-[calc(8.5rem+env(safe-area-inset-top))] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-[14px] border border-white/30 bg-white px-3 py-1.5 text-[11px] font-clay font-semibold text-clay-text-heading shadow-card hover:bg-clay-bg-blue-white hover:text-clay-text-heading"
+        className="clay-btn--white pointer-events-auto absolute left-3 top-[calc(var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))+3.75rem)] lg:top-[calc(4.5rem+env(safe-area-inset-top))] z-[590] inline-flex h-11 cursor-pointer items-center gap-2 rounded-[14px] border border-white/30 bg-white px-3 py-1.5 text-[11px] font-clay font-semibold text-clay-text-heading shadow-card hover:bg-clay-bg-blue-white hover:text-clay-text-heading"
       >
         <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-clay-amber/20 text-clay-amber">
           <IconCheck className="h-3 w-3" />
@@ -136,7 +136,7 @@ export default function QuestsPopover({ userId = null, onChanged = null }) {
           ref={panelRef}
           role="dialog"
           aria-label="Today's quests"
-          className="absolute left-3 top-[calc(11.5rem+env(safe-area-inset-top))] lg:top-[calc(7.5rem+env(safe-area-inset-top))] z-[590] w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-[24px] border border-white/30 bg-white shadow-card p-2.5 text-clay-text-body font-clay backdrop-blur-md"
+          className="absolute left-3 top-[calc(var(--bih-nav-clear,calc(5.25rem+env(safe-area-inset-top)))+7.25rem)] lg:top-[calc(7.5rem+env(safe-area-inset-top))] z-[590] w-[15rem] max-w-[calc(100vw-1.5rem)] rounded-[24px] border border-white/30 bg-white shadow-card p-2.5 text-clay-text-body font-clay backdrop-blur-md"
         >
           <div className="flex items-baseline justify-between gap-2 px-1">
             <p className="text-[11px] font-clay font-semibold uppercase tracking-[0.16em] text-clay-text-muted">

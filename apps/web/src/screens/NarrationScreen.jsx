@@ -283,17 +283,17 @@ export default function NarrationScreen({
 
       // Sad bubbles rise above Sillie's head — only when significant warming.
       if (isSad) {
-        gsap.utils.toArray('[data-sad-bubble]').forEach((bubble, i) => {
-          gsap.fromTo(bubble,
+        gsap.utils.toArray('[data-sad-smoke]').forEach((puff, i) => {
+          gsap.fromTo(puff,
             { y: 0, opacity: 0, scale: 0.5 },
             {
-              y: -80,
-              opacity: 0.6,
-              scale: 1,
-              duration: 3 + i * 0.4,
+              y: -64,
+              opacity: 0.6875,
+              scale: 1.5,
+              duration: 2.6 + i * 0.35,
               repeat: -1,
               ease: 'power1.inOut',
-              delay: i * 0.5,
+              delay: i * 0.35,
             }
           )
         })
@@ -846,8 +846,7 @@ export default function NarrationScreen({
                     <div className="clay-card--white rounded-[40px] border border-clay-text-muted/10 p-0 md:p-0 shadow-card relative overflow-hidden">
                       <div className="flex flex-col md:flex-row items-start md:items-center gap-0 min-h-[320px] md:h-[420px]">
                         <div className="w-full md:w-[52%] p-6 md:p-16 flex flex-col justify-center">
-                          <div className="flex items-start gap-2 mb-3">
-                            <span className="clay-chip inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold text-white bg-clay-amber">1</span>
+                          <div className="mb-3">
                             <h2
                               data-heading
                               className="mt-0 text-3xl font-clay font-extrabold tracking-tight text-clay-text-heading sm:text-4xl"
@@ -878,17 +877,18 @@ export default function NarrationScreen({
                             <div className="absolute inset-0 bg-clay-amber/20 blur-[80px] rounded-full -z-10" />
                             <div data-sillie className="relative w-full max-w-[420px] h-auto shrink-0 -mb-8 md:-mb-16">
                               {isSad && (
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 md:-top-16 flex items-end justify-center pb-2">
+                                <div className="pointer-events-none absolute inset-0 z-20 overflow-visible">
                                   {[...Array(6)].map((_, i) => (
                                     <div
                                       key={i}
-                                      data-sad-bubble
-                                      className="absolute rounded-full bg-white/60 blur-sm"
+                                      data-sad-smoke
+                                      className="absolute rounded-full bg-clay-text-muted/40 blur-md"
                                       style={{
-                                        left: `${10 + i * 16}%`,
-                                        bottom: `${60 + i * 10}px`,
-                                        width: `${6 + i * 2}px`,
-                                        height: `${6 + i * 2}px`,
+                                        left: `${39 + i * 4}%`,
+                                        top: `${25 + (i % 3) * 5}%`,
+                                        width: `${16 + i * 3}px`,
+                                        height: `${16 + i * 3}px`,
+                                        opacity: 0.4375,
                                       }}
                                     />
                                   ))}

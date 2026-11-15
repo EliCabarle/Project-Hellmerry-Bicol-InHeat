@@ -30,7 +30,7 @@ See: CONCEPT.md (authoritative concept + decision log; no PROJECT.md in this rep
 Phase: 01
 Plan: Not started
 Status: All phases complete
-Last activity: 2026-11-15 - Completed quick task 261115-nwe: zoom mascot_icon.png to fill the NavBar logo placeholder
+Last activity: 2026-11-15 - Completed quick task 261115-o0c: enlarge mascot icon past tile edge and clip so gradient tile is fully covered
 
 Progress: [██████████] 100%
 
@@ -94,6 +94,7 @@ None yet.
 | 261115-lfs | repair scrambled chart-pair JSX in DashboardScreen.jsx breaking vite build | 2026-11-15 | 48b5bb6 | [261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb](./quick/261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb/) |
 | 261115-lqi | wire #narration route token and navigate branch so AppMenu Narration row works | 2026-11-15 | db2e906 | [261115-lqi-wire-narration-route-token-and-navigate-](./quick/261115-lqi-wire-narration-route-token-and-navigate-/) |
 | 261115-nwe | zoom mascot_icon.png to fill the NavBar logo placeholder | 2026-11-15 | cb51fba | [261115-nwe-zoom-mascot-icon-png-to-fill-the-navbar-](./quick/261115-nwe-zoom-mascot-icon-png-to-fill-the-navbar-/) |
+| 261115-o0c | enlarge mascot icon past tile edge and clip so gradient tile is fully covered | 2026-11-15 | fab481e | [261115-o0c-enlarge-mascot-icon-past-tile-edge-and-c](./quick/261115-o0c-enlarge-mascot-icon-past-tile-edge-and-c/) |
 
 ## Deferred Items
 

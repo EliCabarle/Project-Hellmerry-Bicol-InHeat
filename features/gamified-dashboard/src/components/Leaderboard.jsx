@@ -62,7 +62,7 @@ function Top10({ supabase, reloadKey = null }) {
               <tr className="border-b border-white/10 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <th scope="col" className="px-2 py-1.5">#</th>
                 <th scope="col" className="px-2 py-1.5">Explorer</th>
-                <th scope="col" className="px-2 py-1.5">Saved</th>
+                <th scope="col" className="px-2 py-1.5">Saved locations</th>
                 {showScore && <th scope="col" className="px-2 py-1.5">Score</th>}
               </tr>
             </thead>

@@ -3,6 +3,12 @@
 
 # Local virtualenv
 venv/
+.venv/
+
+# serve.ps1 runtime artifacts
+uvicorn.log
+uvicorn.log.err
+.uvicorn.pid
 
 # Python caches
 __pycache__/

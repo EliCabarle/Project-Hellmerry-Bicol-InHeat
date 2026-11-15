@@ -37,12 +37,14 @@ import {
   IconChevronRight,
   IconCheck,
   IconLayers,
+  IconMap,
   IconMinus,
   IconPause,
   IconPlay,
   IconPlus,
   IconReset,
   IconRobot,
+  IconSatellite,
   IconSearch,
   IconThermometer,
   IconTrend,
@@ -122,6 +124,32 @@ function ModeButton({ active, children, onClick }) {
 }
 
 const SEARCH_PLACEHOLDER = "2019-04-23, Apr 2019, 2019";
+
+// Basemap segmented control, reused by the timeline panel (inline) and the Day
+// view floating header. Satellite flips the map chrome to dark glassmorphism.
+function BasemapButtons({ basemap, onChange, floating = false }) {
+  const wrap = floating
+    ? "inline-flex items-center rounded-lg border border-white/10 bg-heat-surface/90 p-0.5 shadow-hud backdrop-blur-md"
+    : "flex items-center rounded-lg border border-white/10 bg-black/25 p-0.5";
+  return (
+    <div role="group" aria-label="Basemap" className={wrap}>
+      <ModeButton
+        active={basemap === "vector"}
+        onClick={() => onChange?.("vector")}
+      >
+        <IconMap className="h-3.5 w-3.5" />
+        Vector
+      </ModeButton>
+      <ModeButton
+        active={basemap === "satellite"}
+        onClick={() => onChange?.("satellite")}
+      >
+        <IconSatellite className="h-3.5 w-3.5" />
+        Satellite
+      </ModeButton>
+    </div>
+  );
+}
 
 function DateSearch({ actions, rangeMin, rangeMax, dailyReady }) {
   const [text, setText] = useState("");
@@ -391,6 +419,8 @@ function TimeScrubber({
   onViewModeChange,
   renderMode,
   onRenderModeChange,
+  basemap,
+  onBasemapChange,
   onHeightChange,
   dailyReady,
   dailyReason,
@@ -400,6 +430,7 @@ function TimeScrubber({
   const playing = useTimelineState(selectPlaying, store);
   const actions = useTimelineActions(store);
   const rootRef = useRef(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -410,7 +441,7 @@ function TimeScrubber({
     const ro = new ResizeObserver(publish);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [onHeightChange]);
+  }, [onHeightChange, expanded]);
 
   const count = timestamps.length;
   const canStep = count > 1;
@@ -436,6 +467,40 @@ function TimeScrubber({
     );
   }
 
+  if (!expanded) {
+    return (
+      <div
+        ref={rootRef}
+        role="group"
+        aria-label="Historical time controls"
+        className={`${GLASS} w-full px-3 py-2.5 sm:px-4`}
+      >
+        <button
+          type="button"
+          aria-expanded={expanded}
+          aria-label="Show historical time controls"
+          onClick={() => setExpanded(true)}
+          className="flex w-full items-center justify-between gap-2 text-left"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+            <span
+              className="font-mono text-sm font-semibold text-slate-100"
+              aria-live="polite"
+            >
+              {current || "No data"}
+            </span>
+          </div>
+          <span className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
+            Show controls
+          </span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       ref={rootRef}
@@ -445,9 +510,17 @@ function TimeScrubber({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Historical time
-          </span>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-label="Collapse historical time controls"
+            onClick={() => setExpanded(false)}
+            className="text-left"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+              Historical time
+            </span>
+          </button>
           <span
             className="font-mono text-sm font-semibold text-slate-100"
             aria-live="polite"
@@ -455,7 +528,15 @@ function TimeScrubber({
             {current || "No data"}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            type="button"
+            aria-label="Hide historical time controls"
+            onClick={() => setExpanded(false)}
+            className="rounded-full border border-white/10 bg-black/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300 transition hover:bg-white/5 hover:text-slate-100"
+          >
+            Hide controls
+          </button>
           <div
             role="group"
             aria-label="Map data mode"
@@ -494,6 +575,7 @@ function TimeScrubber({
               3D
             </ModeButton>
           </div>
+          <BasemapButtons basemap={basemap} onChange={onBasemapChange} />
         </div>
       </div>
 
@@ -576,9 +658,11 @@ function DayModeHeader({
   onViewModeChange,
   renderMode,
   onRenderModeChange,
+  basemap,
+  onBasemapChange,
 }) {
   return (
-    <div className="pointer-events-auto flex items-center gap-2">
+    <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
       <div
         role="group"
         aria-label="Map data mode"
@@ -623,6 +707,7 @@ function DayModeHeader({
           3D
         </ModeButton>
       </div>
+      <BasemapButtons basemap={basemap} onChange={onBasemapChange} floating />
     </div>
   );
 }
@@ -703,7 +788,7 @@ function ZoomPanel({ map, limits, onReset }) {
 }
 
 const FAB_BTN =
-  `${BTN} pointer-events-auto h-11 w-11 shrink-0`; // 44 px touch target on coarse pointers
+  "pointer-events-auto inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-heat-surface/90 text-slate-200 shadow-hud backdrop-blur-md bih-btn hover:bg-white/10"; // 44 px touch target on coarse pointers
 
 function FabButton({ icon: Icon, label, onClick }) {
   return (
@@ -806,6 +891,8 @@ export default function MapControlsOverlay({
   onViewModeChange,
   renderMode = "2d",
   onRenderModeChange,
+  basemap = "vector",
+  onBasemapChange,
   zoomLimits = { min: 7, max: 18 },
   dailyReady = false,
   dailyReason = null,
@@ -865,6 +952,8 @@ export default function MapControlsOverlay({
               onViewModeChange={onViewModeChange}
               renderMode={renderMode}
               onRenderModeChange={onRenderModeChange}
+              basemap={basemap}
+              onBasemapChange={onBasemapChange}
             />
           ) : null}
         </div>
@@ -883,6 +972,8 @@ export default function MapControlsOverlay({
           onViewModeChange={onViewModeChange}
           renderMode={renderMode}
           onRenderModeChange={onRenderModeChange}
+          basemap={basemap}
+          onBasemapChange={onBasemapChange}
           onHeightChange={onHeightChange}
           dailyReady={dailyReady}
           dailyReason={dailyReason}

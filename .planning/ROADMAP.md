@@ -30,12 +30,12 @@ them to the Landing page.
   2. A first visit with an empty hash (and any unrecognized hash) still renders the Landing screen, and `#muni=<joinKey>` links open the map with that municipality selected, logged-out.
   3. Browser back/forward walks between screens, and `node apps/web/test_*.mjs` plus `npm --prefix apps/web run build` are green.
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans executed
 
 Plans:
 
 - [x] 01-01-PLAN.md
-- [ ] 01-02-PLAN.md
+- [x] 01-02-PLAN.md
 - [x] 01-01: Route grammar module + load-time restore + skip-link hash protection
 - [ ] 01-02: navigate() hash writes + popstate/hashchange restore + acceptance matrix
 
@@ -46,4 +46,4 @@ Phases execute in numeric order: 01
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 01. hash-routing | 1/2 | In Progress|  |
+| 01. hash-routing | 2/2 | In Progress|  |

@@ -10,6 +10,7 @@ import PrivacyDialog from './components/PrivacyDialog.jsx'
 import AccountScreen from './screens/AccountScreen.jsx'
 import SettingsScreen from './screens/SettingsScreen.jsx'
 import LandingScreen from './screens/LandingScreen.jsx'
+import NarrationScreen from './screens/NarrationScreen.jsx'
 import useBicolData from './useBicolData'
 import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
@@ -229,6 +230,12 @@ export default function App() {
       setFocusTab(null)
       return
     }
+    if (target === 'narration') {
+      setScreen('narration')
+      setFocusTab(null)
+      focusMain()
+      return
+    }
   }, [focusMain])
 
   // Shared OAuth helper (lib/auth.js) — awaited so the landing CTA can render
@@ -346,6 +353,13 @@ export default function App() {
             />
           )}
           {screen === 'settings' && <SettingsScreen navigate={navigate} />}
+          {screen === 'narration' && (
+            <NarrationScreen
+              {...data}
+              initialKey={focus?.key ?? null}
+              onBack={() => navigate('map')}
+            />
+          )}
         </>
       )}
 

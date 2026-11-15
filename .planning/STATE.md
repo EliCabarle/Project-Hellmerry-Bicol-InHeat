@@ -30,7 +30,7 @@ See: CONCEPT.md (authoritative concept + decision log; no PROJECT.md in this rep
 Phase: 01
 Plan: Not started
 Status: All phases complete
-Last activity: 2026-11-15 - Completed quick task 261115-lfs: repair scrambled chart-pair JSX in DashboardScreen.jsx breaking vite build
+Last activity: 2026-11-15 - Completed quick task 261115-lqi: wire #narration route token and navigate branch so AppMenu Narration row works
 
 Progress: [██████████] 100%
 
@@ -92,6 +92,7 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 261115-l5s | fix stray ErrorBoundary closing tag breaking vite build in app.jsx | 2026-11-15 | c1709fc | [261115-l5s-fix-stray-errorboundary-closing-tag-brea](./quick/261115-l5s-fix-stray-errorboundary-closing-tag-brea/) |
 | 261115-lfs | repair scrambled chart-pair JSX in DashboardScreen.jsx breaking vite build | 2026-11-15 | 48b5bb6 | [261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb](./quick/261115-lfs-repair-scrambled-chart-pair-jsx-in-dashb/) |
+| 261115-lqi | wire #narration route token and navigate branch so AppMenu Narration row works | 2026-11-15 | db2e906 | [261115-lqi-wire-narration-route-token-and-navigate-](./quick/261115-lqi-wire-narration-route-token-and-navigate-/) |
 
 ## Deferred Items
 

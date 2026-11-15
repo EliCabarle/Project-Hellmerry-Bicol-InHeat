@@ -39,6 +39,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "Bicol In-Heat API"}
+
 app.include_router(qa.router)
 
 

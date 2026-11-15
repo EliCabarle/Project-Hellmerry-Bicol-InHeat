@@ -14,7 +14,9 @@ import TopHotspots from './components/TopHotspots.jsx'
 import MunicipalityFinder from './components/MunicipalityFinder.jsx'
 import CollapsibleSection from './components/CollapsibleSection.jsx'
 import DualLabel from './components/DualLabel.jsx'
-import { LABELS } from './labels.js'
+import StatCard from './components/StatCard.jsx'
+import NarrationPanel from './components/NarrationPanel.jsx'
+import { LABELS as BASE_LABELS, labelsFor } from './labels.js'
 import {
   ChartCard,
   BinBarChart,
@@ -30,6 +32,13 @@ import {
   trendHistogram,
   dangerBandCounts,
   topDriverShares,
+  dominantChangePoint,
+  personDaysDanger,
+  populationExposure,
+  maxPersonDays,
+  regionalDriverShares,
+  regionalMedian,
+  yearlyMeanCi95,
 } from './chartData.js'
 import {
   DANGER_BAND_COLORS,
@@ -46,18 +55,6 @@ const TABS = [
   { id: 'history', label: 'History' },
   { id: 'leaderboard', label: 'Leaderboard' },
 ]
-
-function Stat({ label, tech, value, hint, tone = 'neutral' }) {
-  const toneClass =
-    tone === 'worse' ? 'text-heat-hot' : tone === 'better' ? 'text-heat-cool' : 'text-slate-100'
-  return (
-    <div className="rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 shadow-hud">
-      <DualLabel label={label} tech={tech} />
-      <div className={`mt-0.5 font-mono text-lg font-semibold tracking-tight sm:text-2xl ${toneClass}`}>{value}</div>
-      {hint ? <div className="mt-0.5 text-xs text-slate-500">{hint}</div> : null}
-    </div>
-  )
-}
 
 export default function DashboardScreen({
   status = 'idle',
@@ -78,11 +75,18 @@ export default function DashboardScreen({
   const [saveError, setSaveError] = useState(null)
   const [progressSaveError, setProgressSaveError] = useState(null)
   const [query, setQuery] = useState('')
-  const [yearChoice, setYearChoice] = useState(null) // null = follow the latest data year
+  const [yearChoice, setYearChoice] = useState(null)
   const [catalog, setCatalog] = useState([])
-  const [finderFocus, setFinderFocus] = useState(null) // { name, province, nonce }
+  const [finderFocus, setFinderFocus] = useState(null)
+  const [isAnalyst, setIsAnalyst] = useState(false)
+  const [selectedMunicipality, setSelectedMunicipality] = useState(null)
   const finderRef = useRef(null)
+  const narrationRef = useRef(null)
   const canSave = Boolean(supabase && user)
+
+  const term = isAnalyst ? 'LGUs' : 'Municipalities'
+  // Copy follows the view mode: "Municipalities" in public, "LGUs" for analysts.
+  const LABELS = useMemo(() => labelsFor(term), [term])
 
   // A name clicked in the list or Top hotspots: reveal, expand and scroll to the
   // finder, which scans to that card (and drops any filter hiding it).
@@ -92,8 +96,14 @@ export default function DashboardScreen({
     finderRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
   }
 
-  // Load the quest CSV once. On failure the store falls back to the static
-  // QUESTS list, so the checklist is never empty.
+  // Picking a municipality in the exposure table must bring its explanation
+  // into view — the panel sits above the table, so without this the reader
+  // clicks a row and sees nothing happen.
+  useEffect(() => {
+    if (!selectedMunicipality) return
+    narrationRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  }, [selectedMunicipality])
+
   useEffect(() => {
     let cancelled = false
     fetch('/data/eco_quests_tasks.csv')
@@ -112,9 +122,6 @@ export default function DashboardScreen({
     }
   }, [])
 
-  // One progress store per account: the key follows `user`, so signing out drops
-  // back to the guest log and a second account never sees the first one's HP.
-  // It also rebuilds when the CSV lands, so the day's draw comes from real tasks.
   const store = useMemo(
     () => createProgress({ userId: user?.id ?? null, catalog }),
     [user?.id, catalog],
@@ -122,32 +129,20 @@ export default function DashboardScreen({
   const [events, setEvents] = useState(() => store.read())
   const [pending, setPending] = useState(() => store.getPending())
   const [announcement, setAnnouncement] = useState('')
-  // Sync result, kept separate from progressSaveError so one alert cannot clear
-  // the other.
   const [scoreNote, setScoreNote] = useState(null)
-  // Bumped after a successful event push so the collective bar refetches *after*
-  // the server has the new rows, not in parallel with them.
   const [syncTick, setSyncTick] = useState(0)
   const [active, setActive] = useState('dashboard')
   const tabRefs = useRef({})
   const levelRef = useRef(null)
 
   const today = manilaDate(new Date())
-  // Monday of the current ISO week; the collective view buckets by the same day.
   const week = weekStart(today)
   const derived = useMemo(() => derive(events, today), [events, today])
-  // Today's five quests. Memoized per store/day so a reload mid-day is identical.
-  // While the CSV is still loading, render nothing rather than the static
-  // fallback: only drawn quests may be ticked, so the client can never emit more
-  // than the server's 5-awards-a-day quota and fail the whole sync batch.
   const quests = useMemo(
     () => (catalog.length > 0 ? store.getDailyQuests() : []),
     [store, today, catalog.length],
   )
 
-  // Pending checks are visual only. Merged into the derived log so the HeatBar
-  // and Today's HP move when a box is ticked, but never written as events and
-  // never published — the leaderboard only sees submitted quests.
   const pendingEvents = useMemo(
     () =>
       quests
@@ -170,18 +165,9 @@ export default function DashboardScreen({
 
   const municipalities = useMemo(() => narratives?.municipalities ?? [], [narratives])
 
-  // Rank reflects the visible order: `withRank` runs after the sort, so the
-  // number matches the row's position under the selected mode.
   const ranked = useMemo(
     () => withRank(rankMunicipalities(municipalities, sort)),
     [municipalities, sort],
-  )
-
-  // Top hotspots keep their own extreme-first order (|slope| desc) and never
-  // follow the list's sort — the panel is "what is hottest", not "the list".
-  const extreme = useMemo(
-    () => withRank(rankMunicipalities(municipalities, 'slope')),
-    [municipalities],
   )
 
   const years = useMemo(() => yearsOf(municipalities), [municipalities])
@@ -192,22 +178,15 @@ export default function DashboardScreen({
   const selectedYear =
     yearChoice != null && years.includes(yearChoice) ? yearChoice : latestYear
 
-  // External tab control (used by the map page's menu): switching `focusTab.id`
-  // applies that dashboard tab; the token rises on every request so re-clicking
-  // an already-open tab still refires. Mirrors the shell's focusToken pattern.
   useEffect(() => {
     if (!focusTab?.id || focusTab.id === active) return
     setActive(focusTab.id)
   }, [focusTab?.id, focusTab?.token])
 
-  // A hidden filter that can no longer be switched off would strand the list
-  // after sign-out, so clear "saved only" whenever saving is unavailable.
   useEffect(() => {
     if (!canSave) setSavedOnly(false)
   }, [canSave])
 
-  // Load the user's saved places once per session; signing out clears them so a
-  // second account on the same tab cannot inherit the first account's stars.
   useEffect(() => {
     if (!canSave) {
       setSavedKeys(new Set())
@@ -227,7 +206,6 @@ export default function DashboardScreen({
     }
   }, [canSave, supabase, user])
 
-  // First open of a Manila calendar day awards the login streak entry.
   useEffect(() => {
     const r = store.checkIn()
     setEvents(r.events)
@@ -236,8 +214,6 @@ export default function DashboardScreen({
     if (!r.noop) window.dispatchEvent(new Event('bih-progress'))
   }, [store])
 
-  // Another tab wrote progress: re-read this slice's one key. `store.key` moves
-  // with the account, so a write belonging to the other account is ignored.
   useEffect(() => {
     const onStorage = (e) => {
       if (e.key != null && e.key !== store.key) return
@@ -247,17 +223,6 @@ export default function DashboardScreen({
     return () => window.removeEventListener('storage', onStorage)
   }, [store])
 
-  // Publish this account's HP as events, then make the local total match what the
-  // server actually stored. Order is push -> read -> reconcile:
-  //   - pushing first means the server sees everything it will accept;
-  //   - a failed push (offline) returns early, so a legitimate local log is never
-  //     lowered to a stale score;
-  //   - only a *successful* push can reveal drift, and reconciling after it lowers
-  //     exactly the HP the server refused (pre-0009 history, duplicate awards).
-  // Pushing is idempotent — the server dedupes on its primary key — so re-sending
-  // the log is safe. The log is read from the store, not from `events`: on an
-  // account switch the state is one commit behind the new key, and pushing that
-  // lag would send the previous account's HP.
   useEffect(() => {
     if (!user || !supabase) {
       setScoreNote(null)
@@ -279,7 +244,6 @@ export default function DashboardScreen({
         return
       }
 
-      // Adopt — or shed — HP so the HeatBar shows the account's real score.
       if (score != null) {
         const restored = store.restoreTo(score)
         if (cancelled) return
@@ -297,7 +261,6 @@ export default function DashboardScreen({
     }
   }, [supabase, user, store, derived.totalHP, today])
 
-  // Announce level-ups politely; never announce the initial level.
   useEffect(() => {
     if (levelRef.current === null) {
       levelRef.current = derived.level
@@ -314,7 +277,6 @@ export default function DashboardScreen({
     setEvents(r.events)
     setPending(store.getPending())
     setProgressSaveError(r.ok ? null : r.error)
-    // The shell's fixed navbar derives from the same store — tell it to re-read.
     window.dispatchEvent(new Event('bih-progress'))
     return r
   }
@@ -333,8 +295,6 @@ export default function DashboardScreen({
     tabRefs.current[id]?.focus()
   }
 
-  // Optimistic toggle, reverted on failure: the star responds instantly, but a
-  // failed write never leaves the UI claiming a row was saved.
   const toggleSaved = async (m) => {
     if (!canSave) return
     const key = savedKey(m?.name, m?.province)
@@ -360,15 +320,19 @@ export default function DashboardScreen({
     }
   }
 
-  const period = narratives?.meta?.period
-  const start = period?.start?.slice(0, 4)
-  const end = period?.end?.slice(0, 4)
+  // The series years are the authoritative period. `meta.period` is only used
+  // when it actually holds a four-digit year — the pipeline's copy currently
+  // carries non-year values ("-9.26"/"85.56"), which would print as garbage.
+  const metaPeriod = narratives?.meta?.period
+  const metaStart = /^(\d{4})/.exec(String(metaPeriod?.start ?? ''))?.[1] ?? null
+  const metaEnd = /^(\d{4})/.exec(String(metaPeriod?.end ?? ''))?.[1] ?? null
+  const start = years[0] ?? metaStart
+  const end = years[years.length - 1] ?? metaEnd
   const periodLine = start && end ? `${start}–${end}` : '—'
   const threshold = Number.isFinite(narratives?.meta?.danger_threshold_c)
     ? `${narratives.meta.danger_threshold_c} °C`
     : '42 °C'
 
-  // ---- chart data (all computed, none invented) ----
   const yearly = useMemo(() => provinceYearlyMean(municipalities), [municipalities])
   const yoy = useMemo(() => yearOverYearDelta(municipalities, selectedYear), [municipalities, selectedYear])
   const heatDist = useMemo(() => heatIndexHistogram(municipalities, selectedYear), [municipalities, selectedYear])
@@ -376,10 +340,38 @@ export default function DashboardScreen({
   const dangerBands = useMemo(() => dangerBandCounts(municipalities), [municipalities])
   const drivers = useMemo(() => topDriverShares(municipalities), [municipalities])
 
+  // The dominant break across the region — the year most LGUs change
+  // regime at. Rendered as a shaded era plus a labelled marker, and backed by
+  // the count in the caption below the chart.
+  const changePoint = useMemo(() => dominantChangePoint(municipalities), [municipalities])
+
+  // Human-impact figures: how many people are exposed, and the regional
+  // driver story that explains it.
+  const exposure = useMemo(() => populationExposure(municipalities), [municipalities])
+  const maxPd = useMemo(() => maxPersonDays(municipalities), [municipalities])
+  const regionalDrivers = useMemo(() => regionalDriverShares(municipalities), [municipalities])
+  const ndviMedian = useMemo(() => regionalMedian(municipalities, 'ndvi_mean'), [municipalities])
+  const lstMedian = useMemo(() => regionalMedian(municipalities, 'lst_mean_c'), [municipalities])
+  // 95% CI of the province mean heat index, per year (analyst view only).
+  const meanCi = useMemo(() => yearlyMeanCi95(municipalities), [municipalities])
+
+  // Exposure ordering: who has the most people in extreme heat. A warming
+  // rate is a climate statistic an LGU cannot act on; person-days is the
+  // number a mayor can put in a memo.
+  const byExposure = useMemo(
+    () => withRank(rankMunicipalities(municipalities, 'person-days')),
+    [municipalities],
+  )
+
   const significantCount = useMemo(
     () => ranked.filter((m) => m?.trend?.is_significant).length,
     [ranked],
   )
+  // Share of the region whose warming trend is statistically significant.
+  const warmingPct = useMemo(() => {
+    const total = coverage.total || municipalities.length || 0
+    return total > 0 ? Math.round((significantCount / total) * 100) : 0
+  }, [significantCount, coverage.total, municipalities.length])
   const yearRow = useMemo(
     () => yearly.find((r) => r?.year === selectedYear) ?? null,
     [yearly, selectedYear],
@@ -392,42 +384,93 @@ export default function DashboardScreen({
       ? '—'
       : `${deltaValue > 0 ? '↑ +' : '↓ '}${deltaValue.toFixed(1)}%`
 
+  // Hero stat: population exposure to days above the danger threshold, summed
+  // across every municipality. The pipeline computes it per municipality.
+  const personDays = useMemo(() => personDaysDanger(municipalities), [municipalities])
+  // Average warming slope across municipalities
+  const avgSlope = useMemo(() => {
+    const slopes = municipalities.map((m) => m?.trend?.slope_c_per_year).filter(Number.isFinite)
+    return slopes.length > 0 ? (slopes.reduce((a, b) => a + b, 0) / slopes.length).toFixed(3) : null
+  }, [municipalities])
+
   const readyData = status === 'ready' && ranked.length > 0
   const yearLabel = selectedYear != null ? String(selectedYear) : '—'
 
+  const headerClasses = `shrink-0 cursor-pointer min-h-11 rounded-full px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm transition-colors`
+
   return (
-    <div id="main" className="flex h-full min-h-0 flex-col bg-heat-bg">
-      <div
-        role="tablist"
-        aria-label="Dashboard sections"
-        onKeyDown={onTabKeyDown}
-        className="shrink-0 border-b border-white/10 bg-heat-deep/60 px-3 sm:px-5"
-      >
-        <div className="mx-auto flex max-w-7xl flex-wrap gap-2 py-1.5">
-          {TABS.map((t) => {
-            const selected = active === t.id
-            return (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                id={`tab-${t.id}`}
-                aria-selected={selected}
-                aria-controls={`panel-${t.id}`}
-                tabIndex={selected ? 0 : -1}
-                ref={(el) => {
-                  tabRefs.current[t.id] = el
-                }}
-                onClick={() => setActive(t.id)}
-                className={`shrink-0 cursor-pointer min-h-11 rounded-md px-3 py-1.5 text-xs font-semibold bih-btn sm:text-sm ${selected ? 'bg-heat-amber text-slate-950' : 'text-slate-400 hover:bg-white/5 hover:text-slate-100'}`}
-              >
-                {t.label}
-              </button>
-            )
-          })}
+    <div id="main" className="flex h-full min-h-0 flex-col bg-[#FAF7F2]">
+      {/* ===== Secondary Navigation =====
+          The global header (BIH logo + Heat Points progress + menu) is the
+          fixed NavBar in apps/web. The dashboard owns only page-level nav:
+          the section tabs on the left, the Public/Analyst toggle on the right.
+          The duplicated HeatBar is gone — the NavBar already shows the same
+          level/HP numbers. */}
+      <div className="sticky top-2 z-[700] mb-6 rounded-[2rem] border-none bg-[#FAF7F2]/95 px-5 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+          <div
+            role="tablist"
+            aria-label="Dashboard sections"
+            onKeyDown={onTabKeyDown}
+            className="flex flex-wrap gap-1"
+          >
+            {TABS.map((t) => {
+              const selected = active === t.id
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${t.id}`}
+                  aria-selected={selected}
+                  aria-controls={`panel-${t.id}`}
+                  tabIndex={selected ? 0 : -1}
+                  ref={(el) => {
+                    tabRefs.current[t.id] = el
+                  }}
+                  onClick={() => setActive(t.id)}
+                  className={`relative min-h-11 cursor-pointer px-4 text-sm transition-colors ${
+                    selected
+                      ? 'font-bold text-[#2D2D2D] after:absolute after:inset-x-2 after:-bottom-px after:h-[3px] after:rounded-full after:bg-[#D96C4D]'
+                      : 'font-semibold text-[#8C847A] hover:text-[#2D2D2D]'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              )
+            })}
+          </div>
+
+          <div
+            role="group"
+            aria-label="Dashboard detail level"
+            className="flex items-center overflow-hidden rounded-full bg-[#F3EFE9] border-none"
+          >
+            <button
+              type="button"
+              onClick={() => setIsAnalyst(false)}
+              aria-pressed={!isAnalyst}
+              className={`${headerClasses} ${!isAnalyst ? 'bg-[#F2C94C] text-[#5D4037]' : 'bg-[#F3EFE9] text-[#8C847A]'}`}
+            >
+              Public View
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAnalyst(true)}
+              aria-pressed={isAnalyst}
+              className={`${headerClasses} ${isAnalyst ? 'bg-[#F2C94C] text-[#5D4037]' : 'bg-[#F3EFE9] text-[#8C847A]'}`}
+            >
+              Analyst View
+            </button>
+          </div>
+        </div>
+        {/* Level-up announcement (was the HeatBar's live region). */}
+        <div aria-live="polite" className="sr-only">
+          {announcement}
         </div>
       </div>
 
+      {/* ===== Tab Panels ===== */}
       <div
         role="tabpanel"
         id="panel-dashboard"
@@ -437,325 +480,381 @@ export default function DashboardScreen({
       >
         <div className="bih-scroll h-full overflow-y-auto">
           <div className="mx-auto max-w-7xl px-3 py-4 sm:px-5 sm:py-5 lg:px-8">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-heat-amber">
-              {LABELS.eyebrow.plain}
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-clay-text-heading sm:text-3xl">
-              {LABELS.title.plain}
-            </h1>
-            <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
-              <DualLabel label={LABELS.methodPlain.plain} tech={LABELS.methodPlain.tech} />{' · '}{periodLine}
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-3">
-            <label htmlFor="dashboard-year" className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Year
-            </label>
-            <select
-              id="dashboard-year"
-              value={yearLabel}
-              onChange={(e) => setYearChoice(Number(e.target.value))}
-              disabled={!readyData}
-              className="cursor-pointer rounded-lg border border-white/10 bg-heat-deep/90 px-2 py-1.5 font-mono text-xs text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber"
-            >
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-            <p className="hidden text-xs text-slate-500 md:block">
-              Trend data for{' '}
-              <span className="font-mono font-semibold text-slate-200">{coverage.withData}</span> of{' '}
-              <span className="font-mono font-semibold text-slate-200">{coverage.total}</span> municipalities
-            </p>
-          </div>
-        </div>
-
-        {narratives?.meta?.disclaimer && (
-          <p className="mt-3 rounded-lg border border-heat-amber/30 bg-heat-surface/60 px-3 py-2 text-xs leading-5 text-slate-400">
-            {narratives.meta.disclaimer}
-          </p>
-        )}
-
-        <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-          <Stat
-            label={LABELS.kpiWarming.plain}
-            tech={LABELS.kpiWarming.tech}
-            value={readyData ? significantCount : '—'}
-          />
-          <Stat
-            label={LABELS.kpiMeanHi.plain}
-            tech={LABELS.kpiMeanHi.tech}
-            value={
-              readyData && meanValue != null ? `${meanValue.toFixed(2)} °C · ${yearLabel}` : '—'
-            }
-            hint={`province-wide mean over ${coverage.withData || '—'} LGUs`}
-          />
-          <Stat
-            label={LABELS.kpiChange.plain}
-            tech={LABELS.kpiChange.tech}
-            value={readyData ? deltaShown : '—'}
-            hint={Number.isFinite(selectedYear) ? `vs ${selectedYear - 1} mean` : undefined}
-            tone={deltaTone}
-          />
-          <Stat
-            label={LABELS.kpiDanger.plain}
-            tech={LABELS.kpiDanger.tech}
-            value={readyData && yearRow ? yearRow.dangerDayLgus : '—'}
-            hint={`≥ 1 day above ${threshold} · ${yearLabel}`}
-          />
-        </div>
-
-        {readyData && (
-          <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            <div className="lg:col-span-2">
-              <ChartCard
-                title={LABELS.chartYearly.plain}
-                tech={LABELS.chartYearly.tech}
-                yearNote={`${start ?? '—'}–${end ?? '—'}`}
-                ariaLabel="Yearly trend of province-wide mean heat index and count of municipalities with danger days"
-                table={
-                  <ChartDataTable
-                    caption="Yearly trend data: mean heat index and LGU danger counts per year"
-                    columns={[
-                      { key: 'year', label: 'Year', numeric: true },
-                      { key: 'meanHeatIndexC', label: 'Mean heat index (°C)', format: (v) => (v == null ? '—' : v.toFixed(2)) },
-                      { key: 'dangerDayLgus', label: 'LGUs with ≥1 danger day' },
-                      { key: 'nCounted', label: 'LGUs counted' },
-                    ]}
-                    rows={yearly}
-                  />
-                }
-              >
-                <YearlyTrendChart data={yearly} />
-              </ChartCard>
+            {/* Page header */}
+            <div className="flex flex-col gap-3 mb-6">
+              <p className="text-xs font-bold text-[#8C847A] uppercase tracking-wider">
+                {LABELS.eyebrow.plain}
+              </p>
+              <h1 className="mt-1 text-3xl font-black text-[#2D2D2D] tracking-tight">
+                {LABELS.title.plain}
+              </h1>
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#8C847A]">
+                <DualLabel label={LABELS.methodPlain.plain} tech={LABELS.methodPlain.tech} />
+              </p>
+              <p className="mt-0.5 font-mono text-xs text-[#A79C90]">{periodLine}</p>
             </div>
 
-            <CollapsibleSection
-              ariaLabel="Toggle heat index distribution and warming rate charts"
-              bareLabel="Heat and warming charts"
-              className="lg:col-span-2"
-              bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
-            >
-            <ChartCard
-              collapsible={false}
-              title={LABELS.chartHeatDist.plain}
-              tech={LABELS.chartHeatDist.tech}
-              yearNote={yearLabel}
-              ariaLabel={`Distribution of mean heat index across municipalities in ${yearLabel}`}
-              footnote="Same bins as the map legend, so bar colours match the map."
-              table={
-                <ChartDataTable
-                  caption="Mean heat index distribution data"
-                  columns={[
-                    { key: 'label', label: 'Heat index (°C)', numeric: false },
-                    { key: 'count', label: 'LGUs' },
-                  ]}
-                  rows={heatDist}
-                />
-              }
-            >
-              <BinBarChart bins={heatDist} colorFn={(bin) => YEAR_COLORS[bin.binIndex] ?? HEAT_AMBER} />
-            </ChartCard>
-
-            <ChartCard
-              collapsible={false}
-              title={LABELS.chartWarming.plain}
-              tech={LABELS.chartWarming.tech}
-              yearNote={`${start ?? '—'}–${end ?? '—'}`}
-              ariaLabel="Distribution of warming rates across municipalities"
-              footnote="Same bins as the map's rate legend. Non-significant rates are still counted."
-              table={
-                <ChartDataTable
-                  caption="Warming rate distribution data"
-                  columns={[
-                    { key: 'label', label: 'Warming rate (°C/yr)', numeric: false },
-                    { key: 'count', label: 'LGUs' },
-                  ]}
-                  rows={trendDist}
-                />
-              }
-            >
-              <BinBarChart bins={trendDist} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
-            </ChartCard>
-            </CollapsibleSection>
-
-            <CollapsibleSection
-              ariaLabel="Toggle danger days and driver charts"
-              bareLabel="Danger days and drivers"
-              className="lg:col-span-2"
-              bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
-            >
-            <ChartCard
-              collapsible={false}
-              title={LABELS.chartDangerDays.plain}
-              tech={LABELS.chartDangerDays.tech}
-              yearNote="45-year total"
-              ariaLabel="Municipalities grouped by 45-year total danger days"
-              footnote={`Days above ${threshold} across the whole period. Forecasts stay local: these are the LGUs trapping extreme heat.`}
-              table={
-                <ChartDataTable
-                  caption="Danger day band data"
-                  columns={[
-                    { key: 'label', label: 'Danger days (45y)', numeric: false },
-                    { key: 'count', label: 'LGUs' },
-                  ]}
-                  rows={dangerBands}
-                />
-              }
-            >
-              <BinBarChart
-                bins={dangerBands}
-                colorFn={(bin, i) => DANGER_BAND_COLORS[i] ?? HEAT_ORANGE}
-              />
-            </ChartCard>
-
-            {drivers.length > 0 && (
-              <ChartCard
-                collapsible={false}
-                title={LABELS.chartDrivers.plain}
-                tech={LABELS.chartDrivers.tech}
-                ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
-                footnote="Mean SHAP share across the LGUs where each driver ranks top. Association, not causation."
-                table={
-                  <ChartDataTable
-                    caption="Driver ranking data"
-                    columns={[
-                      { key: 'label', label: 'Driver', numeric: false },
-                      { key: 'meanShare', label: 'Mean share', format: (v) => `${Math.round((Number(v) || 0) * 100)}%` },
-                      { key: 'lgus', label: 'LGUs' },
-                    ]}
-                    rows={drivers}
-                  />
-                }
-              >
-                <DriverBarChart drivers={drivers} />
-              </ChartCard>
+            {narratives?.meta?.disclaimer && (
+              <p className="mt-3 rounded-lg border-none bg-[#FFFDF9] px-3 py-2 text-xs leading-5 text-[#8C847A]">
+                {narratives.meta.disclaimer}
+              </p>
             )}
+
+            {/* ===== ROW 1 — the four stat cards, full width =====
+                Person-Days of Danger is the hero: population exposure to days
+                above the danger threshold, summed across every municipality.
+                The pipeline computes it per municipality; this only sums it. */}
+            <div className={`mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 ${isAnalyst ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+              <StatCard
+                title="Person-Days of Danger"
+                value={personDays > 0 ? `${(personDays / 1e6).toFixed(1)}M` : '—'}
+                delta={`population exposure above ${threshold}`}
+                deltaTone="warming"
+                hero
+              />
+              <StatCard
+                title="People Exposed"
+                value={exposure.exposedPopulation > 0 ? `${(exposure.exposedPopulation / 1e6).toFixed(2)}M` : '—'}
+                delta={
+                  exposure.exposedSharePct != null
+                    ? `${exposure.exposedSharePct}% of Bicol · ${exposure.exposedCount} municipalities`
+                    : '—'
+                }
+                deltaTone="warming"
+              />
+              <StatCard
+                title={`${warmingPct}% of Bicol is Warming`}
+                value={`${significantCount}/${coverage.total || municipalities.length}`}
+                delta={
+                  isAnalyst && changePoint
+                    ? `${changePoint.count} show a ${changePoint.year} regime shift`
+                    : 'every municipality, 1981–2025'
+                }
+                deltaTone="neutral"
+              />
+              <StatCard
+                title="Avg Peak Heat"
+                value={readyData && meanValue != null ? meanValue.toFixed(1) : '—'}
+                unit=" °C"
+                delta={deltaShown}
+                deltaTone={deltaTone === 'worse' ? 'warming' : deltaTone === 'better' ? 'cooling' : 'neutral'}
+              />
+              {/* A warming rate is a climate statistic, not an exposure measure —
+                  it belongs with the p-values, not in the public impact row. */}
+              {isAnalyst && (
+                <StatCard
+                  title="Warming Rate"
+                  value={avgSlope ?? '—'}
+                  unit=" °C/yr"
+                  delta={deltaTone === 'worse' ? '↑ accelerating' : deltaTone === 'better' ? '↓ decelerating' : '—'}
+                  deltaTone={deltaTone === 'worse' ? 'warming' : deltaTone === 'better' ? 'cooling' : 'neutral'}
+                />
+              )}
+            </div>
+
+            {/* ===== ROW 2 — trend chart (2/3) + narration (1/3) ===== */}
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+              <div className="flex min-w-0 flex-col gap-6 lg:w-2/3">
+                <div className="rounded-[2rem] border-none bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+                  <ChartCard
+                    title={LABELS.chartYearly.plain}
+                    tech={LABELS.chartYearly.tech}
+                    yearNote={`${start ?? '—'}–${end ?? '—'}`}
+                    ariaLabel="Yearly trend of province-wide mean heat index and count of municipalities with danger days"
+                    table={
+                      <ChartDataTable
+                        caption="Yearly trend data: mean heat index and municipality danger counts per year"
+                        columns={[
+                          { key: 'year', label: 'Year', numeric: true },
+                          { key: 'meanHeatIndexC', label: 'Mean heat index (°C)', format: (v) => (v == null ? '—' : v.toFixed(2)) },
+                          { key: 'dangerDayLgus', label: `${term} with ≥1 danger day` },
+                          { key: 'nCounted', label: `${term} counted` },
+                        ]}
+                        rows={yearly}
+                      />
+                    }
+                  >
+                    <YearlyTrendChart
+                      data={yearly}
+                      changePoint={changePoint}
+                      ci={meanCi}
+                      isAnalyst={isAnalyst}
+                    />
+                  </ChartCard>
+                </div>
+
+                {/* The claim behind the marker: how many municipalities break at
+                    that year, and the exact statistical method. Analyst-only —
+                    the public reader gets the marker, not the claim. */}
+                {isAnalyst && changePoint && (
+                  <p className="-mt-2 rounded-[1.25rem] border-none bg-[#FFFDF9] px-4 py-3 text-xs leading-5 text-[#8C847A]">
+                    <span className="font-bold text-[#7F2D08]">
+                      Pettitt change-point test: {changePoint.count} of {coverage.withData || '—'} {term.toLowerCase()}
+                    </span>{' '}
+                    show a structural break in {changePoint.year}. Shaded band: 95% CI of the province mean. Method: {narratives?.meta?.method ?? 'Theil-Sen slope with Mann-Kendall significance'}
+                    {narratives?.meta?.alpha != null ? `, α = ${narratives.meta.alpha}` : ''}.
+                  </p>
+                )}
+
+                {readyData && (
+                  <CollapsibleSection
+                    ariaLabel="Toggle heat index distribution and warming rate charts"
+                    bareLabel="Heat and warming charts"
+                    className="mt-4"
+                    bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
+                  >
+                    <ChartCard
+                      collapsible={false}
+                      title={LABELS.chartHeatDist.plain}
+                      tech={LABELS.chartHeatDist.tech}
+                      yearNote={yearLabel}
+                      ariaLabel={`Distribution of mean heat index across municipalities in ${yearLabel}`}
+                      footnote="Same bins as the map legend, so bar colours match the map."
+                      table={
+                        <ChartDataTable
+                          caption="Mean heat index distribution data"
+                          columns={[
+                            { key: 'label', label: 'Heat index (°C)', numeric: false },
+                            { key: 'count', label: term },
+                          ]}
+                          rows={heatDist}
+                        />
+                      }
+                    >
+                      <BinBarChart bins={heatDist} term={term} colorFn={(bin) => YEAR_COLORS[bin.binIndex] ?? HEAT_AMBER} />
+                    </ChartCard>
+
+                    <ChartCard
+                      collapsible={false}
+                      title={LABELS.chartWarming.plain}
+                      tech={LABELS.chartWarming.tech}
+                      yearNote={`${start ?? '—'}–${end ?? '—'}`}
+                      ariaLabel="Distribution of warming rates across municipalities"
+                      footnote="Same bins as the map's rate legend. Non-significant rates are still counted."
+                      table={
+                        <ChartDataTable
+                          caption="Warming rate distribution data"
+                          columns={[
+                            { key: 'label', label: 'Warming rate (°C/yr)', numeric: false },
+                            { key: 'count', label: term },
+                          ]}
+                          rows={trendDist}
+                        />
+                      }
+                    >
+                      <BinBarChart bins={trendDist} term={term} colorFn={(bin) => TREND_COLORS[bin.binIndex] ?? HEAT_AMBER} labelAngle={-24} />
+                    </ChartCard>
+                  </CollapsibleSection>
+                )}
+              </div>
+
+              {/* Right Column (1/3) — Why It Heats */}
+              <div ref={narrationRef} className="flex min-w-0 flex-col gap-6 lg:w-1/3">
+                <NarrationPanel
+                  selectedMunicipality={selectedMunicipality}
+                  narratives={narratives}
+                  isAnalyst={isAnalyst}
+                  exposure={exposure}
+                  regionalDrivers={regionalDrivers}
+                  ndviMedian={ndviMedian}
+                  lstMedian={lstMedian}
+                />
+              </div>
+            </div>
+
+            {/* ===== ROW 3 — Most people at risk, full width ===== */}
+            {readyData && (
+              <div className="mt-6 w-full">
+                <TopHotspots
+                  rows={byExposure.slice(0, 10)}
+                  onShowOnMap={(m) => onShowOnMap?.(joinKey(m?.name, m?.province))}
+                  onShowInFinder={showInFinder}
+                  onSelect={setSelectedMunicipality}
+                  isAnalyst={isAnalyst}
+                  maxPersonDays={maxPd}
+                />
+              </div>
+            )}
+
+            {/* ===== Danger Days & Drivers (below grid, full width) ===== */}
+            {readyData && (
+              <CollapsibleSection
+                ariaLabel="Toggle danger days and driver charts"
+                bareLabel="Danger days and drivers"
+                className="mt-8"
+                bodyClassName="grid gap-3 p-3 lg:grid-cols-2"
+              >
+                <ChartCard
+                  collapsible={false}
+                  title={LABELS.chartDangerDays.plain}
+                  tech={LABELS.chartDangerDays.tech}
+                  yearNote="45-year total"
+                  ariaLabel="Municipalities grouped by 45-year total danger days"
+                  footnote={`Days above ${threshold} across the whole period. Forecasts stay local: these are the ${term.toLowerCase()} trapping extreme heat.`}
+                  table={
+                    <ChartDataTable
+                      caption="Danger day band data"
+                      columns={[
+                        { key: 'label', label: 'Danger days (45y)', numeric: false },
+                        { key: 'count', label: term },
+                      ]}
+                      rows={dangerBands}
+                    />
+                  }
+                >
+                  <BinBarChart bins={dangerBands} term={term} colorFn={(bin, i) => DANGER_BAND_COLORS[i] ?? HEAT_ORANGE} />
+                </ChartCard>
+
+                {/* SHAP driver ranking is analyst-only: in Public view the
+                    driver story is told in plain English by the narration. */}
+                {isAnalyst && drivers.length > 0 && (
+                  <ChartCard
+                    collapsible={false}
+                    title={LABELS.chartDrivers.plain}
+                    tech={LABELS.chartDrivers.tech}
+                    ariaLabel="Most common drivers of heat across municipalities, by SHAP share"
+                    footnote="Mean SHAP share across the LGUs where each driver ranks top. Association, not causation."
+                    table={
+                      <ChartDataTable
+                        caption="Driver ranking data"
+                        columns={[
+                          { key: 'label', label: 'Driver', numeric: false },
+                          { key: 'meanShare', label: 'Mean share', format: (v) => `${Math.round((Number(v) || 0) * 100)}%` },
+                          { key: 'lgus', label: term },
+                        ]}
+                        rows={drivers}
+                      />
+                    }
+                  >
+                    <DriverBarChart drivers={drivers} />
+                  </ChartCard>
+                )}
+              </CollapsibleSection>
+            )}
+
+            {/* ===== Municipality Finder ===== */}
+            {readyData && geojson && (
+              <div ref={finderRef}>
+                <MunicipalityFinder
+                  geojson={geojson}
+                  narratives={narratives}
+                  onShowOnMap={onShowOnMap}
+                  province={province}
+                  onProvinceChange={setProvince}
+                  savedOnly={savedOnly}
+                  savedKeys={savedKeys}
+                  canSave={canSave}
+                  onSavedOnlyChange={setSavedOnly}
+                  focus={finderFocus}
+                  isAnalyst={isAnalyst}
+                  term={term}
+                />
+              </div>
+            )}
+
+            {/* ===== Municipality List ===== */}
+            <CollapsibleSection title="Municipality list" ariaLabel="Municipality list">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="min-w-0 shrink-0">
+                  <label htmlFor="dashboard-sort" className="sr-only">
+                    Sort {term}
+                  </label>
+                  <select
+                    id="dashboard-sort"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="min-h-11 w-full cursor-pointer rounded-lg border-none bg-[#F3EFE9] px-3 py-2 text-xs font-bold text-[#2D2D2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D] sm:w-auto"
+                  >
+                    <option value="slope-desc">Warming rate · highest → lowest</option>
+                    <option value="slope-asc">Warming rate · lowest → highest</option>
+                    <option value="danger-desc">Danger days · highest → lowest</option>
+                    <option value="danger-asc">Danger days · lowest → highest</option>
+                    <option value="name-asc">Name · A → Z</option>
+                    <option value="name-desc">Name · Z → A</option>
+                  </select>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="dashboard-search" className="sr-only">
+                    Search {term} or provinces
+                  </label>
+                  <input
+                    id="dashboard-search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={`Search ${term} or province`}
+                    className="min-h-11 w-full rounded-lg border-none bg-[#F3EFE9] px-3 py-2 text-xs text-[#2D2D2D] placeholder:text-[#8C847A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D96C4D] sm:max-w-xs"
+                  />
+                </div>
+                <p className="text-xs text-[#8C847A] md:hidden">
+                  Trend data for{' '}
+                  <span className="font-mono font-bold text-[#2D2D2D]">{coverage.withData}</span> of{' '}
+                  <span className="font-mono font-bold text-[#2D2D2D]">{coverage.total}</span>
+                </p>
+              </div>
+
+              {saveError && (
+                <div role="alert" className="mt-3 rounded-lg border-none bg-[#FFF9F0] px-3 py-2 text-xs text-[#C0392B]">
+                  {saveError}
+                </div>
+              )}
+
+              {status === 'loading' && (
+                <div aria-busy="true" className="mt-4 space-y-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-14 animate-pulse rounded-[1rem] bg-[#F3EFE9]" />
+                  ))}
+                </div>
+              )}
+              {status === 'error' && (
+                <div role="alert" className="mt-4 rounded-[1rem] border border-[#C0392B]/30 bg-[#FFF9F0] px-3 py-2.5 text-sm">
+                  <div className="font-bold text-[#2D2D2D]">Could not load trend data</div>
+                  <div className="mb-2 text-xs text-[#8C847A]">{error}</div>
+                  <button
+                    type="button"
+                    onClick={() => reload?.()}
+                    className="cursor-pointer rounded-[12px] bg-[#D96C4D] px-2.5 py-1 text-xs font-bold text-[#5D4037] hover:bg-[#C0392B] bih-btn"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
+              {status === 'ready' && ranked.length === 0 && (
+                <div className="mt-4 rounded-[1rem] border-none bg-[#F3EFE9] px-3 py-2.5 text-sm text-[#8C847A]">
+                  No trend data yet — check back soon.
+                </div>
+              )}
+              {readyData && (
+                <DashboardTableRows
+                  term={term}
+                  ranked={ranked}
+                  query={query}
+                  province={province}
+                  savedOnly={savedOnly}
+                  savedKeys={savedKeys}
+                  canSave={canSave}
+                  onToggleSave={toggleSaved}
+                  mode={sort}
+                  onShowInFinder={showInFinder}
+                  isAnalyst={isAnalyst}
+                />
+              )}
             </CollapsibleSection>
-          </div>
-        )}
 
-        {readyData && (
-          <div className="mt-4">
-            <TopHotspots
-              rows={extreme.slice(0, 10)}
-              onShowOnMap={(m) => onShowOnMap?.(joinKey(m?.name, m?.province))}
-              onShowInFinder={showInFinder}
-            />
-          </div>
-        )}
-
-        {/* Finder card carousel: shell already passes geojson ({...data}), so no
-            cross-boundary edit is involved. Bounded stage adds no scroll.
-            Province is shared with the list below — the dropdown filters both. */}
-        {readyData && geojson && (
-          <div ref={finderRef}>
-            <MunicipalityFinder
-              geojson={geojson}
-              narratives={narratives}
-              onShowOnMap={onShowOnMap}
-              province={province}
-              onProvinceChange={setProvince}
-              savedOnly={savedOnly}
-              savedKeys={savedKeys}
-              canSave={canSave}
-              onSavedOnlyChange={setSavedOnly}
-              focus={finderFocus}
-            />
-          </div>
-        )}
-
-        <CollapsibleSection title="Municipality list" ariaLabel="Municipality list">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="min-w-0 shrink-0">
-            <label htmlFor="dashboard-sort" className="sr-only">
-              Sort municipalities
-            </label>
-            <select
-              id="dashboard-sort"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="min-h-11 w-full cursor-pointer rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs font-semibold text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber sm:w-auto"
-            >
-              <option value="slope-desc">Warming rate · highest → lowest</option>
-              <option value="slope-asc">Warming rate · lowest → highest</option>
-              <option value="danger-desc">Danger days · highest → lowest</option>
-              <option value="danger-asc">Danger days · lowest → highest</option>
-              <option value="name-asc">Name · A → Z</option>
-              <option value="name-desc">Name · Z → A</option>
-            </select>
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <label htmlFor="dashboard-search" className="sr-only">
-              Search municipalities or provinces
-            </label>
-            <input
-              id="dashboard-search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search municipality or province"
-              className="min-h-11 w-full rounded-lg border border-white/10 bg-heat-surface/70 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-heat-amber sm:max-w-xs"
-            />
-          </div>
-          <p className="text-xs text-slate-500 md:hidden">
-            Trend data for{' '}
-            <span className="font-mono font-semibold text-slate-200">{coverage.withData}</span> of{' '}
-            <span className="font-mono font-semibold text-slate-200">{coverage.total}</span>
-          </p>
-
-        </div>
-
-        {saveError && (
-          <div role="alert" className="mt-3 rounded-lg border border-heat-hot/50 bg-heat-surface/80 px-3 py-2 text-xs text-rose-200">
-            {saveError}
-          </div>
-        )}
-
-        {status === 'loading' && (
-          <div aria-busy="true" className="mt-4 space-y-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-14 animate-pulse rounded-xl bg-heat-surface/60" />
-            ))}
-          </div>
-        )}
-        {status === 'error' && (
-          <div role="alert" className="mt-4 rounded-xl border border-heat-hot/50 bg-heat-surface/80 px-3 py-2.5 text-sm">
-            <div className="font-semibold">Could not load trend data</div>
-            <div className="mb-2 text-xs text-slate-400">{error}</div>
-            <button
-              type="button"
-              onClick={() => reload?.()}
-              className="cursor-pointer rounded-[12px] bg-clay-blue px-2.5 py-1 text-xs font-semibold text-white hover:bg-clay-blue-shadow bih-btn"
-            >
-              Try again
-            </button>
-          </div>
-        )}
-        {status === 'ready' && ranked.length === 0 && (
-          <div className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-slate-300">
-            No trend data yet — check back soon.
-          </div>
-        )}
-
-        {readyData && (
-          <DashboardTableRows
-            ranked={ranked}
-            query={query}
-            province={province}
-            savedOnly={savedOnly}
-            savedKeys={savedKeys}
-            canSave={canSave}
-            onToggleSave={toggleSaved}
-            mode={sort}
-            onShowInFinder={showInFinder}
-          />
-        )}
-        </CollapsibleSection>
+            {/* ===== Data sources — the multi-mission proof strip ===== */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-none pb-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#A79C90]">
+                Data sources
+              </span>
+              {['NASA POWER', 'MODIS', 'SEDAC', 'NOAA CDO', 'NOAA ONI'].map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex items-center rounded-full border-none bg-[#F3EFE9] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#8C847A]"
+                >
+                  {name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -818,15 +917,11 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledPrev}
         onClick={() => onChangePage((p) => Math.max(1, p - 1))}
         aria-label="Previous page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
-          disabledPrev
-            ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
-            : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
-        }`}
+        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-[#F3EFE9] px-3 py-1 text-xs font-bold bih-btn ${disabledPrev ? 'text-[#8C847A] disabled:opacity-40 disabled:cursor-not-allowed' : 'text-[#2D2D2D] hover:bg-[#F3EFE9]'}`}
       >
         ← Prev
       </button>
-      <span className="text-xs text-slate-500 shrink-0">
+      <span className="text-xs font-bold text-[#8C847A] shrink-0">
         Page {page} of {totalPages}
       </span>
       <button
@@ -834,11 +929,7 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
         disabled={disabledNext}
         onClick={() => onChangePage((p) => Math.min(totalPages, p + 1))}
         aria-label="Next page of ranking"
-        className={`cursor-pointer min-h-10 shrink-0 rounded-md border px-3 py-1 text-xs font-semibold bih-btn ${
-          disabledNext
-            ? 'border-white/5 text-slate-500 disabled:opacity-40 disabled:cursor-not-allowed'
-            : 'border-white/10 text-slate-200 hover:bg-white/5 hover:text-white'
-        }`}
+        className={`cursor-pointer min-h-10 shrink-0 rounded-[12px] border border-[#F3EFE9] px-3 py-1 text-xs font-bold bih-btn ${disabledNext ? 'text-[#8C847A] disabled:opacity-40 disabled:cursor-not-allowed' : 'text-[#2D2D2D] hover:bg-[#F3EFE9]'}`}
       >
         Next →
       </button>
@@ -846,7 +937,19 @@ function RankingPaginator({ page, totalPages, onChangePage }) {
   )
 }
 
-function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedKeys, canSave, onToggleSave, mode, onShowInFinder = null }) {
+function DashboardTableRows({
+  term,
+  ranked,
+  query,
+  province = 'All',
+  savedOnly,
+  savedKeys,
+  canSave,
+  onToggleSave,
+  mode,
+  onShowInFinder = null,
+  isAnalyst = false,
+}) {
   const [page, setPage] = useState(1)
 
   const searched = useMemo(() => {
@@ -861,9 +964,6 @@ function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedK
       ? savedFiltered
       : savedFiltered.filter((m) => String(m?.province ?? '').trim() === province)
 
-  // Reset to page 1 whenever the filtered list actually changes
-  // (shared province, search, saved-only, or sort mode). Depends on the root
-  // inputs, not the derived `shown` array, which is a new reference every render.
   useEffect(() => {
     setPage(1)
   }, [province, query, savedOnly, savedKeys, ranked])
@@ -873,7 +973,7 @@ function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedK
 
   if (shown.length === 0) {
     return (
-      <div className="mt-4 rounded-xl border border-white/10 bg-heat-surface/70 px-3 py-2.5 text-sm text-slate-300">
+      <div className="mt-4 rounded-[1rem] border-none bg-[#F3EFE9] px-3 py-2.5 text-sm text-[#8C847A]">
         {query.trim()
           ? 'No municipality matches that search.'
           : province !== 'All'
@@ -888,12 +988,12 @@ function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedK
 
   return (
     <div className="mt-4">
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-[#8C847A]">
         {province === 'All'
-          ? `Showing ${rangeStart}–${rangeEnd} of ${shown.length} LGUs (page ${page} of ${totalPages})`
-          : `${shown.length} LGUs in ${province} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
+          ? `Showing ${rangeStart}–${rangeEnd} of ${shown.length} ${term === 'LGUs' ? 'LGUs' : 'municipalities'} (page ${page} of ${totalPages})`
+          : `${shown.length} ${term === 'LGUs' ? 'LGUs' : 'municipalities'} in ${province} — showing ${rangeStart}–${rangeEnd} (page ${page} of ${totalPages})`}
       </p>
-      <span className="block mt-1 text-xs text-slate-500">Significance is a flag, never a filter</span>
+      <span className="block mt-1 text-xs text-[#8C847A]">Significance is a flag, never a filter</span>
       <DashboardTable
         rows={paginated}
         mode={mode}
@@ -901,6 +1001,7 @@ function DashboardTableRows({ ranked, query, province = 'All', savedOnly, savedK
         onToggleSave={onToggleSave}
         canSave={canSave}
         onShowInFinder={onShowInFinder}
+        isAnalyst={isAnalyst}
       />
       <RankingPaginator page={page} totalPages={totalPages} onChangePage={setPage} />
     </div>

@@ -12,10 +12,16 @@ import SettingsScreen from './screens/SettingsScreen.jsx'
 import LandingScreen from './screens/LandingScreen.jsx'
 import NarrationScreen from './screens/NarrationScreen.jsx'
 import useBicolData from './useBicolData'
+import silliSearchLogo from '../assets/Sillie Search.png'
 import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
-import { signInWithGoogle } from './lib/auth'
+import {
+  clearPostAuthRedirect,
+  consumePostAuthRedirect,
+  markPostAuthRedirect,
+  signInWithGoogle,
+} from './lib/auth'
 import { parseRoute, hashFor } from './lib/routes.js'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
@@ -191,6 +197,13 @@ export default function App() {
   const navigate = useCallback(
     (target) => {
       const token = ++navTokenRef.current
+      if (target === 'landing') {
+        try {
+          clearPostAuthRedirect(window.sessionStorage)
+        } catch (error) {
+          console.error('Could not clear the pending sign-in redirect.', error)
+        }
+      }
       // Write side of D-01: publish the route token so a refresh or a Back
       // press agrees with the state set below. pushState rather than a hash
       // assignment because it is silent (no hashchange echo into the
@@ -355,10 +368,43 @@ export default function App() {
   // design (AuthButton and the landing own the error UIs).
   const handleSignIn = useCallback(async () => {
     if (!supabase || !configured) return { error: null }
-    return signInWithGoogle(supabase)
+    try {
+      markPostAuthRedirect(window.sessionStorage)
+    } catch (error) {
+      return { error }
+    }
+
+    try {
+      const result = await signInWithGoogle(supabase)
+      if (result.error) clearPostAuthRedirect(window.sessionStorage)
+      return result
+    } catch (error) {
+      try {
+        clearPostAuthRedirect(window.sessionStorage)
+      } catch (clearError) {
+        console.error('Could not clear the pending sign-in redirect.', clearError)
+      }
+      return { error }
+    }
   }, [supabase, configured])
 
+  // The intent survives Google's full-page OAuth redirect, then is consumed
+  // once when the restored session confirms sign-in.
+  useEffect(() => {
+    if (!user) return
+    try {
+      if (consumePostAuthRedirect(window.sessionStorage)) navigate('map')
+    } catch (error) {
+      console.error('Could not read the pending sign-in redirect.', error)
+    }
+  }, [user, navigate])
+
   const handleSignOut = useCallback(() => {
+    try {
+      clearPostAuthRedirect(window.sessionStorage)
+    } catch (error) {
+      console.error('Could not clear the pending sign-in redirect.', error)
+    }
     if (!supabase) return
     supabase.auth.signOut()
   }, [supabase])
@@ -442,6 +488,8 @@ export default function App() {
             initialSelectedKey={focus?.key ?? null}
             focusToken={focus?.token ?? 0}
             onOpenChatbot={() => setChatOpen(true)}
+            chatbotIcon={silliSearchLogo}
+            chatOpen={chatOpen}
           />
           <QuestsPopover
             userId={user?.id ?? null}
@@ -490,7 +538,11 @@ export default function App() {
       )}
 
       {chatOpen && (
-        <ChatbotModal open={chatOpen} onClose={() => setChatOpen(false)} />
+        <ChatbotModal
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          chatbotIcon={silliSearchLogo}
+        />
       )}
 
       {/* One dialog for the whole app: the first-sign-in gate and the permanent

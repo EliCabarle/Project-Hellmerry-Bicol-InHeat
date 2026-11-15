@@ -23,20 +23,37 @@ import pandas as pd
 
 API_DIR = Path(__file__).resolve().parent
 TRENDS_JSON = API_DIR / "output" / "trends.json"
+# narratives.json holds the DB-synced slopes the app actually displays. output/
+# is gitignored and trends.json goes stale, which silently shifts Moran's I.
+NARRATIVES_JSON = API_DIR.parent / "web" / "public" / "data" / "narratives.json"
 GEOJSON_PATH = (
     API_DIR.parent / "web" / "public" / "data" / "bicol-municipalities.geojson"
 )
 OUT_JSON = API_DIR / "output" / "morans_i.json"
+# Committed copy: output/ is gitignored, so a deploy reads this one instead.
+SNAPSHOT_JSON = API_DIR / "snapshots" / "morans_i.json"
 
 N_PERMUTATIONS = 999
 RANDOM_SEED = 42
 
 
 def load_trends() -> pd.DataFrame:
-    """(name, province) -> slope_c_per_year."""
-    with open(TRENDS_JSON, encoding="utf-8") as f:
-        payload = json.load(f)
-    rows = payload.get("municipalities", [])
+    """(name, province) -> slope_c_per_year, preferring the committed bank."""
+    if NARRATIVES_JSON.exists():
+        with open(NARRATIVES_JSON, encoding="utf-8") as f:
+            payload = json.load(f)
+        rows = [
+            {
+                "name": row.get("name"),
+                "province": row.get("province"),
+                "slope_c_per_year": (row.get("trend") or {}).get("slope_c_per_year"),
+            }
+            for row in payload.get("municipalities", [])
+        ]
+    else:
+        with open(TRENDS_JSON, encoding="utf-8") as f:
+            payload = json.load(f)
+        rows = payload.get("municipalities", [])
     df = pd.DataFrame(rows)
     return df[["name", "province", "slope_c_per_year"]].copy()
 
@@ -237,6 +254,11 @@ def main() -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nWrote {OUT_JSON}")
+    SNAPSHOT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    SNAPSHOT_JSON.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(f"Wrote {SNAPSHOT_JSON}")
 
 
 if __name__ == "__main__":

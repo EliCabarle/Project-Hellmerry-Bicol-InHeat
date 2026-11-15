@@ -271,6 +271,72 @@ export default function App() {
     return () => observer.disconnect()
   }, [screen, navigate])
 
+  // Traversal sync — the read half of D-01/D-03 (URL → state). Back/forward
+  // and any native fragment navigation replay location.hash into app state
+  // through the same grammar a page load uses. One handler on both events,
+  // subscribed once: it reads the latest screen/focusTab/focus through a ref
+  // instead of re-subscribing whenever state changes, and StrictMode's
+  // double-invoked effect adds and removes the same reference symmetrically,
+  // so no listener ever stacks. pushState from navigate() and replaceState
+  // from showOnMap() fire no events, so this runs only on real traversal —
+  // no echo loop back into the writes. Idempotence: one traversal fires
+  // popstate and hashchange back to back, before React has re-rendered, so
+  // after applying, the handler writes the applied state into the ref — the
+  // paired event then matches and returns instead of bumping navTokenRef.
+  const latestRef = useRef({ screen, focusTab, focus })
+  latestRef.current = { screen, focusTab, focus }
+  useEffect(() => {
+    const applyTraversal = () => {
+      const latest = latestRef.current
+      const hash = window.location.hash
+      // D-02: the empty entry is the true first visit. Back past the first
+      // click restores Landing (screen + sub-tab + focus #main); focus is
+      // never part of what an empty hash requests.
+      if (hash === '') {
+        if (latest.screen === 'landing' && latest.focusTab == null) return
+        latestRef.current = { screen: 'landing', focusTab: null, focus: latest.focus }
+        setScreen('landing')
+        setFocusTab(null)
+        focusMain()
+        return
+      }
+      const route = parseRoute(hash)
+      // Unrecognized fragment (#main, #access_token=..., crafted text): inert —
+      // only the whitelist may write state (T-02-01), so a hostile history
+      // entry cannot reach setScreen/setFocus.
+      if (!route) return
+      // Already there? The guard is what keeps the paired popstate+hashchange
+      // fire from double-bumping navTokenRef (and from double-running focusMain).
+      const sameTab =
+        route.screen !== 'dashboard' || (latest.focusTab?.id ?? null) === route.tab
+      const sameMuni =
+        route.muniKey == null || (latest.focus?.key ?? null) === route.muniKey
+      if (latest.screen === route.screen && sameTab && sameMuni) return
+      // Apply exactly what navigate() would, with a fresh nav token so
+      // DashboardScreen's focusTab effect refires (rising-token semantics,
+      // C-05). A hash without a key never clears focus: BicolMap only ever
+      // selects (features are out of write boundary per C-01), so clearing
+      // would desync state from the visible map (C-02).
+      const nextFocusTab =
+        route.screen === 'dashboard' ? { id: route.tab, token: ++navTokenRef.current } : null
+      const nextFocus =
+        route.muniKey != null ? { key: route.muniKey, token: ++navTokenRef.current } : latest.focus
+      latestRef.current = { screen: route.screen, focusTab: nextFocusTab, focus: nextFocus }
+      setScreen(route.screen)
+      setFocusTab(nextFocusTab)
+      if (route.muniKey != null) setFocus(nextFocus)
+      // Landing ↔ app swaps move focus to #main, mirroring navigate()'s
+      // landing/map branches (FLAG-3, C-05).
+      if (route.screen === 'landing' || route.screen === 'map') focusMain()
+    }
+    window.addEventListener('popstate', applyTraversal)
+    window.addEventListener('hashchange', applyTraversal)
+    return () => {
+      window.removeEventListener('popstate', applyTraversal)
+      window.removeEventListener('hashchange', applyTraversal)
+    }
+  }, [focusMain])
+
   // Shared OAuth helper (lib/auth.js) — awaited so the landing CTA can render
   // the failure (FLAG-1); the menu's onSignIn ignores the returned error by
   // design (AuthButton and the landing own the error UIs).

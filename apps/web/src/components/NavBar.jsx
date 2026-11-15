@@ -62,9 +62,9 @@ export default function NavBar({
             src="/mascot_icon.png"
             alt=""
             aria-hidden="true"
-            width="32"
-            height="32"
-            className="h-8 w-8 object-contain"
+            width="40"
+            height="40"
+            className="h-10 w-10 object-cover"
           />
         </span>
         <div className="shrink-0 leading-tight">

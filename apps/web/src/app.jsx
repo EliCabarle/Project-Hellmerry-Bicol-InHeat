@@ -15,19 +15,7 @@ import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
 import { signInWithGoogle } from './lib/auth'
-
-// Deep link: #muni=<encoded joinKey> opens the map with that municipality
-// selected. The skip link targets #main, so only the #muni= prefix counts as a
-// deep link; anything else leaves the hash untracked.
-function parseMuniHash() {
-  const raw = typeof window === 'undefined' ? '' : window.location.hash
-  if (!raw.startsWith('#muni=')) return null
-  try {
-    return decodeURIComponent(raw.slice('#muni='.length)) || null
-  } catch {
-    return null
-  }
-}
+import { parseRoute } from './lib/routes.js'
 
 // UI theme lives on <html data-theme>, so every surface (shell, dashboard, map
 // chrome) flips together. index.html sets it before first paint; this mirrors
@@ -44,20 +32,29 @@ function readTheme() {
 }
 
 export default function App() {
-  // Guests see the landing screen first (lead ruling 2026-11-14: everyone does,
-  // signed-in included). #muni= deep links still open the map directly so
-  // shared links resolve logged-out (h44).
-  const [screen, setScreen] = useState(() => (parseMuniHash() ? 'map' : 'landing'))
+  // The URL hash is the source of truth for the screen a page load restores
+  // (grammar: src/lib/routes.js). Supported tokens: #map, #dashboard, #quests,
+  // #leaderboard, #account, #settings, #landing, plus the legacy
+  // #muni=<encoded joinKey> deep link (shared links resolve logged-out — h44).
+  // An empty hash (first visit) and any unrecognized fragment (#main,
+  // #access_token=..., arbitrary text) are not routes → Landing, for guests
+  // and signed-in users alike (lead ruling 2026-11-14). Parsed once at load;
+  // navigate()/showOnMap() keep the hash in step — that write half is plan 02.
+  const route = parseRoute(typeof window === 'undefined' ? '' : window.location.hash)
+  const [screen, setScreen] = useState(() => route?.screen ?? 'landing')
   // Focus = an LGU the dashboard (or a shared URL) wants the map to select.
   // Token rises on every request so re-clicking the same LGU still refires
   // after the user cleared the selection on the map.
-  const [focus, setFocus] = useState(() => {
-    const key = parseMuniHash()
-    return key ? { key, token: 1 } : null
-  })
+  const [focus, setFocus] = useState(() =>
+    route?.muniKey ? { key: route.muniKey, token: 1 } : null,
+  )
   // External tab control for the Dashboard screen: { id, token }. The menu and
-  // the quests/chatbot/LGU FABs drive the Dashboard through this contract.
-  const [focusTab, setFocusTab] = useState(null)
+  // the quests/chatbot/LGU FABs drive the Dashboard through this contract. A
+  // restored sub-tab arrives with token 1 — DashboardScreen's focusTab effect
+  // consumes id+token on mount, so the token activates the restored tab.
+  const [focusTab, setFocusTab] = useState(() =>
+    route?.screen === 'dashboard' ? { id: route.tab, token: 1 } : null,
+  )
   const [menuOpen, setMenuOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
   const [theme, setTheme] = useState(readTheme)

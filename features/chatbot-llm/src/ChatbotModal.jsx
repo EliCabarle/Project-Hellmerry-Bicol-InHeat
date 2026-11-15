@@ -37,8 +37,10 @@ const MARKDOWN_COMPONENTS = {
   // a table cancels border-collapse, and the bubble needs min-w-0 (see below)
   // for this to clip instead of widening the flex item.
   table: ({ node, ...props }) => (
-    <div className="my-2 overflow-x-auto">
-      <table className="w-full border-collapse text-left text-[13px]" {...props} />
+    <div className="my-2 w-full max-w-full overflow-x-auto rounded-md border border-white/10">
+      {/* w-max min-w-full: fill the bubble when short, scroll when wide. A
+          bare w-full squeezes 6+ columns to one character per line. */}
+      <table className="w-max min-w-full border-collapse text-left text-[13px]" {...props} />
     </div>
   ),
   th: md('th', 'border border-heat-line bg-heat-deep px-2 py-1 font-semibold'),
@@ -64,6 +66,7 @@ export default function ChatbotModal({
   onClose,
   returnFocusTo = null,
   title = 'Silli',
+  chatbotIcon = null,
 }) {
   const previousFocus = useRef(null)
   const dialogRef = useRef(null)
@@ -167,7 +170,7 @@ export default function ChatbotModal({
       />
       <div
         ref={dialogRef}
-        className="fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-white text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:right-auto sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-2rem))] sm:max-h-[70vh] sm:-translate-x-1/2 sm:-translate-y-1/2"
+        className="bih-slide-in-right fixed z-[910] inset-x-3 top-[calc(4.25rem+env(safe-area-inset-top))] bottom-[max(1rem,env(safe-area-inset-bottom))] flex flex-col rounded-2xl border border-white/10 bg-white text-slate-100 shadow-hud backdrop-blur-md bih-scroll sm:inset-x-auto sm:left-auto sm:top-auto sm:right-6 sm:bottom-6 sm:translate-x-0 sm:translate-y-0 sm:max-h-none sm:h-[min(711px,calc(100dvh-3rem))] sm:w-[min(400px,calc(56.25dvh-1.6875rem))]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="chatbot-title"
@@ -175,7 +178,18 @@ export default function ChatbotModal({
       >
         <header className="flex items-center justify-between gap-2 px-4 py-3 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2">
-            <IconRobot className="h-4 w-4 shrink-0 text-heat-eco" aria-hidden="true" />
+            {chatbotIcon ? (
+              // Portrait cut-out: object-cover + object-top frames her face
+              // inside the circle; object-contain would shrink to a sliver.
+              <img
+                src={chatbotIcon}
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 shrink-0 rounded-full object-cover object-top"
+              />
+            ) : (
+              <IconRobot className="h-4 w-4 shrink-0 text-heat-eco" aria-hidden="true" />
+            )}
             <h2
               id="chatbot-title"
               className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200 sm:text-xs"
@@ -197,9 +211,9 @@ export default function ChatbotModal({
               type="button"
               onClick={onClose}
               aria-label="Close chatbot"
-              className="bih-btn inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/10 hover:text-white"
+              className="bih-btn inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/10 hover:text-white"
             >
-              <IconClose className="h-4 w-4" />
+              <IconClose className="h-5 w-5" />
             </button>
           </div>
         </header>
@@ -240,7 +254,7 @@ export default function ChatbotModal({
                     </div>
                   )}
                   <div
-                    className={`min-w-0 max-w-[82%] rounded-xl px-3 py-2 text-sm leading-5 ${
+                    className={`min-w-0 max-w-full rounded-xl px-3 py-2 text-sm leading-5 ${
                       message.role === 'user'
                         ? 'bg-heat-amber text-slate-950'
                         : 'bg-white/10 border border-white/5 text-slate-200'
@@ -261,18 +275,20 @@ export default function ChatbotModal({
                         {copiedId === message.id ? 'Copied!' : 'Copy'}
                       </button>
                     )}
+                    {/* Sources are CORE (CONCEPT 6d): the retrieved chunk paths
+                        behind an answer stay visible under it. Kept inside the
+                        bubble — as a flex sibling the nowrap paths claimed the
+                        row's width and crushed the bubble (and any table). */}
+                    {message.sources?.length > 0 && (
+                      <ul className="mt-1 list-none text-[11px] leading-4 text-slate-400">
+                        {message.sources.map((source) => (
+                          <li key={source} className="truncate">
+                            Source: {source}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {/* Sources are CORE (CONCEPT 6d): the retrieved chunk paths
-                      behind an answer stay visible under it. */}
-                  {message.sources?.length > 0 && (
-                    <ul className="max-w-[82%] list-none self-end text-[11px] leading-4 text-slate-400">
-                      {message.sources.map((source) => (
-                        <li key={source} className="truncate">
-                          Source: {source}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                   {message.role === 'user' && (
                     <div className="shrink-0">
                       <IconRobot className="h-3 w-3 shrink-0 text-slate-500" aria-hidden="true" />
@@ -340,9 +356,9 @@ export default function ChatbotModal({
             <button
               type="submit"
               disabled={!canSend}
-              className="bih-btn shrink-0 cursor-pointer min-h-11 min-w-11 rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-200"
+              className="bih-btn inline-flex shrink-0 cursor-pointer min-h-11 min-w-11 items-center justify-center rounded-md border border-white/10 bg-heat-amber text-slate-950 font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-200"
             >
-              <IconSend className="h-4 w-4" />
+              <IconSend className="h-4 w-4 translate-x-[1px]" />
               <span className="sr-only">Send</span>
             </button>
           </form>

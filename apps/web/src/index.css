@@ -293,6 +293,26 @@ body {
   animation: bih-slide-in-right 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Peeking Silli tab. Tailwind's dark: variant follows the OS, not the app's
+   <html data-theme>, so the two themes are spelled out here instead. */
+.bih-silli-tab {
+  background-color: rgba(255, 255, 255, 0.82);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.bih-silli-tab:hover {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] .bih-silli-tab {
+  background-color: rgba(15, 23, 42, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .bih-silli-tab:hover {
+  background-color: rgba(15, 23, 42, 0.9);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

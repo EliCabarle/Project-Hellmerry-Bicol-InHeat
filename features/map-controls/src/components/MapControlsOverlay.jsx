@@ -819,7 +819,7 @@ function PeekingSilli({ image, onOpen, hidden }) {
             <html data-theme>. Decorative: the tab carries the label. */}
         <p
           aria-hidden="true"
-          className="pointer-events-none absolute right-full top-1/2 mr-3 w-max max-w-[min(16rem,55vw)] -translate-y-1/2 rounded-xl bg-white px-4 py-2 text-sm text-heat-ink shadow-lg"
+          className="pointer-events-none absolute right-full top-1/2 mr-3 hidden w-max max-w-[min(16rem,55vw)] -translate-y-1/2 rounded-xl bg-white px-4 py-2 text-sm text-heat-ink shadow-lg sm:block"
         >
           {SILLI_LINES[line]}
           <span className="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 bg-white" />
@@ -828,7 +828,7 @@ function PeekingSilli({ image, onOpen, hidden }) {
           type="button"
           onClick={onOpen}
           aria-label="Open Silli chatbot"
-          className="bih-peek pointer-events-auto flex h-24 w-20 cursor-pointer items-center justify-center rounded-l-2xl border border-r-0 border-white/10 bg-[#0f172a]/70 shadow-xl backdrop-blur-md transition-all hover:bg-[#0f172a]/90"
+          className="bih-peek bih-silli-tab pointer-events-auto flex h-16 w-14 cursor-pointer items-center justify-center rounded-l-2xl border border-r-0 shadow-xl backdrop-blur-md transition-colors sm:h-24 sm:w-20"
         >
           {image ? (
             // drop-shadow follows the cut-out silhouette, unlike box-shadow
@@ -839,7 +839,7 @@ function PeekingSilli({ image, onOpen, hidden }) {
               className="h-full w-full object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]"
             />
           ) : (
-            <IconRobot className="mb-4 h-6 w-6 text-white/70" />
+            <IconRobot className="mb-2 h-5 w-5 text-slate-300 sm:mb-4 sm:h-6 sm:w-6" />
           )}
         </button>
       </div>

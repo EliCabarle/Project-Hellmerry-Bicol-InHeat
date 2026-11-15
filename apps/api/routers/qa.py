@@ -406,12 +406,13 @@ def tool_get_exposure_summary() -> dict:
 # --------------------------------------------------------------------------- #
 
 API_DIR = Path(__file__).resolve().parents[1]  # apps/api
-REPO_ROOT = API_DIR.parent  # repo root
-# The pipeline writes to apps/api/output/ (gitignored). The web bundle keeps a
-# committed copy of narratives.json under apps/web/public/data/, so search
-# there too: a deployment that ships only apps/web/ still answers.
+REPO_ROOT = API_DIR.parent.parent  # repo root
+# The pipeline writes to apps/api/output/ (gitignored), so a Vercel deploy has
+# none of it. snapshots/ is the committed copy the producers refresh; the web
+# bundle keeps narratives.json under apps/web/public/data/.
 PIPELINE_DIRS = (
     API_DIR / "output",
+    API_DIR / "snapshots",
     REPO_ROOT / "apps" / "web" / "public" / "data",
 )
 

@@ -134,6 +134,22 @@ def build_record(row: dict) -> dict:
         "narration": {"en": row["narration_en"], "fil": row["narration_fil"]},
         "series": series,
         "top_drivers": row.get("top_drivers") or [],
+        # Human impact + ground conditions. push_to_supabase.py already writes
+        # these columns; copy() silently dropped them, so the PWA never saw the
+        # population exposure it needs. .get: an older row may lack a column.
+        "population_2020": row.get("population_2020"),
+        "population_density": row.get("population_density"),
+        "area_km2": row.get("area_km2"),
+        "exposed_flag": row.get("exposed_flag"),
+        "lst_mean_c": row.get("lst_mean_c"),
+        "ndvi_mean": row.get("ndvi_mean"),
+        "elevation_m": row.get("elevation_m"),
+        "distance_to_coast_km": row.get("distance_to_coast_km"),
+        "person_days_danger": row.get("person_days_danger"),
+        "person_days_density": row.get("person_days_density"),
+        "annual_precip_mm_2024": row.get("annual_precip_mm_2024"),
+        "precip_source": row.get("precip_source"),
+        "precip_heat_index_corr_2024": row.get("precip_heat_index_corr_2024"),
     }
 
 

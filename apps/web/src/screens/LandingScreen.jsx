@@ -324,7 +324,7 @@ export default function LandingScreen({ user = null, supabase = null, configured
             {[
               'NASA POWER T2M + RH2M · 1981–2025',
               'Landsat C2 L2 (LST)',
-              'MODIS MOD44B + MCD12Q1',
+              'MODIS MOD44B (tree cover)',
               'SEDAC GPW (exposure)',
             ].map((label) => (
               <li key={label} className="clay-chip px-4 py-1.5 text-clay-ink">
@@ -417,12 +417,6 @@ export default function LandingScreen({ user = null, supabase = null, configured
               {
                 title: 'MODIS MOD44B',
                 line: 'Tree canopy percent, 2000–2023, 250 m resolution.',
-                source: 'NASA',
-                primary: false,
-              },
-              {
-                title: 'MCD12Q1',
-                line: 'Land cover type, IGBP classification per grid cell.',
                 source: 'NASA',
                 primary: false,
               },

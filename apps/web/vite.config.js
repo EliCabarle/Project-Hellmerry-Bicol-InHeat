@@ -18,6 +18,8 @@ const API_PROXY = {
 
 export default defineConfig({
   plugins: [react()],
+  // One .env at the repo root; apps/web/.env no longer exists.
+  envDir: path.resolve(here, '..', '..'),
   // Split vendors so the map's first paint doesn't wait on the chart library
   // (recharts) or vice versa. All three chunks still share one react instance
   // via the aliases above.

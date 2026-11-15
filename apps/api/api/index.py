@@ -10,7 +10,7 @@ Both import roots are put on sys.path:
   - repo root -> `apps.api.routers` resolves as the fallback inside main.py.
 
 On Vercel the secrets come from the project's environment variables and
-apps/api/.env does not exist, so python-dotenv inside main.py is a no-op.
+the repo-root .env does not exist, so python-dotenv inside main.py is a no-op.
 """
 import os
 import sys

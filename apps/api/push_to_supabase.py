@@ -27,7 +27,8 @@ import numbers
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(dotenv_path=BASE_DIR / ".env")
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
+load_dotenv(dotenv_path=ENV_FILE)
 
 # fetch_lst_data.py writes this; missing file just means lst_mean_c stays null.
 LST_CSV = BASE_DIR / "data" / "lst_means.csv"

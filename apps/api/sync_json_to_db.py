@@ -31,11 +31,12 @@ from generate_static_json import danger_band, slugify
 
 ALPHA = 0.05
 ROOT = Path(__file__).resolve().parent
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
 DEFAULT_OUT = ROOT.parent / "web" / "public" / "data" / "narratives.json"
 
 
 def fetch_rows() -> list[dict]:
-    load_dotenv(ROOT / ".env")
+    load_dotenv(ENV_FILE)
     client = create_client(
         os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]
     )

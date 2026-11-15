@@ -18,17 +18,22 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from supabase import create_client
 
 from sync_json_to_db import ROOT, merge_split_years
 
+ENV_FILE = Path(__file__).resolve().parents[2] / ".env"  # repo root
+
 
 def fetch(client) -> list[dict]:
     return (
         client.table("municipality_trends")
-        .select("id,name,province,series,total_danger_days_45y,peak_danger_year,peak_danger_days")
+        .select(
+            "id,name,province,series,total_danger_days_45y,peak_danger_year,peak_danger_days"
+        )
         .execute()
         .data
     )
@@ -45,7 +50,7 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    load_dotenv(ROOT / ".env")
+    load_dotenv(ENV_FILE)
     client = create_client(
         os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_KEY"]
     )
@@ -65,8 +70,13 @@ def main() -> None:
         before = row["series"]
         after = merge_split_years(before)
         total, peak_year, peak_days = aggregates(after)
-        duplicates = sorted({y for y in (p["year"] for p in before)
-                             if [q["year"] for q in before].count(y) > 1})
+        duplicates = sorted(
+            {
+                y
+                for y in (p["year"] for p in before)
+                if [q["year"] for q in before].count(y) > 1
+            }
+        )
         print(
             f"{row['name']} ({row['province']}): {len(before)} -> {len(after)} points, "
             f"duplicate years {duplicates}"

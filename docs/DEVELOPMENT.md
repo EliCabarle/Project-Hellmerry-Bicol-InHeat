@@ -31,7 +31,7 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-4. Create `apps/api/.env` by hand (no `.env.example` exists in the repo). Environment variables are server-side only — never committed, never exposed to the client:
+4. Copy `.env.example` to `.env` at the repo root. Environment variables are server-side only — never committed, never exposed to the client:
 
 | Variable | Required | Purpose |
 |---|---|---|

@@ -80,12 +80,12 @@ npm run preview   # serve the built bundle
   it from `apps/web/`.
 - **Supabase client crash in the browser** — `apps/web/src/lib/supabase.js` reads
   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` unconditionally at module load. If either is
-  unset, create `apps/web/.env.local` with both values (public-by-design; the **anon** key only —
+  unset, add both values to the repo-root `.env` (public-by-design; the **anon** key only —
   never the service-role key). See [CONFIGURATION.md](CONFIGURATION.md).
 - **`uvicorn: command not found` or import errors** — dependencies live in the Python environment:
   run `pip install -r requirements.txt` first, and launch from `apps/api/` (`uvicorn main:app`).
 - **`seed_locations.py` exits immediately** — it hard-fails without `SUPABASE_URL` and a Supabase
-  key in `apps/api/.env`. Create that file first (gitignored; see [CONFIGURATION.md](CONFIGURATION.md)).
+  key in the repo-root `.env`. Create that file first (gitignored; see [CONFIGURATION.md](CONFIGURATION.md)).
 - **Wrong Node/Python version** — Vite 5 needs Node >= 18; the pipeline targets Python 3.10+
   (production pins `3.10.12`). Check with `node --version` and `python --version`.
 

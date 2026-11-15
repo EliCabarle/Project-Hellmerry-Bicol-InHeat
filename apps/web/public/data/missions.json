@@ -1,7 +1,0 @@
-[
-  {"mission": "NASA POWER", "variable": "Heat Index, Wind, Precipitation", "type": "Reanalysis Model", "agency": "NASA"},
-  {"mission": "MODIS (Aqua/Terra)", "variable": "Land Surface Temp, Vegetation (NDVI)", "type": "Satellite Observation", "agency": "NASA"},
-  {"mission": "SEDAC GPWv4", "variable": "Population Exposure", "type": "Demographic Model", "agency": "NASA"},
-  {"mission": "NOAA CDO", "variable": "Station Validation", "type": "Ground Truth", "agency": "NOAA"},
-  {"mission": "NOAA ONI", "variable": "El Niño Index", "type": "Oceanic Index", "agency": "NOAA"}
-]

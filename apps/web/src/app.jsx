@@ -268,6 +268,7 @@ export default function App() {
     const list = document.querySelector('[role="tablist"][aria-label="Dashboard sections"]')
     if (!list) return undefined
     const mirror = () => {
+      if (!list.isConnected) return
       const id = list.querySelector('[role="tab"][aria-selected="true"]')?.id
       if (typeof id === 'string' && id.startsWith('tab-')) navigate(id.slice(4))
     }

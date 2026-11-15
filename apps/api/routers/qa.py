@@ -406,12 +406,13 @@ def tool_get_exposure_summary() -> dict:
 # --------------------------------------------------------------------------- #
 
 API_DIR = Path(__file__).resolve().parents[1]  # apps/api
-REPO_ROOT = API_DIR.parent  # repo root
-# The pipeline writes to apps/api/output/ (gitignored). The web bundle keeps a
-# committed copy of narratives.json under apps/web/public/data/, so search
-# there too: a deployment that ships only apps/web/ still answers.
+REPO_ROOT = API_DIR.parent.parent  # repo root
+# The pipeline writes to apps/api/output/ (gitignored), so a Vercel deploy has
+# none of it. snapshots/ is the committed copy the producers refresh; the web
+# bundle keeps narratives.json under apps/web/public/data/.
 PIPELINE_DIRS = (
     API_DIR / "output",
+    API_DIR / "snapshots",
     REPO_ROOT / "apps" / "web" / "public" / "data",
 )
 
@@ -450,16 +451,10 @@ def tool_get_enso_analysis() -> dict:
         "n_years": data.get("n_years"),
         "year_range": data.get("year_range"),
         "oni_source": data.get("oni_source"),
-        "mean_heat_correlation": {
-            "pearson_r": mean_heat.get("pearson_r"),
-            "p_value": mean_heat.get("p_value"),
-            "significant": mean_heat.get("significant"),
-        },
-        "volatility_correlation": {
-            "pearson_r": volatility.get("pearson_r"),
-            "p_value": volatility.get("p_value"),
-            "significant": volatility.get("significant"),
-        },
+        "mean_r": mean_heat.get("pearson_r"),
+        "mean_p": mean_heat.get("p_value"),
+        "volatility_r": volatility.get("pearson_r"),
+        "volatility_p": volatility.get("p_value"),
         "conclusion": (
             "El Nino makes Bicol's climate more volatile, not hotter on average."
         ),
@@ -473,33 +468,30 @@ def tool_get_enso_analysis() -> dict:
 
 
 def tool_get_change_points() -> dict:
-    """Pettitt change points across the region - when the trend broke."""
-    data = _read_pipeline_json("trends.json")
+    """Pettitt change points across the region - when the trend broke.
+
+    Reads narratives.json: it is the deployed copy and the only file that
+    carries change_point_year (output/trends.json is gitignored and stale).
+    """
+    data = _read_pipeline_json("narratives.json")
     if not data:
         return {
             "found": False,
             "message": "The change-point output is not deployed with this build.",
         }
     municipalities = data.get("municipalities", [])
-    counts: dict[int, int] = {}
-    for row in municipalities:
-        year = row.get("change_point_year")
-        if year is None:
-            continue
-        counts[year] = counts.get(year, 0) + 1
-    dominant = (
-        max(counts.items(), key=lambda item: item[1]) if counts else (None, 0)
+    count = sum(
+        1
+        for row in municipalities
+        if (row.get("trend") or {}).get("change_point_year") == 2012
     )
     return {
-        "found": True,
-        "total_municipalities": len(municipalities),
-        "dominant_change_point_year": dominant[0],
-        "dominant_count": dominant[1],
-        "change_point_2012_count": counts.get(2012, 0),
-        "counts_by_year": {str(k): v for k, v in sorted(counts.items())},
+        "year": 2012,
+        "count": count,
+        "total": len(municipalities),
         "summary": (
-            f"{counts.get(2012, 0)} of {len(municipalities)} municipalities show a "
-            f"structural break in 2012 (Pettitt change-point test)."
+            f"{count} of {len(municipalities)} municipalities show a structural "
+            f"break in 2012 (Pettitt change-point test)."
         ),
     }
 
@@ -515,17 +507,18 @@ def tool_get_moran_clusters() -> dict:
             ),
         }
     clusters = data.get("cluster_counts") or {}
+    p_value = data.get("global_morans_i_p_value")
     return {
         "found": True,
-        "global_morans_i": data.get("global_morans_i"),
-        "p_value": data.get("global_morans_i_p_value"),
+        "global_i": data.get("global_morans_i"),
+        "p_value": "<0.001" if p_value == 0 else p_value,
         "n_municipalities": data.get("n_municipalities"),
         "n_permutations": data.get("n_permutations"),
         "method": data.get("method"),
-        "hh_clusters": clusters.get("HH"),
-        "ll_clusters": clusters.get("LL"),
-        "hl_clusters": clusters.get("HL"),
-        "lh_clusters": clusters.get("LH"),
+        "hh_count": clusters.get("HH"),
+        "ll_count": clusters.get("LL"),
+        "hl_count": clusters.get("HL"),
+        "lh_count": clusters.get("LH"),
         "not_significant": clusters.get("NS"),
         "summary": (
             f"Global Moran's I = {data.get('global_morans_i')} "

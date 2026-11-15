@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+.env
+*.env
+!.env.example
+.DS_Store
+
+# Generated / tool output (never commit)
+graphify-out/
+.graphify/
+.planning/
+.playwright-cli/
+.playwright-mcp/
+.ruff_cache/
+.gsd/
+*.log
+__pycache__/
+*.pyc
+
+.opencode/tmp/
+.vscode/

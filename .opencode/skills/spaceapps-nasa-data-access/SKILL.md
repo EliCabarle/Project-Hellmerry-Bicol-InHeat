@@ -72,7 +72,7 @@ ds = xr.open_mfdataset(files)       # now slice it
 api.nasa.gov, any language:
 
 ```
-https://api.nasa.gov/neo/rest/v1/feed?start_date=2026-11-14&api_key=YOUR_KEY
+https://api.nasa.gov/neo/rest/v1/feed?start_date=11-13-2026&api_key=YOUR_KEY
 ```
 
 GIBS imagery with no auth, straight into a Leaflet or MapLibre layer:

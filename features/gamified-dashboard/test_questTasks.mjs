@@ -52,17 +52,17 @@ test('points stay inside each tier band and are stable per day', () => {
   for (let n = 1; n <= 60; n += 1) {
     for (const tier of ['easy', 'medium', 'hard']) {
       const [lo, hi] = TIER_POINTS[tier]
-      const hp = pointsFor(tier, n, '2026-11-14')
+      const hp = pointsFor(tier, n, '11-13-2026')
       assert.ok(Number.isInteger(hp), `${tier} #${n} is an integer`)
       assert.ok(hp >= lo && hp <= hi, `${tier} #${n} = ${hp} inside ${lo}..${hi}`)
-      assert.equal(pointsFor(tier, n, '2026-11-14'), hp, 'same day is deterministic')
+      assert.equal(pointsFor(tier, n, '11-13-2026'), hp, 'same day is deterministic')
     }
   }
 })
 
 test('draws five, at least two easy, no duplicates, stable per day', () => {
-  const a = drawDaily(CATALOG, '2026-11-14')
-  const b = drawDaily(CATALOG, '2026-11-14')
+  const a = drawDaily(CATALOG, '11-13-2026')
+  const b = drawDaily(CATALOG, '11-13-2026')
   assert.equal(a.length, QUESTS_PER_DAY)
   assert.equal(new Set(a.map((q) => q.id)).size, QUESTS_PER_DAY, 'no duplicates')
   const easy = a.filter((q) => CATALOG.find((t) => `csv-${t.n}` === q.id).tier === 'easy')
@@ -72,8 +72,8 @@ test('draws five, at least two easy, no duplicates, stable per day', () => {
 })
 
 test('next day avoids the previous ids when the pool allows', () => {
-  const day1 = drawDaily(CATALOG, '2026-11-14').map((q) => q.id)
-  const day2 = drawDaily(CATALOG, '2026-11-15', day1).map((q) => q.id)
+  const day1 = drawDaily(CATALOG, '11-13-2026').map((q) => q.id)
+  const day2 = drawDaily(CATALOG, '11-13-2026', day1).map((q) => q.id)
   assert.equal(day2.length, QUESTS_PER_DAY)
   const overlap = day2.filter((id) => day1.includes(id))
   assert.equal(overlap.length, 0, `expected disjoint days, got ${overlap.join(',')}`)
@@ -81,8 +81,8 @@ test('next day avoids the previous ids when the pool allows', () => {
 
 test('a catalog smaller than the quota returns what exists, not a crash', () => {
   const tiny = CATALOG.slice(0, 3)
-  const drawn = drawDaily(tiny, '2026-11-14')
+  const drawn = drawDaily(tiny, '11-13-2026')
   assert.equal(drawn.length, 3)
   assert.equal(new Set(drawn.map((q) => q.id)).size, 3, 'no duplicates in the backfill')
-  assert.deepEqual(drawDaily([], '2026-11-14'), [])
+  assert.deepEqual(drawDaily([], '11-13-2026'), [])
 })

@@ -96,7 +96,7 @@ CORE_PROVENANCE_FILES = {
 }
 CATALOG_PROVENANCE_FILES = {"google-fonts.csv", "phosphor-icons-upstream.json"}
 CATALOG_PROVENANCE_IDS = {
-    "google-fonts-catalog-2026-08-13", "phosphor-icons-catalog-2.1.1",
+    "google-fonts-catalog-11-13-2026", "phosphor-icons-catalog-2.1.1",
 }
 FONT_LICENSES = {"OFL", "APACHE2", "UFL"}
 GOOGLE_FONTS_REVISION = re.compile(r"[0-9a-f]{40}")

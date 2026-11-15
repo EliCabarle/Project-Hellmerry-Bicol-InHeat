@@ -41,7 +41,7 @@ class CatalogRefreshTest(unittest.TestCase):
             "--overrides", overrides or FIXTURES / "google-overrides.json",
             "--output-csv", directory / "google-fonts.csv",
             "--license-output", directory / "google-font-licenses.json",
-            "--verified-at", "2026-08-13",
+            "--verified-at", "11-13-2026",
             "--metadata-revision", "fixture-catalogs-v1",
             "--expected-count", "2",
         ]
@@ -58,7 +58,7 @@ class CatalogRefreshTest(unittest.TestCase):
             "--react-exports-input", react_exports or FIXTURES / "phosphor-react-exports.json",
             "--curated-csv", curated or FIXTURES / "icons-curated.csv",
             "--output", directory / "phosphor-icons-upstream.json",
-            "--verified-at", "2026-08-13",
+            "--verified-at", "11-13-2026",
             "--expected-count", "2",
         ]
 
@@ -101,7 +101,7 @@ class CatalogRefreshTest(unittest.TestCase):
         self.assertEqual(["Alpha Sans", "Zeta Serif"], [item["name"] for item in licenses["families"]])
         self.assertEqual("fixture-catalogs-v1", licenses["source"]["revision"])
         self.assertTrue(all(item["status"] == "active" for item in licenses["families"]))
-        self.assertTrue(all(item["verifiedAt"] == "2026-08-13" for item in licenses["families"]))
+        self.assertTrue(all(item["verifiedAt"] == "11-13-2026" for item in licenses["families"]))
         with tempfile.TemporaryDirectory() as raw:
             reused = Path(raw)
             metadata_path = reused / "metadata.json"
@@ -304,7 +304,7 @@ class CatalogRefreshTest(unittest.TestCase):
             self.assertEqual(output.read_bytes(), (second_path / output.name).read_bytes())
             manifest = json.loads(output.read_text())
         self.assertEqual("2.1.1", manifest["source"]["version"])
-        self.assertEqual(("active", "2026-08-13"), (manifest["status"], manifest["verifiedAt"]))
+        self.assertEqual(("active", "11-13-2026"), (manifest["status"], manifest["verifiedAt"]))
         self.assertEqual(["thin", "light", "regular", "bold", "fill", "duotone"], manifest["weights"])
         self.assertEqual(["acorn", "arrow-left"], [icon["name"] for icon in manifest["icons"]])
         arrow = manifest["icons"][1]

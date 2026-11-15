@@ -1,9 +1,9 @@
--- QA chatbot: hybrid RAG + function calling (CONCEPT 6d, promoted to CORE 2026-11-13)
+-- QA chatbot: hybrid RAG + function calling (CONCEPT 6d, promoted to CORE 11-13-2026)
 --
 -- This migration stores ONLY the unstructured corpus. Structured answers come from
 -- public.municipality_trends through function calling - they are not duplicated here.
 --
--- pgvector is already enabled on this project (verified 2026-11-13 with
+-- pgvector is already enabled on this project (verified 11-13-2026 with
 -- `select '[1,2,3]'::vector`). The `create extension` below is a no-op guard.
 
 create extension if not exists vector;

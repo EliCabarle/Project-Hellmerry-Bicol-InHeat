@@ -2,7 +2,7 @@
 
 > Working title **Bicol In-Heat** — "Be An Earth System Trend Detective!" (2026 NASA Space Apps Challenge).
 > Authoritative concept/decision log: `CONCEPT.md`. This file guides team members and agents.
-> This repository hosts the **working prototype** — code work is expected here. The no-code-before-Nov-14 rule was rescinded by the lead on 2026-11-02 (CONCEPT.md decision log); challenge-weekend cut lines **h30 / h42 / h44** remain hard constraints.
+> This repository hosts the **working prototype** — code work is expected here. The no-code-before-Nov-14 rule was rescinded by the lead on 11-13-2026 (CONCEPT.md decision log); challenge-weekend cut lines **h30 / h42 / h44** remain hard constraints.
 
 ## Layout
 
@@ -27,13 +27,13 @@ What belongs where: UI → `apps/web`; data pulls + statistical math → `core`;
 > Session state / resume guide: [`HANDOFF.md`](HANDOFF.md) — read for decisions and history.
 > **Code map: `## What exists now` below.** Read that before exploring the tree.
 
-## What exists now (verified on disk 2026-11-10)
+## What exists now (verified on disk 11-13-2026)
 
 Read this table before opening any source file. It is the cheapest way to find the code you need.
 
 | Slice / area | Real files | State |
 |---|---|---|
-| `features/map-controls` | `src/BicolMap.jsx`, `src/Municipality3DLayer.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/{engine,yearRamp,lift,trace,countryFrame}.js`, `src/state/timelineStore.js`, `test_{engine,year,lift,trace}.mjs` | **built** — 114 municipality features, trend + year fill modes, significance as border pattern, roving-tabindex keyboard; **2D/3D toggle + hover lift + progressive selection trace added 2026-11-12**; **one-time opening flight: country → study region once per session** |
+| `features/map-controls` | `src/BicolMap.jsx`, `src/Municipality3DLayer.jsx`, `src/components/{MapControlsOverlay,MunicipalityIndex,MunicipalityInfoCard,MunicipalityLegend}.jsx`, `src/components/municipalityTooltip.js(.css)`, `src/gis/{engine,yearRamp,lift,trace,countryFrame}.js`, `src/state/timelineStore.js`, `test_{engine,year,lift,trace}.mjs` | **built** — 114 municipality features, trend + year fill modes, significance as border pattern, roving-tabindex keyboard; **2D/3D toggle + hover lift + progressive selection trace added 11-13-2026**; **one-time opening flight: country → study region once per session** |
 | `features/gamified-dashboard` | `src/RankingScreen.jsx`, `src/components/RankingTable.jsx`, `src/ranking.js`, `src/savedStore.js`, `src/leaderboardStore.js`, `test_ranking.mjs`, `test_saved.mjs` | **built** — slope/danger ordering, flag-not-filter, saved places, public leaderboard read |
 | `features/layer-uhi-terrain` | `AGENTS.md` only | **not started** — layer registry, LST, canopy, land cover |
 | `features/chatbot-llm` | `AGENTS.md` only | **not started** — narrative renderer, glossary, template fallback |
@@ -82,7 +82,7 @@ The working path is a Chrome CDP printer at `%TEMP%\opencode\print.mjs`:
 
 ## Run
 
-Commands below are **verified to exist on disk 2026-11-10**. Root `package.json` has no scripts — run the web app from `apps/web`.
+Commands below are **verified to exist on disk 11-13-2026**. Root `package.json` has no scripts — run the web app from `apps/web`.
 
 - **Web** (`apps/web/`): `npm install` → `npm run dev` (Vite dev server) → `npm run build` (static PWA bundle: manifest + service worker) → `npm run preview`.
 - **API/pipeline** (`apps/api/`): `pip install -r requirements.txt` → `uvicorn main:app --reload` (there is no `__main__` block in `main.py`). ETL runs as scripts from `apps/api`, in order: `fetch_boundaries.py` → `fetch_power_data.py` → `calculate_trends.py` → `calculate_drivers.py` → `generate_static_json.py` → `push_to_supabase.py`. `test_pipeline.py` is the pipeline check; `validate_pagasa.py` is the hold-out validation.
@@ -107,7 +107,7 @@ Config, not secrets (web, public-by-design, guarded by RLS):
 
 No auth needed: NASA POWER API (power.larc.nasa.gov), SEDAC GPW, PSA/PSGC boundaries.
 
-✅ **`.gitignore` now covers `node_modules/`, `dist/`, `build/`, `.env`, `*.env`, `.DS_Store`, `graphify-out/`** (fixed 2026-11-10). `apps/api/.gitignore` has its own rules. Never commit a `.env`; `!.env.example` is the only allowed exception.
+✅ **`.gitignore` now covers `node_modules/`, `dist/`, `build/`, `.env`, `*.env`, `.DS_Store`, `graphify-out/`** (fixed 11-13-2026). `apps/api/.gitignore` has its own rules. Never commit a `.env`; `!.env.example` is the only allowed exception.
 
 Attribution (compliance box 8): PAGASA station data, PSA/PSGC boundaries, fonts/icons, FIRMS attribution notice.
 
@@ -136,7 +136,7 @@ Scope discipline:
 
 - **Exactly ONE challenge** named: Be An Earth System Trend Detective!
 - **Only CORE items (CONCEPT Sect 8) may be claimed** on the project page or video. An unshipped STRETCH item is never presented as a feature.
-- The OUT list is final: no LSTM forecasting, no SMAP, no barangay-level heat index, more variables than Sect 6a, etc. **One exception: runtime LLM is permitted for the server-side `POST /api/qa` endpoint only** (QA chatbot, promoted to CORE 2026-11-13 — CONCEPT 6d + decision log). The client never holds an LLM key.
+- The OUT list is final: no LSTM forecasting, no SMAP, no barangay-level heat index, more variables than Sect 6a, etc. **One exception: runtime LLM is permitted for the server-side `POST /api/qa` endpoint only** (QA chatbot, promoted to CORE 11-13-2026 — CONCEPT 6d + decision log). The client never holds an LLM key.
 
 Science gotchas:
 
@@ -154,8 +154,8 @@ Process gotchas:
 - Every link must resolve in a logged-out private window — test at h44.
 - No minor's name, voice, or likeness in video or materials.
 - Cut lines are hard: h30 (auth), h42 (STRETCH freeze), h44 (video fallback). Do not renegotiate.
-- `.gitignore` populated 2026-11-10 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside the repo-root `.env`.
-- **`maplibre-gl` is the only non-Leaflet map dependency**: declared in `apps/web/package.json` and aliased in `apps/web/vite.config.js` (because `features/` sits outside the Vite root, bare imports need the alias). Cross-boundary dep add approved by the lead 2026-11-12. It is lazy-loaded — never import it from a non-lazy module or the 2D bundle pays for it.
+- `.gitignore` populated 11-13-2026 (`node_modules`, `dist`, `build`, `.env`, `*.env`). Still never write a secret outside the repo-root `.env`.
+- **`maplibre-gl` is the only non-Leaflet map dependency**: declared in `apps/web/package.json` and aliased in `apps/web/vite.config.js` (because `features/` sits outside the Vite root, bare imports need the alias). Cross-boundary dep add approved by the lead 11-13-2026. It is lazy-loaded — never import it from a non-lazy module or the 2D bundle pays for it.
 - Parallel work follows the write-boundary contract below.
 
 ### Role / Write-Boundary Contract
@@ -177,15 +177,15 @@ Rule: an agent or team member writes **only inside its own boundary**; cross-bou
 
 | Item | Status | Notes |
 |---|---|---|
-| Code state of all slices | **Verified 2026-11-12** | See `## What exists now` — map-controls and gamified-dashboard built; layer-uhi-terrain and chatbot-llm contracts only; **2D/3D toggle + hover lift implemented 2026-11-12** |
-| Root `.gitignore` | **Verified** | Populated 2026-11-10; `.env` covered |
+| Code state of all slices | **Verified 11-13-2026** | See `## What exists now` — map-controls and gamified-dashboard built; layer-uhi-terrain and chatbot-llm contracts only; **2D/3D toggle + hover lift implemented 11-13-2026** |
+| Root `.gitignore` | **Verified** | Populated 11-13-2026; `.env` covered |
 | Run commands | **Verified to exist** | `apps/web` has dev/build/preview scripts; `apps/api` has `main.py` + 9 pipeline scripts. Root `package.json` has no scripts |
-| 2D/3D toggle + hover lift | **Verified in-browser 2026-11-12** | Headless Chrome against the dev server: hover lifts exactly one area at `0.30 ×` its own depth, ratio unchanged at z8/z10.5/z13, selection holds lift with no double, fast sweep leaves nothing stale, reduced-motion offset is instant, tooltip + 2D hover + 2D↔3D remount unchanged, FPS 198 vs 202. `node test_lift.mjs` 5 pass |
+| 2D/3D toggle + hover lift | **Verified in-browser 11-13-2026** | Headless Chrome against the dev server: hover lifts exactly one area at `0.30 ×` its own depth, ratio unchanged at z8/z10.5/z13, selection holds lift with no double, fast sweep leaves nothing stale, reduced-motion offset is instant, tooltip + 2D hover + 2D↔3D remount unchanged, FPS 198 vs 202. `node test_lift.mjs` 5 pass |
 | MapLibre bundle split | **Verified** | `maplibre-gl` appears only in the lazy `Municipality3DLayer` chunk (1.06 MB / 288 kB gz); the `index` chunk contains zero MapLibre bytes |
-| 3D selection trace | **Verified in-browser 2026-11-12** | Headless Chrome on `npm run preview`, 1280×800 and 390×844: trace-coloured pixels grow from 0 to 7773 / 141 by 700 ms and plateau to 2 s, 0 after deselect, three selections inside one window settle to one complete outline, reduced motion shows the full outline at 60 ms at the completed count. `node test_trace.mjs` 7 pass. Verified by pixel counts, not by eye |
+| 3D selection trace | **Verified in-browser 11-13-2026** | Headless Chrome on `npm run preview`, 1280×800 and 390×844: trace-coloured pixels grow from 0 to 7773 / 141 by 700 ms and plateau to 2 s, 0 after deselect, three selections inside one window settle to one complete outline, reduced motion shows the full outline at 60 ms at the completed count. `node test_trace.mjs` 7 pass. Verified by pixel counts, not by eye |
 | 3D keyboard picking | **Not implemented** | 3D has no roving-tabindex path to municipalities; the DOM municipality index still selects areas in either mode |
 | Stack decisions (static PWA + Supabase, build-time LLM, RF/SHAP, Theil-Sen/Mann-Kendall) | **CONCEPT-derived** | Authoritative but TENTATIVE — lock hours h0–h22 per CONCEPT Sect 13 |
-| Challenge statement verbatim | **Captured 2026-11-02** | Re-verify live page at h0 (page is JS-rendered) |
+| Challenge statement verbatim | **Captured 11-13-2026** | Re-verify live page at h0 (page is JS-rendered) |
 | Event name + local close time | **Unverified** | Verify at h0 — OPEN in CONCEPT Sect 13 |
 | POWER daily start year (assumed 1981) | **Unverified** | Verify at h6 |
 | PAGASA access route + Region V station list | **Unverified** | Verify at h6 |

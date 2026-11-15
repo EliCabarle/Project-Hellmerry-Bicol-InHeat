@@ -1,6 +1,6 @@
 // Bicol In-Heat — map-controls GIS engine (slices 1 + 3)
 // Pure functions only: boundary normalization, narrative join, styling. No React, no Leaflet here.
-// Boundaries: geoBoundaries PHL ADM1 (simplified) — CC BY 4.0, computed 2026-11-10.
+// Boundaries: geoBoundaries PHL ADM1 (simplified) — CC BY 4.0, computed 11-13-2026.
 // Municipality boundaries: geoBoundaries (PSA/PSGC-aligned, adm3) — CC BY 4.0 (same note as slice 1).
 // Fallback used pending PSA/PSGC official source verification at h6 (CONCEPT 8/13).
 

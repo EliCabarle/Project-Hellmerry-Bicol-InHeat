@@ -24,7 +24,7 @@ node scripts/harness-audit.js <scope> --format <text|json> [--root <path>]
 
 This script is the source of truth for scoring and checks. Do not invent additional dimensions or ad-hoc points.
 
-Rubric version: `2026-05-19`.
+Rubric version: `11-13-2026`.
 
 The script computes up to 12 fixed categories (`0-10` normalized each). The first seven are always applicable; GitHub Integration is always applicable; deploy-target categories are applicable only when a matching marker is detected.
 

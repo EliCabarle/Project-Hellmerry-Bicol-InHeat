@@ -18,13 +18,13 @@ The NASA International Space Apps Challenge is the largest annual global hackath
 
 | Date | What happens |
 |---|---|
-| Aug 26, 2026 | Registration opened |
-| Sep 17, 2026 | Challenge summaries published; team formation opens. Teams can still change until the hackathon closes |
-| Oct 28, 2026 | Full challenge statements released, with the curated Resources lists |
-| Nov 2, 2026 | Space Apps Connect platform opens |
-| Nov 13, 2026 | Judging and Awards Guide plus submission guides published |
+| 11-13-2026 | Registration opened |
+| 11-13-2026 | Challenge summaries published; team formation opens. Teams can still change until the hackathon closes |
+| 11-13-2026 | Full challenge statements released, with the curated Resources lists |
+| 11-13-2026 | Space Apps Connect platform opens |
+| 11-13-2026 | Judging and Awards Guide plus submission guides published |
 | **Nov 14-15, 2026** | **The hackathon. Submission window runs to the local event's stated close** |
-| Nov 30, 2026 | Participant feedback survey due |
+| 11-13-2026 | Participant feedback survey due |
 | Dec 2026 | Global Nominees, Global Finalists, Honorable Mentions announced |
 | Jan 2027 | Global Winners announced |
 

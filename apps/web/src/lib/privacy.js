@@ -3,7 +3,7 @@
 // nothing new to expose through RLS or the leaderboard view, and bumping
 // PRIVACY_VERSION re-asks every account exactly once.
 
-export const PRIVACY_VERSION = '2026-11-14'
+export const PRIVACY_VERSION = '11-13-2026'
 
 // shortcut: placeholder contact, replace before submission
 export const PRIVACY_CONTACT = 'ashronbengimpa9@gmail.com'

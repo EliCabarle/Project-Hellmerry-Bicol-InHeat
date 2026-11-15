@@ -34,7 +34,7 @@ load_dotenv(ENV_FILE, override=True)
 
 router = APIRouter(prefix="/api", tags=["qa"])
 
-# Groq's free tier (1k req/day, OpenAI-compatible). Verified 2026-11-14 against
+# Groq's free tier (1k req/day, OpenAI-compatible). Verified 11-13-2026 against
 # the account's live model list: Llama slugs are not offered there, the GPT-OSS
 # pair is. Groq retires slugs — re-check `models.list()` before demo day.
 CHAT_MODEL = os.environ.get("CHAT_MODEL", "openai/gpt-oss-120b")

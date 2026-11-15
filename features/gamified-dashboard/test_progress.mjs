@@ -99,16 +99,16 @@ test('same Manila day is a no-op; clock backwards is a no-op', () => {
 })
 
 test('Manila midnight boundary: 15:59Z is the old day, 16:00Z the new day', () => {
-  assert.equal(manilaDate(new Date(Date.UTC(2026, 2, 9, 15, 59))), '2026-03-09', '15:59Z = 23:59 Manila')
-  assert.equal(manilaDate(new Date(Date.UTC(2026, 2, 9, 16, 0))), '2026-03-10', '16:00Z = 00:00 Manila')
+  assert.equal(manilaDate(new Date(Date.UTC(2026, 2, 9, 15, 59))), '11-13-2026', '15:59Z = 23:59 Manila')
+  assert.equal(manilaDate(new Date(Date.UTC(2026, 2, 9, 16, 0))), '11-13-2026', '16:00Z = 00:00 Manila')
   let now = new Date(Date.UTC(2026, 2, 9, 15, 59))
   const store = createProgress({ storage: fakeStorage(), now: () => now })
   store.checkIn()
-  assert.equal(store.read()[0].date, '2026-03-09', 'first check-in lands on 03-09')
+  assert.equal(store.read()[0].date, '11-13-2026', 'first check-in lands on 03-09')
   now = new Date(Date.UTC(2026, 2, 9, 16, 0))
   const r = store.checkIn()
   assert2(r.ok && !r.noop, '16:00Z opens a new Manila day')
-  assert.equal(store.read().at(-1).date, '2026-03-10', 'second check-in lands on 03-10')
+  assert.equal(store.read().at(-1).date, '11-13-2026', 'second check-in lands on 03-10')
   assert.equal(store.read().at(-1).hp, 2, 'streak day 2 across the boundary')
 })
 
@@ -168,7 +168,7 @@ test('togglePending refuses an unknown quest id', () => {
 })
 
 test('level boundaries 99/100/999/1000', () => {
-  const ev = (hp) => [{ id: 'a', date: '2026-01-01', kind: 'login', hp, at: 0 }]
+  const ev = (hp) => [{ id: 'a', date: '11-13-2026', kind: 'login', hp, at: 0 }]
   assert.equal(derive(ev(99)).level, 1, '99 HP = level 1')
   assert.equal(derive(ev(100)).level, 2, '100 HP = level 2')
   assert.equal(derive(ev(999)).level, 10, '999 HP = level 10')
@@ -179,7 +179,7 @@ test('level boundaries 99/100/999/1000', () => {
 })
 
 test('title boundaries at levels 10/11, 20/21, 32/33, 64/65, 66/67, 67, 68, 69, 70, 100, 150', () => {
-  const titleAt = (level) => derive([{ id: 'a', date: '2026-01-01', kind: 'login', hp: (level - 1) * 100, at: 0 }]).title
+  const titleAt = (level) => derive([{ id: 'a', date: '11-13-2026', kind: 'login', hp: (level - 1) * 100, at: 0 }]).title
   const cases = [
     [10, 'novice eXplorer'],
     [11, 'Intermediate eXplorer'],
@@ -212,9 +212,9 @@ test('corrupt, missing and malformed storage reads as empty and recovers', () =>
   const partial = JSON.stringify({
     v: 1,
     events: [
-      { id: 'ok', date: '2026-01-01', kind: 'login', hp: 5, at: 1 },
+      { id: 'ok', date: '11-13-2026', kind: 'login', hp: 5, at: 1 },
       { id: 'bad', date: 'junk', kind: 'login', hp: 'x', at: 1 },
-      { kind: 'quest', date: '2026-01-01', hp: 3, at: 1 },
+      { kind: 'quest', date: '11-13-2026', hp: 3, at: 1 },
       42,
     ],
   })
@@ -225,11 +225,11 @@ test('corrupt, missing and malformed storage reads as empty and recovers', () =>
 
 test('derive does not mutate its input; failed writes are not presented as success', () => {
   const list = Object.freeze([
-    Object.freeze({ id: 'a', date: '2026-01-01', kind: 'login', hp: 5, at: 1 }),
-    Object.freeze({ id: 'b', date: '2026-01-01', kind: 'quest', questId: 'bottle', hp: 5, at: 2 }),
+    Object.freeze({ id: 'a', date: '11-13-2026', kind: 'login', hp: 5, at: 1 }),
+    Object.freeze({ id: 'b', date: '11-13-2026', kind: 'quest', questId: 'bottle', hp: 5, at: 2 }),
   ])
   const before = JSON.stringify(list)
-  const d = derive(list, '2026-01-01')
+  const d = derive(list, '11-13-2026')
   assert.equal(JSON.stringify(list), before, 'input log untouched')
   assert.equal(d.totalHP, 10, 'derived from frozen input')
 
@@ -266,11 +266,11 @@ test('HP snapshot survives a config change', () => {
 })
 
 test('recentDays includes every day, zeros included', () => {
-  const days = recentDays('2026-01-10', HISTORY_DAYS)
+  const days = recentDays('11-13-2026', HISTORY_DAYS)
   assert.equal(days.length, 30, '30 days')
   assert.equal(days[0], '2025-12-12', 'oldest first, 29 days before today')
-  assert.equal(days.at(-1), '2026-01-10', 'ends today')
-  const d = derive([], '2026-01-10')
+  assert.equal(days.at(-1), '11-13-2026', 'ends today')
+  const d = derive([], '11-13-2026')
   for (const day of days) assert.equal(d.dayTotals[day] ?? 0, 0, `${day} reads as zero`)
 })
 
@@ -382,7 +382,7 @@ test('restoreTo refuses a negative or missing target instead of writing junk', (
 })
 
 test('weekStart is the Monday of the ISO week', () => {
-  assert.equal(weekStart('2026-01-08'), '2026-01-05', 'Thursday maps to Monday')
-  assert.equal(weekStart('2026-01-05'), '2026-01-05', 'Monday maps to itself')
-  assert.equal(weekStart('2026-01-11'), '2026-01-05', 'Sunday maps back to Monday')
+  assert.equal(weekStart('11-13-2026'), '11-13-2026', 'Thursday maps to Monday')
+  assert.equal(weekStart('11-13-2026'), '11-13-2026', 'Monday maps to itself')
+  assert.equal(weekStart('11-13-2026'), '11-13-2026', 'Sunday maps back to Monday')
 })

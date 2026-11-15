@@ -19,5 +19,4 @@ __pycache__/
 *.pyc
 
 .opencode/tmp/
-recommended_opacity_levels_core_tokens.md
 .vscode/

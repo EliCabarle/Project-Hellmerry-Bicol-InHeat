@@ -53,6 +53,34 @@ export function provinceYearlyMean(municipalities) {
     }))
 }
 
+// 95% CI of the province mean heat index per year. The standard error of the
+// mean needs the sum and the sum of squares, so both are accumulated here
+// rather than trusting a pre-computed band.
+export function yearlyMeanCi95(municipalities) {
+  const byYear = new Map()
+  for (const m of municipalities ?? []) {
+    for (const row of m?.series ?? []) {
+      const year = Number(row?.year)
+      const hi = row?.mean_heat_index_c
+      if (!Number.isFinite(year) || !Number.isFinite(hi)) continue
+      const cell = byYear.get(year) ?? { sum: 0, sumSq: 0, n: 0 }
+      cell.sum += hi
+      cell.sumSq += hi * hi
+      cell.n += 1
+      byYear.set(year, cell)
+    }
+  }
+  return [...byYear]
+    .sort((a, b) => a[0] - b[0])
+    .map(([year, cell]) => {
+      if (cell.n < 2) return { year, ciLow: null, ciHigh: null }
+      const mean = cell.sum / cell.n
+      const variance = (cell.sumSq - (cell.sum * cell.sum) / cell.n) / (cell.n - 1)
+      const se = Math.sqrt(Math.max(0, variance) / cell.n)
+      return { year, ciLow: mean - 1.96 * se, ciHigh: mean + 1.96 * se }
+    })
+}
+
 // Province-mean heat index at `year` vs `year - 1`, as a % change (null when
 // either side is missing — the change KPI shows "—" instead of a made-up 0).
 export function yearOverYearDelta(municipalities, year) {
@@ -132,6 +160,104 @@ export function dangerBandCounts(municipalities) {
     count: (municipalities ?? []).filter((m) => band.test(Number(m?.total_danger_days_45y ?? 0)))
       .length,
   }))
+}
+
+// Person-days of danger: population exposure to days above the danger
+// threshold. The pipeline already computes this per municipality; this only
+// sums what is computed — no exposure figure is derived here.
+export function personDaysDanger(municipalities) {
+  return (municipalities ?? []).reduce(
+    (sum, m) => sum + (Number.isFinite(m?.person_days_danger) ? m.person_days_danger : 0),
+    0,
+  )
+}
+
+// Population of every municipality that has recorded at least one danger day,
+// and the regional total — the denominator an LGU needs beside person-days.
+export function populationExposure(municipalities) {
+  let exposed = 0
+  let total = 0
+  let exposedCount = 0
+  for (const m of municipalities ?? []) {
+    const pop = Number.isFinite(m?.population_2020) ? m.population_2020 : 0
+    total += pop
+    if ((m?.person_days_danger ?? 0) > 0) {
+      exposed += pop
+      exposedCount += 1
+    }
+  }
+  return {
+    exposedPopulation: exposed,
+    exposedCount,
+    totalPopulation: total,
+    exposedSharePct: total > 0 ? Math.round((exposed / total) * 1000) / 10 : null,
+  }
+}
+
+// The largest single person-days figure — the scale for the in-cell bar.
+export function maxPersonDays(municipalities) {
+  return (municipalities ?? []).reduce(
+    (max, m) => Math.max(max, Number.isFinite(m?.person_days_danger) ? m.person_days_danger : 0),
+    0,
+  )
+}
+
+// Mean SHAP share per driver label across every municipality — the regional
+// driver story for the narration panel.
+export function regionalDriverShares(municipalities) {
+  const acc = new Map()
+  for (const m of municipalities ?? []) {
+    for (const d of m?.top_drivers ?? []) {
+      const label = String(d?.label ?? '').trim()
+      if (!label) continue
+      const cell = acc.get(label) ?? { label, sum: 0, n: 0 }
+      const share = Number(d?.share)
+      if (Number.isFinite(share)) {
+        cell.sum += share
+        cell.n += 1
+      }
+      acc.set(label, cell)
+    }
+  }
+  return [...acc.values()]
+    .filter((cell) => cell.n > 0)
+    .map((cell) => ({ label: cell.label, meanShare: cell.sum / cell.n, municipalities: cell.n }))
+    .sort((a, b) => b.meanShare - a.meanShare)
+}
+
+// Regional median of a numeric condition field (LST, NDVI) — the reference a
+// single municipality is compared against.
+export function regionalMedian(municipalities, field) {
+  const values = (municipalities ?? [])
+    .map((m) => m?.[field])
+    .filter((v) => Number.isFinite(v))
+    .sort((a, b) => a - b)
+  if (values.length === 0) return null
+  const mid = Math.floor(values.length / 2)
+  return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2
+}
+
+// How many municipalities show a structural break in each year (Pettitt
+// change-point test, computed in apps/api). Counts only — the year itself
+// comes from the pipeline, never inferred here.
+export function changePointCounts(municipalities) {
+  const counts = new Map()
+  for (const m of municipalities ?? []) {
+    const year = Number(m?.trend?.change_point_year)
+    if (!Number.isFinite(year)) continue
+    counts.set(year, (counts.get(year) ?? 0) + 1)
+  }
+  return [...counts.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([year, count]) => ({ year, count }))
+}
+
+// The dominant break: the year the most municipalities change regime at.
+// Returns null when no municipality carries a change point.
+export function dominantChangePoint(municipalities) {
+  const rows = changePointCounts(municipalities)
+  if (rows.length === 0) return null
+  return rows.reduce((best, r) => (r.count > best.count ? r : best))
 }
 
 // Aggregate driver ranking: for each driver label, the mean of its SHAP shares

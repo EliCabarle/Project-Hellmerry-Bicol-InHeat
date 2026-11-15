@@ -12,6 +12,7 @@ import SettingsScreen from './screens/SettingsScreen.jsx'
 import LandingScreen from './screens/LandingScreen.jsx'
 import NarrationScreen from './screens/NarrationScreen.jsx'
 import useBicolData from './useBicolData'
+import silliSearchLogo from '../assets/Sillie Search.png'
 import useSession from './useSession'
 import { loadMyProfile } from './lib/profile.js'
 import { hasConsent } from './lib/privacy.js'
@@ -442,6 +443,8 @@ export default function App() {
             initialSelectedKey={focus?.key ?? null}
             focusToken={focus?.token ?? 0}
             onOpenChatbot={() => setChatOpen(true)}
+            chatbotIcon={silliSearchLogo}
+            chatOpen={chatOpen}
           />
           <QuestsPopover
             userId={user?.id ?? null}
@@ -490,7 +493,11 @@ export default function App() {
       )}
 
       {chatOpen && (
-        <ChatbotModal open={chatOpen} onClose={() => setChatOpen(false)} />
+        <ChatbotModal
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          chatbotIcon={silliSearchLogo}
+        />
       )}
 
       {/* One dialog for the whole app: the first-sign-in gate and the permanent

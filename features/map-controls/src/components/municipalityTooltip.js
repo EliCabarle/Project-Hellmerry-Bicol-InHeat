@@ -6,9 +6,22 @@ const esc = (s) =>
   String(s ?? '').replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 const fmtInt = (n) => new Intl.NumberFormat('en-US').format(n)
+const fmtDensity = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 })
 const fmtP = (p) => (p == null ? '' : p < 0.001 ? 'p < 0.001' : `p = ${p.toFixed(3)}`)
 const fmtC = (n) => (Number.isFinite(n) ? `${n.toFixed(1)} °C` : '—')
 const arrow = (dir) => (dir === 'increasing' ? '▲' : dir === 'decreasing' ? '▼' : '■')
+
+function populationDensityLine(n) {
+  const density = n.population_density
+  if (typeof density !== 'number' || !Number.isFinite(density)) return ''
+  return (
+    `<div class="bih-tip__row bih-tip__population">` +
+    `<svg class="bih-tip__population-icon" viewBox="0 0 24 24" aria-hidden="true">` +
+    `<circle cx="9" cy="7" r="3"></circle><circle cx="17" cy="8" r="2.5"></circle>` +
+    `<path d="M3.5 20v-1.5a5.5 5.5 0 0 1 11 0V20zM15 14.5a4.5 4.5 0 0 1 5.5 4.3V20h-4"></path>` +
+    `</svg><span>Population density (2020): <b>${fmtDensity.format(density)} people/km²</b></span></div>`
+  )
+}
 
 export function tooltipHtml(
   feature,
@@ -46,6 +59,7 @@ export function tooltipHtml(
       `<div class="bih-tip__name">${name}</div>` +
       `<div class="bih-tip__sub">${provinceLine}</div>` +
       `<div class="bih-tip__row">${valueLine}</div>` +
+      populationDensityLine(n) +
       (slopeLine ? `<div class="bih-tip__row">${slopeLine}</div>` : '') +
       `<div class="bih-tip__row">${sig}</div>` +
       `<div class="bih-tip__row bih-tip__muted">Sample: 1 day</div>`
@@ -71,6 +85,7 @@ export function tooltipHtml(
     `<div class="bih-tip__name">${name}</div>` +
     `<div class="bih-tip__sub">${provinceLine}</div>` +
     (slopeLine ? `<div class="bih-tip__row">${slopeLine}</div>` : '') +
+    populationDensityLine(n) +
     `<div class="bih-tip__row">${sig}</div>` +
     (heat ? `<div class="bih-tip__row">${esc(heat)}</div>` : '') +
     (sample ? `<div class="bih-tip__row bih-tip__muted">${esc(sample)}</div>` : '') +

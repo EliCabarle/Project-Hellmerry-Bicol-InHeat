@@ -631,6 +631,9 @@ export default function Municipality3DLayer({
           properties: { _opacity: 1 - eased, _base: p.depth, _height: PULSE_HEIGHT_M },
           geometry: { type: "Polygon", coordinates: [outer, inner] },
         });
+        // opacity cannot be a data expression on fill-extrusion layers, so set it
+        // directly each frame while the pulse animates.
+        mapRef.current?.setPaintProperty(PULSE, "fill-extrusion-opacity", 1 - eased);
       }
       if (t >= 1) finishPulse();
       else p.raf = requestAnimationFrame(() => animatePulse(gen));
@@ -825,7 +828,10 @@ export default function Municipality3DLayer({
         source: PULSE_SRC,
         paint: {
           "fill-extrusion-color": SELECT_COLOUR,
-          "fill-extrusion-opacity": ["get", "_opacity"],
+          // fill-extrusion-opacity does not accept data expressions in MapLibre;
+          // the single active pulse ring's opacity is set per-frame via
+          // setPaintProperty in animatePulse instead.
+          "fill-extrusion-opacity": 1,
           "fill-extrusion-base": ["get", "_base"],
           "fill-extrusion-height": ["get", "_height"],
         },

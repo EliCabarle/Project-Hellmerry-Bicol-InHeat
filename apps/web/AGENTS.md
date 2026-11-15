@@ -39,6 +39,7 @@
 | Narration screen mount | CORE | todo | web |
 | PWA manifest + service worker | CORE | done — `public/manifest.webmanifest`, `public/sw.js`, icons in `public/icons/` | web |
 | Supabase anon client + auth flag | CORE | todo | web |
+| Privacy notice + consent gate | CORE | done — `src/lib/privacy.js`, `src/components/PrivacyDialog.jsx`, gate owned by `app.jsx`, permanent link in `AppMenu` + Account pill | web |
 | Static-JSON loader | CORE | todo | web |
 | 2 "Try this" demo seeds wired | CORE | todo | web |
 
@@ -48,3 +49,5 @@
 |---|---|---|
 | Scaffolding files 0 lines | Verified | checked on disk 2026-11-02 |
 | Run commands execute | Yes | `npm ci && npm run build && npm run preview` verified 2026-11-12; installable PWA verified in Chrome (SW activated, offline reload renders map + dashboard) |
+| Privacy gate (RA 10173 §16(b) notice, consent before handle) | Yes | Verified 2026-11-14: `node test_privacy.mjs` 4 pass, `npm run build` green, headless Chrome 1440/390 — landing footer link opens the notice, focus starts inside, Escape closes, no overflow, 0 console errors; the first-sign-in gate was exercised with a stubbed session + stubbed `user_profiles`/`user_metadata` (no real account was used). Three placeholders still ship as literals: contact email, accountable person, Supabase region |
+| Privacy notice follows `data-theme` | Yes | Verified 2026-11-15 in headless Chrome at 1440/390, light and dark: panel `#FFFFFF` → `#131D33`, title 15.99:1 / 14.30:1, body 11.42:1 / 10.48:1, links 7.09:1 / 11.64:1; flipping `data-theme` with the dialog open repaints it in place (CSS only, no remount). Uses clay tokens (`bg-clay-white`, `text-clay-text-*`) because `dark-theme.css` redeclares those; a bare `bg-heat-deep` does **not** flip and leaves pale-lavender panels with near-white text |

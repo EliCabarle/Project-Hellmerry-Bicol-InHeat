@@ -22,6 +22,7 @@ import {
 } from "./gis/engine.js";
 import { tooltipHtml } from "./components/municipalityTooltip.js";
 import "./components/municipalityTooltip.css";
+import "./components/satelliteTheme.css";
 import MunicipalityLegend from "./components/MunicipalityLegend.jsx";
 import MapControlsOverlay, {
   usePrefersReducedMotion,
@@ -59,11 +60,28 @@ const IMAGERY_URL =
 const LABELS_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}";
 
+// Satellite basemap: Esri World Imagery + its place/boundary reference overlay.
+// Same keyless provider family as the clay basemap, so the two modes swap
+// without changing attribution rules. Satellite mode also flips the map chrome
+// to dark glassmorphism (see satelliteTheme.css).
+const SATELLITE_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const SATELLITE_LABELS_URL =
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+
 // Country framing centre, derived from the single country-bounds source.
 const COUNTRY_CENTER = [
   (COUNTRY_BOUNDS[0][0] + COUNTRY_BOUNDS[1][0]) / 2,
   (COUNTRY_BOUNDS[0][1] + COUNTRY_BOUNDS[1][1]) / 2,
 ];
+
+// Under reduced motion a camera change is a placement, not a move. A plain
+// fitBounds lands instantly and setView's own `_stop()` cancels whatever flyTo
+// is still running — do not call map.stop() first, it re-applies the interrupted
+// mid-flight view on the next frame and lands after (undoing) this placement.
+function placeAt(map, bounds, options) {
+  map.fitBounds(bounds, { ...options, animate: false });
+}
 
 function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
   const map = useMap();
@@ -73,21 +91,22 @@ function MapViewport({ bicolFeature, selectedFeature, resetToken }) {
     if (resetToken === 0 || !bicolFeature) return;
     const bounds = L.geoJSON(bicolFeature).getBounds();
     if (!bounds.isValid()) return;
-    if (reducedMotion) map.fitBounds(bounds, { padding: [28, 28] });
-    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.65 });
+    // Reduced motion: this effect re-runs when the preference flips, so stop any
+    // move already in flight and place the camera on the destination instead.
+    if (reducedMotion) placeAt(map, bounds, { padding: [28, 28] });
+    else map.flyToBounds(bounds, { padding: [28, 28], duration: 0.55 });
   }, [bicolFeature, map, reducedMotion, resetToken]);
 
   useEffect(() => {
     if (!selectedFeature) return;
     const bounds = L.geoJSON(selectedFeature).getBounds();
     if (!bounds.isValid()) return;
-    if (reducedMotion)
-      map.fitBounds(bounds, { padding: [48, 48], maxZoom: 13.5 });
+    if (reducedMotion) placeAt(map, bounds, { padding: [48, 48], maxZoom: 13.5 });
     else
       map.flyToBounds(bounds, {
         padding: [48, 48],
         maxZoom: 13.5,
-        duration: 0.7,
+        duration: 0.55,
       });
   }, [map, reducedMotion, selectedFeature]);
 
@@ -123,8 +142,12 @@ function MunicipalityLayer({
   selectedProvince,
   provinceCounts,
   onProvinceHover,
+  playing,
 }) {
+  const map = useMap();
   const layerRef = useRef(null);
+  const movingRef = useRef(false); // camera in motion → no tooltips
+  const pointerRef = useRef(null); // last real cursor position, client coords
   const stateRef = useRef({
     selectedKey,
     viewMode,
@@ -133,6 +156,7 @@ function MunicipalityLayer({
     dayValues,
     hoveredProvince,
     selectedProvince,
+    playing,
   });
   const selectRef = useRef(onSelect);
   const prevHoveredRef = useRef(null);
@@ -149,6 +173,7 @@ function MunicipalityLayer({
     dayValues,
     hoveredProvince,
     selectedProvince,
+    playing,
   };
   selectRef.current = onSelect;
 
@@ -161,6 +186,7 @@ function MunicipalityLayer({
         dayValues: stateRef.current.dayValues,
         hoveredProvince: stateRef.current.hoveredProvince,
         selectedProvince: stateRef.current.selectedProvince,
+        playing: stateRef.current.playing,
       }),
     [],
   );
@@ -226,9 +252,8 @@ function MunicipalityLayer({
       (a, b) => b.getBounds().getCenter().lat - a.getBounds().getCenter().lat,
     );
     const delays = entryDelays(items.length);
-    items.forEach((child, i) => {
-      const el = child.getElement();
-      el.animate(
+    const animations = items.map((child, i) =>
+      child.getElement().animate(
         [{ opacity: 0 }, { opacity: 1 }],
         {
           duration: ENTRY_DURATION_MS,
@@ -236,8 +261,11 @@ function MunicipalityLayer({
           easing: "cubic-bezier(0.215, 0.61, 0.355, 1)", // easeOutCubic
           fill: "backwards",
         },
-      );
-    });
+      ),
+    );
+    // Preference turned on mid-wave: finish each area at full opacity (the
+    // settled state) instead of leaving the reveal half-played.
+    return () => animations.forEach((animation) => animation.finish());
   }, [triggerStagger, reducedMotion]);
 
   useEffect(() => {
@@ -255,6 +283,65 @@ function MunicipalityLayer({
       );
     });
   }, [joined, year, viewMode, date, dayValues, provinceCounts]);
+
+  // Leaflet closes a tooltip only on mouseout, which never fires when the camera
+  // moves under a stationary pointer: zooming left one card per hover stacked on
+  // screen, and a legitimate hover lost its card with nothing to reopen it. So
+  // suppress while the camera moves and re-derive the hover from the cursor once
+  // it settles — one card, always for the area actually under the pointer.
+  useEffect(() => {
+    const closeAll = () => {
+      layerRef.current?.eachLayer((child) => child.closeTooltip());
+      // Reclaim tooltips orphaned when the layer group was rebuilt.
+      map
+        .getPane("tooltipPane")
+        ?.querySelectorAll(".leaflet-tooltip")
+        .forEach((el) => el.remove());
+    };
+    const resync = () => {
+      closeAll();
+      const p = pointerRef.current;
+      if (!p) return;
+      // Leaflet has no public hit test; a DOM path maps to its layer via _targets.
+      const el = document.elementFromPoint(p.x, p.y);
+      const owner = map._targets?.[el?._leaflet_id];
+      if (owner?.feature) owner.openTooltip();
+    };
+    const track = (e) => {
+      pointerRef.current = {
+        x: e.originalEvent.clientX,
+        y: e.originalEvent.clientY,
+      };
+    };
+    const leave = () => {
+      pointerRef.current = null;
+    };
+    const start = () => {
+      movingRef.current = true;
+      closeAll();
+    };
+    // One frame after settle, so a late re-dispatched mouseover still falls in
+    // the suppressed window and resync has the final say.
+    const settle = () =>
+      requestAnimationFrame(() => {
+        movingRef.current = false;
+        resync();
+      });
+    map.on("mousemove", track);
+    map.on("mouseout", leave);
+    map.on("zoomstart", start);
+    map.on("movestart", start);
+    map.on("zoomend", settle);
+    map.on("moveend", settle);
+    return () => {
+      map.off("mousemove", track);
+      map.off("mouseout", leave);
+      map.off("zoomstart", start);
+      map.off("movestart", start);
+      map.off("zoomend", settle);
+      map.off("moveend", settle);
+    };
+  }, [map]);
 
   return (
     <GeoJSON
@@ -276,6 +363,12 @@ function MunicipalityLayer({
             opacity: 1,
           },
         );
+
+        // A tooltip can open from a re-dispatched mouseover mid-gesture; the
+        // camera has not settled, so drop it and let resync decide.
+        layer.on("tooltipopen", (event) => {
+          if (movingRef.current) event.target.closeTooltip();
+        });
 
         const select = () => {
           const key = featureKey(feature);
@@ -427,6 +520,11 @@ export default function BicolMap({
     () => activeStore.getState().date,
     () => activeStore.getState().date,
   );
+  const playing = useSyncExternalStore(
+    activeStore.subscribe,
+    () => activeStore.getState().playing,
+    () => activeStore.getState().playing,
+  );
   const derivedTimestamps = useMemo(() => {
     if (timestamps.length > 0) return timestamps;
     const series = narratives?.municipalities?.[0]?.series;
@@ -443,6 +541,10 @@ export default function BicolMap({
       )
     : latestYear;
   const [selectedKey, setSelectedKey] = useState(null);
+  // A selection restored from a URL/history on first load is not a user action,
+  // so the pulse stays silent for it. Subsequent user selections pulse normally.
+  const initialFocusKey =
+    focusToken && initialSelectedKey ? initialSelectedKey : null;
   const [hoveredProvince, setHoveredProvince] = useState(null);
   const [indexOpen, setIndexOpen] = useState(false);
   const [resetToken, setResetToken] = useState(0);
@@ -450,13 +552,29 @@ export default function BicolMap({
   const [renderMode, setRenderMode] = useState("2d");
   const [map3d, setMap3d] = useState(null);
   const [view3d, setView3d] = useState(null);
+  // Basemap is a display choice, independent of the 2D/3D renderer: satellite is
+  // the default on open (dark imagery + dark glass chrome), vector is the light
+  // clay world. The UI theme (light/dark) is separate and owned by the shell.
+  const [basemap, setBasemap] = useState("satellite");
 
   // Remembers the opening flight happened so it never replays this session.
   const opened = useRef(false);
+  // True while the opening flight is still travelling, so a preference flip can
+  // end it where it was going instead of letting it coast.
+  const flightRef = useRef(false);
   // True only on the render right after a 3D→2D switch: the 2D stagger plays
   // strictly on mode switch, never on initial mount or on a scrub.
   const switchTo2dFrom3d = useRef(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  // Leaflet decides once, at map init, whether zoom/pan is eased (_zoomAnimated);
+  // both it and the option have to follow the preference for a live flip to stop
+  // wheel/button zoom from easing. Interaction is untouched — only the easing.
+  useEffect(() => {
+    if (!map) return;
+    map.options.zoomAnimation = !reducedMotion;
+    map._zoomAnimated = !reducedMotion;
+  }, [map, reducedMotion]);
 
   // Hand the current 2D camera to the 3D entity so toggling does not jump.
   const changeRenderMode = (mode) => {
@@ -546,14 +664,26 @@ export default function BicolMap({
   // Runs once per session, only when the map is sized and data is ready.
   // A deep link / preselection skips it and lands on its target instead.
   useEffect(() => {
-    if (!ready || !map || opened.current) return;
+    if (!ready || !map) return;
+    // Preference turned on while the opening flight is under way: land on the
+    // study region now rather than stopping somewhere half-way.
+    if (reducedMotion && flightRef.current) {
+      flightRef.current = false;
+      placeAt(map, STUDY_REGION_BOUNDS, { padding: [28, 28] });
+      return;
+    }
+    if (opened.current) return;
     if (initialSelectedKey) return;
     opened.current = true;
 
     const go = () => {
       if (reducedMotion) {
-        map.fitBounds(STUDY_REGION_BOUNDS, { padding: [28, 28], animate: false });
+        placeAt(map, STUDY_REGION_BOUNDS, { padding: [28, 28] });
       } else {
+        flightRef.current = true;
+        map.once("moveend", () => {
+          flightRef.current = false;
+        });
         map.flyToBounds(STUDY_REGION_BOUNDS, {
           padding: [28, 28],
           duration: FLIGHT_MS / 1000,
@@ -628,7 +758,7 @@ export default function BicolMap({
   };
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full" data-basemap={basemap}>
       <MapContainer
         ref={setMap}
         center={COUNTRY_CENTER}
@@ -645,14 +775,34 @@ export default function BicolMap({
         maxBoundsViscosity={BOUNDS_VISCOSITY}
         className="bih-map-frame h-full w-full"
       >
-        <TileLayer
-          url={IMAGERY_URL}
-          attribution="Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors"
-          maxZoom={18}
-          maxNativeZoom={18}
-          noWrap={true}
-        />
-        <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} noWrap={true} />
+        {basemap === "satellite" ? (
+          <>
+            <TileLayer
+              url={SATELLITE_URL}
+              attribution="Tiles © Esri — Esri, Maxar, Earthstar Geographics"
+              maxZoom={18}
+              maxNativeZoom={18}
+              noWrap={true}
+            />
+            <TileLayer
+              url={SATELLITE_LABELS_URL}
+              maxZoom={18}
+              opacity={0.9}
+              noWrap={true}
+            />
+          </>
+        ) : (
+          <>
+            <TileLayer
+              url={IMAGERY_URL}
+              attribution="Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors"
+              maxZoom={18}
+              maxNativeZoom={18}
+              noWrap={true}
+            />
+            <TileLayer url={LABELS_URL} maxZoom={18} opacity={0.92} noWrap={true} />
+          </>
+        )}
 
         {renderMode === "2d" && (
           <MapViewport
@@ -682,6 +832,7 @@ export default function BicolMap({
             selectedProvince={selectedProvince}
             provinceCounts={provinceCounts}
             onProvinceHover={onProvinceHover}
+            playing={playing}
           />
         )}
       </MapContainer>
@@ -696,6 +847,7 @@ export default function BicolMap({
             year={displayYear}
             initialView={view3d}
             resetToken={resetToken}
+            initialFocusKey={initialFocusKey}
             onSelect={setSelectedKey}
             onReady={setMap3d}
             onUnavailable={() => setRenderMode("2d")}
@@ -708,6 +860,7 @@ export default function BicolMap({
         viewMode={viewMode}
         year={viewMode === "year" ? selectedYear : latestYear}
         date={date}
+        basemap={basemap}
       />
 
       {ready && (
@@ -780,6 +933,8 @@ export default function BicolMap({
         onViewModeChange={changeViewMode}
         renderMode={renderMode}
         onRenderModeChange={changeRenderMode}
+        basemap={basemap}
+        onBasemapChange={setBasemap}
         zoomLimits={zoomLimits}
         dailyReady={dailyReady}
         dailyReason={dailyReason}

@@ -175,6 +175,7 @@ export function getMunicipalityStyle(
     dayValues = null,
     hoveredProvince = null,
     selectedProvince = null,
+    playing = false,
   } = {},
 ) {
   const n = feature?.properties?.narrative
@@ -188,9 +189,10 @@ export function getMunicipalityStyle(
         : trendBase(feature)
   const sig = n.trend?.is_significant
   // A municipality is revealed when its province is under pointer hover or is
-  // the parent province of an active selection. Otherwise its fill is a subtle
-  // tint and its internal boundary stroke is fully transparent.
+  // the parent province of an active selection. During playback, all municipalities
+  // are revealed so the user can see trend changes in real time.
   const revealed =
+    playing ||
     (hoveredProvince &&
       normalizeName(p.province) === normalizeName(hoveredProvince)) ||
     (selectedProvince &&

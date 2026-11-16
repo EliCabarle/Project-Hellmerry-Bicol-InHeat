@@ -224,7 +224,7 @@ export default function NarrationScreen({
           ease: 'none',
           scrollTrigger: {
             trigger: el,
-            scroller: undefined,
+            scroller: root,
             start: 'top bottom',
             end: 'bottom top',
             scrub: true,
@@ -240,7 +240,7 @@ export default function NarrationScreen({
             opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
             scrollTrigger: {
               trigger: section,
-              scroller: undefined,
+              scroller: root,
               start: 'top 85%',
               once: true,
             },
@@ -259,13 +259,18 @@ export default function NarrationScreen({
             ease: 'power2.out',
             scrollTrigger: {
               trigger: bar,
-              scroller: undefined,
+              scroller: root,
               start: 'top 90%',
               once: true,
             },
           }
         )
       })
+
+      // Measure against the real scroller (#main, .bih-scroll) so sections
+      // already in view reveal on mount instead of waiting for a document
+      // scroll that never comes (html/body are overflow-hidden).
+      ScrollTrigger.refresh()
 
       // ── 5. Sad bubbles rise above Sillie Sad — only when significant warming ──
       if (isSad) {
